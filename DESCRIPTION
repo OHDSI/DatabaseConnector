@@ -1,0 +1,11 @@
+Package: DatabaseConnector
+Type: Package
+Title: A wrapper around RJDBC containing drivers for various DBMSs.
+Version: 1.0
+Date: 2014-04-03
+Author: Martijn J. Schuemie and Marc A. Suchard
+Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
+Description: A wrapper around RJDBC containing drivers for various DBMSs.
+Depends:
+    RJDBC
+License: Apache License V2
