@@ -20,10 +20,10 @@
 # @author Martijn Schuemie
 # @author Marc Suchard
 
-#' @title connecte
+#' @title connect
 #'
 #' @description
-#' \code{connectToDatabase} creates a connection to a database server.
+#' \code{connect} creates a connection to a database server.
 #'
 #' @details
 #' This function loads the appropriate database driver, which is included in the library, and connects to the database server.
@@ -44,7 +44,7 @@
 #' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
 #' @examples
-#' conn <- connect(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
+#' conn <- connect(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
 #' dbGetQuery(conn,"SELECT COUNT(*) FROM person")
 #' dbDisconnect(conn)
 #' 
@@ -52,7 +52,7 @@
 #' dbGetQuery(conn,"SELECT COUNT(*) FROM concept")
 #' dbDisconnect(conn)
 #' 
-#' conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="F1r3starter",schema="test")
+#' conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="xxx",schema="test")
 #' dbGetQuery(conn,"SELECT COUNT(*) FROM test_table")
 #' dbDisconnect(conn)
 #' @export
@@ -119,5 +119,61 @@ connect <- function(dbms = "mysql", user, password, server, port, schema){
 			dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
 		return(connection)
 	}
+}
+
+#' @title createConnectionDetails
+#'
+#' @description
+#' \code{createConnectionDetails} creates a list containing all details needed to connect to a database.
+#'
+#' @details
+#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
+#' \code{connectUsingConnectionDetails} function. 
+#' 
+#' @param dbms              The type of DBMS running on the server. Valid values are
+#' \itemize{
+#'   \item{"mysql" for MySQL}
+#'   \item{"oracle" for Oracle}
+#'   \item{"postgresql" for PostgreSQL}
+#'   \item{"sql server" for Microsoft SQL Server}
+#' } 
+#' @param user				The user name used to access the server. For Microsoft SQL Server, this parameter can be omitted to 
+#' use Windows integrated security, which will require installation of the JDBC driver for SQL Server. When not using Windows integrated 
+#' security, the domain can be specified using <mydomain>/<user>.
+#' @param password			The password for that user
+#' @param server			The name or IP-address of the server
+#' @param schema			(optional) The name of the schema to connect to
+#' @return              
+#' A list with all the details needed to connect to a database.
+#' @examples
+#' connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
+#' conn <- connectUsingConnectionDetails(connectionDetails)
+#' dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+#' dbDisconnect(conn)
+#' @export
+createConnectionDetails <- function(dbms = "mysql", user, password, server, port, schema){
+	return(as.list(match.call()))
+}
+
+#' @title connectUsingConnectionDetails
+#'
+#' @description
+#' \code{connectUsingConnectionDetails} connects to a database given the provided details. 
+#'
+#' @details
+#' This function connects to a database given the provided details. The details should be in a list created by
+#' \code{createConnectionDetails}.
+#' 
+#' @param connectionDetails              a list created by the \code{createConnectionDetails} function.
+#' @return              
+#' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
+#' @examples
+#' connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
+#' conn <- connectUsingConnectionDetails(connectionDetails)
+#' dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+#' dbDisconnect(conn)
+#' @export
+connectUsingConnectionDetails <- function(connectionDetails){
+	do.call("connect",connectionDetails)
 }
 

@@ -1,6 +1,6 @@
 \name{connect}
 \alias{connect}
-\title{connecte}
+\title{connect}
 \usage{
 connect(dbms = "mysql", user, password, server, port, schema)
 }
@@ -31,8 +31,7 @@ database-specific manner. This object is used to direct
 commands to the database engine.
 }
 \description{
-\code{connectToDatabase} creates a connection to a database
-server.
+\code{connect} creates a connection to a database server.
 }
 \details{
 This function loads the appropriate database driver, which
@@ -40,7 +39,7 @@ is included in the library, and connects to the database
 server.
 }
 \examples{
-conn <- connect(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
+conn <- connect(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
 dbGetQuery(conn,"SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 
@@ -48,7 +47,7 @@ conn <- connect(dbms="sql server", server="RNDUSRDHIT06.jnj.com",schema="Vocabul
 dbGetQuery(conn,"SELECT COUNT(*) FROM concept")
 dbDisconnect(conn)
 
-conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="F1r3starter",schema="test")
+conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="xxx",schema="test")
 dbGetQuery(conn,"SELECT COUNT(*) FROM test_table")
 dbDisconnect(conn)
 }
