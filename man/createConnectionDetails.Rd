@@ -1,8 +1,8 @@
-\name{connect}
-\alias{connect}
-\title{connect}
+\name{createConnectionDetails}
+\alias{createConnectionDetails}
+\title{createConnectionDetails}
 \usage{
-connect(dbms = "mysql", user, password, server, port, schema)
+createConnectionDetails(dbms = "mysql", user, password, server, port, schema)
 }
 \arguments{
   \item{dbms}{The type of DBMS running on the server. Valid
@@ -29,30 +29,23 @@ connect(dbms = "mysql", user, password, server, port, schema)
   connect to}
 }
 \value{
-An object that extends \code{DBIConnection} in a
-database-specific manner. This object is used to direct
-commands to the database engine.
+A list with all the details needed to connect to a
+database.
 }
 \description{
-\code{connect} creates a connection to a database server.
+\code{createConnectionDetails} creates a list containing
+all details needed to connect to a database.
 }
 \details{
-This function loads the appropriate database driver, which
-is included in the library, and connects to the database
-server.
+This function creates a list containing all details needed
+to connect to a database. The list can then be used in the
+\code{connectUsingConnectionDetails} function.
 }
 \examples{
 \dontrun{
-  conn <- connect(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
+  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
+  conn <- connectUsingConnectionDetails(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
-  dbDisconnect(conn)
-
-  conn <- connect(dbms="sql server", server="RNDUSRDHIT06.jnj.com",schema="Vocabulary")
-  dbGetQuery(conn,"SELECT COUNT(*) FROM concept")
-  dbDisconnect(conn)
-
-  conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="xxx",schema="test")
-  dbGetQuery(conn,"SELECT COUNT(*) FROM test_table")
   dbDisconnect(conn)
 }
 }
