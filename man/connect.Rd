@@ -3,6 +3,7 @@
 \title{connect}
 \usage{
 connect(dbms = "mysql", user, password, server, port, schema)
+connect(connectionDetails)
 }
 \arguments{
   \item{dbms}{The type of DBMS running on the server. Valid
@@ -11,22 +12,25 @@ connect(dbms = "mysql", user, password, server, port, schema)
   PostgreSQL} \item{"sql server" for Microsoft SQL Server}
   }}
 
-  \item{user}{The user name used to access the server. For
+  \item{user}{the user name used to access the server. For
   Microsoft SQL Server, this parameter can be omitted to
   use Windows integrated security, which will require
   installation of the JDBC driver for SQL Server. When not
   using Windows integrated security, the domain can be
   specified using <mydomain>/<user>.}
 
-  \item{password}{The password for that user}
+  \item{password}{the password for that user}
 
-  \item{server}{The name or IP-address of the server}
+  \item{server}{the name or IP-address of the server}
 
-  \item{port}{(optional) The port on the server to connect
+  \item{port}{(optional) the port on the server to connect
   to}
 
-  \item{schema}{(optional) The name of the schema to
+  \item{schema}{(optional) the name of the schema to
   connect to}
+
+  \item{connectionDetails}{an object of class
+  \code{connectionDetails}}
 }
 \value{
 An object that extends \code{DBIConnection} in a

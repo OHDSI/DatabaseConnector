@@ -20,13 +20,15 @@
 # @author Martijn Schuemie
 # @author Marc Suchard
 
-#' @title connect
+
+#' @title createConnectionDetails
 #'
 #' @description
-#' \code{connect} creates a connection to a database server.
+#' \code{createConnectionDetails} creates a list containing all details needed to connect to a database.
 #'
 #' @details
-#' This function loads the appropriate database driver, which is included in the library, and connects to the database server.
+#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
+#' \code{connectUsingConnectionDetails} function. 
 #' 
 #' @param dbms              The type of DBMS running on the server. Valid values are
 #' \itemize{
@@ -43,6 +45,48 @@
 #' @param port				(optional) The port on the server to connect to
 #' @param schema			(optional) The name of the schema to connect to
 #' @return              
+#' A list with all the details needed to connect to a database.
+#' @examples \dontrun{
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
+#'   conn <- connectUsingConnectionDetails(connectionDetails)
+#'   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+#'   dbDisconnect(conn)
+#' }
+#' @export
+createConnectionDetails <- function(dbms = "mysql", user, password, server, port, schema){
+	result <- as.list(match.call())
+	class(result) <- "connectionDetails"
+	return(result)
+}
+
+#' @title connect
+#'
+#' @description
+#' \code{connect} creates a connection to a database server.
+#'
+#' @usage 
+#' connect(dbms = "mysql", user, password, server, port, schema)
+#' connect(connectionDetails)
+#' 
+#' @details
+#' This function loads the appropriate database driver, which is included in the library, and connects to the database server.
+#' 
+#' @param dbms              The type of DBMS running on the server. Valid values are
+#' \itemize{
+#'   \item{"mysql" for MySQL}
+#'   \item{"oracle" for Oracle}
+#'   \item{"postgresql" for PostgreSQL}
+#'   \item{"sql server" for Microsoft SQL Server}
+#' } 
+#' @param user				the user name used to access the server. For Microsoft SQL Server, this parameter can be omitted to 
+#' use Windows integrated security, which will require installation of the JDBC driver for SQL Server. When not using Windows integrated 
+#' security, the domain can be specified using <mydomain>/<user>.
+#' @param password			the password for that user
+#' @param server			the name or IP-address of the server
+#' @param port				(optional) the port on the server to connect to
+#' @param schema			(optional) the name of the schema to connect to
+#' @param connectionDetails	an object of class \code{connectionDetails}
+#' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
 #' @examples \dontrun{
 #'   conn <- connect(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
@@ -58,7 +102,11 @@
 #'   dbDisconnect(conn)
 #' }
 #' @export
-connect <- function(dbms = "mysql", user, password, server, port, schema){
+connect <- function(...){
+	UseMethod("connect") 
+}
+
+connect.default <- function(dbms = "mysql", user, password, server, port, schema){
 	if (dbms == "mysql"){
 		print("Connecting using MySQL driver")
 		pathToJar <- system.file("java", "mysql-connector-java-5.1.18-bin.jar", package="DatabaseConnector")
@@ -123,62 +171,7 @@ connect <- function(dbms = "mysql", user, password, server, port, schema){
 	}
 }
 
-#' @title createConnectionDetails
-#'
-#' @description
-#' \code{createConnectionDetails} creates a list containing all details needed to connect to a database.
-#'
-#' @details
-#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
-#' \code{connectUsingConnectionDetails} function. 
-#' 
-#' @param dbms              The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"sql server" for Microsoft SQL Server}
-#' } 
-#' @param user				The user name used to access the server. For Microsoft SQL Server, this parameter can be omitted to 
-#' use Windows integrated security, which will require installation of the JDBC driver for SQL Server. When not using Windows integrated 
-#' security, the domain can be specified using <mydomain>/<user>.
-#' @param password			The password for that user
-#' @param server			The name or IP-address of the server
-#' @param port				(optional) The port on the server to connect to
-#' @param schema			(optional) The name of the schema to connect to
-#' @return              
-#' A list with all the details needed to connect to a database.
-#' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
-#'   conn <- connectUsingConnectionDetails(connectionDetails)
-#'   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
-#'   dbDisconnect(conn)
-#' }
-#' @export
-createConnectionDetails <- function(dbms = "mysql", user, password, server, port, schema){
-	return(as.list(match.call()))
-}
-
-#' @title connectUsingConnectionDetails
-#'
-#' @description
-#' \code{connectUsingConnectionDetails} connects to a database given the provided details. 
-#'
-#' @details
-#' This function connects to a database given the provided details. The details should be in a list created by
-#' \code{createConnectionDetails}.
-#' 
-#' @param connectionDetails              a list created by the \code{createConnectionDetails} function.
-#' @return              
-#' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
-#' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
-#'   conn <- connectUsingConnectionDetails(connectionDetails)
-#'   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
-#'   dbDisconnect(conn)
-#' }
-#' @export
-connectUsingConnectionDetails <- function(connectionDetails){
+connect.connectionDetails <- function(connectionDetails){
 	dbms = connectionDetails$dbms
 	user = connectionDetails$user
 	password = connectionDetails$password
@@ -187,4 +180,3 @@ connectUsingConnectionDetails <- function(connectionDetails){
 	schema = connectionDetails$schema
 	connect(dbms, user, password, server, port, schema)
 }
-
