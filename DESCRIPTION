@@ -8,4 +8,4 @@ Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: A wrapper around RJDBC containing drivers for various DBMSs.
 Depends:
     RJDBC
-License: Apache License V2
+License: Apache License
