@@ -106,6 +106,7 @@ connect <- function(...){
 	UseMethod("connect") 
 }
 
+#' @export
 connect.default <- function(dbms = "mysql", user, password, server, port, schema){
 	if (dbms == "mysql"){
 		print("Connecting using MySQL driver")
@@ -171,6 +172,7 @@ connect.default <- function(dbms = "mysql", user, password, server, port, schema
 	}
 }
 
+#' @export
 connect.connectionDetails <- function(connectionDetails){
 	dbms = connectionDetails$dbms
 	user = connectionDetails$user
