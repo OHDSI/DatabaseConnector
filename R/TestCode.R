@@ -1,0 +1,30 @@
+
+# Temporary placeholder for testing code until we figure out unit testing with DB and filesys dependencies
+localTestCode <- function(){
+  pw <- ""
+  
+  #Test MySQL:
+  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password=pw,schema="hcup_cdm4")
+  conn <- connect(connectionDetails)
+  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
+  
+  #Test SQL Server without integrated security:
+  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",user="eu/mschuemi",password=pw,schema="cdm4_sim")
+  conn <- connect(connectionDetails)
+  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
+  
+  #Test SQL Server with integrated security:
+  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",schema="cdm4_sim")
+  conn <- connect(connectionDetails)
+  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
+  
+  #Test Oracle:
+  connectionDetails <- createConnectionDetails(dbms="oracle", server="xe",user="system",password=pw,schema="cdm4_sim")
+  conn <- connect(connectionDetails)
+  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
+    
+}

@@ -25,10 +25,6 @@
 #'
 #' @description
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a database.
-#'
-#' @details
-#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
-#' \code{connectUsingConnectionDetails} function. 
 #' 
 #' @param dbms              The type of DBMS running on the server. Valid values are
 #' \itemize{
@@ -37,24 +33,55 @@
 #'   \item{"postgresql" for PostgreSQL}
 #'   \item{"sql server" for Microsoft SQL Server}
 #' } 
-#' @param user				The user name used to access the server. For Microsoft SQL Server, this parameter can be omitted to 
-#' use Windows integrated security, which will require installation of the JDBC driver for SQL Server. When not using Windows integrated 
-#' security, the domain can be specified using <mydomain>/<user>.
-#' @param password			The password for that user
-#' @param server			The name or IP-address of the server
+#' @param user				The user name used to access the server.
+#' @param password		The password for that user
+#' @param server			The name of the server
 #' @param port				(optional) The port on the server to connect to
 #' @param schema			(optional) The name of the schema to connect to
+#'
+#' @details
+#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
+#' \code{connect} function. 
+#' 
+#' Depending on the DBMS, the function arguments have slightly different interpretations:
+#' 
+#' MySQL:
+#' \itemize{
+#'   \item \code{user}. The user name used to access the server
+#'   \item \code{password}. The password for that user
+#'   \item \code{server}. The host name of the server
+#'   \item \code{port}. Specifies the port on the server (default = 3306)
+#'   \item \code{schema}. The database containing the tables
+#' }
+#' 
+#' Oracle:
+#' \itemize{
+#'   \item \code{user}. The user name used to access the server
+#'   \item \code{password}. The password for that user
+#'   \item \code{server}. This field contains the SID, or host and servicename or SID: '<sid>', '<host>/<sid>', '<host>/<service name>'
+#'   \item \code{port}. Specifies the port on the server (default = 1521)
+#'   \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the tables
+#' }
+#' Microsoft SQL Server:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server
+#'   \item \code{port}. Not used for SQL Server
+#'   \item \code{schema}. The database containing the tables
+#' }
+#' 
 #' @return              
 #' A list with all the details needed to connect to a database.
 #' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="F1r3starter",schema="cdm_v4")
-#'   conn <- connectUsingConnectionDetails(connectionDetails)
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   conn <- connect(connectionDetails)
 #'   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
 #'   dbDisconnect(conn)
 #' }
 #' @export
-createConnectionDetails <- function(dbms = "mysql", user, password, server, port, schema){
-	result <- as.list(match.call())
+createConnectionDetails <- function(dbms = "sql server", user, password, server, port, schema){
+	result <- c(list(as.character(match.call()[[1]])),lapply(as.list(match.call())[-1],function(x) eval(x,envir=sys.frame(-3))))
 	class(result) <- "connectionDetails"
 	return(result)
 }
@@ -65,11 +92,8 @@ createConnectionDetails <- function(dbms = "mysql", user, password, server, port
 #' \code{connect} creates a connection to a database server.
 #'
 #' @usage 
-#' connect(dbms = "mysql", user, password, server, port, schema)
+#' connect(dbms = "sql server", user, password, server, port, schema)
 #' connect(connectionDetails)
-#' 
-#' @details
-#' This function loads the appropriate database driver, which is included in the library, and connects to the database server.
 #' 
 #' @param dbms              The type of DBMS running on the server. Valid values are
 #' \itemize{
@@ -78,16 +102,48 @@ createConnectionDetails <- function(dbms = "mysql", user, password, server, port
 #'   \item{"postgresql" for PostgreSQL}
 #'   \item{"sql server" for Microsoft SQL Server}
 #' } 
-#' @param user				the user name used to access the server. For Microsoft SQL Server, this parameter can be omitted to 
-#' use Windows integrated security, which will require installation of the JDBC driver for SQL Server. When not using Windows integrated 
-#' security, the domain can be specified using <mydomain>/<user>.
-#' @param password			the password for that user
-#' @param server			the name or IP-address of the server
-#' @param port				(optional) the port on the server to connect to
-#' @param schema			(optional) the name of the schema to connect to
-#' @param connectionDetails	an object of class \code{connectionDetails}
+#' @param user  			The user name used to access the server.
+#' @param password		The password for that user
+#' @param server			The name of the server
+#' @param port				(optional) The port on the server to connect to
+#' @param schema			(optional) The name of the schema to connect to
+#' @param connectionDetails  an object of class \code{connectionDetails}
+#'
+#' @details
+#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
+#' \code{connect} function. 
+#' 
+#' Depending on the DBMS, the function arguments have slightly different interpretations:
+#' 
+#' MySQL:
+#' \itemize{
+#'   \item \code{user}. The user name used to access the server
+#'   \item \code{password}. The password for that user
+#'   \item \code{server}. The host name of the server
+#'   \item \code{port}. Specifies the port on the server (default = 3306)
+#'   \item \code{schema}. The database containing the tables
+#' }
+#' 
+#' Oracle:
+#' \itemize{
+#'   \item \code{user}. The user name used to access the server
+#'   \item \code{password}. The password for that user
+#'   \item \code{server}. This field contains the SID, or host and servicename or SID: '<sid>', '<host>/<sid>', '<host>/<service name>'
+#'   \item \code{port}. Specifies the port on the server (default = 1521)
+#'   \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the tables
+#' }
+#' Microsoft SQL Server:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server
+#'   \item \code{port}. Not used for SQL Server
+#'   \item \code{schema}. The database containing the tables
+#' }
+#' 
 #' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
+#' 
 #' @examples \dontrun{
 #'   conn <- connect(dbms="mysql", server="localhost",user="root",password="xxx",schema="cdm_v4")
 #'   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
@@ -97,7 +153,7 @@ createConnectionDetails <- function(dbms = "mysql", user, password, server, port
 #'   dbGetQuery(conn,"SELECT COUNT(*) FROM concept")
 #'   dbDisconnect(conn)
 #' 
-#'   conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="xxx",schema="test")
+#'   conn <- connect(dbms="oracle", server="127.0.0.1/xe",user="system",password="xxx",schema="test")
 #'   dbGetQuery(conn,"SELECT COUNT(*) FROM test_table")
 #'   dbDisconnect(conn)
 #' }
@@ -107,24 +163,26 @@ connect <- function(...){
 }
 
 #' @export
-connect.default <- function(dbms = "mysql", user, password, server, port, schema){
+connect.default <- function(dbms = "sql server", user, password, server, port, schema){
 	if (dbms == "mysql"){
-		print("Connecting using MySQL driver")
-		pathToJar <- system.file("java", "mysql-connector-java-5.1.18-bin.jar", package="DatabaseConnector")
+	  writeLines("Connecting using MySQL driver")
+	  if (missing(port)|| is.null(port))
+	    port = "3306"
+		pathToJar <- system.file("java", "mysql-connector-java-5.1.30-bin.jar", package="DatabaseConnector")
 		driver <- JDBC("com.mysql.jdbc.Driver", pathToJar, identifier.quote="`")
-		connection <- dbConnect(driver, paste("jdbc:mysql://",server,sep=""), user, password)
+		connection <- dbConnect(driver, paste("jdbc:mysql://",server,":",port,"/?useCursorFetch=true",sep=""), user, password)
 		if (!missing(schema) && !is.null(schema))
 			dbSendUpdate(connection,paste("USE",schema))
 		return(connection)
 	}	
 	if (dbms == "sql server"){
 		if (missing(user) || is.null(user)) { # Using Windows integrated security
-			print("Connecting using SQL Server driver using Windows integrated security")
+		  writeLines("Connecting using SQL Server driver using Windows integrated security")
 			pathToJar <- system.file("java", "sqljdbc4.jar", package="DatabaseConnector")
 			driver <- JDBC("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
 			connection <- dbConnect(driver, paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep=""))
 		} else { # Using regular user authentication
-			print("Connecting using SQL Server driver")
+		  writeLines("Connecting using SQL Server driver")
 			pathToJar <- system.file("java", "jtds-1.3.0.jar", package="DatabaseConnector")
 			driver <- JDBC("net.sourceforge.jtds.jdbc.Driver", pathToJar)
 			if (grepl("/",user)){
@@ -139,7 +197,7 @@ connect.default <- function(dbms = "mysql", user, password, server, port, schema
 		return(connection)
 	}
 	if (dbms == "oracle"){
-		print("Connecting using Oracle driver")
+	  writeLines("Connecting using Oracle driver")
 		pathToJar <- system.file("java", "ojdbc6.jar", package="DatabaseConnector")
 		driver <- JDBC("oracle.jdbc.driver.OracleDriver", pathToJar)
 		
@@ -156,14 +214,8 @@ connect.default <- function(dbms = "mysql", user, password, server, port, schema
 				parts <-  unlist(strsplit(server,"/"))
 				host = parts[1]
 				sid = parts[2]
-				
-				if (grepl(":",host)){
-					parts <-  unlist(strsplit(host,":"))
-					host = parts[1]
-					port = parts[2]
-				}
 			}
-			print(paste("jdbc:oracle:thin:@",server,":",port,":",sid ,sep=""))
+			#print(paste("jdbc:oracle:thin:@",server,":",port,":",sid ,sep=""))
 			connection <- dbConnect(driver, paste("jdbc:oracle:thin:@",host,":",port,":",sid ,sep=""), user, password)
 		}
 		if (!missing(schema) && !is.null(schema))

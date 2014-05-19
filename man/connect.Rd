@@ -2,7 +2,7 @@
 \alias{connect}
 \title{connect}
 \usage{
-connect(dbms = "mysql", user, password, server, port, schema)
+connect(dbms = "sql server", user, password, server, port, schema)
 connect(connectionDetails)
 }
 \arguments{
@@ -12,21 +12,16 @@ connect(connectionDetails)
   PostgreSQL} \item{"sql server" for Microsoft SQL Server}
   }}
 
-  \item{user}{the user name used to access the server. For
-  Microsoft SQL Server, this parameter can be omitted to
-  use Windows integrated security, which will require
-  installation of the JDBC driver for SQL Server. When not
-  using Windows integrated security, the domain can be
-  specified using <mydomain>/<user>.}
+  \item{user}{The user name used to access the server.}
 
-  \item{password}{the password for that user}
+  \item{password}{The password for that user}
 
-  \item{server}{the name or IP-address of the server}
+  \item{server}{The name of the server}
 
-  \item{port}{(optional) the port on the server to connect
+  \item{port}{(optional) The port on the server to connect
   to}
 
-  \item{schema}{(optional) the name of the schema to
+  \item{schema}{(optional) The name of the schema to
   connect to}
 
   \item{connectionDetails}{an object of class
@@ -41,9 +36,37 @@ commands to the database engine.
 \code{connect} creates a connection to a database server.
 }
 \details{
-This function loads the appropriate database driver, which
-is included in the library, and connects to the database
-server.
+This function creates a list containing all details needed
+to connect to a database. The list can then be used in the
+\code{connect} function.
+
+Depending on the DBMS, the function arguments have slightly
+different interpretations:
+
+MySQL: \itemize{ \item \code{user}. The user name used to
+access the server \item \code{password}. The password for
+that user \item \code{server}. The host name of the server
+\item \code{port}. Specifies the port on the server
+(default = 3306) \item \code{schema}. The database
+containing the tables }
+
+Oracle: \itemize{ \item \code{user}. The user name used to
+access the server \item \code{password}. The password for
+that user \item \code{server}. This field contains the SID,
+or host and servicename or SID: '<sid>', '<host>/<sid>',
+'<host>/<service name>' \item \code{port}. Specifies the
+port on the server (default = 1521) \item \code{schema}.
+This field contains the schema (i.e. 'user' in Oracle
+terms) containing the tables } Microsoft SQL Server:
+\itemize{ \item \code{user}. The user used to log in to the
+server. If the user is not specified, Windows Integrated
+Security will be used, which requires the SQL Server JDBC
+drivers to be installed. Optionally, the domain can be
+specified as <domain>/<user> (e.g. 'MyDomain/Joe') \item
+\code{password}. The password used to log on to the server
+\item \code{server}. This field contains the host name of
+the server \item \code{port}. Not used for SQL Server \item
+\code{schema}. The database containing the tables }
 }
 \examples{
 \dontrun{
@@ -55,7 +78,7 @@ server.
   dbGetQuery(conn,"SELECT COUNT(*) FROM concept")
   dbDisconnect(conn)
 
-  conn <- connect(dbms="oracle", server="127.0.0.1:1521/xe",user="system",password="xxx",schema="test")
+  conn <- connect(dbms="oracle", server="127.0.0.1/xe",user="system",password="xxx",schema="test")
   dbGetQuery(conn,"SELECT COUNT(*) FROM test_table")
   dbDisconnect(conn)
 }
