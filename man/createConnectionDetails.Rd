@@ -64,6 +64,14 @@ specified as <domain>/<user> (e.g. 'MyDomain/Joe') \item
 \item \code{server}. This field contains the host name of
 the server \item \code{port}. Not used for SQL Server \item
 \code{schema}. The database containing the tables }
+
+PostgreSQL: \itemize{ \item \code{user}. The user used to
+log in to the server \item \code{password}. The password
+used to log on to the server \item \code{server}. This
+field contains the host name of the server \item
+\code{port}. Specifies the port on the server (default =
+5432) \item \code{schema}. The database containing the
+tables. Note: schema is not optional for PostgreSQL. }
 }
 \examples{
 \dontrun{

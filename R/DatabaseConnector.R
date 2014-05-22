@@ -71,6 +71,15 @@
 #'   \item \code{schema}. The database containing the tables
 #' }
 #' 
+#' PostgreSQL:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server 
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server
+#'   \item \code{port}. Specifies the port on the server (default = 5432)
+#'   \item \code{schema}. The database containing the tables. Note: schema is not optional for PostgreSQL.
+#' }
+#' 
 #' @return              
 #' A list with all the details needed to connect to a database.
 #' @examples \dontrun{
@@ -141,6 +150,14 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item \code{schema}. The database containing the tables
 #' }
 #' 
+#' PostgreSQL:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server. 
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server
+#'   \item \code{port}. Specifies the port on the server (default = 5432)
+#'   \item \code{schema}. The database containing the tables. Note: schema is not optional for PostgreSQL.
+#' }
 #' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
 #' 
@@ -222,6 +239,18 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
 			dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
 		return(connection)
 	}
+	if (dbms == "postgresql"){
+	  writeLines("Connecting using PostgreSQL driver")
+    if (missing(schema) || is.null(schema)) {
+      stop("Error: Schema name not specified but is required by PostgreSQL")
+    }
+	  if (missing(port)|| is.null(port))
+	    port = "5432"
+	  pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc41.jar", package="DatabaseConnector")
+	  driver <- JDBC("org.postgresql.Driver", pathToJar, identifier.quote="`")
+	  connection <- dbConnect(driver, paste("jdbc:postgresql://",server,":",port,"/",schema,sep=""), user, password)
+	  return(connection)
+	}	
 }
 
 #' @export
