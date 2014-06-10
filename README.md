@@ -5,6 +5,7 @@ A wrapper around RJDBC containing drivers for various DBMSs. Currently included 
 * SQL Server
 * Oracle
 * Postgres
+* Amazon Redshift
 * MySQL
 
 For example:

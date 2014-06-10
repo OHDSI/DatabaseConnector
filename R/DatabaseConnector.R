@@ -31,6 +31,7 @@
 #'   \item{"mysql" for MySQL}
 #'   \item{"oracle" for Oracle}
 #'   \item{"postgresql" for PostgreSQL}
+#'   \item{"redshift" for Amazon Redshift}   
 #'   \item{"sql server" for Microsoft SQL Server}
 #' } 
 #' @param user				The user name used to access the server.
@@ -79,6 +80,14 @@
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables. 
 #' }
+#' Redshift:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server 
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
+#'   \item \code{port}. Specifies the port on the server (default = 5432)
+#'   \item \code{schema}. The schema containing the tables. 
+#'}
 #' 
 #' @return              
 #' A list with all the details needed to connect to a database.
@@ -109,6 +118,7 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item{"mysql" for MySQL}
 #'   \item{"oracle" for Oracle}
 #'   \item{"postgresql" for PostgreSQL}
+#'   \item{"redshift" for Amazon Redshift}
 #'   \item{"sql server" for Microsoft SQL Server}
 #' } 
 #' @param user  			The user name used to access the server.
@@ -151,6 +161,14 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #' }
 #' 
 #' PostgreSQL:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server 
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
+#'   \item \code{port}. Specifies the port on the server (default = 5432)
+#'   \item \code{schema}. The schema containing the tables. 
+#'}
+#' Redshift:
 #' \itemize{
 #'   \item \code{user}. The user used to log in to the server 
 #'   \item \code{password}. The password used to log on to the server
@@ -249,6 +267,23 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
 	  if (missing(port)|| is.null(port))
 	    port = "5432"
 	  pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc41.jar", package="DatabaseConnector")
+	  driver <- JDBC("org.postgresql.Driver", pathToJar, identifier.quote="`")
+	  connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
+	  if (!missing(schema) && !is.null(schema))
+	    dbSendUpdate(connection,paste("SET search_path TO ",schema))
+	  return(connection)
+	}	
+	if (dbms == "redshift"){
+	  writeLines("Connecting using Redshift driver")
+    # Redshift uses old version of the PostgreSQL JDBC driver
+	  if (!grepl("/",server))
+	    stop("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
+	  parts <-  unlist(strsplit(server,"/"))
+	  host = parts[1]
+	  database = parts[2]
+	  if (missing(port)|| is.null(port))
+	    port = "5432"
+	  pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package="DatabaseConnector")
 	  driver <- JDBC("org.postgresql.Driver", pathToJar, identifier.quote="`")
 	  connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
 	  if (!missing(schema) && !is.null(schema))

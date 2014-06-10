@@ -33,4 +33,9 @@ localTestCode <- function(){
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
     
+  #Test Redshift:
+  connectionDetails <- createConnectionDetails(dbms="postgresql", server="localhost/cdm4_sim",user="postgres",password=pw,schema="public")
+  conn <- connect(connectionDetails)
+  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
 }
