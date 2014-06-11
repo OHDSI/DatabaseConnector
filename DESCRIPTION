@@ -7,5 +7,6 @@ Author: Martijn J. Schuemie and Marc A. Suchard
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: A wrapper around RJDBC containing drivers for various DBMSs.
 Depends:
-    RJDBC
+    RJDBC,
+    ff
 License: Apache License
