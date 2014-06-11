@@ -199,7 +199,6 @@ connect <- function(...){
 
 #' @export
 connect.default <- function(dbms = "sql server", user, password, server, port, schema){
-  .jinit(parameters="-Xmx1g", force.init=TRUE)
 	if (dbms == "mysql"){
 	  writeLines("Connecting using MySQL driver")
 	  if (missing(port)|| is.null(port))
