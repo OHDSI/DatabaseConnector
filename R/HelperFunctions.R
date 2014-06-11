@@ -74,7 +74,7 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]]) 
       
-      data <- as.ffdf(convertCharacterToFactor(batch))
+      data <- as.ffdf(batch)
     } else {
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]]) 
