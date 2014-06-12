@@ -204,11 +204,17 @@ connect <- function(...){
 # Singleton pattern to ensire driver is instantiated only once
 jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA){
   key <- paste(driverClass,classPath)
-  if (!(key %in% ls(jdbcDrivers))){
+  if (key %in% ls(jdbcDrivers)){
+    driver <- get(key,jdbcDrivers)
+    if (is.jnull(driver@jdrv)){
+      driver <- JDBC(driverClass, classPath, identifier.quote)
+      assign(key,driver,envir = jdbcDrivers)
+    }
+  } else {
     driver <- JDBC(driverClass, classPath, identifier.quote)
     assign(key,driver,envir = jdbcDrivers)    
   }
-  get(key,jdbcDrivers)
+  driver
 }
 
 #' @export
