@@ -20,6 +20,10 @@
 # @author Martijn Schuemie
 # @author Marc Suchard
 
+.onLoad <- function(libname, pkgname){
+  jdbcDrivers <<- new.env()
+}
+
 
 #' @title createConnectionDetails
 #'
@@ -99,9 +103,9 @@
 #' }
 #' @export
 createConnectionDetails <- function(dbms = "sql server", user, password, server, port, schema){
-	result <- c(list(as.character(match.call()[[1]])),lapply(as.list(match.call())[-1],function(x) eval(x,envir=sys.frame(-3))))
-	class(result) <- "connectionDetails"
-	return(result)
+  result <- c(list(as.character(match.call()[[1]])),lapply(as.list(match.call())[-1],function(x) eval(x,envir=sys.frame(-3))))
+  class(result) <- "connectionDetails"
+  return(result)
 }
 
 #' @title connect
@@ -194,111 +198,121 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #' }
 #' @export
 connect <- function(...){
-	UseMethod("connect") 
+  UseMethod("connect") 
+}
+
+# Singleton pattern to ensire driver is instantiated only once
+jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA){
+  key <- paste(driverClass,classPath)
+  if (!(key %in% ls(jdbcDrivers))){
+    driver <- JDBC(driverClass, classPath, identifier.quote)
+    assign(key,driver,envir = jdbcDrivers)    
+  }
+  get(key,jdbcDrivers)
 }
 
 #' @export
 connect.default <- function(dbms = "sql server", user, password, server, port, schema){
-	if (dbms == "mysql"){
-	  writeLines("Connecting using MySQL driver")
-	  if (missing(port)|| is.null(port))
-	    port = "3306"
-		pathToJar <- system.file("java", "mysql-connector-java-5.1.30-bin.jar", package="DatabaseConnector")
-		driver <- JDBC("com.mysql.jdbc.Driver", pathToJar, identifier.quote="`")
-		connection <- dbConnect(driver, paste("jdbc:mysql://",server,":",port,"/?useCursorFetch=true",sep=""), user, password)
-		if (!missing(schema) && !is.null(schema))
-			dbSendUpdate(connection,paste("USE",schema))
-		return(connection)
-	}	
-	if (dbms == "sql server"){
-		if (missing(user) || is.null(user)) { # Using Windows integrated security
-		  writeLines("Connecting using SQL Server driver using Windows integrated security")
-			pathToJar <- system.file("java", "sqljdbc4.jar", package="DatabaseConnector")
-			driver <- JDBC("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
-			connection <- dbConnect(driver, paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep=""))
-		} else { # Using regular user authentication
-		  writeLines("Connecting using SQL Server driver")
-			pathToJar <- system.file("java", "jtds-1.3.0.jar", package="DatabaseConnector")
-			driver <- JDBC("net.sourceforge.jtds.jdbc.Driver", pathToJar)
-			if (grepl("/",user)){
-				parts <-  unlist(strsplit(user,"/"))
-				connection <- dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,";domain=",parts[1],sep=""), parts[2], password)
-			} else {
-				connection <- dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,sep=""), user, password)
-			}
-		}
-		if (!missing(schema) && !is.null(schema))
-			dbSendUpdate(connection,paste("USE",schema))
-		return(connection)
-	}
-	if (dbms == "oracle"){
-	  writeLines("Connecting using Oracle driver")
-		pathToJar <- system.file("java", "ojdbc6.jar", package="DatabaseConnector")
-		driver <- JDBC("oracle.jdbc.driver.OracleDriver", pathToJar)
-		
-		# First try OCI driver:
-		result <- class(try(connection <- dbConnect(driver, paste("jdbc:oracle:oci8:@",server,sep=""), user, password),silent=TRUE))[1]
-		
-		# Next, try THIN driver:
-		if (result =="try-error"){
-			if (missing(port)|| is.null(port))
-				port = "1521"
-			host = "127.0.0.1"	
-			sid = server
-			if (grepl("/",server)){
-				parts <-  unlist(strsplit(server,"/"))
-				host = parts[1]
-				sid = parts[2]
-			}
-			#print(paste("jdbc:oracle:thin:@",server,":",port,":",sid ,sep=""))
-			connection <- dbConnect(driver, paste("jdbc:oracle:thin:@",host,":",port,":",sid ,sep=""), user, password)
-		}
-		if (!missing(schema) && !is.null(schema))
-			dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
-		return(connection)
-	}
-	if (dbms == "postgresql"){
-	  writeLines("Connecting using PostgreSQL driver")
-	  if (!grepl("/",server))
+  if (dbms == "mysql"){
+    writeLines("Connecting using MySQL driver")
+    if (missing(port)|| is.null(port))
+      port = "3306"
+    pathToJar <- system.file("java", "mysql-connector-java-5.1.30-bin.jar", package="DatabaseConnector")
+    driver <- jdbcSingleton("com.mysql.jdbc.Driver", pathToJar, identifier.quote="`")
+    connection <- dbConnect(driver, paste("jdbc:mysql://",server,":",port,"/?useCursorFetch=true",sep=""), user, password)
+    if (!missing(schema) && !is.null(schema))
+      dbSendUpdate(connection,paste("USE",schema))
+    return(connection)
+  }	
+  if (dbms == "sql server"){
+    if (missing(user) || is.null(user)) { # Using Windows integrated security
+      writeLines("Connecting using SQL Server driver using Windows integrated security")
+      pathToJar <- system.file("java", "sqljdbc4.jar", package="DatabaseConnector")
+      driver <- jdbcSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
+      connection <- dbConnect(driver, paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep=""))
+    } else { # Using regular user authentication
+      writeLines("Connecting using SQL Server driver")
+      pathToJar <- system.file("java", "jtds-1.3.0.jar", package="DatabaseConnector")
+      driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
+      if (grepl("/",user)){
+        parts <-  unlist(strsplit(user,"/"))
+        connection <- dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,";domain=",parts[1],sep=""), parts[2], password)
+      } else {
+        connection <- dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,sep=""), user, password)
+      }
+    }
+    if (!missing(schema) && !is.null(schema))
+      dbSendUpdate(connection,paste("USE",schema))
+    return(connection)
+  }
+  if (dbms == "oracle"){
+    writeLines("Connecting using Oracle driver")
+    pathToJar <- system.file("java", "ojdbc6.jar", package="DatabaseConnector")
+    driver <- jdbcSingleton("oracle.jdbc.driver.OracleDriver", pathToJar)
+    
+    # First THIN driver:
+    if (missing(port)|| is.null(port))
+      port = "1521"
+    host = "127.0.0.1"	
+    sid = server
+    if (grepl("/",server)){
+      parts <-  unlist(strsplit(server,"/"))
+      host = parts[1]
+      sid = parts[2]
+    }
+    result <- class(try(connection <- dbConnect(driver, paste("jdbc:oracle:thin:@",host,":",port,":",sid ,sep=""), user, password),silent=TRUE))[1]
+    
+    
+    # Next try OCI driver:
+    if (result =="try-error")
+      connection <- dbConnect(driver, paste("jdbc:oracle:oci8:@",server,sep=""), user, password)    
+    
+    if (!missing(schema) && !is.null(schema))
+      dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
+    return(connection)
+  }
+  if (dbms == "postgresql"){
+    writeLines("Connecting using PostgreSQL driver")
+    if (!grepl("/",server))
       stop("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
-	  parts <-  unlist(strsplit(server,"/"))
-	  host = parts[1]
-	  database = parts[2]
-	  if (missing(port)|| is.null(port))
-	    port = "5432"
-	  pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc41.jar", package="DatabaseConnector")
-	  driver <- JDBC("org.postgresql.Driver", pathToJar, identifier.quote="`")
-	  connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
-	  if (!missing(schema) && !is.null(schema))
-	    dbSendUpdate(connection,paste("SET search_path TO ",schema))
-	  return(connection)
-	}	
-	if (dbms == "redshift"){
-	  writeLines("Connecting using Redshift driver")
+    parts <-  unlist(strsplit(server,"/"))
+    host = parts[1]
+    database = parts[2]
+    if (missing(port)|| is.null(port))
+      port = "5432"
+    pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc41.jar", package="DatabaseConnector")
+    driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
+    connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
+    if (!missing(schema) && !is.null(schema))
+      dbSendUpdate(connection,paste("SET search_path TO ",schema))
+    return(connection)
+  }	
+  if (dbms == "redshift"){
+    writeLines("Connecting using Redshift driver")
     # Redshift uses old version of the PostgreSQL JDBC driver
-	  if (!grepl("/",server))
-	    stop("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
-	  parts <-  unlist(strsplit(server,"/"))
-	  host = parts[1]
-	  database = parts[2]
-	  if (missing(port)|| is.null(port))
-	    port = "5432"
-	  pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package="DatabaseConnector")
-	  driver <- JDBC("org.postgresql.Driver", pathToJar, identifier.quote="`")
-	  connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
-	  if (!missing(schema) && !is.null(schema))
-	    dbSendUpdate(connection,paste("SET search_path TO ",schema))
-	  return(connection)
-	}	
+    if (!grepl("/",server))
+      stop("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
+    parts <-  unlist(strsplit(server,"/"))
+    host = parts[1]
+    database = parts[2]
+    if (missing(port)|| is.null(port))
+      port = "5432"
+    pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package="DatabaseConnector")
+    driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
+    connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
+    if (!missing(schema) && !is.null(schema))
+      dbSendUpdate(connection,paste("SET search_path TO ",schema))
+    return(connection)
+  }	
 }
 
 #' @export
 connect.connectionDetails <- function(connectionDetails){
-	dbms = connectionDetails$dbms
-	user = connectionDetails$user
-	password = connectionDetails$password
-	server = connectionDetails$server
-	port = connectionDetails$port
-	schema = connectionDetails$schema
-	connect(dbms, user, password, server, port, schema)
+  dbms = connectionDetails$dbms
+  user = connectionDetails$user
+  password = connectionDetails$password
+  server = connectionDetails$server
+  port = connectionDetails$port
+  schema = connectionDetails$schema
+  connect(dbms, user, password, server, port, schema)
 }

@@ -4,7 +4,7 @@ localTestCode <- function(){
   pw <- ""
   
   #Test MySQL:
-  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password=pw,schema="hcup_cdm4")
+  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password=pw,schema="fake_data")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
