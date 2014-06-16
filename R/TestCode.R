@@ -28,7 +28,7 @@ localTestCode <- function(){
   dbDisconnect(conn)
   
   #Test PostgreSQL:
-  connectionDetails <- createConnectionDetails(dbms="postgresql", server="localhost/cdm4_sim",user="postgres",password=pw,schema="public")
+  connectionDetails <- createConnectionDetails(dbms="postgresql", server="localhost/ohdsi",user="postgres",password=pw,schema="cdm4_sim")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)

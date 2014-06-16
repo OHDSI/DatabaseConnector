@@ -204,11 +204,17 @@ connect <- function(...){
 # Singleton pattern to ensire driver is instantiated only once
 jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA){
   key <- paste(driverClass,classPath)
-  if (!(key %in% ls(jdbcDrivers))){
+  if (key %in% ls(jdbcDrivers)){
+    driver <- get(key,jdbcDrivers)
+    if (is.jnull(driver@jdrv)){
+      driver <- JDBC(driverClass, classPath, identifier.quote)
+      assign(key,driver,envir = jdbcDrivers)
+    }
+  } else {
     driver <- JDBC(driverClass, classPath, identifier.quote)
     assign(key,driver,envir = jdbcDrivers)    
   }
-  get(key,jdbcDrivers)
+  driver
 }
 
 #' @export
@@ -232,7 +238,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       connection <- dbConnect(driver, paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep=""))
     } else { # Using regular user authentication
       writeLines("Connecting using SQL Server driver")
-      pathToJar <- system.file("java", "jtds-1.3.0.jar", package="DatabaseConnector")
+      pathToJar <- system.file("java", "jtds-1.2.7.jar", package="DatabaseConnector")
       driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
       if (grepl("/",user)){
         parts <-  unlist(strsplit(user,"/"))
@@ -280,7 +286,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     database = parts[2]
     if (missing(port)|| is.null(port))
       port = "5432"
-    pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc41.jar", package="DatabaseConnector")
+    pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc4.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
     connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
