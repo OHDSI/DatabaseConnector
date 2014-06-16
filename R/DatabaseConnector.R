@@ -69,7 +69,7 @@
 #' }
 #' Microsoft SQL Server:
 #' \itemize{
-#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
+#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
 #'   \item \code{password}. The password used to log on to the server
 #'   \item \code{server}. This field contains the host name of the server
 #'   \item \code{port}. Not used for SQL Server
@@ -92,6 +92,11 @@
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables. 
 #'}
+#' To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from 
+#' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its 
+#' contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or 
+#' sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example 
+#' to c:/windows/system32.
 #' 
 #' @return              
 #' A list with all the details needed to connect to a database.
@@ -157,7 +162,7 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #' }
 #' Microsoft SQL Server:
 #' \itemize{
-#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
+#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
 #'   \item \code{password}. The password used to log on to the server
 #'   \item \code{server}. This field contains the host name of the server
 #'   \item \code{port}. Not used for SQL Server
@@ -171,7 +176,7 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables. 
-#'}
+#' }
 #' Redshift:
 #' \itemize{
 #'   \item \code{user}. The user used to log in to the server 
@@ -180,6 +185,12 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables. 
 #'}
+#' To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from 
+#' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its 
+#' contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or 
+#' sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example 
+#' to c:/windows/system32.
+#' 
 #' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
 #' 
