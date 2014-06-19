@@ -59,7 +59,12 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
   md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=.jnull())
   
-  on.exit(dbClearResult(resultSet))
+  exitFunction <- function(){
+    dbClearResult(resultSet)
+    .jcall(conn@jc,"V",method="setAutoCommit",TRUE)
+  }
+  
+  on.exit(exitFunction())
   
   #Fetch data in batches:
   data <- NULL

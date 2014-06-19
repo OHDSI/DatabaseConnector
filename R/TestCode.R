@@ -19,6 +19,7 @@ localTestCode <- function(){
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",schema="cdm4_sim")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  #dbGetQuery.ffdf(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
   
   #Test Oracle:
