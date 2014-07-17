@@ -8,5 +8,6 @@ Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: A wrapper around RJDBC containing drivers for various DBMSs.
 Depends:
     RJDBC,
-    ff
+    ff,
+    ffbase
 License: Apache License

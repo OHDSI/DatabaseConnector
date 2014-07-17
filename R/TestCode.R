@@ -7,19 +7,23 @@ localTestCode <- function(){
   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password=pw,schema="fake_data")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  
   dbDisconnect(conn)
   
   #Test SQL Server without integrated security:
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",user="eu/mschuemi",password=pw,schema="cdm4_sim")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  options(fftempdir ="c:/temp")
+  x <- dbGetQuery.ffdf(conn,"SELECT * FROM person",batchSize=1000)
   dbDisconnect(conn)
   
   #Test SQL Server with integrated security:
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",schema="cdm4_sim")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
-  #dbGetQuery.ffdf(conn,"SELECT COUNT(*) FROM person")
+  #dbGetQuery.df(conn,"SELECT TOP 100 * FROM person",batchSize=10)
+  #x <- dbGetQuery.ffdf(conn,"SELECT * FROM person")
   dbDisconnect(conn)
   
   #Test Oracle:
