@@ -183,6 +183,7 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
 executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRUE, reportOverallTime = TRUE){
   if (profile)
     progressBar = FALSE
+  require("SqlRender")
   sqlStatements = splitSql(sql)
   if (progressBar)
     pb <- txtProgressBar(style=3)
