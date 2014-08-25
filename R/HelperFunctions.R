@@ -146,3 +146,165 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
   data
 }
 
+#' Execute SQL code
+#'
+#' @description
+#' This function executes SQL consisting of one or more statements.
+#' 
+#' @param connection  The connection to the database server.
+#' @param dbms  	    The type of DBMS running on the server. Valid values are
+#' \itemize{
+#'   \item{"mysql" for MySQL}
+#'   \item{"oracle" for Oracle}
+#'   \item{"postgresql" for PostgreSQL}
+#'   \item{"redshift" for Amazon Redshift}   
+#'   \item{"sql server" for Microsoft SQL Server}
+#'   }
+#' @param sql		The SQL to be executed
+#' @param profile     When true, each separate statement is written to file prior to sending to the server, and the time taken
+#' to execute a statement is displayed.
+#' @param progressBar  When true, a progress bar is shown based on the statements in the SQL code.
+#' @param reportOverallTime  When true, the function will display the overall time taken to execute all statements.
+#'
+#' @details
+#' This function splits the SQL in separate statements and sends it to the server for execution. If an error occurs during
+#' SQL execution, this error is written to a file to facilitate debugging. Optionally, a progress bar is shown and the total
+#' time taken to execute the SQL is displayed. Optionally, each separate SQL statement is written to file, and the execution
+#' time per statement is shown to aid in detecting performance issues.
+#' 
+#' 
+#' @examples \dontrun{
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   conn <- connect(connectionDetails)
+#'   executeSql(conn,connectionDetails$dbms,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
+#'   dbDisconnect(conn)
+#' }
+#' @export
+executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRUE, reportOverallTime = TRUE){
+  if (profile)
+    progressBar = FALSE
+  sqlStatements = splitSql(sql)
+  if (progressBar)
+    pb <- txtProgressBar(style=3)
+  start <- Sys.time()
+  for (i in 1:length(sqlStatements)){
+    sqlStatement <- sqlStatements[i]
+    if (profile){
+      sink(paste("statement_",i,".sql",sep=""))
+      cat(sqlStatement)
+      sink()
+    }
+    tryCatch ({   
+      startQuery <- Sys.time()
+      
+      #Horrible hack for Redshift, which doesn't support DROP TABLE IF EXIST (or anything similar):
+      if (dbms == "redshift" & grepl("DROP TABLE IF EXISTS",sqlStatement)){
+        nameStart = regexpr("DROP TABLE IF EXISTS", sqlStatement) + nchar("DROP TABLE IF EXISTS") + 1
+        tableName = tolower(gsub("(^ +)|( +$)", "", substr(sqlStatement,nameStart,nchar(sqlStatement))))
+        tableCount = dbGetQuery(connection,paste("SELECT COUNT(*) FROM pg_table_def WHERE tablename = '",tableName,"'",sep=""))
+        if (tableCount != 0)
+          dbSendUpdate(connection, paste("DROP TABLE",tableName))
+      } else
+        dbSendUpdate(connection, sqlStatement)
+      
+      if (profile){
+        delta <- Sys.time() - startQuery
+        writeLines(paste("Statement ",i,"took", delta, attr(delta,"units")))
+      }
+    } , error = function(err) {
+      writeLines(paste("Error executing SQL:",err))
+      
+      #Write error report:
+      filename <- paste(getwd(),"/errorReport.txt",sep="")
+      sink(filename)
+      error <<- err
+      cat("DBMS:\n")
+      cat(dbms)
+      cat("\n\n")
+      cat("Error:\n")
+      cat(err$message)
+      cat("\n\n")
+      cat("SQL:\n")
+      cat(sqlStatement)
+      sink()
+      
+      writeLines(paste("An error report has been created at ", filename))
+      break
+    })
+    if (progressBar)
+      setTxtProgressBar(pb, i/length(sqlStatements))
+  }
+  if (progressBar)
+    close(pb)
+  if (reportOverallTime) {
+    delta <- Sys.time() - start
+    writeLines(paste("Analysis took", signif(delta,3), attr(delta,"units")))
+  }
+}
+
+#' Send SQL query
+#'
+#' @description
+#' This function sends SQL to the server, and returns the results.
+#' 
+#' @param connection  The connection to the database server.
+#' @param dbms        The type of DBMS running on the server. Valid values are
+#' \itemize{
+#'   \item{"mysql" for MySQL}
+#'   \item{"oracle" for Oracle}
+#'   \item{"postgresql" for PostgreSQL}
+#'   \item{"redshift" for Amazon Redshift}   
+#'   \item{"sql server" for Microsoft SQL Server}
+#'   }
+#' @param sql		The SQL to be send.
+#'
+#' @details
+#' This function sends the SQL to the server and retrieves the results. If an error occurs during
+#' SQL execution, this error is written to a file to facilitate debugging. 
+#' 
+#' 
+#' @examples \dontrun{
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   conn <- connect(connectionDetails)
+#'   count <- querySql(conn,connectionDetails$dbms,"SELECT COUNT(*) FROM person")
+#'   dbDisconnect(conn)
+#' }
+#' @export
+querySql <- function(conn, dbms, sql){
+  tryCatch ({   
+    .jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
+    
+    if (dbms == "postgresql" | dbms == "redshift"){ #Use dbGetQueryBatchWise to prevent Java out of heap
+      result <- dbGetQueryBatchWise(conn, sql)
+      colnames(result) <- toupper(colnames(result))
+      return(result)
+    } else {
+      result <- dbGetQuery(conn, sql)
+      colnames(result) <- toupper(colnames(result))
+      return(result)
+    }
+    
+  } , error = function(err) {
+    writeLines(paste("Error executing SQL:",err))
+    
+    #Write error report:
+    filename <- paste(getwd(),"/errorReport.txt",sep="")
+    sink(filename)
+    error <<- err
+    cat("DBMS:\n")
+    cat(dbms)
+    cat("\n\n")
+    cat("Error:\n")
+    cat(err$message)
+    cat("\n\n")
+    cat("SQL:\n")
+    cat(sql)
+    sink()
+    
+    writeLines(paste("An error report has been created at ", filename))
+    break
+  })
+}
+
+
+
