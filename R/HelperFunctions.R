@@ -191,7 +191,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
       startQuery <- Sys.time()
       
       #Horrible hack for Redshift, which doesn't support DROP TABLE IF EXIST (or anything similar):
-      if (attr(conn,"dbms") == "redshift" & grepl("DROP TABLE IF EXISTS",sqlStatement)){
+      if (attr(connection,"dbms") == "redshift" & grepl("DROP TABLE IF EXISTS",sqlStatement)){
         nameStart = regexpr("DROP TABLE IF EXISTS", sqlStatement) + nchar("DROP TABLE IF EXISTS") + 1
         tableName = tolower(gsub("(^ +)|( +$)", "", substr(sqlStatement,nameStart,nchar(sqlStatement))))
         tableCount = dbGetQuery(connection,paste("SELECT COUNT(*) FROM pg_table_def WHERE tablename = '",tableName,"'",sep=""))
@@ -212,7 +212,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
       sink(filename)
       error <<- err
       cat("DBMS:\n")
-      cat(attr(conn,"dbms"))
+      cat(attr(connection,"dbms"))
       cat("\n\n")
       cat("Error:\n")
       cat(err$message)
