@@ -239,6 +239,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     connection <- dbConnect(driver, paste("jdbc:mysql://",server,":",port,"/?useCursorFetch=true",sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
       dbSendUpdate(connection,paste("USE",schema))
+    attr(connection,"dbms") <- dbms
     return(connection)
   }	
   if (dbms == "sql server"){
@@ -260,6 +261,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     }
     if (!missing(schema) && !is.null(schema))
       dbSendUpdate(connection,paste("USE",schema))
+    attr(connection,"dbms") <- dbms
     return(connection)
   }
   if (dbms == "oracle"){
@@ -286,6 +288,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     
     if (!missing(schema) && !is.null(schema))
       dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
+    attr(connection,"dbms") <- dbms
     return(connection)
   }
   if (dbms == "postgresql"){
@@ -302,6 +305,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
       dbSendUpdate(connection,paste("SET search_path TO ",schema))
+    attr(connection,"dbms") <- dbms
     return(connection)
   }	
   if (dbms == "redshift"){
@@ -319,6 +323,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
       dbSendUpdate(connection,paste("SET search_path TO ",schema))
+    attr(connection,"dbms") <- dbms
     return(connection)
   }	
 }

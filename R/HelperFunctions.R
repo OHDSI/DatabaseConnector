@@ -138,9 +138,9 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
     batch <- fetch(resultSet, batchSize)
     n <- nrow(batch)
     if (is.null(data)){
-        data <- batch 
+      data <- batch 
     } else {
-        data <- rbind(data,batch)
+      data <- rbind(data,batch)
     }
   }
   data
@@ -152,14 +152,6 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
 #' This function executes SQL consisting of one or more statements.
 #' 
 #' @param connection  The connection to the database server.
-#' @param dbms  	    The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"redshift" for Amazon Redshift}   
-#'   \item{"sql server" for Microsoft SQL Server}
-#'   }
 #' @param sql		The SQL to be executed
 #' @param profile     When true, each separate statement is written to file prior to sending to the server, and the time taken
 #' to execute a statement is displayed.
@@ -176,11 +168,11 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
 #' @examples \dontrun{
 #'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
-#'   executeSql(conn,connectionDetails$dbms,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
+#'   executeSql(conn,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
 #'   dbDisconnect(conn)
 #' }
 #' @export
-executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRUE, reportOverallTime = TRUE){
+executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, reportOverallTime = TRUE){
   if (profile)
     progressBar = FALSE
   require("SqlRender")
@@ -199,7 +191,7 @@ executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRU
       startQuery <- Sys.time()
       
       #Horrible hack for Redshift, which doesn't support DROP TABLE IF EXIST (or anything similar):
-      if (dbms == "redshift" & grepl("DROP TABLE IF EXISTS",sqlStatement)){
+      if (attr(conn,"dbms") == "redshift" & grepl("DROP TABLE IF EXISTS",sqlStatement)){
         nameStart = regexpr("DROP TABLE IF EXISTS", sqlStatement) + nchar("DROP TABLE IF EXISTS") + 1
         tableName = tolower(gsub("(^ +)|( +$)", "", substr(sqlStatement,nameStart,nchar(sqlStatement))))
         tableCount = dbGetQuery(connection,paste("SELECT COUNT(*) FROM pg_table_def WHERE tablename = '",tableName,"'",sep=""))
@@ -220,7 +212,7 @@ executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRU
       sink(filename)
       error <<- err
       cat("DBMS:\n")
-      cat(dbms)
+      cat(attr(conn,"dbms"))
       cat("\n\n")
       cat("Error:\n")
       cat(err$message)
@@ -249,14 +241,6 @@ executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRU
 #' This function sends SQL to the server, and returns the results.
 #' 
 #' @param connection  The connection to the database server.
-#' @param dbms        The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"redshift" for Amazon Redshift}   
-#'   \item{"sql server" for Microsoft SQL Server}
-#'   }
 #' @param sql		The SQL to be send.
 #'
 #' @details
@@ -267,15 +251,15 @@ executeSql <- function(connection, dbms, sql, profile = FALSE, progressBar = TRU
 #' @examples \dontrun{
 #'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
-#'   count <- querySql(conn,connectionDetails$dbms,"SELECT COUNT(*) FROM person")
+#'   count <- querySql(conn,"SELECT COUNT(*) FROM person")
 #'   dbDisconnect(conn)
 #' }
 #' @export
-querySql <- function(conn, dbms, sql){
+querySql <- function(conn, sql){
   tryCatch ({   
     .jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
     
-    if (dbms == "postgresql" | dbms == "redshift"){ #Use dbGetQueryBatchWise to prevent Java out of heap
+    if (attr(conn,"dbms") == "postgresql" | attr(conn,"dbms") == "redshift"){ #Use dbGetQueryBatchWise to prevent Java out of heap
       result <- dbGetQueryBatchWise(conn, sql)
       colnames(result) <- toupper(colnames(result))
       return(result)
@@ -293,7 +277,7 @@ querySql <- function(conn, dbms, sql){
     sink(filename)
     error <<- err
     cat("DBMS:\n")
-    cat(dbms)
+    cat(attr(conn,"dbms"))
     cat("\n\n")
     cat("Error:\n")
     cat(err$message)
@@ -307,5 +291,98 @@ querySql <- function(conn, dbms, sql){
   })
 }
 
+.sql.qescape <- function(s, identifier=FALSE, quote="\"") {
+  s <- as.character(s)
+  if (identifier) {
+    vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$",s)
+    if (length(s[-vid])) {
+      if (is.na(quote)) stop("The JDBC connection doesn't support quoted identifiers, but table/column name contains characters that must be quoted (",paste(s[-vid],collapse=','),")")
+      s[-vid] <- .sql.qescape(s[-vid], FALSE, quote)
+    }
+    return(s)
+  }
+  if (is.na(quote)) quote <- ''
+  s <- gsub("\\\\","\\\\\\\\",s)
+  if (nchar(quote)) s <- gsub(paste("\\",quote,sep=''),paste("\\\\\\",quote,sep=''),s,perl=TRUE)
+  paste(quote,s,quote,sep='')
+}
+
+#' Insert a table on the server
+#'
+#' @description
+#' This function sends the data in a data frame to a table on the server. Either a new table is 
+#' created, or the data is appended to an existing table.
+#' 
+#' @param connection  The connection to the database server.
+#' @param dbms        The type of DBMS running on the server. Valid values are
+#' \itemize{
+#'   \item{"mysql" for MySQL}
+#'   \item{"oracle" for Oracle}
+#'   \item{"postgresql" for PostgreSQL}
+#'   \item{"redshift" for Amazon Redshift}   
+#'   \item{"sql server" for Microsoft SQL Server}
+#'   }
+#' @param tableName  	The name of the table where the data should be inserted.
+#' @param data        The data frame containing the data to be inserted.
+#' @param overWrite   Overwrite data if the table already exists?
+#' @param append      Append to existing table?
+#' @param temp        Should the table be created as a temp table?
+#'
+#' @details
+#' This function sends the data in a data frame to a table on the server. Either a new table is 
+#' created, or the data is appended to an existing table.
+#' 
+#' @examples \dontrun{
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   conn <- connect(connectionDetails)
+#'   data <- data.frame(x = c(1,2,3), y = c("a","b","c"))
+#'   dbInsertTable(conn,"mysql","my_table",data)
+#'   dbDisconnect(conn)
+#' }
+#' @export
+dbInsertTable <- function(conn, tableName, data, overWrite=TRUE, append=FALSE, temp=FALSE) {
+  require(SqlRender)
+  overWrite <- isTRUE(as.logical(overWrite))
+  append <- if (overWrite) FALSE else isTRUE(as.logical(append))
+  if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
+  if (length(data)<1) stop("data must have at least one column")
+  if (is.null(names(data))) names(data) <- paste("V",1:length(data),sep='')
+  if (length(data[[1]])>0) {
+    if (!is.data.frame(data)) data <- as.data.frame(data, row.names=1:length(data[[1]]))
+  } else {
+    if (!is.data.frame(data)) data <- as.data.frame(data)
+  }
+  if (temp)
+    tableName <-paste("#",tableName,sep="")
+  def = function(obj) {
+    if (is.integer(obj)) "INTEGER"
+    else if (is.numeric(obj)) "FLOAT"
+    else "VARCHAR(255)"
+  }
+  fts <- sapply(data, def)
+  if (dbExistsTable(conn, tableName)) {
+    if (overWrite) dbRemoveTable(conn, tableName)
+    else if (!append) stop("Table `",tableName,"' already exists")
+  } else if (append) stop("Cannot append to a non-existing table `",tableName,"'")
+  fdef <- paste(.sql.qescape(names(data), TRUE, conn@identifier.quote),fts,collapse=',')
+  qname <- .sql.qescape(tableName, TRUE, conn@identifier.quote)
+  if (!append) {
+    sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
+    sql <- translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
+    dbSendUpdate(conn, sql)
+  }
+  esc <- function(str){
+    paste("'",gsub("'","''",str),"'",sep="")
+  }
+  varNames <- paste(.sql.qescape(names(data), TRUE, conn@identifier.quote),collapse=',')
+  batchSize <- 1000
+  for (start in seq(1,nrow(data),by=batchSize)){
+    end = min(start+batchSize-1,nrow(data))
+    valueString <- paste(apply(sapply(data[start:end,],esc),MARGIN=1,FUN = paste,collapse=","),collapse="),(")
+    sql <- paste("INSERT INTO ",qname," (",varNames,") VALUES (",valueString,")",sep= '')
+    sql <- translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
+    dbSendUpdate(conn,sql)
+  }   
+}
 
 

@@ -3,19 +3,10 @@
 \alias{querySql}
 \title{Send SQL query}
 \usage{
-querySql(conn, dbms, sql)
+querySql(conn, sql)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
-
-\item{dbms}{The type of DBMS running on the server. Valid values are
-\itemize{
-  \item{"mysql" for MySQL}
-  \item{"oracle" for Oracle}
-  \item{"postgresql" for PostgreSQL}
-  \item{"redshift" for Amazon Redshift}
-  \item{"sql server" for Microsoft SQL Server}
-  }}
 
 \item{sql}{The SQL to be send.}
 }
@@ -30,7 +21,7 @@ SQL execution, this error is written to a file to facilitate debugging.
 \dontrun{
   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
   conn <- connect(connectionDetails)
-  count <- querySql(conn,connectionDetails$dbms,"SELECT COUNT(*) FROM person")
+  count <- querySql(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
 }
 }

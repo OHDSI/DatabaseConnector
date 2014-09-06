@@ -3,20 +3,11 @@
 \alias{executeSql}
 \title{Execute SQL code}
 \usage{
-executeSql(connection, dbms, sql, profile = FALSE, progressBar = TRUE,
+executeSql(connection, sql, profile = FALSE, progressBar = TRUE,
   reportOverallTime = TRUE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
-
-\item{dbms}{The type of DBMS running on the server. Valid values are
-\itemize{
-  \item{"mysql" for MySQL}
-  \item{"oracle" for Oracle}
-  \item{"postgresql" for PostgreSQL}
-  \item{"redshift" for Amazon Redshift}
-  \item{"sql server" for Microsoft SQL Server}
-  }}
 
 \item{sql}{The SQL to be executed}
 
@@ -40,7 +31,7 @@ time per statement is shown to aid in detecting performance issues.
 \dontrun{
   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
   conn <- connect(connectionDetails)
-  executeSql(conn,connectionDetails$dbms,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
+  executeSql(conn,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
   dbDisconnect(conn)
 }
 }

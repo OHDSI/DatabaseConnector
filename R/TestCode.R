@@ -21,7 +21,7 @@ localTestCode <- function(){
   #Test SQL Server with integrated security:
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",schema="cdm4_sim")
   conn <- connect(connectionDetails)
-  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  querySql(conn,"SELECT COUNT(*) FROM person")
   #dbGetQuery.df(conn,"SELECT TOP 100 * FROM person",batchSize=10)
   #x <- dbGetQuery.ffdf(conn,"SELECT * FROM person")
   dbDisconnect(conn)
@@ -35,7 +35,7 @@ localTestCode <- function(){
   #Test PostgreSQL:
   connectionDetails <- createConnectionDetails(dbms="postgresql", server="localhost/ohdsi",user="postgres",password=pw,schema="cdm4_sim")
   conn <- connect(connectionDetails)
-  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  querySql(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
     
   #Test Redshift:
