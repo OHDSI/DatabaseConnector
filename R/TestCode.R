@@ -22,7 +22,7 @@ localTestCode <- function(){
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",schema="cdm4_sim")
   conn <- connect(connectionDetails)
   querySql(conn,"SELECT COUNT(*) FROM person")
-  #dbGetQuery.df(conn,"SELECT TOP 100 * FROM person",batchSize=10)
+  dbGetQuery.ffdf(conn,"SELECT TOP 100 * FROM person")
   #x <- dbGetQuery.ffdf(conn,"SELECT * FROM person")
   dbDisconnect(conn)
   

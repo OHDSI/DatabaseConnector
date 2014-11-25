@@ -46,6 +46,7 @@
 #' }
 #' @export
 dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
+  require("ffbase")
   #Create resultset:
   .jcall("java/lang/System",,"gc")
   .jcall(connection@jc,"V",method="setAutoCommit",FALSE)
@@ -75,9 +76,10 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]]) 
       
-      if (n == 0)
+      if (n == 0){
         data <- batch #ffdf cannot contain 0 rows, so return data.frame instead
-      else
+        warning("Data has zero rows, returning an empty data frame")
+      } else
         data <- as.ffdf(batch)    
     } else {
       for(charCol in charCols)
@@ -86,7 +88,7 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
       data <- ffdfappend(data,batch)
     }
   }
-  data
+  return(data)
 }
 
 #' Retrieve data from server using batchwise loading.
