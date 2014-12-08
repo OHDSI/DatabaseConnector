@@ -46,7 +46,6 @@
 #' }
 #' @export
 dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
-  require("ffbase")
   #Create resultset:
   .jcall("java/lang/System",,"gc")
   .jcall(connection@jc,"V",method="setAutoCommit",FALSE)
@@ -80,12 +79,12 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
         data <- batch #ffdf cannot contain 0 rows, so return data.frame instead
         warning("Data has zero rows, returning an empty data frame")
       } else
-        data <- as.ffdf(batch)    
+        data <- ff::as.ffdf(batch)    
     } else {
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]]) 
       
-      data <- ffdfappend(data,batch)
+      data <- ffbase::ffdfappend(data,batch)
     }
   }
   return(data)
@@ -177,8 +176,7 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
 executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, reportOverallTime = TRUE){
   if (profile)
     progressBar = FALSE
-  require("SqlRender")
-  sqlStatements = splitSql(sql)
+  sqlStatements = SqlRender::splitSql(sql)
   if (progressBar)
     pb <- txtProgressBar(style=3)
   start <- Sys.time()
@@ -343,7 +341,6 @@ querySql <- function(conn, sql){
 #' }
 #' @export
 dbInsertTable <- function(conn, tableName, data, overWrite=TRUE, append=FALSE, temp=FALSE) {
-  require(SqlRender)
   overWrite <- isTRUE(as.logical(overWrite))
   append <- if (overWrite) FALSE else isTRUE(as.logical(append))
   if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
@@ -370,7 +367,7 @@ dbInsertTable <- function(conn, tableName, data, overWrite=TRUE, append=FALSE, t
   qname <- .sql.qescape(tableName, TRUE, conn@identifier.quote)
   if (!append) {
     sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
-    sql <- translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
+    sql <- SqlRender::translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
     dbSendUpdate(conn, sql)
   }
   esc <- function(str){
@@ -382,7 +379,7 @@ dbInsertTable <- function(conn, tableName, data, overWrite=TRUE, append=FALSE, t
     end = min(start+batchSize-1,nrow(data))
     valueString <- paste(apply(sapply(data[start:end,],esc),MARGIN=1,FUN = paste,collapse=","),collapse="),(")
     sql <- paste("INSERT INTO ",qname," (",varNames,") VALUES (",valueString,")",sep= '')
-    sql <- translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
+    sql <- SqlRender::translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
     dbSendUpdate(conn,sql)
   }   
 }
