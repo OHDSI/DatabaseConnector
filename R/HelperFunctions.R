@@ -259,7 +259,7 @@ querySql <- function(conn, sql){
   tryCatch ({   
     .jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
     
-    if (attr(conn,"dbms") == "postgresql" | attr(conn,"dbms") == "redshift"){ #Use dbGetQueryBatchWise to prevent Java out of heap
+    if (attr(conn,"dbms") == "postgresql" | attr(conn,"dbms") == "redshift" | attr(conn,"dbms") == "netezza"){ #Use dbGetQueryBatchWise to prevent Java out of heap
       result <- dbGetQueryBatchWise(conn, sql)
       colnames(result) <- toupper(colnames(result))
       return(result)
@@ -320,6 +320,7 @@ querySql <- function(conn, sql){
 #'   \item{"oracle" for Oracle}
 #'   \item{"postgresql" for PostgreSQL}
 #'   \item{"redshift" for Amazon Redshift}   
+#'   \item{"netezza" for Netezza}   
 #'   \item{"sql server" for Microsoft SQL Server}
 #'   }
 #' @param tableName  	The name of the table where the data should be inserted.

@@ -25,6 +25,7 @@ dbInsertTable(conn, tableName, data, overWrite = TRUE, append = FALSE,
   \item{"oracle" for Oracle}
   \item{"postgresql" for PostgreSQL}
   \item{"redshift" for Amazon Redshift}
+  \item{"netezza" for Netezza}
   \item{"sql server" for Microsoft SQL Server}
   }}
 }

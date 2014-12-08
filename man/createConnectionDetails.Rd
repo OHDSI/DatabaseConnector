@@ -80,11 +80,22 @@ Redshift:
   \item \code{port}. Specifies the port on the server (default = 5432)
   \item \code{schema}. The schema containing the tables.
 }
+
+Netezza:
+\itemize{
+  \item \code{user}. The user used to log in to the server
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
+  \item \code{port}. Specifies the port on the server (default = 5480)
+  \item \code{schema}. The schema containing the tables.
+}
 To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from
 \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its
 contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or
 sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example
 to c:/windows/system32.
+
+In order to enable Netezza support, place your Netezza jdbc driver at \code{inst/java/nzjdbc.jar} in this package.
 }
 \examples{
 \dontrun{
