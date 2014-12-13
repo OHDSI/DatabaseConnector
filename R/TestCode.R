@@ -10,8 +10,18 @@ localTestCode <- function(){
   
   dbDisconnect(conn)
   
+  #read: mdcr, mdcd, cprd
+  
+  #not read:  ccae, optum
+  
+  #Test PDW with integrated security:
+  connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSHITAPS01",port=17001, schema="testdb")
+  conn <- connect(connectionDetails)
+  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
+ 
   #Test SQL Server without integrated security:
-  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",user="eu/mschuemi",password=pw,schema="cdm4_sim")
+  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",user="eu/mschuemi",password=pw,schema="cdm_hcup")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   options(fftempdir ="c:/temp")
@@ -19,7 +29,7 @@ localTestCode <- function(){
   dbDisconnect(conn)
   
   #Test SQL Server with integrated security:
-  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT07.jnj.com",schema="cdm4_sim")
+  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",schema="cdm_hcup")
   conn <- connect(connectionDetails)
   querySql(conn,"SELECT COUNT(*) FROM person")
   dbGetQuery.ffdf(conn,"SELECT TOP 100 * FROM person")
