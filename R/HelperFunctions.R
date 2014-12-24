@@ -133,18 +133,16 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
   on.exit(exitFunction())
   
   #Fetch data in batches:
-  data <- NULL
+  dataList <- list() #Storing data as list of data.frames and then calling rbind is way faster than calling rbind consecutively
   n <- batchSize
   while (n == batchSize){
     batch <- fetch(resultSet, batchSize)
     n <- nrow(batch)
-    if (is.null(data)){
-      data <- batch 
-    } else {
-      data <- rbind(data,batch)
-    }
+    if (n > 0)
+      dataList[[length(dataList)+1]] <- batch
   }
-  data
+  data <- do.call(rbind,x)
+  return(data)
 }
 
 #' Execute SQL code
@@ -313,20 +311,12 @@ querySql <- function(conn, sql){
 #' This function sends the data in a data frame to a table on the server. Either a new table is 
 #' created, or the data is appended to an existing table.
 #' 
-#' @param connection  The connection to the database server.
-#' @param dbms        The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"redshift" for Amazon Redshift}   
-#'   \item{"sql server" for Microsoft SQL Server}
-#'   }
-#' @param tableName  	The name of the table where the data should be inserted.
-#' @param data        The data frame containing the data to be inserted.
-#' @param overWrite   Overwrite data if the table already exists?
-#' @param append      Append to existing table?
-#' @param temp        Should the table be created as a temp table?
+#' @param connection          The connection to the database server.
+#' @param tableName  	        The name of the table where the data should be inserted.
+#' @param data                The data frame containing the data to be inserted.
+#' @param dropTableIfExists   Drop the table first if it already exists?
+#' @param append              Append to existing table?
+#' @param temp                Should the table be created as a temp table?
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is 
@@ -340,9 +330,9 @@ querySql <- function(conn, sql){
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbInsertTable <- function(conn, tableName, data, overWrite=TRUE, append=FALSE, temp=FALSE) {
-  overWrite <- isTRUE(as.logical(overWrite))
-  append <- if (overWrite) FALSE else isTRUE(as.logical(append))
+dbInsertTable <- function(conn, tableName, data, dropTableIfExists=TRUE, append=FALSE, temp=FALSE) {
+  dropTableIfExists <- isTRUE(as.logical(dropTableIfExists))
+  append <- if (dropTableIfExists) FALSE else isTRUE(as.logical(append))
   if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
   if (length(data)<1) stop("data must have at least one column")
   if (is.null(names(data))) names(data) <- paste("V",1:length(data),sep='')
@@ -360,7 +350,7 @@ dbInsertTable <- function(conn, tableName, data, overWrite=TRUE, append=FALSE, t
   }
   fts <- sapply(data, def)
   if (dbExistsTable(conn, tableName)) {
-    if (overWrite) dbRemoveTable(conn, tableName)
+    if (dropTableIfExists) dbRemoveTable(conn, tableName)
     else if (!append) stop("Table `",tableName,"' already exists")
   } else if (append) stop("Cannot append to a non-existing table `",tableName,"'")
   fdef <- paste(.sql.qescape(names(data), TRUE, conn@identifier.quote),fts,collapse=',')

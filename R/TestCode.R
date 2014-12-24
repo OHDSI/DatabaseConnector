@@ -15,7 +15,7 @@ localTestCode <- function(){
   #not read:  ccae, optum
   
   #Test PDW with integrated security:
-  connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSHITAPS01",port=17001, schema="testdb")
+  connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSHITAPS01",port=17001, schema="CDM_Truven_MDCR")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)

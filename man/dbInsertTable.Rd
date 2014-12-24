@@ -3,30 +3,21 @@
 \alias{dbInsertTable}
 \title{Insert a table on the server}
 \usage{
-dbInsertTable(conn, tableName, data, overWrite = TRUE, append = FALSE,
-  temp = FALSE)
+dbInsertTable(conn, tableName, data, dropTableIfExists = TRUE,
+  append = FALSE, temp = FALSE)
 }
 \arguments{
 \item{tableName}{The name of the table where the data should be inserted.}
 
 \item{data}{The data frame containing the data to be inserted.}
 
-\item{overWrite}{Overwrite data if the table already exists?}
+\item{dropTableIfExists}{Drop the table first if it already exists?}
 
 \item{append}{Append to existing table?}
 
 \item{temp}{Should the table be created as a temp table?}
 
 \item{connection}{The connection to the database server.}
-
-\item{dbms}{The type of DBMS running on the server. Valid values are
-\itemize{
-  \item{"mysql" for MySQL}
-  \item{"oracle" for Oracle}
-  \item{"postgresql" for PostgreSQL}
-  \item{"redshift" for Amazon Redshift}
-  \item{"sql server" for Microsoft SQL Server}
-  }}
 }
 \description{
 This function sends the data in a data frame to a table on the server. Either a new table is
