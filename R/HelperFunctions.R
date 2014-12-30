@@ -141,7 +141,7 @@ dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
     if (n > 0)
       dataList[[length(dataList)+1]] <- batch
   }
-  data <- do.call(rbind,x)
+  data <- do.call(rbind,dataList)
   return(data)
 }
 
