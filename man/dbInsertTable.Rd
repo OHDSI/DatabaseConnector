@@ -3,10 +3,12 @@
 \alias{dbInsertTable}
 \title{Insert a table on the server}
 \usage{
-dbInsertTable(conn, tableName, data, dropTableIfExists = TRUE,
+dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
   append = FALSE, temp = FALSE)
 }
 \arguments{
+\item{connection}{The connection to the database server.}
+
 \item{tableName}{The name of the table where the data should be inserted.}
 
 \item{data}{The data frame containing the data to be inserted.}
@@ -16,8 +18,6 @@ dbInsertTable(conn, tableName, data, dropTableIfExists = TRUE,
 \item{append}{Append to existing table?}
 
 \item{temp}{Should the table be created as a temp table?}
-
-\item{connection}{The connection to the database server.}
 }
 \description{
 This function sends the data in a data frame to a table on the server. Either a new table is

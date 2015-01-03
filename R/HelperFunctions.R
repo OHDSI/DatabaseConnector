@@ -39,28 +39,35 @@
 #' A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)
 #' 
 #' @examples \dontrun{
+#'   library("ffbase")
 #'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
 #'   dbGetQuery.ffdf(conn,"SELECT * FROM person")
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
+dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
   #Create resultset:
   .jcall("java/lang/System",,"gc")
+  
+  # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
+  # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   .jcall(connection@jc,"V",method="setAutoCommit",FALSE)
-  s <- .jcall(connection@jc, "Ljava/sql/Statement;", "createStatement")
-  .jcall(s,"V",method="setFetchSize",as.integer(batchSize))
+  
+  type_forward_only <- .jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
+  concur_read_only <- .jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
+  s <- .jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
+  
+  # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
+  .jcall(s,"V",method="setFetchSize",as.integer(2048))
+  
   r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
   md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=.jnull())
   
-  exitFunction <- function(){
-    dbClearResult(resultSet)
-    .jcall(connection@jc,"V",method="setAutoCommit",TRUE)
-  }
-  
-  on.exit(exitFunction())
+  on.exit(dbClearResult(resultSet))
+  # Don't forget to return autocommit to TRUE
+  on.exit(.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
   
   #Fetch data in batches:
   data <- NULL
@@ -80,7 +87,7 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
         warning("Data has zero rows, returning an empty data frame")
       } else
         data <- ff::as.ffdf(batch)    
-    } else {
+    } else if (n != 0){
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]]) 
       
@@ -90,17 +97,16 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
   return(data)
 }
 
-#' Retrieve data from server using batchwise loading.
+#' Retrieve data from server using PostgreSQL specific commands.
 #'
 #' @description
-#' This function loads the data from the server in batches. Should be used when loading large sets from a Postgres database to
-#' prevent the \code{no description because toString() failed} error.
+#' This function is tailored to retrieve large datasets from a PostgreSQL database.
+#' Specifically, it temporarily disables auto commit and calls \code{setFetchSize} 
+#' on the Statement object. Without these settings, all rows would be fetched
+#' from the server, resulting in out-of-memory errors.
 #' 
 #' @param connection  The connection to the database server.
 #' @param query		    The SQL statement to retrieve the data
-#' @param batchSize		The number of rows that will be retrieved at a time from the server. A larger 
-#' batchSize means less calls to the server so better performance, but too large a batchSize could
-#' lead to out-of-memory errors.
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a data frame.
@@ -109,39 +115,36 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 100000){
 #' A data frame containing the data retrieved from the server
 #' 
 #' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   connectionDetails <- createConnectionDetails(dbms="postgresql", server="localhost/ohdsi",user="postgres",password="blah",schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
-#'   dbGetQueryBatchWise(conn,"SELECT * FROM person")
+#'   dbGetQueryPostgreSql(conn,"SELECT * FROM person")
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbGetQueryBatchWise <- function (connection, query = "", batchSize = 100000){
+dbGetQueryPostgreSql <- function (connection, query = ""){
   #Create resultset:
   .jcall("java/lang/System",,"gc")
+  
+  # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
+  # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   .jcall(connection@jc,"V",method="setAutoCommit",FALSE)
-  s <- .jcall(connection@jc, "Ljava/sql/Statement;", "createStatement")
-  .jcall(s,"V",method="setFetchSize",as.integer(batchSize))
+  
+  type_forward_only <- .jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
+  concur_read_only <- .jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
+  s <- .jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
+  
+  # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
+  .jcall(s,"V",method="setFetchSize",as.integer(2048))
+  
   r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
   md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=.jnull())
   
-  exitFunction <- function(){
-    dbClearResult(resultSet)
-    .jcall(connection@jc,"V",method="setAutoCommit",TRUE)
-  }
+  on.exit(dbClearResult(resultSet))
+  # Don't forget to return autocommit to TRUE
+  on.exit(.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
   
-  on.exit(exitFunction())
-  
-  #Fetch data in batches:
-  dataList <- list() #Storing data as list of data.frames and then calling rbind is way faster than calling rbind consecutively
-  n <- batchSize
-  while (n == batchSize){
-    batch <- fetch(resultSet, batchSize)
-    n <- nrow(batch)
-    if (n > 0)
-      dataList[[length(dataList)+1]] <- batch
-  }
-  data <- do.call(rbind,dataList)
+  data <- fetch(resultSet, -1)
   return(data)
 }
 
@@ -253,19 +256,13 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
 #'   dbDisconnect(conn)
 #' }
 #' @export
-querySql <- function(conn, sql){
+querySql <- function(connection, sql){
   tryCatch ({   
     .jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
     
-    if (attr(conn,"dbms") == "postgresql" | attr(conn,"dbms") == "redshift"){ #Use dbGetQueryBatchWise to prevent Java out of heap
-      result <- dbGetQueryBatchWise(conn, sql)
-      colnames(result) <- toupper(colnames(result))
-      return(result)
-    } else {
-      result <- dbGetQuery(conn, sql)
-      colnames(result) <- toupper(colnames(result))
-      return(result)
-    }
+    result <- dbGetQueryPostgreSql(connection, sql)
+    colnames(result) <- toupper(colnames(result))
+    return(result)
     
   } , error = function(err) {
     writeLines(paste("Error executing SQL:",err))
@@ -275,7 +272,7 @@ querySql <- function(conn, sql){
     sink(filename)
     error <<- err
     cat("DBMS:\n")
-    cat(attr(conn,"dbms"))
+    cat(attr(connection,"dbms"))
     cat("\n\n")
     cat("Error:\n")
     cat(err$message)
@@ -330,7 +327,7 @@ querySql <- function(conn, sql){
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbInsertTable <- function(conn, tableName, data, dropTableIfExists=TRUE, append=FALSE, temp=FALSE) {
+dbInsertTable <- function(connection, tableName, data, dropTableIfExists=TRUE, append=FALSE, temp=FALSE) {
   dropTableIfExists <- isTRUE(as.logical(dropTableIfExists))
   append <- if (dropTableIfExists) FALSE else isTRUE(as.logical(append))
   if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
@@ -349,28 +346,28 @@ dbInsertTable <- function(conn, tableName, data, dropTableIfExists=TRUE, append=
     else "VARCHAR(255)"
   }
   fts <- sapply(data, def)
-  if (dbExistsTable(conn, tableName)) {
-    if (dropTableIfExists) dbRemoveTable(conn, tableName)
+  if (dbExistsTable(connection, tableName)) {
+    if (dropTableIfExists) dbRemoveTable(connection, tableName)
     else if (!append) stop("Table `",tableName,"' already exists")
   } else if (append) stop("Cannot append to a non-existing table `",tableName,"'")
-  fdef <- paste(.sql.qescape(names(data), TRUE, conn@identifier.quote),fts,collapse=',')
-  qname <- .sql.qescape(tableName, TRUE, conn@identifier.quote)
+  fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),fts,collapse=',')
+  qname <- .sql.qescape(tableName, TRUE, connection@identifier.quote)
   if (!append) {
     sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
-    sql <- SqlRender::translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
-    dbSendUpdate(conn, sql)
+    sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"))$sql
+    dbSendUpdate(connection, sql)
   }
   esc <- function(str){
     paste("'",gsub("'","''",str),"'",sep="")
   }
-  varNames <- paste(.sql.qescape(names(data), TRUE, conn@identifier.quote),collapse=',')
+  varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),collapse=',')
   batchSize <- 1000
   for (start in seq(1,nrow(data),by=batchSize)){
     end = min(start+batchSize-1,nrow(data))
     valueString <- paste(apply(sapply(data[start:end,],esc),MARGIN=1,FUN = paste,collapse=","),collapse="),(")
     sql <- paste("INSERT INTO ",qname," (",varNames,") VALUES (",valueString,")",sep= '')
-    sql <- SqlRender::translateSql(sql,targetDialect=attr(conn,"dbms"))$sql
-    dbSendUpdate(conn,sql)
+    sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"))$sql
+    dbSendUpdate(connection,sql)
   }   
 }
 

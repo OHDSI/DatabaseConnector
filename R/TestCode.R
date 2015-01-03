@@ -7,25 +7,21 @@ localTestCode <- function(){
   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password=pw,schema="fake_data")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
-  
   dbDisconnect(conn)
-  
-  #read: mdcr, mdcd, cprd
-  
-  #not read:  ccae, optum
   
   #Test PDW with integrated security:
   connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSHITAPS01",port=17001, schema="CDM_Truven_MDCR")
   conn <- connect(connectionDetails)
-  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  querySql(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
  
   #Test SQL Server without integrated security:
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",user="eu/mschuemi",password=pw,schema="cdm_hcup")
   conn <- connect(connectionDetails)
-  dbGetQuery(conn,"SELECT COUNT(*) FROM person")
+  querySql(conn,"SELECT COUNT(*) FROM person")
+  library(ffbase)
   options(fftempdir ="c:/temp")
-  x <- dbGetQuery.ffdf(conn,"SELECT * FROM person",batchSize=1000)
+  x <- dbGetQuery.ffdf(conn,"SELECT TOP 1000000 * FROM person")
   dbDisconnect(conn)
   
   #Test SQL Server with integrated security:

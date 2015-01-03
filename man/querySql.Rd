@@ -3,12 +3,12 @@
 \alias{querySql}
 \title{Send SQL query}
 \usage{
-querySql(conn, sql)
+querySql(connection, sql)
 }
 \arguments{
-\item{sql}{The SQL to be send.}
-
 \item{connection}{The connection to the database server.}
+
+\item{sql}{The SQL to be send.}
 }
 \description{
 This function sends SQL to the server, and returns the results.

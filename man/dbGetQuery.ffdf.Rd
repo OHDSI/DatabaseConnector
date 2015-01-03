@@ -3,7 +3,7 @@
 \alias{dbGetQuery.ffdf}
 \title{Retrieve data from server as ffdf object.}
 \usage{
-dbGetQuery.ffdf(connection, query = "", batchSize = 1e+05)
+dbGetQuery.ffdf(connection, query = "", batchSize = 5e+05)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -26,6 +26,7 @@ data sets to be retrieved without running out of memory.
 }
 \examples{
 \dontrun{
+  library("ffbase")
   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
   conn <- connect(connectionDetails)
   dbGetQuery.ffdf(conn,"SELECT * FROM person")
