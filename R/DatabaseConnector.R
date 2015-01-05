@@ -102,12 +102,23 @@
 #'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables. 
+#'}
+#' 
+#' Netezza:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server 
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
+#'   \item \code{port}. Specifies the port on the server (default = 5480)
+#'   \item \code{schema}. The schema containing the tables. 
 #' }
-#' To be able to use Windows authentication for SQL Server and PDW, you have to install the JDBC driver. Download the .exe from 
+#' To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from 
 #' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its 
 #' contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or 
 #' sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example 
 #' to c:/windows/system32.
+#' 
+#' In order to enable Netezza support, place your Netezza jdbc driver at \code{inst/java/nzjdbc.jar} in this package.
 #' 
 #' @return              
 #' A list with all the details needed to connect to a database.
@@ -139,6 +150,7 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item{"oracle" for Oracle}
 #'   \item{"postgresql" for PostgreSQL}
 #'   \item{"redshift" for Amazon Redshift}
+#'   \item{"netezza" for Netezza}
 #'   \item{"sql server" for Microsoft SQL Server}
 #'   \item{"pdw" for Microsoft Parallel Data Warehouse (PDW)}
 #' } 
@@ -206,13 +218,23 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables. 
+#'}
+#' 
+#' Netezza:
+#' \itemize{
+#'   \item \code{user}. The user used to log in to the server 
+#'   \item \code{password}. The password used to log on to the server
+#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
+#'   \item \code{port}. Specifies the port on the server (default = 5480)
+#'   \item \code{schema}. The schema containing the tables. 
 #' }
-#'
-#' To be able to use Windows authentication for SQL Server and PDW, you have to install the JDBC driver. Download the .exe from 
+#' To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from 
 #' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its 
 #' contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or 
 #' sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example 
 #' to c:/windows/system32.
+#' 
+#' In order to enable Netezza support, place your Netezza jdbc driver at \code{inst/java/nzjdbc.jar} in this package.
 #' 
 #' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
@@ -350,6 +372,23 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
     connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
+    if (!missing(schema) && !is.null(schema))
+      dbSendUpdate(connection,paste("SET search_path TO ",schema))
+    attr(connection,"dbms") <- dbms
+    return(connection)
+  }	
+  if (dbms == "netezza"){
+    writeLines("Connecting using Netezza driver")
+    if (!grepl("/",server))
+      stop("Error: database name not included in server string but is required for Netezza. Please specify server as <host>/<database>")
+    parts <-  unlist(strsplit(server,"/"))
+    host = parts[1]
+    database = parts[2]
+    if (missing(port)|| is.null(port))
+      port = "5480"
+    pathToJar <- system.file("java", "nzjdbc.jar", package="DatabaseConnector")
+    driver <- jdbcSingleton("org.netezza.Driver", pathToJar, identifier.quote="`")
+    connection <- dbConnect(driver, paste("jdbc:netezza://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
       dbSendUpdate(connection,paste("SET search_path TO ",schema))
     attr(connection,"dbms") <- dbms

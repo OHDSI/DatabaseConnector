@@ -13,11 +13,21 @@ dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
 
 \item{data}{The data frame containing the data to be inserted.}
 
-\item{dropTableIfExists}{Drop the table first if it already exists?}
-
 \item{append}{Append to existing table?}
 
 \item{temp}{Should the table be created as a temp table?}
+
+\item{dbms}{The type of DBMS running on the server. Valid values are
+\itemize{
+  \item{"mysql" for MySQL}
+  \item{"oracle" for Oracle}
+  \item{"postgresql" for PostgreSQL}
+  \item{"redshift" for Amazon Redshift}
+  \item{"netezza" for Netezza}
+  \item{"sql server" for Microsoft SQL Server}
+  }}
+
+\item{overWrite}{Overwrite data if the table already exists?}
 }
 \description{
 This function sends the data in a data frame to a table on the server. Either a new table is

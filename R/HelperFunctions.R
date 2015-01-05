@@ -263,7 +263,6 @@ querySql <- function(connection, sql){
     result <- dbGetQueryPostgreSql(connection, sql)
     colnames(result) <- toupper(colnames(result))
     return(result)
-    
   } , error = function(err) {
     writeLines(paste("Error executing SQL:",err))
     
@@ -308,12 +307,21 @@ querySql <- function(connection, sql){
 #' This function sends the data in a data frame to a table on the server. Either a new table is 
 #' created, or the data is appended to an existing table.
 #' 
-#' @param connection          The connection to the database server.
-#' @param tableName  	        The name of the table where the data should be inserted.
-#' @param data                The data frame containing the data to be inserted.
-#' @param dropTableIfExists   Drop the table first if it already exists?
-#' @param append              Append to existing table?
-#' @param temp                Should the table be created as a temp table?
+#' @param connection  The connection to the database server.
+#' @param dbms        The type of DBMS running on the server. Valid values are
+#' \itemize{
+#'   \item{"mysql" for MySQL}
+#'   \item{"oracle" for Oracle}
+#'   \item{"postgresql" for PostgreSQL}
+#'   \item{"redshift" for Amazon Redshift}   
+#'   \item{"netezza" for Netezza}   
+#'   \item{"sql server" for Microsoft SQL Server}
+#'   }
+#' @param tableName  	The name of the table where the data should be inserted.
+#' @param data        The data frame containing the data to be inserted.
+#' @param overWrite   Overwrite data if the table already exists?
+#' @param append      Append to existing table?
+#' @param temp        Should the table be created as a temp table?
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is 
