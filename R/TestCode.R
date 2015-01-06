@@ -33,7 +33,7 @@ localTestCode <- function(){
   dbDisconnect(conn)
   
   #Test Oracle:
-  connectionDetails <- createConnectionDetails(dbms="oracle", server="xe",user="system",password=pw,schema="cdm4_sim")
+  connectionDetails <- createConnectionDetails(dbms="oracle", server="xe",user="system",password=pw,schema="cdm_truven_ccae_6k")
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)

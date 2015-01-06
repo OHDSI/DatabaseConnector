@@ -38,6 +38,7 @@
 #'   \item{"redshift" for Amazon Redshift}   
 #'   \item{"sql server" for Microsoft SQL Server}
 #'   \item{"pdw" for Microsoft Parallel Data Warehouse (PDW)}
+#'   \item{"netezza" for IBM Netezza}
 #' } 
 #' @param user				The user name used to access the server.
 #' @param password		The password for that user
@@ -150,9 +151,9 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #'   \item{"oracle" for Oracle}
 #'   \item{"postgresql" for PostgreSQL}
 #'   \item{"redshift" for Amazon Redshift}
-#'   \item{"netezza" for Netezza}
 #'   \item{"sql server" for Microsoft SQL Server}
 #'   \item{"pdw" for Microsoft Parallel Data Warehouse (PDW)}
+#'   \item{"netezza" for IBM Netezza}
 #' } 
 #' @param user  			The user name used to access the server.
 #' @param password		The password for that user
