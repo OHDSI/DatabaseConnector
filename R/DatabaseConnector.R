@@ -24,102 +24,24 @@
   jdbcDrivers <<- new.env()
 }
 
+#' DatabaseConnector
+#' 
+#' @docType package
+#' @name DatabaseConnector
+#' @import RJDBC
+NULL
+
 
 #' @title createConnectionDetails
 #'
 #' @description
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a database.
 #' 
-#' @param dbms              The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"redshift" for Amazon Redshift}   
-#'   \item{"sql server" for Microsoft SQL Server}
-#'   \item{"pdw" for Microsoft Parallel Data Warehouse (PDW)}
-#'   \item{"netezza" for IBM Netezza}
-#' } 
-#' @param user				The user name used to access the server.
-#' @param password		The password for that user
-#' @param server			The name of the server
-#' @param port				(optional) The port on the server to connect to
-#' @param schema			(optional) The name of the schema to connect to
+#' @template DbmsDetails
 #'
 #' @details
 #' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
-#' \code{connect} function. 
-#' 
-#' Depending on the DBMS, the function arguments have slightly different interpretations:
-#' 
-#' MySQL:
-#' \itemize{
-#'   \item \code{user}. The user name used to access the server
-#'   \item \code{password}. The password for that user
-#'   \item \code{server}. The host name of the server
-#'   \item \code{port}. Specifies the port on the server (default = 3306)
-#'   \item \code{schema}. The database containing the tables
-#' }
-#' 
-#' Oracle:
-#' \itemize{
-#'   \item \code{user}. The user name used to access the server
-#'   \item \code{password}. The password for that user
-#'   \item \code{server}. This field contains the SID, or host and servicename or SID: '<sid>', '<host>/<sid>', '<host>/<service name>'
-#'   \item \code{port}. Specifies the port on the server (default = 1521)
-#'   \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the tables
-#' }
-#' 
-#' Microsoft SQL Server:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server
-#'   \item \code{port}. Not used for SQL Server
-#'   \item \code{schema}. The database containing the tables
-#' }
-#' 
-#' Microsoft PDW:
-#' \itemize{
-#'   \item \code{server}. This field contains the host name of the server
-#'   \item \code{port}. Not used for SQL Server
-#'   \item \code{schema}. The database containing the tables
-#' }
-#' Currently only connections using Windows Integrated security are supported for PDW.
-#' 
-#' PostgreSQL:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server 
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5432)
-#'   \item \code{schema}. The schema containing the tables. 
-#' }
-#' 
-#' Redshift:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server 
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5432)
-#'   \item \code{schema}. The schema containing the tables. 
-#'}
-#' 
-#' Netezza:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server 
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5480)
-#'   \item \code{schema}. The schema containing the tables. 
-#' }
-#' To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from 
-#' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its 
-#' contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or 
-#' sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example 
-#' to c:/windows/system32.
-#' 
-#' In order to enable Netezza support, place your Netezza jdbc driver at \code{inst/java/nzjdbc.jar} in this package.
+#' \code{\link{connect}} function. 
 #' 
 #' @return              
 #' A list with all the details needed to connect to a database.
@@ -145,97 +67,12 @@ createConnectionDetails <- function(dbms = "sql server", user, password, server,
 #' connect(dbms = "sql server", user, password, server, port, schema)
 #' connect(connectionDetails)
 #' 
-#' @param dbms              The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"redshift" for Amazon Redshift}
-#'   \item{"sql server" for Microsoft SQL Server}
-#'   \item{"pdw" for Microsoft Parallel Data Warehouse (PDW)}
-#'   \item{"netezza" for IBM Netezza}
-#' } 
-#' @param user  			The user name used to access the server.
-#' @param password		The password for that user
-#' @param server			The name of the server
-#' @param port				(optional) The port on the server to connect to
-#' @param schema			(optional) The name of the schema to connect to
-#' @param connectionDetails  an object of class \code{connectionDetails}
+#' @template DbmsDetails
+#' @param connectionDetails  An object of class \code{connectionDetails} as created
+#' by the \code{\link{createConnectionDetails}} function.
 #'
 #' @details
-#' This function creates a list containing all details needed to connect to a database. The list can then be used in the 
-#' \code{connect} function. 
-#' 
-#' Depending on the DBMS, the function arguments have slightly different interpretations:
-#' 
-#' MySQL:
-#' \itemize{
-#'   \item \code{user}. The user name used to access the server
-#'   \item \code{password}. The password for that user
-#'   \item \code{server}. The host name of the server
-#'   \item \code{port}. Specifies the port on the server (default = 3306)
-#'   \item \code{schema}. The database containing the tables
-#' }
-#' 
-#' Oracle:
-#' \itemize{
-#'   \item \code{user}. The user name used to access the server
-#'   \item \code{password}. The password for that user
-#'   \item \code{server}. This field contains the SID, or host and servicename or SID: '<sid>', '<host>/<sid>', '<host>/<service name>'
-#'   \item \code{port}. Specifies the port on the server (default = 1521)
-#'   \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the tables
-#' }
-#' 
-#' Microsoft SQL Server:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server
-#'   \item \code{port}. Not used for SQL Server
-#'   \item \code{schema}. The database containing the tables
-#' }
-#' 
-#' Microsoft PDW:
-#' \itemize{
-#'   \item \code{server}. This field contains the host name of the server
-#'   \item \code{port}. Not used for SQL Server
-#'   \item \code{schema}. The database containing the tables
-#' }
-#' Currently only connections using Windows Integrated security are supported for PDW.
-#' 
-#' PostgreSQL:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server 
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5432)
-#'   \item \code{schema}. The schema containing the tables. 
-#' }
-#' 
-#' Redshift:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server 
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5432)
-#'   \item \code{schema}. The schema containing the tables. 
-#'}
-#' 
-#' Netezza:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server 
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5480)
-#'   \item \code{schema}. The schema containing the tables. 
-#' }
-#' To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from 
-#' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and run it, thereby extracting its 
-#' contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or 
-#' sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example 
-#' to c:/windows/system32.
-#' 
-#' In order to enable Netezza support, place your Netezza jdbc driver at \code{inst/java/nzjdbc.jar} in this package.
+#' This function creates a connection to a database. 
 #' 
 #' @return              
 #' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to direct commands to the database engine. 
@@ -263,12 +100,12 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
   key <- paste(driverClass,classPath)
   if (key %in% ls(jdbcDrivers)){
     driver <- get(key,jdbcDrivers)
-    if (is.jnull(driver@jdrv)){
-      driver <- JDBC(driverClass, classPath, identifier.quote)
+    if (rJava::is.jnull(driver@jdrv)){
+      driver <- RJDBC::JDBC(driverClass, classPath, identifier.quote)
       assign(key,driver,envir = jdbcDrivers)
     }
   } else {
-    driver <- JDBC(driverClass, classPath, identifier.quote)
+    driver <- RJDBC::JDBC(driverClass, classPath, identifier.quote)
     assign(key,driver,envir = jdbcDrivers)    
   }
   driver
@@ -282,9 +119,9 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       port = "3306"
     pathToJar <- system.file("java", "mysql-connector-java-5.1.30-bin.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("com.mysql.jdbc.Driver", pathToJar, identifier.quote="`")
-    connection <- dbConnect(driver, paste("jdbc:mysql://",server,":",port,"/?useCursorFetch=true",sep=""), user, password)
+    connection <- RJDBC::dbConnect(driver, paste("jdbc:mysql://",server,":",port,"/?useCursorFetch=true",sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
-      dbSendUpdate(connection,paste("USE",schema))
+      RJDBC::dbSendUpdate(connection,paste("USE",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }	
@@ -296,7 +133,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       connectionString <- paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep="")
       if (!is.null(port))
         connectionString <- paste(connectionString,";port=",port,sep="")
-      connection <- dbConnect(driver,connectionString)
+      connection <- RJDBC::dbConnect(driver,connectionString)
     } else { # Using regular user authentication
       writeLines("Connecting using SQL Server driver")
       # I've been unable to get Microsoft's JDBC driver to connect without integrated security,
@@ -306,13 +143,13 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
       if (grepl("/",user)){
         parts <-  unlist(strsplit(user,"/"))
-        connection <- dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,";domain=",parts[1],sep=""), parts[2], password)
+        connection <- RJDBC::dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,";domain=",parts[1],sep=""), parts[2], password)
       } else {
-        connection <- dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,sep=""), user, password)
+        connection <- RJDBC::dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,sep=""), user, password)
       }
     }
     if (!missing(schema) && !is.null(schema))
-      dbSendUpdate(connection,paste("USE",schema))
+      RJDBC::dbSendUpdate(connection,paste("USE",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }
@@ -331,15 +168,15 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       host = parts[1]
       sid = parts[2]
     }
-    result <- class(try(connection <- dbConnect(driver, paste("jdbc:oracle:thin:@",host,":",port,":",sid ,sep=""), user, password),silent=TRUE))[1]
+    result <- class(try(connection <- RJDBC::dbConnect(driver, paste("jdbc:oracle:thin:@",host,":",port,":",sid ,sep=""), user, password),silent=TRUE))[1]
     
     
     # Next try OCI driver:
     if (result =="try-error")
-      connection <- dbConnect(driver, paste("jdbc:oracle:oci8:@",server,sep=""), user, password)    
+      connection <- RJDBC::dbConnect(driver, paste("jdbc:oracle:oci8:@",server,sep=""), user, password)    
     
     if (!missing(schema) && !is.null(schema))
-      dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
+      RJDBC::dbSendUpdate(connection,paste("ALTER SESSION SET current_schema = ",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }
@@ -354,9 +191,9 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       port = "5432"
     pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc4.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
-    connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
+    connection <- RJDBC::dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
-      dbSendUpdate(connection,paste("SET search_path TO ",schema))
+      RJDBC::dbSendUpdate(connection,paste("SET search_path TO ",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }	
@@ -372,9 +209,9 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       port = "5432"
     pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
-    connection <- dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
+    connection <- RJDBC::dbConnect(driver, paste("jdbc:postgresql://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
-      dbSendUpdate(connection,paste("SET search_path TO ",schema))
+      RJDBC::dbSendUpdate(connection,paste("SET search_path TO ",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }	
@@ -389,9 +226,9 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       port = "5480"
     pathToJar <- system.file("java", "nzjdbc.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.netezza.Driver", pathToJar, identifier.quote="`")
-    connection <- dbConnect(driver, paste("jdbc:netezza://",host,":",port,"/",database,sep=""), user, password)
+    connection <- RJDBC::dbConnect(driver, paste("jdbc:netezza://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
-      dbSendUpdate(connection,paste("SET search_path TO ",schema))
+      RJDBC::dbSendUpdate(connection,paste("SET search_path TO ",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }	

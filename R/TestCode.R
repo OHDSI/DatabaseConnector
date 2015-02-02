@@ -19,8 +19,6 @@ localTestCode <- function(){
   connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",user="eu/mschuemi",password=pw,schema="cdm_hcup")
   conn <- connect(connectionDetails)
   querySql(conn,"SELECT COUNT(*) FROM person")
-  library(ffbase)
-  options(fftempdir ="c:/temp")
   x <- dbGetQuery.ffdf(conn,"SELECT TOP 1000000 * FROM person")
   dbDisconnect(conn)
   
@@ -29,6 +27,8 @@ localTestCode <- function(){
   conn <- connect(connectionDetails)
   querySql(conn,"SELECT COUNT(*) FROM person")
   dbGetQuery.ffdf(conn,"SELECT TOP 100 * FROM person")
+  executeSql(conn,"CREATE TABLE #temp (x int)")
+  querySql(conn,"SELECT COUNT(*) FROM #temp")
   #x <- dbGetQuery.ffdf(conn,"SELECT * FROM person")
   dbDisconnect(conn)
   

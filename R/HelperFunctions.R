@@ -48,32 +48,32 @@
 #' @export
 dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
   #Create resultset:
-  .jcall("java/lang/System",,"gc")
+  rJava::.jcall("java/lang/System",,"gc")
   
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
-  .jcall(connection@jc,"V",method="setAutoCommit",FALSE)
+  rJava::.jcall(connection@jc,"V",method="setAutoCommit",FALSE)
   
-  type_forward_only <- .jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
-  concur_read_only <- .jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
-  s <- .jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
+  type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
+  concur_read_only <- rJava::.jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
+  s <- rJava::.jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
   
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
-  .jcall(s,"V",method="setFetchSize",as.integer(2048))
+  rJava::.jcall(s,"V",method="setFetchSize",as.integer(2048))
   
-  r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
-  md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
-  resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=.jnull())
+  r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
+  md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
+  resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
   
-  on.exit(dbClearResult(resultSet))
+  on.exit(RJDBC::dbClearResult(resultSet))
   # Don't forget to return autocommit to TRUE
-  on.exit(.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
+  on.exit(rJava::.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
   
   #Fetch data in batches:
   data <- NULL
   n <- batchSize
   while (n == batchSize){
-    batch <- fetch(resultSet, batchSize)
+    batch <- RJDBC::fetch(resultSet, batchSize)
     n <- nrow(batch)
     if (is.null(data)){
       charCols <- sapply(batch,class)
@@ -123,28 +123,28 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
 #' @export
 dbGetQueryPostgreSql <- function (connection, query = ""){
   #Create resultset:
-  .jcall("java/lang/System",,"gc")
+  rJava::.jcall("java/lang/System",,"gc")
   
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
-  .jcall(connection@jc,"V",method="setAutoCommit",FALSE)
+  rJava::.jcall(connection@jc,"V",method="setAutoCommit",FALSE)
   
-  type_forward_only <- .jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
-  concur_read_only <- .jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
-  s <- .jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
+  type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
+  concur_read_only <- rJava::.jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
+  s <- rJava::.jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
   
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
-  .jcall(s,"V",method="setFetchSize",as.integer(2048))
+  rJava::.jcall(s,"V",method="setFetchSize",as.integer(2048))
   
-  r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
-  md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
-  resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=.jnull())
+  r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
+  md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
+  resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
   
-  on.exit(dbClearResult(resultSet))
+  on.exit(RJDBC::dbClearResult(resultSet))
   # Don't forget to return autocommit to TRUE
-  on.exit(.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
+  on.exit(rJava::.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
   
-  data <- fetch(resultSet, -1)
+  data <- RJDBC::fetch(resultSet, -1)
   return(data)
 }
 
@@ -197,9 +197,9 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
         tableName = tolower(gsub("(^ +)|( +$)", "", substr(sqlStatement,nameStart,nchar(sqlStatement))))
         tableCount = dbGetQuery(connection,paste("SELECT COUNT(*) FROM pg_table_def WHERE tablename = '",tableName,"'",sep=""))
         if (tableCount != 0)
-          dbSendUpdate(connection, paste("DROP TABLE",tableName))
+          RJDBC::dbSendUpdate(connection, paste("DROP TABLE",tableName))
       } else
-        dbSendUpdate(connection, sqlStatement)
+        RJDBC::dbSendUpdate(connection, sqlStatement)
       
       if (profile){
         delta <- Sys.time() - startQuery
@@ -211,7 +211,6 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
       #Write error report:
       filename <- paste(getwd(),"/errorReport.txt",sep="")
       sink(filename)
-      error <<- err
       cat("DBMS:\n")
       cat(attr(connection,"dbms"))
       cat("\n\n")
@@ -258,7 +257,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
 #' @export
 querySql <- function(connection, sql){
   tryCatch ({   
-    .jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
+    rJava::.jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
     
     result <- dbGetQueryPostgreSql(connection, sql)
     colnames(result) <- toupper(colnames(result))
@@ -269,7 +268,6 @@ querySql <- function(connection, sql){
     #Write error report:
     filename <- paste(getwd(),"/errorReport.txt",sep="")
     sink(filename)
-    error <<- err
     cat("DBMS:\n")
     cat(attr(connection,"dbms"))
     cat("\n\n")
@@ -308,18 +306,9 @@ querySql <- function(connection, sql){
 #' created, or the data is appended to an existing table.
 #' 
 #' @param connection  The connection to the database server.
-#' @param dbms        The type of DBMS running on the server. Valid values are
-#' \itemize{
-#'   \item{"mysql" for MySQL}
-#'   \item{"oracle" for Oracle}
-#'   \item{"postgresql" for PostgreSQL}
-#'   \item{"redshift" for Amazon Redshift}   
-#'   \item{"netezza" for Netezza}   
-#'   \item{"sql server" for Microsoft SQL Server}
-#'   }
 #' @param tableName  	The name of the table where the data should be inserted.
 #' @param data        The data frame containing the data to be inserted.
-#' @param overWrite   Overwrite data if the table already exists?
+#' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param append      Append to existing table?
 #' @param temp        Should the table be created as a temp table?
 #'
@@ -331,11 +320,11 @@ querySql <- function(connection, sql){
 #'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
 #'   data <- data.frame(x = c(1,2,3), y = c("a","b","c"))
-#'   dbInsertTable(conn,"mysql","my_table",data)
+#'   dbInsertTable(conn,"my_table",data)
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbInsertTable <- function(connection, tableName, data, dropTableIfExists=TRUE, append=FALSE, temp=FALSE) {
+dbInsertTable <- function(connection, tableName, data, dropTableIfExists = TRUE, append = FALSE, temp = FALSE) {
   dropTableIfExists <- isTRUE(as.logical(dropTableIfExists))
   append <- if (dropTableIfExists) FALSE else isTRUE(as.logical(append))
   if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
