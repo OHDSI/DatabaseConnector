@@ -95,7 +95,7 @@ connect <- function(...){
   UseMethod("connect") 
 }
 
-# Singleton pattern to ensire driver is instantiated only once
+# Singleton pattern to ensure driver is instantiated only once
 jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA){
   key <- paste(driverClass,classPath)
   if (key %in% ls(jdbcDrivers)){
@@ -148,8 +148,10 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
         connection <- RJDBC::dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,sep=""), user, password)
       }
     }
-    if (!missing(schema) && !is.null(schema))
-      RJDBC::dbSendUpdate(connection,paste("USE",schema))
+    if (!missing(schema) && !is.null(schema)){
+	  database <- strsplit(schema ,"\\.")[[1]][1]
+      RJDBC::dbSendUpdate(connection, paste("USE", database))
+	}
     attr(connection,"dbms") <- dbms
     return(connection)
   }

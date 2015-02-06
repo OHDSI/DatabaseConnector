@@ -70,7 +70,7 @@ Microsoft SQL Server:
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server
   \item \code{port}. Not used for SQL Server
-  \item \code{schema}. The database containing the tables
+  \item \code{schema}. The database containing the tables. If both database and schema are specified (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored.
 }
 
 Microsoft PDW:

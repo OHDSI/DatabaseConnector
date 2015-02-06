@@ -309,8 +309,7 @@ querySql <- function(connection, sql){
 #' @param tableName  	The name of the table where the data should be inserted.
 #' @param data        The data frame containing the data to be inserted.
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
-#' @param append      Append to existing table?
-#' @param temp        Should the table be created as a temp table?
+#' @param createTable      Create a new table? If false, will append to existing table.
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is 
@@ -324,35 +323,37 @@ querySql <- function(connection, sql){
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbInsertTable <- function(connection, tableName, data, dropTableIfExists = TRUE, append = FALSE, temp = FALSE) {
-  dropTableIfExists <- isTRUE(as.logical(dropTableIfExists))
-  append <- if (dropTableIfExists) FALSE else isTRUE(as.logical(append))
+dbInsertTable <- function(connection, tableName, data, dropTableIfExists = TRUE, createTable = TRUE) {
+  if (dropTableIfExists)
+    createTable = TRUE
   if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
-  if (length(data)<1) stop("data must have at least one column")
+  if (length(data) < 1) stop("data must have at least one column")
   if (is.null(names(data))) names(data) <- paste("V",1:length(data),sep='')
   if (length(data[[1]])>0) {
     if (!is.data.frame(data)) data <- as.data.frame(data, row.names=1:length(data[[1]]))
   } else {
     if (!is.data.frame(data)) data <- as.data.frame(data)
   }
-  if (temp)
-    tableName <-paste("#",tableName,sep="")
+
+  if (dropTableIfExists) {
+    sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL  DROP TABLE @tableName;"
+    sql <- SqlRender::renderSql(sql,  tableName = tableName)$sql
+    sql <- SqlRender::translateSql(sql, targetDialect = attr(connection,"dbms"))$sql
+    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)  
+  }
+  
   def = function(obj) {
     if (is.integer(obj)) "INTEGER"
     else if (is.numeric(obj)) "FLOAT"
     else "VARCHAR(255)"
   }
   fts <- sapply(data, def)
-  if (dbExistsTable(connection, tableName)) {
-    if (dropTableIfExists) dbRemoveTable(connection, tableName)
-    else if (!append) stop("Table `",tableName,"' already exists")
-  } else if (append) stop("Cannot append to a non-existing table `",tableName,"'")
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),fts,collapse=',')
   qname <- .sql.qescape(tableName, TRUE, connection@identifier.quote)
-  if (!append) {
+  if (createTable) {
     sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
     sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"))$sql
-    dbSendUpdate(connection, sql)
+    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   esc <- function(str){
     paste("'",gsub("'","''",str),"'",sep="")

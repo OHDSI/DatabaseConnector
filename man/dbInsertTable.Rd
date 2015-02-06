@@ -5,7 +5,7 @@
 \title{Insert a table on the server}
 \usage{
 dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
-  append = FALSE, temp = FALSE)
+  createTable = TRUE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -16,9 +16,7 @@ dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
 
 \item{dropTableIfExists}{Drop the table if the table already exists before writing?}
 
-\item{append}{Append to existing table?}
-
-\item{temp}{Should the table be created as a temp table?}
+\item{createTable}{Create a new table? If false, will append to existing table.}
 }
 \description{
 This function sends the data in a data frame to a table on the server. Either a new table is
