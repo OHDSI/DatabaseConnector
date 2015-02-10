@@ -230,7 +230,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     driver <- jdbcSingleton("org.netezza.Driver", pathToJar, identifier.quote="`")
     connection <- RJDBC::dbConnect(driver, paste("jdbc:netezza://",host,":",port,"/",database,sep=""), user, password)
     if (!missing(schema) && !is.null(schema))
-      RJDBC::dbSendUpdate(connection,paste("SET search_path TO ",schema))
+      RJDBC::dbSendUpdate(connection,paste("SET schema TO ",schema))
     attr(connection,"dbms") <- dbms
     return(connection)
   }	
