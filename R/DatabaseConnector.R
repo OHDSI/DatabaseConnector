@@ -115,7 +115,7 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 connect.default <- function(dbms = "sql server", user, password, server, port, schema){
   if (dbms == "mysql"){
     writeLines("Connecting using MySQL driver")
-    if (missing(port)|| is.null(port))
+    if (missing(port) || is.null(port))
       port = "3306"
     pathToJar <- system.file("java", "mysql-connector-java-5.1.30-bin.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("com.mysql.jdbc.Driver", pathToJar, identifier.quote="`")
@@ -131,7 +131,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       pathToJar <- system.file("java", "sqljdbc4.jar", package="DatabaseConnector")
       driver <- jdbcSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
       connectionString <- paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep="")
-      if (!is.null(port))
+      if (!missing(port) && !is.null(port))
         connectionString <- paste(connectionString,";port=",port,sep="")
       connection <- RJDBC::dbConnect(driver,connectionString)
     } else { # Using regular user authentication
@@ -161,7 +161,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     driver <- jdbcSingleton("oracle.jdbc.driver.OracleDriver", pathToJar)
     
     # First THIN driver:
-    if (missing(port)|| is.null(port))
+    if (missing(port) || is.null(port))
       port = "1521"
     host = "127.0.0.1"	
     sid = server
@@ -189,7 +189,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     parts <-  unlist(strsplit(server,"/"))
     host = parts[1]
     database = parts[2]
-    if (missing(port)|| is.null(port))
+    if (missing(port) || is.null(port))
       port = "5432"
     pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc4.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
@@ -207,7 +207,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     parts <-  unlist(strsplit(server,"/"))
     host = parts[1]
     database = parts[2]
-    if (missing(port)|| is.null(port))
+    if (missing(port) || is.null(port))
       port = "5432"
     pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote="`")
@@ -224,7 +224,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     parts <-  unlist(strsplit(server,"/"))
     host = parts[1]
     database = parts[2]
-    if (missing(port)|| is.null(port))
+    if (missing(port) || is.null(port))
       port = "5480"
     pathToJar <- system.file("java", "nzjdbc.jar", package="DatabaseConnector")
     driver <- jdbcSingleton("org.netezza.Driver", pathToJar, identifier.quote="`")
