@@ -247,6 +247,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during
 #' SQL execution, this error is written to a file to facilitate debugging. 
 #' 
+#' @return A data frame.
 #' 
 #' @examples \dontrun{
 #'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
@@ -260,6 +261,54 @@ querySql <- function(connection, sql){
     rJava::.jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
     
     result <- dbGetQueryPostgreSql(connection, sql)
+    colnames(result) <- toupper(colnames(result))
+    return(result)
+  } , error = function(err) {
+    writeLines(paste("Error executing SQL:",err))
+    
+    #Write error report:
+    filename <- paste(getwd(),"/errorReport.txt",sep="")
+    sink(filename)
+    cat("DBMS:\n")
+    cat(attr(connection,"dbms"))
+    cat("\n\n")
+    cat("Error:\n")
+    cat(err$message)
+    cat("\n\n")
+    cat("SQL:\n")
+    cat(sql)
+    sink()
+    
+    writeLines(paste("An error report has been created at ", filename))
+    break
+  })
+}
+
+#' Send SQL query
+#'
+#' @description
+#' This function sends SQL to the server, and returns the results in an ffdf object.
+#' 
+#' @param connection  The connection to the database server.
+#' @param sql  	The SQL to be send.
+#'
+#' @details
+#' This function sends the SQL to the server and retrieves the results. If an error occurs during
+#' SQL execution, this error is written to a file to facilitate debugging. 
+#' 
+#' @return An ffdf object. 
+#' 
+#' @examples \dontrun{
+#'   library(ffbase)
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   conn <- connect(connectionDetails)
+#'   count <- querySql.ffdf(conn,"SELECT COUNT(*) FROM person")
+#'   dbDisconnect(conn)
+#' }
+#' @export
+querySql.ffdf <- function(connection, sql){
+  tryCatch ({   
+    result <- dbGetQuery.ffdf(connection, sql)
     colnames(result) <- toupper(colnames(result))
     return(result)
   } , error = function(err) {

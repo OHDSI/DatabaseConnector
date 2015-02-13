@@ -11,6 +11,9 @@ querySql(connection, sql)
 
 \item{sql}{The SQL to be send.}
 }
+\value{
+A data frame.
+}
 \description{
 This function sends SQL to the server, and returns the results.
 }
