@@ -16,6 +16,16 @@ conn <- connect(connectionDetails)
 dbGetQuery(conn,"SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 ```
+Getting Started
+===========
+Install DatabaseConnector to R in invoke it:
+
+  ```r
+  install.packages("devtools")
+  library(devtools)
+  install_github("ohdsi/DatabaseConnector") 
+  library(DatabaseConnector)
+  ```
 
 Dependecies
 ===========
