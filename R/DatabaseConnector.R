@@ -141,12 +141,15 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       # log in'), so using JTDS driver instead:
       pathToJar <- system.file("java", "jtds-1.2.7.jar", package="DatabaseConnector")
       driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
+      connectionString <- paste("jdbc:jtds:sqlserver://",server,sep="")
       if (grepl("/",user)){
         parts <-  unlist(strsplit(user,"/"))
-        connection <- RJDBC::dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,";domain=",parts[1],sep=""), parts[2], password)
-      } else {
-        connection <- RJDBC::dbConnect(driver, paste("jdbc:jtds:sqlserver://",server,sep=""), user, password)
+        connectionString <- paste(connectionString,";domain=",parts[1],sep="")
+        user <- parts[2]
       }
+      if (!missing(port) && !is.null(port))
+        connectionString <- paste(connectionString,";port=",port,sep="")
+      connection <- RJDBC::dbConnect(driver,connectionString, user, password)      
     }
     if (!missing(schema) && !is.null(schema)){
 	  database <- strsplit(schema ,"\\.")[[1]][1]
