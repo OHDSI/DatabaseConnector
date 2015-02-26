@@ -30,7 +30,11 @@ time per statement is shown to aid in detecting performance issues.
 }
 \examples{
 \dontrun{
-  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+  connectionDetails <- createConnectionDetails(dbms="mysql",
+                                               server="localhost",
+                                               user="root",
+                                               password="blah",
+                                               schema="cdm_v4")
   conn <- connect(connectionDetails)
   executeSql(conn,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
   dbDisconnect(conn)

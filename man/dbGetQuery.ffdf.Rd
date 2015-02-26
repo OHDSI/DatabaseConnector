@@ -4,7 +4,8 @@
 \alias{dbGetQuery.ffdf}
 \title{Retrieve data from server as ffdf object.}
 \usage{
-dbGetQuery.ffdf(connection, query = "", batchSize = 5e+05)
+dbGetQuery.ffdf(connection, query = "", batchSize = 5e+05,
+  datesAsString = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -14,6 +15,9 @@ dbGetQuery.ffdf(connection, query = "", batchSize = 5e+05)
 \item{batchSize}{The number of rows that will be retrieved at a time from the server. A larger
 batchSize means less calls to the server so better performance, but too large a batchSize could
 lead to out-of-memory errors.}
+
+\item{datesAsString}{Should dates be imported as character vectors, our should they
+be converted to R's date format?}
 }
 \value{
 A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)

@@ -23,7 +23,11 @@ SQL execution, this error is written to a file to facilitate debugging.
 }
 \examples{
 \dontrun{
-  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+  connectionDetails <- createConnectionDetails(dbms="mysql",
+                                               server="localhost",
+                                               user="root",
+                                               password="blah",
+                                               schema="cdm_v4")
   conn <- connect(connectionDetails)
   count <- querySql(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)

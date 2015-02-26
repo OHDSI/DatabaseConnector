@@ -12,14 +12,14 @@ dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
 
 \item{tableName}{The name of the table where the data should be inserted.}
 
-\item{data}{The data frame containing the data to be inserted.}
+\item{data}{The data frame or ffdf containing the data to be inserted.}
 
 \item{dropTableIfExists}{Drop the table if the table already exists before writing?}
 
 \item{createTable}{Create a new table? If false, will append to existing table.}
 }
 \description{
-This function sends the data in a data frame to a table on the server. Either a new table is
+This function sends the data in a data frame or ffdf to a table on the server. Either a new table is
 created, or the data is appended to an existing table.
 }
 \details{
@@ -28,7 +28,11 @@ created, or the data is appended to an existing table.
 }
 \examples{
 \dontrun{
-  connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+  connectionDetails <- createConnectionDetails(dbms="mysql",
+                                               server="localhost",
+                                               user="root",
+                                               password="blah",
+                                               schema="cdm_v4")
   conn <- connect(connectionDetails)
   data <- data.frame(x = c(1,2,3), y = c("a","b","c"))
   dbInsertTable(conn,"my_table",data)

@@ -30,6 +30,8 @@
 #' @param batchSize		The number of rows that will be retrieved at a time from the server. A larger 
 #' batchSize means less calls to the server so better performance, but too large a batchSize could
 #' lead to out-of-memory errors.
+#' @param datesAsString Should dates be imported as character vectors, our should they 
+#' be converted to R's date format? 
 #'
 #' @details
 #' Retrieves data from the database server and stores it in an ffdf object. This allows very large
@@ -46,13 +48,17 @@
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
+dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAsString = FALSE){
   #Create resultset:
   rJava::.jcall("java/lang/System",,"gc")
   
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
-  rJava::.jcall(connection@jc,"V",method="setAutoCommit",FALSE)
+  autoCommit <- .jcall(connection@jc, "Z", "getAutoCommit")
+  if (autoCommit) {
+    .jcall(connection@jc, "V", "setAutoCommit", FALSE)
+    on.exit(.jcall(connection@jc, "V", "setAutoCommit", TRUE))
+  }
   
   type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
@@ -65,15 +71,22 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
   
-  on.exit(RJDBC::dbClearResult(resultSet))
-  # Don't forget to return autocommit to TRUE
-  on.exit(rJava::.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
+  on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
   
   #Fetch data in batches:
   data <- NULL
   n <- batchSize
   while (n == batchSize){
     batch <- RJDBC::fetch(resultSet, batchSize)
+    if (!datesAsString){
+      cols <- .jcall(resultSet@md, "I", "getColumnCount")
+      for (i in 1:cols) {
+        type <- .jcall(resultSet@md, "I", "getColumnType", i)
+        if (type == 91) #Date
+          batch[,i] <- as.Date(batch[,i])
+      }
+    }
+    
     n <- nrow(batch)
     if (is.null(data)){
       charCols <- sapply(batch,class)
@@ -107,6 +120,8 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
 #' 
 #' @param connection  The connection to the database server.
 #' @param query		    The SQL statement to retrieve the data
+#' @param datesAsString Should dates be imported as character vectors, our should they 
+#' be converted to R's date format?
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a data frame.
@@ -121,13 +136,17 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000){
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbGetQueryPostgreSql <- function (connection, query = ""){
+dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE){
   #Create resultset:
   rJava::.jcall("java/lang/System",,"gc")
   
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
-  rJava::.jcall(connection@jc,"V",method="setAutoCommit",FALSE)
+  autoCommit <- .jcall(connection@jc, "Z", "getAutoCommit")
+  if (autoCommit) {
+    .jcall(connection@jc, "V", "setAutoCommit", FALSE)
+    on.exit(.jcall(connection@jc, "V", "setAutoCommit", TRUE))
+  }
   
   type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
@@ -140,11 +159,19 @@ dbGetQueryPostgreSql <- function (connection, query = ""){
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
   
-  on.exit(RJDBC::dbClearResult(resultSet))
-  # Don't forget to return autocommit to TRUE
-  on.exit(rJava::.jcall(connection@jc,"V",method="setAutoCommit",TRUE), add = TRUE)
+  on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
   
   data <- RJDBC::fetch(resultSet, -1)
+  
+  if (!datesAsString){
+    cols <- .jcall(resultSet@md, "I", "getColumnCount")
+    for (i in 1:cols) {
+      type <- .jcall(resultSet@md, "I", "getColumnType", i)
+      if (type == 91) #Date
+        data[,i] <- as.Date(data[,i])
+    }
+  }
+  
   return(data)
 }
 
@@ -362,12 +389,12 @@ querySql.ffdf <- function(connection, sql){
 #' Insert a table on the server
 #'
 #' @description
-#' This function sends the data in a data frame to a table on the server. Either a new table is 
+#' This function sends the data in a data frame or ffdf to a table on the server. Either a new table is 
 #' created, or the data is appended to an existing table.
 #' 
 #' @param connection  The connection to the database server.
 #' @param tableName  	The name of the table where the data should be inserted.
-#' @param data        The data frame containing the data to be inserted.
+#' @param data        The data frame or ffdf containing the data to be inserted.
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param createTable      Create a new table? If false, will append to existing table.
 #'
@@ -398,38 +425,80 @@ dbInsertTable <- function(connection, tableName, data, dropTableIfExists = TRUE,
   } else {
     if (!is.data.frame(data)) data <- as.data.frame(data)
   }
-
+  
+  def = function(obj) {
+    if (is.integer(obj)) "INTEGER"
+    else if (is.numeric(obj)) "FLOAT"
+    else if (class(obj) == "Date") "DATE"
+    else "VARCHAR(255)"
+  }
+  fts <- sapply(data[1,], def)
+  isDate <-(fts == "DATE")
+  fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),fts,collapse=',')
+  qname <- .sql.qescape(tableName, TRUE, connection@identifier.quote)
+  esc <- function(str){
+    paste("'",gsub("'","''",str),"'",sep="")
+  }
+  varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),collapse=',')
+  insertSql <- paste("INSERT INTO ",qname," (",varNames,") VALUES(", paste(rep("?",length(fts)),collapse=','),")",sep='')
+  insertSql <- SqlRender::translateSql(insertSql, targetDialect = attr(connection,"dbms"))$sql
+  
   if (dropTableIfExists) {
-    sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL  DROP TABLE @tableName;"
+    # TODO: handle detection of temp tables correctly:
+    sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
     sql <- SqlRender::renderSql(sql,  tableName = tableName)$sql
     sql <- SqlRender::translateSql(sql, targetDialect = attr(connection,"dbms"))$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)  
   }
   
-  def = function(obj) {
-    if (is.integer(obj)) "INTEGER"
-    else if (is.numeric(obj)) "FLOAT"
-    else "VARCHAR(255)"
-  }
-  fts <- sapply(data, def)
-  fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),fts,collapse=',')
-  qname <- .sql.qescape(tableName, TRUE, connection@identifier.quote)
   if (createTable) {
     sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
     sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"))$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-  esc <- function(str){
-    paste("'",gsub("'","''",str),"'",sep="")
+  
+  batchSize <- 10000
+  
+  autoCommit <- .jcall(connection@jc, "Z", "getAutoCommit")
+  if (autoCommit) {
+    .jcall(connection@jc, "V", "setAutoCommit", FALSE)
+    on.exit(.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-  varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),collapse=',')
-  batchSize <- 1000
-  for (start in seq(1,nrow(data),by=batchSize)){
+  
+  insertRow <- function(row, statement){
+    for (i in 1:length(row))
+      .jcall(statement, "V", "setString", i, as.character(row[i]))
+    .jcall(statement, "V", "addBatch")
+  }
+  insertRowPostgreSql <- function(row, statement){
+    other <- rJava::.jfield("java/sql/Types","I","OTHER")
+    for (i in 1:length(row)){
+      value <- .jnew("java/lang/String", as.character(row[i]))
+      .jcall(statement, "V", "setObject", i, .jcast(value, "java/lang/Object"), other)
+    }
+    .jcall(statement, "V", "addBatch")
+  }
+  insertRowOracle <- function(row, statement, isDate){
+    for (i in 1:length(row)){
+      if (isDate[i]){
+        date <- .jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))    
+        .jcall(statement, "V", "setDate", i, date)    
+      } else
+        .jcall(statement, "V", "setString", i, as.character(row[i]))
+    }
+    .jcall(statement, "V", "addBatch")
+  }
+  
+  for (start in seq(1, nrow(data), by = batchSize)){
     end = min(start+batchSize-1,nrow(data))
-    valueString <- paste(apply(sapply(data[start:end,],esc),MARGIN=1,FUN = paste,collapse=","),collapse="),(")
-    sql <- paste("INSERT INTO ",qname," (",varNames,") VALUES (",valueString,")",sep= '')
-    sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"))$sql
-    dbSendUpdate(connection,sql)
+    statement <- .jcall(connection@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", insertSql, check=FALSE)
+    if (attr(connection,"dbms") == 'postgresql')
+      apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRowPostgreSql)
+    else if (attr(connection,"dbms") == 'oracle')
+      apply(data[start:end,], statement = statement, isDate = isDate, MARGIN=1, FUN = insertRowOracle)
+    else
+      apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRow)  
+    .jcall(statement, "[I", "executeBatch")
   }   
 }
 

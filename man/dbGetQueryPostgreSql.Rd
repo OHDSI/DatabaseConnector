@@ -4,12 +4,15 @@
 \alias{dbGetQueryPostgreSql}
 \title{Retrieve data from server using PostgreSQL specific commands.}
 \usage{
-dbGetQueryPostgreSql(connection, query = "")
+dbGetQueryPostgreSql(connection, query = "", datesAsString = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
 
 \item{query}{The SQL statement to retrieve the data}
+
+\item{datesAsString}{Should dates be imported as character vectors, our should they
+be converted to R's date format?}
 }
 \value{
 A data frame containing the data retrieved from the server

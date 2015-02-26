@@ -49,4 +49,29 @@ localTestCode <- function(){
   conn <- connect(connectionDetails)
   dbGetQuery(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
+  
+  ### Tests for dbInsertTable ###
+  day.start <- "1900/01/01"
+  day.end <- "2012/12/31"
+  dayseq <- seq.Date(as.Date(day.start),as.Date(day.end),by="day")
+  makeRandomStrings <- function(n=1, lenght=12) {
+    randomString <- c(1:n)                 
+    for (i in 1:n)  
+      randomString[i] <- paste(sample(c(0:9, letters, LETTERS), lenght, replace=TRUE), collapse="")
+    return(randomString)
+  }
+  data <- data.frame(start_date = dayseq, person_id = as.integer(round(runif(length(dayseq),1,10000000))), value = runif(length(dayseq)), id = makeRandomStrings(length(dayseq)))
+  str(data)
+  tableName <- "#temp"
+  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",schema="cdm_hcup")  
+  connection <- connect(connectionDetails)
+  dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE)
+  
+  d <- querySql(connection, "SELECT * FROM #temp")
+  d <- querySql.ffdf(connection, "SELECT * FROM #temp")
+  
+  library(ffbase)
+  data <- as.ffdf(data)
+
+  dbDisconnect(connection)
 }
