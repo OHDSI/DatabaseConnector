@@ -23,7 +23,11 @@ Features
 Examples
 ========
 ```r
-connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+connectionDetails <- createConnectionDetails(dbms="mysql", 
+                                             server="localhost",
+                                             user="root",
+                                             password="blah",
+                                             schema="cdm_v4")
 conn <- connect(connectionDetails)
 querySql(conn,"SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
@@ -35,7 +39,7 @@ DatabaseConnector is an R package using Java's JDBC drivers.
 
 System Requirements
 ===================
-Requires R with the package rJava installed. Also requires Java 1.6 or higher (Oracle Java is recommended. [Issues](https://github.com/OHDSI/DatabaseConnector/issues/8) have been reported when using GCJ.) 
+Requires R. Also requires Java 1.6 or higher (Oracle Java is recommended. [Issues](https://github.com/OHDSI/DatabaseConnector/issues/8) have been reported when using GCJ.) 
 
 Dependencies
 ============
