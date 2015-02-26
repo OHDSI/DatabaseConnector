@@ -168,7 +168,11 @@ dbGetQueryPostgreSql <- function (connection, query = ""){
 #' 
 #' 
 #' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", 
+#'                                                server="localhost",
+#'                                                user="root",
+#'                                                password="blah",
+#'                                                schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
 #'   executeSql(conn,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
 #'   dbDisconnect(conn)
@@ -250,7 +254,11 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
 #' @return A data frame.
 #' 
 #' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", 
+#'                                                server="localhost",
+#'                                                user="root",
+#'                                                password="blah",
+#'                                                schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
 #'   count <- querySql(conn,"SELECT COUNT(*) FROM person")
 #'   dbDisconnect(conn)
@@ -300,8 +308,11 @@ querySql <- function(connection, sql){
 #' 
 #' @examples \dontrun{
 #'   library(ffbase)
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
-#'   conn <- connect(connectionDetails)
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", 
+#'                                                server="localhost",
+#'                                                user="root",
+#'                                                password="blah",
+#'                                                schema="cdm_v4")#'   conn <- connect(connectionDetails)
 #'   count <- querySql.ffdf(conn,"SELECT COUNT(*) FROM person")
 #'   dbDisconnect(conn)
 #' }
@@ -365,7 +376,11 @@ querySql.ffdf <- function(connection, sql){
 #' created, or the data is appended to an existing table.
 #' 
 #' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
+#'   connectionDetails <- createConnectionDetails(dbms="mysql", 
+#'                                                server="localhost",
+#'                                                user="root",
+#'                                                password="blah",
+#'                                                schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
 #'   data <- data.frame(x = c(1,2,3), y = c("a","b","c"))
 #'   dbInsertTable(conn,"my_table",data)
