@@ -1,6 +1,7 @@
 
 # Temporary placeholder for testing code until we figure out unit testing with DB and filesys dependencies
 localTestCode <- function(){
+  #library(DatabaseConnector)
   pw <- ""
   
   #Test MySQL:
@@ -10,7 +11,13 @@ localTestCode <- function(){
   dbDisconnect(conn)
   
   #Test PDW with integrated security:
-  connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSHITAPS01",port=17001, schema="CDM_Truven_MDCR")
+  connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSAPSCTL01",port=17001, schema="CDM_Truven_MDCR")
+  conn <- connect(connectionDetails)
+  querySql(conn,"SELECT COUNT(*) FROM person")
+  dbDisconnect(conn)
+  
+  #Test PDW without integrated security:
+  connectionDetails <- createConnectionDetails(dbms="pdw", server="JRDUSAPSCTL01",port=17001, schema="CDM_Truven_MDCR", user = "hix_writer", password=pw)
   conn <- connect(connectionDetails)
   querySql(conn,"SELECT COUNT(*) FROM person")
   dbDisconnect(conn)

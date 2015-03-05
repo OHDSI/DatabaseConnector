@@ -125,7 +125,7 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
     attr(connection,"dbms") <- dbms
     return(connection)
   }	
-  if (dbms == "sql server" | dbms == "pdw"){
+  if (dbms == "sql server"){
     if (missing(user) || is.null(user)) { # Using Windows integrated security
       writeLines("Connecting using SQL Server driver using Windows integrated security")
       pathToJar <- system.file("java", "sqljdbc4.jar", package="DatabaseConnector")
@@ -153,9 +153,32 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       connection <- RJDBC::dbConnect(driver,connectionString, user, password)      
     }
     if (!missing(schema) && !is.null(schema)){
-	  database <- strsplit(schema ,"\\.")[[1]][1]
+      database <- strsplit(schema ,"\\.")[[1]][1]
       RJDBC::dbSendUpdate(connection, paste("USE", database))
-	}
+    }
+    attr(connection,"dbms") <- dbms
+    return(connection)
+  }
+  if (dbms == "pdw"){
+    writeLines("Connecting using SQL Server driver")
+    pathToJar <- system.file("java", "sqljdbc4.jar", package="DatabaseConnector")
+    driver <- jdbcSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
+    
+    if (missing(user) || is.null(user)) { # Using Windows integrated security
+      connectionString <- paste("jdbc:sqlserver://",server,";integratedSecurity=true",sep="")
+      if (!missing(port) && !is.null(port))
+        connectionString <- paste(connectionString,";port=",port,sep="")
+      connection <- RJDBC::dbConnect(driver, connectionString)
+    } else { 
+      connectionString <- paste("jdbc:sqlserver://",server,";integratedSecurity=false",sep="")
+      if (!missing(port) && !is.null(port))
+        connectionString <- paste(connectionString,";port=",port,sep="")
+      connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+    }
+    if (!missing(schema) && !is.null(schema)){
+      database <- strsplit(schema ,"\\.")[[1]][1]
+      RJDBC::dbSendUpdate(connection, paste("USE", database))
+    }
     attr(connection,"dbms") <- dbms
     return(connection)
   }
