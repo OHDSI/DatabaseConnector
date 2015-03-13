@@ -397,6 +397,8 @@ querySql.ffdf <- function(connection, sql){
 #' @param data        The data frame or ffdf containing the data to be inserted.
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param createTable      Create a new table? If false, will append to existing table.
+#' @param tempTable   Should the table created as a temp table?
+#' @param oracleTempSchema  Specifically for Oracle, a schema with write priviliges where temp tables can be created.
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is 
@@ -414,9 +416,21 @@ querySql.ffdf <- function(connection, sql){
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbInsertTable <- function(connection, tableName, data, dropTableIfExists = TRUE, createTable = TRUE) {
+dbInsertTable <- function(connection, 
+                          tableName, 
+                          data, 
+                          dropTableIfExists = TRUE, 
+                          createTable = TRUE, 
+                          tempTable = FALSE,
+                          oracleTempSchema = NULL) {
   if (dropTableIfExists)
     createTable = TRUE
+  if (tempTable & substr(tableName, 1, 1) != "#")
+    tableName = paste("#", tableName, sep = "")
+  if (!tempTable & substr(tableName, 1, 1) == "#"){
+    tempTable = TRUE
+    warning("Temp table name detected, setting tempTable parameter to TRUE")
+  }
   if (is.vector(data) && !is.list(data)) data <- data.frame(x=data)
   if (length(data) < 1) stop("data must have at least one column")
   if (is.null(names(data))) names(data) <- paste("V",1:length(data),sep='')
@@ -441,19 +455,22 @@ dbInsertTable <- function(connection, tableName, data, dropTableIfExists = TRUE,
   }
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),collapse=',')
   insertSql <- paste("INSERT INTO ",qname," (",varNames,") VALUES(", paste(rep("?",length(fts)),collapse=','),")",sep='')
-  insertSql <- SqlRender::translateSql(insertSql, targetDialect = attr(connection,"dbms"))$sql
+  insertSql <- SqlRender::translateSql(insertSql, targetDialect = attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
   
   if (dropTableIfExists) {
-    # TODO: handle detection of temp tables correctly:
-    sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
+    if (tempTable){
+      sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
+    } else {
+      sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
+    }
     sql <- SqlRender::renderSql(sql,  tableName = tableName)$sql
-    sql <- SqlRender::translateSql(sql, targetDialect = attr(connection,"dbms"))$sql
+    sql <- SqlRender::translateSql(sql, targetDialect = attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)  
   }
   
   if (createTable) {
     sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
-    sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"))$sql
+    sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   

@@ -5,7 +5,7 @@
 \title{Insert a table on the server}
 \usage{
 dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
-  createTable = TRUE)
+  createTable = TRUE, tempTable = FALSE, oracleTempSchema = NULL)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -17,6 +17,10 @@ dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE,
 \item{dropTableIfExists}{Drop the table if the table already exists before writing?}
 
 \item{createTable}{Create a new table? If false, will append to existing table.}
+
+\item{tempTable}{Should the table created as a temp table?}
+
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables can be created.}
 }
 \description{
 This function sends the data in a data frame or ffdf to a table on the server. Either a new table is
