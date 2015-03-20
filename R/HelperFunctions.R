@@ -54,10 +54,10 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
   
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
-  autoCommit <- .jcall(connection@jc, "Z", "getAutoCommit")
+  autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
   if (autoCommit) {
-    .jcall(connection@jc, "V", "setAutoCommit", FALSE)
-    on.exit(.jcall(connection@jc, "V", "setAutoCommit", TRUE))
+    rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
+    on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
   
   type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
@@ -79,9 +79,9 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
   while (n == batchSize){
     batch <- RJDBC::fetch(resultSet, batchSize)
     if (!datesAsString){
-      cols <- .jcall(resultSet@md, "I", "getColumnCount")
+      cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
       for (i in 1:cols) {
-        type <- .jcall(resultSet@md, "I", "getColumnType", i)
+        type <- rJava::.jcall(resultSet@md, "I", "getColumnType", i)
         if (type == 91) #Date
           batch[,i] <- as.Date(batch[,i])
       }
@@ -142,10 +142,10 @@ dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE)
   
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
-  autoCommit <- .jcall(connection@jc, "Z", "getAutoCommit")
+  autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
   if (autoCommit) {
-    .jcall(connection@jc, "V", "setAutoCommit", FALSE)
-    on.exit(.jcall(connection@jc, "V", "setAutoCommit", TRUE))
+    rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
+    on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
   
   type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
@@ -164,9 +164,9 @@ dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE)
   data <- RJDBC::fetch(resultSet, -1)
   
   if (!datesAsString){
-    cols <- .jcall(resultSet@md, "I", "getColumnCount")
+    cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
     for (i in 1:cols) {
-      type <- .jcall(resultSet@md, "I", "getColumnType", i)
+      type <- rJava::.jcall(resultSet@md, "I", "getColumnType", i)
       if (type == 91) #Date
         data[,i] <- as.Date(data[,i])
     }
@@ -476,46 +476,46 @@ dbInsertTable <- function(connection,
   
   batchSize <- 10000
   
-  autoCommit <- .jcall(connection@jc, "Z", "getAutoCommit")
+  autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
   if (autoCommit) {
-    .jcall(connection@jc, "V", "setAutoCommit", FALSE)
-    on.exit(.jcall(connection@jc, "V", "setAutoCommit", TRUE))
+    rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
+    on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
   
   insertRow <- function(row, statement){
     for (i in 1:length(row))
-      .jcall(statement, "V", "setString", i, as.character(row[i]))
-    .jcall(statement, "V", "addBatch")
+      rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+    rJava::.jcall(statement, "V", "addBatch")
   }
   insertRowPostgreSql <- function(row, statement){
     other <- rJava::.jfield("java/sql/Types","I","OTHER")
     for (i in 1:length(row)){
-      value <- .jnew("java/lang/String", as.character(row[i]))
-      .jcall(statement, "V", "setObject", i, .jcast(value, "java/lang/Object"), other)
+      value <- rJava::.jnew("java/lang/String", as.character(row[i]))
+      rJava::.jcall(statement, "V", "setObject", i, rJava::.jcast(value, "java/lang/Object"), other)
     }
-    .jcall(statement, "V", "addBatch")
+    rJava::.jcall(statement, "V", "addBatch")
   }
   insertRowOracle <- function(row, statement, isDate){
     for (i in 1:length(row)){
       if (isDate[i]){
-        date <- .jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))    
-        .jcall(statement, "V", "setDate", i, date)    
+        date <- rJava::.jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))    
+        rJava::.jcall(statement, "V", "setDate", i, date)    
       } else
-        .jcall(statement, "V", "setString", i, as.character(row[i]))
+        rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
     }
-    .jcall(statement, "V", "addBatch")
+    rJava::.jcall(statement, "V", "addBatch")
   }
   
   for (start in seq(1, nrow(data), by = batchSize)){
     end = min(start+batchSize-1,nrow(data))
-    statement <- .jcall(connection@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", insertSql, check=FALSE)
+    statement <- rJava::.jcall(connection@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", insertSql, check=FALSE)
     if (attr(connection,"dbms") == 'postgresql')
       apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRowPostgreSql)
     else if (attr(connection,"dbms") == 'oracle')
       apply(data[start:end,], statement = statement, isDate = isDate, MARGIN=1, FUN = insertRowOracle)
     else
       apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRow)  
-    .jcall(statement, "[I", "executeBatch")
+    rJava::.jcall(statement, "[I", "executeBatch")
   }   
 }
 
