@@ -9,10 +9,11 @@
 #'   \item{"netezza" for IBM Netezza}
 #' } 
 #' @param user    		The user name used to access the server.
-#' @param password		The password for that user
-#' @param server			The name of the server
-#' @param port				(optional) The port on the server to connect to
-#' @param schema			(optional) The name of the schema to connect to
+#' @param domain      For SQL Server only: the Windows domain (optional).
+#' @param password		The password for that user.
+#' @param server			The name of the server.
+#' @param port				(optional) The port on the server to connect to.
+#' @param schema			(optional) The name of the schema to connect to.
 #' 
 #' @section DBMS parameter details:
 #' 
@@ -38,7 +39,8 @@
 #' 
 #' Microsoft SQL Server:
 #' \itemize{
-#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
+#'   \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). 
+#'   \item \code{domain}. Optionally, the domain can be specified here.
 #'   \item \code{password}. The password used to log on to the server
 #'   \item \code{server}. This field contains the host name of the server
 #'   \item \code{port}. Not used for SQL Server

@@ -23,7 +23,7 @@ localTestCode <- function(){
   dbDisconnect(conn)
  
   #Test SQL Server without integrated security:
-  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",user="eu/mschuemi",password=pw,schema="cdm_hcup",port=1433)
+  connectionDetails <- createConnectionDetails(dbms="sql server", server="RNDUSRDHIT06.jnj.com",user="mschuemi",domain="eu",password=pw,schema="cdm_hcup",port=1433)
   conn <- connect(connectionDetails)
   querySql(conn,"SELECT COUNT(*) FROM person")
   x <- dbGetQuery.ffdf(conn,"SELECT TOP 1000000 * FROM person")

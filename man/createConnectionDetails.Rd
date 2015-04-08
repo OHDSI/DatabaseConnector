@@ -4,8 +4,8 @@
 \alias{createConnectionDetails}
 \title{createConnectionDetails}
 \usage{
-createConnectionDetails(dbms = "sql server", user, password, server, port,
-  schema)
+createConnectionDetails(dbms = "sql server", user, domain, password, server,
+  port, schema)
 }
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
@@ -21,13 +21,15 @@ createConnectionDetails(dbms = "sql server", user, password, server, port,
 
 \item{user}{The user name used to access the server.}
 
-\item{password}{The password for that user}
+\item{domain}{For SQL Server only: the Windows domain (optional).}
 
-\item{server}{The name of the server}
+\item{password}{The password for that user.}
 
-\item{port}{(optional) The port on the server to connect to}
+\item{server}{The name of the server.}
 
-\item{schema}{(optional) The name of the schema to connect to}
+\item{port}{(optional) The port on the server to connect to.}
+
+\item{schema}{(optional) The name of the schema to connect to.}
 }
 \value{
 A list with all the details needed to connect to a database.
@@ -64,7 +66,8 @@ Oracle:
 
 Microsoft SQL Server:
 \itemize{
-  \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below). Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
+  \item \code{user}. The user used to log in to the server. If the user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed (see details below).
+  \item \code{domain}. Optionally, the domain can be specified here.
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server
   \item \code{port}. Not used for SQL Server

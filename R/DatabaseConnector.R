@@ -52,7 +52,7 @@ NULL
 #'   dbDisconnect(conn)
 #' }
 #' @export
-createConnectionDetails <- function(dbms = "sql server", user, password, server, port, schema){
+createConnectionDetails <- function(dbms = "sql server", user, domain, password, server, port, schema){
   result <- c(list(as.character(match.call()[[1]])),lapply(as.list(match.call())[-1],function(x) eval(x,envir=sys.frame(-3))))
   class(result) <- "connectionDetails"
   return(result)
@@ -112,7 +112,7 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 }
 
 #' @export
-connect.default <- function(dbms = "sql server", user, password, server, port, schema){
+connect.default <- function(dbms = "sql server", user, domain, password, server, port, schema){
   if (dbms == "mysql"){
     writeLines("Connecting using MySQL driver")
     if (missing(port) || is.null(port))
@@ -136,6 +136,8 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       connection <- RJDBC::dbConnect(driver,connectionString)
     } else { # Using regular user authentication
       writeLines("Connecting using SQL Server driver")
+      if (grepl("/",user) | grepl("\\\\",user))
+        stop("User name appears to contain the domain, but this should be specified using the domain parameter")
       # I've been unable to get Microsoft's JDBC driver to connect without integrated security,
       # probably because I don't fully understand how to provide the domain (keep getting 'unable to 
       # log in'), so using JTDS driver instead:
@@ -143,13 +145,10 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
       driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
       if (!missing(port) && !is.null(port))
         server <- paste(server, port, sep = ":")
-      
       connectionString <- paste("jdbc:jtds:sqlserver://",server,sep="")
-      if (grepl("/",user)){
-        parts <-  unlist(strsplit(user,"/"))
-        connectionString <- paste(connectionString,";domain=",parts[1],sep="")
-        user <- parts[2]
-      }
+      
+      if (!missing(domain) && !is.null(domain))
+        connectionString <- paste(connectionString,";domain=",domain,sep="")
       connection <- RJDBC::dbConnect(driver,connectionString, user, password)      
     }
     if (!missing(schema) && !is.null(schema)){
@@ -267,9 +266,10 @@ connect.default <- function(dbms = "sql server", user, password, server, port, s
 connect.connectionDetails <- function(connectionDetails){
   dbms = connectionDetails$dbms
   user = connectionDetails$user
+  domain = connectionDetails$domain
   password = connectionDetails$password
   server = connectionDetails$server
   port = connectionDetails$port
   schema = connectionDetails$schema
-  connect(dbms, user, password, server, port, schema)
+  connect(dbms, user, domain, password, server, port, schema)
 }
