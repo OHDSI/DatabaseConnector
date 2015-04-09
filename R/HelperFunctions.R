@@ -250,6 +250,8 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
       cat("\n\n")
       cat("SQL:\n")
       cat(sqlStatement)
+      cat("\n\n")      
+      cat(.systemInfo())      
       sink()
       
       writeLines(paste("An error report has been created at ", filename))
@@ -264,6 +266,24 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
     delta <- Sys.time() - start
     writeLines(paste("Analysis took", signif(delta,3), attr(delta,"units")))
   }
+}
+
+.systemInfo <- function(){
+  si <- sessionInfo()
+  lines <- c()
+  lines <- c(lines, "R version:")  
+  lines <- c(lines, si$R.version$version.string)
+  lines <- c(lines, "")
+  lines <- c(lines, "Platform:")
+  lines <- c(lines, si$R.version$platform)
+  lines <- c(lines, "")
+  lines <- c(lines, "Attached base packages:")
+  lines <- c(lines, paste("-",si$basePkgs))
+  lines <- c(lines, "")
+  lines <- c(lines, "Other attached packages:")
+  for (pkg in si$otherPkgs)
+    lines <- c(lines, paste("- ", pkg$Package, " (", pkg$Version, ")", sep = ""))
+  return(paste(lines, collapse = "\n"))
 }
 
 #' Send SQL query
@@ -312,6 +332,8 @@ querySql <- function(connection, sql){
     cat("\n\n")
     cat("SQL:\n")
     cat(sql)
+    cat("\n\n")
+    cat(.systemInfo())
     sink()
     
     writeLines(paste("An error report has been created at ", filename))
@@ -363,6 +385,8 @@ querySql.ffdf <- function(connection, sql){
     cat("\n\n")
     cat("SQL:\n")
     cat(sql)
+    cat("\n\n")    
+    cat(.systemInfo())    
     sink()
     
     writeLines(paste("An error report has been created at ", filename))
