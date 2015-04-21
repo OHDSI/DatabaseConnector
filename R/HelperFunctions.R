@@ -483,9 +483,9 @@ dbInsertTable <- function(connection,
   
   if (dropTableIfExists) {
     if (tempTable){
-      sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
-    } else {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
+    } else {
+      sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
     }
     sql <- SqlRender::renderSql(sql,  tableName = tableName)$sql
     sql <- SqlRender::translateSql(sql, targetDialect = attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
@@ -533,7 +533,7 @@ dbInsertTable <- function(connection,
   for (start in seq(1, nrow(data), by = batchSize)){
     end = min(start+batchSize-1,nrow(data))
     statement <- rJava::.jcall(connection@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", insertSql, check=FALSE)
-    if (attr(connection,"dbms") == 'postgresql')
+    if (attr(connection,"dbms") == 'postgresql' | attr(connection,"dbms") == 'redshift')
       apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRowPostgreSql)
     else if (attr(connection,"dbms") == 'oracle')
       apply(data[start:end,], statement = statement, isDate = isDate, MARGIN=1, FUN = insertRowOracle)
