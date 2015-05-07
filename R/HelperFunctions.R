@@ -534,11 +534,11 @@ dbInsertTable <- function(connection,
     end = min(start+batchSize-1,nrow(data))
     statement <- rJava::.jcall(connection@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", insertSql, check=FALSE)
     if (attr(connection,"dbms") == 'postgresql' | attr(connection,"dbms") == 'redshift')
-      apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRowPostgreSql)
+      apply(data[start:end,,drop = FALSE], statement = statement, MARGIN=1, FUN = insertRowPostgreSql)
     else if (attr(connection,"dbms") == 'oracle')
-      apply(data[start:end,], statement = statement, isDate = isDate, MARGIN=1, FUN = insertRowOracle)
+      apply(data[start:end,,drop = FALSE], statement = statement, isDate = isDate, MARGIN=1, FUN = insertRowOracle)
     else
-      apply(data[start:end,], statement = statement, MARGIN=1, FUN = insertRow)  
+      apply(data[start:end,,drop = FALSE], statement = statement, MARGIN=1, FUN = insertRow)  
     rJava::.jcall(statement, "[I", "executeBatch")
   }   
 }
