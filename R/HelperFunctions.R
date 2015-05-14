@@ -493,7 +493,7 @@ dbInsertTable <- function(connection,
   }
   
   if (createTable) {
-    sql <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
+    sql <- paste("CREATE TABLE ",qname," (",fdef,");",sep= '')
     sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
