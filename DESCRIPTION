@@ -10,6 +10,7 @@ Depends:
     RJDBC (>= 0.2-5)
 Imports:
     rJava,
+    bit,
     ff,
     ffbase,
     SqlRender
