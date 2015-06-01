@@ -5,7 +5,7 @@
 \title{Retrieve data from server as ffdf object.}
 \usage{
 dbGetQuery.ffdf(connection, query = "", batchSize = 5e+05,
-  datesAsString = FALSE)
+  datesAsString = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -18,6 +18,8 @@ lead to out-of-memory errors.}
 
 \item{datesAsString}{Should dates be imported as character vectors, our should they
 be converted to R's date format?}
+
+\item{quiet}{Suppress warnings?}
 }
 \value{
 A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)

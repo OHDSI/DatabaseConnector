@@ -32,6 +32,7 @@
 #' lead to out-of-memory errors.
 #' @param datesAsString Should dates be imported as character vectors, our should they
 #' be converted to R's date format?
+#' @param quiet Suppress warnings?
 #'
 #' @details
 #' Retrieves data from the database server and stores it in an ffdf object. This allows very large
@@ -49,7 +50,8 @@
 #' }
 #' 
 #' @export
-dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAsString = FALSE){
+dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAsString = FALSE,
+                             quiet = FALSE){
   #Create resultset:
   rJava::.jcall("java/lang/System",,"gc")
 
@@ -98,7 +100,9 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
 
       if (n == 0){
         data <- batch #ffdf cannot contain 0 rows, so return data.frame instead
-        warning("Data has zero rows, returning an empty data frame")
+        if (!quiet) {
+          warning("Data has zero rows, returning an empty data frame")
+        }
       } else
         data <- ff::as.ffdf(batch)
     } else if (n != 0){
