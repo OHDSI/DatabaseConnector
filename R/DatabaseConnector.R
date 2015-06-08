@@ -198,6 +198,9 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
     }
     result <- class(try(connection <- RJDBC::dbConnect(driver, paste("jdbc:oracle:thin:@",host,":",port,":",sid ,sep=""), user, password),silent=TRUE))[1]
     
+    # Try using TNSName instead:
+    if (result =="try-error")
+      result <- class(try(connection <- RJDBC::dbConnect(driver, paste("jdbc:oracle:thin:@",server, sep=""), user, password), silent = TRUE))[1]
     
     # Next try OCI driver:
     if (result =="try-error")

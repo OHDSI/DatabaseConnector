@@ -61,7 +61,7 @@ Oracle:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
-  \item \code{server}. This field contains the SID, or host and servicename or SID: '<sid>', '<host>/<sid>', '<host>/<service name>'
+  \item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName: '<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'
   \item \code{port}. Specifies the port on the server (default = 1521)
   \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the tables
 }
