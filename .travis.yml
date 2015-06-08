@@ -1,0 +1,13 @@
+language: r
+
+warnings_are_errors: true
+
+sudo: required
+
+notifications:
+  recipients:
+    - msuchard@gmail.com
+    - schuemie@ohdsi.org
+  email:
+    on_success: change
+    on_failure: change
