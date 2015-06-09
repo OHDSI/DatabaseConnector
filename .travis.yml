@@ -13,7 +13,7 @@ before_install:
 install:
     - ./travis-tool.sh install_devtools
     - ./travis-tool.sh install_deps
-    - ./travis-tool.sh install_r_binary rJava
+    - ./travis-tool.sh install_r_binary rJava RJDBC
     - ./travis-tool.sh install_github OHDSI/SqlRender
 
 script:
