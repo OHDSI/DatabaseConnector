@@ -1,18 +1,26 @@
-language: r
+language: cpp
 
-warnings_are_errors: true
+compiler:
+    - gcc
 
 sudo: required
 
-apt_packages:
-    - libcurl4-openssl-dev
-    - r-cran-rjava
+before_install:
+    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+    - chmod 755 ./travis-tool.sh
+    - ./travis-tool.sh bootstrap
 
-r_binary_packages:
-    - rJava
+install:
+    - ./travis-tool.sh install_devtools
+    - ./travis-tool.sh install_deps
+    - ./travis-tool.sh install_r_binary rJava
+    - ./travis-tool.sh install_github OHDSI/SqlRender
 
-r_github_packages:
-    - OHDSI/SqlRender
+script:
+    - ./travis-tool.sh run_tests
+
+on_failure:
+  - ./travis-tool.sh dump_logs
 
 notifications:
   recipients:
@@ -21,3 +29,19 @@ notifications:
   email:
     on_success: change
     on_failure: change
+
+#language: r
+#
+#warnings_are_errors: true
+#
+#sudo: required
+#
+#apt_packages:
+#    - libcurl4-openssl-dev
+#    - r-cran-rjava
+#
+#r_binary_packages:
+#    - rJava
+#
+#r_github_packages:
+#    - OHDSI/SqlRender
