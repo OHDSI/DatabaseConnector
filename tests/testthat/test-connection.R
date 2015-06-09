@@ -8,10 +8,11 @@ test_that("Open connection", {
                             password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"),
                             server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
                             schema = Sys.getenv("CDM5_POSTGRESQL_SCHEMA"))
-  connection <- tryCatch(connect(details),
-           error = function(e) {
-             print(traceback())
-             })
+#   connection <- tryCatch(connect(details),
+#            error = function(e) {
+#              print(traceback())
+#              })
+  connection <- connect(details)
   expect_true(inherits(connection, "JDBCConnection"))
 #  expect_true(DBI::dbDisconnect(connection))
 })
