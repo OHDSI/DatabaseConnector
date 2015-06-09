@@ -6,6 +6,7 @@ sudo: required
 
 apt_packages:
     - libcurl4-openssl-dev
+    - r-cran-rjava
 
 r_binary_packages:
     - rJava
