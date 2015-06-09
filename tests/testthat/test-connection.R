@@ -2,7 +2,7 @@ library(testthat)
 
 test_that("Open connection", {
   # Postgresql
-  details <- 
+  details <-
     createConnectionDetails(dbms = "postgresql",
                             user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                             password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"),
@@ -13,5 +13,5 @@ test_that("Open connection", {
              print(traceback())
              })
   expect_true(inherits(connection, "JDBCConnection"))
-  expect_true(DBI::dbDisconnect(connection))
+#  expect_true(DBI::dbDisconnect(connection))
 })
