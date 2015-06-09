@@ -25,6 +25,7 @@ install:
 script:
     - ./travis-tool.sh run_tests
     - ./travis-tool.sh dump_logs
+    - echo $TEST
 
 on_failure:
   - ./travis-tool.sh dump_logs
