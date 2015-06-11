@@ -1,7 +1,7 @@
-language: cpp
+language: java
 
-compiler:
-    - gcc
+jdk:
+  - oraclejdk7
 
 sudo: required
 
@@ -16,11 +16,10 @@ before_install:
 #    - sudo R CMD javareconf
 
 install:
-    - sudo apt-get install r-cran-rjava
-    - ./travis-tool.sh install_devtools
-    - ./travis-tool.sh install_deps
-#    - ./travis-tool.sh install_r_binary rJava RJDBC
-    - ./travis-tool.sh install_github OHDSI/SqlRender
+  - sudo R CMD javareconf
+  - ./travis-tool.sh install_r_binary rJava
+  - ./travis-tool.sh install_deps
+  - ./travis-tool.sh install_github OHDSI/SqlRender
 
 script:
     - ./travis-tool.sh run_tests
