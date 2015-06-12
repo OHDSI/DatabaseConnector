@@ -20,11 +20,12 @@ insertTable(connection, tableName, data, dropTableIfExists = TRUE,
 
 \item{tempTable}{Should the table created as a temp table?}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables can be created.}
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+                           can be created.}
 }
 \description{
-This function sends the data in a data frame or ffdf to a table on the server. Either a new table is
-created, or the data is appended to an existing table.
+This function sends the data in a data frame or ffdf to a table on the server. Either a new table
+is created, or the data is appended to an existing table.
 }
 \details{
 This function sends the data in a data frame to a table on the server. Either a new table is
@@ -32,15 +33,15 @@ created, or the data is appended to an existing table.
 }
 \examples{
 \dontrun{
-  connectionDetails <- createConnectionDetails(dbms="mysql",
-                                               server="localhost",
-                                               user="root",
-                                               password="blah",
-                                               schema="cdm_v4")
-  conn <- connect(connectionDetails)
-  data <- data.frame(x = c(1,2,3), y = c("a","b","c"))
-  insertTable(conn,"my_table",data)
-  dbDisconnect(conn)
+connectionDetails <- createConnectionDetails(dbms = "mysql",
+                                             server = "localhost",
+                                             user = "root",
+                                             password = "blah",
+                                             schema = "cdm_v4")
+conn <- connect(connectionDetails)
+data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
+insertTable(conn, "my_table", data)
+dbDisconnect(conn)
 }
 }
 

@@ -14,4 +14,6 @@ Imports:
     ffbase,
     SqlRender
 License: Apache License
-Suggests: testthat
+Suggests: 
+    testthat,
+    OhdsiRTools

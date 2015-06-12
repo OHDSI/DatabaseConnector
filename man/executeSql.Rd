@@ -10,34 +10,37 @@ executeSql(connection, sql, profile = FALSE, progressBar = TRUE,
 \arguments{
 \item{connection}{The connection to the database server.}
 
-\item{sql}{The SQL to be executed}
+\item{profile}{When true, each separate statement is written to file prior to sending to
+the server, and the time taken to execute a statement is displayed.}
 
-\item{profile}{When true, each separate statement is written to file prior to sending to the server, and the time taken
-to execute a statement is displayed.}
+\item{progressBar}{When true, a progress bar is shown based on the statements in the SQL
+code.}
 
-\item{progressBar}{When true, a progress bar is shown based on the statements in the SQL code.}
+\item{reportOverallTime}{When true, the function will display the overall time taken to execute
+                           all statements.}
 
-\item{reportOverallTime}{When true, the function will display the overall time taken to execute all statements.}
+\item{sqlThe}{SQL to be executed}
 }
 \description{
 This function executes SQL consisting of one or more statements.
 }
 \details{
-This function splits the SQL in separate statements and sends it to the server for execution. If an error occurs during
-SQL execution, this error is written to a file to facilitate debugging. Optionally, a progress bar is shown and the total
-time taken to execute the SQL is displayed. Optionally, each separate SQL statement is written to file, and the execution
-time per statement is shown to aid in detecting performance issues.
+This function splits the SQL in separate statements and sends it to the server for execution. If an
+error occurs during SQL execution, this error is written to a file to facilitate debugging.
+Optionally, a progress bar is shown and the total time taken to execute the SQL is displayed.
+Optionally, each separate SQL statement is written to file, and the execution time per statement is
+shown to aid in detecting performance issues.
 }
 \examples{
 \dontrun{
-  connectionDetails <- createConnectionDetails(dbms="mysql",
-                                               server="localhost",
-                                               user="root",
-                                               password="blah",
-                                               schema="cdm_v4")
-  conn <- connect(connectionDetails)
-  executeSql(conn,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
-  dbDisconnect(conn)
+connectionDetails <- createConnectionDetails(dbms = "mysql",
+                                             server = "localhost",
+                                             user = "root",
+                                             password = "blah",
+                                             schema = "cdm_v4")
+conn <- connect(connectionDetails)
+executeSql(conn, "CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
+dbDisconnect(conn)
 }
 }
 

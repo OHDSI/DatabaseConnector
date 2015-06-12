@@ -12,26 +12,27 @@ querySql.ffdf(connection, sql)
 \item{sql}{The SQL to be send.}
 }
 \value{
-A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)
+A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead
+(ffdf cannot have 0 rows)
 }
 \description{
 This function sends SQL to the server, and returns the results in an ffdf object.
 }
 \details{
 Retrieves data from the database server and stores it in an ffdf object. This allows very large
-data sets to be retrieved without running out of memory. If an error occurs during
-SQL execution, this error is written to a file to facilitate debugging.
+data sets to be retrieved without running out of memory. If an error occurs during SQL execution,
+this error is written to a file to facilitate debugging.
 }
 \examples{
 \dontrun{
-  library(ffbase)
-  connectionDetails <- createConnectionDetails(dbms="mysql",
-                                               server="localhost",
-                                               user="root",
-                                               password="blah",
-                                               schema="cdm_v4")#'   conn <- connect(connectionDetails)
-  count <- querySql.ffdf(conn,"SELECT COUNT(*) FROM person")
-  dbDisconnect(conn)
+library(ffbase)
+connectionDetails <- createConnectionDetails(dbms = "mysql",
+                                             server = "localhost",
+                                             user = "root",
+                                             password = "blah",
+                                             schema = "cdm_v4")  #'   conn <- connect(connectionDetails)
+count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
+dbDisconnect(conn)
 }
 }
 

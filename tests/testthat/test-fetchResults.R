@@ -8,11 +8,11 @@ test_that("Fetch results", {
                         schema = Sys.getenv("CDM5_POSTGRESQL_SCHEMA"))
   # Fetch data.frame:
   count <- querySql(connection, "SELECT COUNT(*) FROM vocabulary")
-  expect_equal(count[1,1],63)
-  
+  expect_equal(count[1, 1], 63)
+
   # Fetch ffdf:
   count <- querySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
-  expect_equal(count[1,1],63)
-  
+  expect_equal(count[1, 1], 63)
+
   DBI::dbDisconnect(connection)
 })

@@ -16,11 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.createManualAndVignettes <- function(){
+.formatAndCheckCode <- function() {
+  OhdsiRTools::formatRFolder()
+  OhdsiRTools::checkUsagePackage("DatabaseConnector")
+  OhdsiRTools::ohdsiLintrFolder()
+}
+
+.createManualAndVignettes <- function() {
   shell("rm extras/DatabaseConnector.pdf")
   shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
-  
-  #require(rmarkdown)
-  #rmarkdown::render("vignettes/UsingSqlRender.Rmd", rmarkdown::pdf_document(latex_engine = "pdflatex",toc = TRUE,number_sections = TRUE))
-  
 }

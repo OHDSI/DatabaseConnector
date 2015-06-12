@@ -9,7 +9,7 @@ querySql(connection, sql)
 \arguments{
 \item{connection}{The connection to the database server.}
 
-\item{sql}{The SQL to be send.}
+\item{sqlThe}{SQL to be send.}
 }
 \value{
 A data frame.
@@ -18,19 +18,19 @@ A data frame.
 This function sends SQL to the server, and returns the results.
 }
 \details{
-This function sends the SQL to the server and retrieves the results. If an error occurs during
-SQL execution, this error is written to a file to facilitate debugging.
+This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
+execution, this error is written to a file to facilitate debugging.
 }
 \examples{
 \dontrun{
-  connectionDetails <- createConnectionDetails(dbms="mysql",
-                                               server="localhost",
-                                               user="root",
-                                               password="blah",
-                                               schema="cdm_v4")
-  conn <- connect(connectionDetails)
-  count <- querySql(conn,"SELECT COUNT(*) FROM person")
-  dbDisconnect(conn)
+connectionDetails <- createConnectionDetails(dbms = "mysql",
+                                             server = "localhost",
+                                             user = "root",
+                                             password = "blah",
+                                             schema = "cdm_v4")
+conn <- connect(connectionDetails)
+count <- querySql(conn, "SELECT COUNT(*) FROM person")
+dbDisconnect(conn)
 }
 }
 

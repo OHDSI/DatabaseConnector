@@ -11,14 +11,15 @@ lowLevelQuerySql(connection, query = "", datesAsString = FALSE)
 
 \item{query}{The SQL statement to retrieve the data}
 
-\item{datesAsString}{Should dates be imported as character vectors, our should they
-be converted to R's date format?}
+\item{datesAsString}{Should dates be imported as character vectors, our should they be converted
+                       to R's date format?}
 }
 \value{
 A data frame containing the data retrieved from the server
 }
 \description{
-This is the equivalent of the \code{\link{querySql}} function, except no error report is written when an error occurs.
+This is the equivalent of the \code{\link{querySql}} function, except no error report is written
+when an error occurs.
 }
 \details{
 Retrieves data from the database server and stores it in a data frame.
