@@ -76,6 +76,9 @@ Development
 DatabaseConnector is being developed in R Studio.
 
 ###Development status
+[![Build Status](https://travis-ci.org/OHDSI/DatabaseConnector.svg?branch=master)](https://travis-ci.org/OHDSI/DatabaseConnector)
+[![codecov.io](https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=master)](https://codecov.io/github/OHDSI/DatabaseConnector?branch=master)
+
 Stable. The code is actively being used in several projects.
 
 

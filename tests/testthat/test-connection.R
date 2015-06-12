@@ -1,6 +1,6 @@
 library(testthat)
 
-test_that("Open connection", {
+test_that("Open and close connection", {
   # Postgresql
   details <-
     createConnectionDetails(dbms = "postgresql",
@@ -10,5 +10,5 @@ test_that("Open connection", {
                             schema = Sys.getenv("CDM5_POSTGRESQL_SCHEMA"))
   connection <- connect(details)
   expect_true(inherits(connection, "JDBCConnection"))
-#  expect_true(DBI::dbDisconnect(connection))
+  expect_true(DBI::dbDisconnect(connection))
 })

@@ -9,17 +9,13 @@ before_install:
     - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
     - chmod 755 ./travis-tool.sh
     - ./travis-tool.sh bootstrap
-#    - sudo apt-get install openjdk-7-jre
-#    - export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
-#    - export PATH=$PATH:$JAVA_HOME/bin
-#    - export LD_LIBRARY_PATH=/usr/lib/jvm/java-8-oracle/lib/amd64:/usr/lib/jvm/java-8-oracle/jre/lib/amd64/server
-#    - sudo R CMD javareconf
 
 install:
   - sudo R CMD javareconf
   - ./travis-tool.sh install_r_binary rJava
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh install_github OHDSI/SqlRender
+  - ./travis-tool.sh install_github jimhester/covr
 
 script:
     - ./travis-tool.sh run_tests
@@ -37,18 +33,5 @@ notifications:
     on_success: change
     on_failure: change
 
-#language: r
-#
-#warnings_are_errors: true
-#
-#sudo: required
-#
-#apt_packages:
-#    - libcurl4-openssl-dev
-#    - r-cran-rjava
-#
-#r_binary_packages:
-#    - rJava
-#
-#r_github_packages:
-#    - OHDSI/SqlRender
+after_success:
+  - Rscript -e 'library(covr);codecov()'
