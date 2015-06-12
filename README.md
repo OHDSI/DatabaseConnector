@@ -49,6 +49,8 @@ To be able to use Windows authentication for SQL Server, you have to install the
 
 In order to enable Netezza support, place your Netezza jdbc driver at `inst/java/nzjdbc.jar` in this package.
 
+DatabaseConnector also depends on the OHDSI SqlRender package.
+
 
 Getting Started
 ===============
@@ -57,13 +59,14 @@ Use the following commands in R to install the DatabaseConnector package:
   ```r
   install.packages("devtools")
   library(devtools)
+  install_github("ohdsi/SqlRender") 
   install_github("ohdsi/DatabaseConnector") 
   library(DatabaseConnector)
   ```
 
 Getting Involved
 =============
-* Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/man/DatabaseConnector.pdf) 
+* Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf) 
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
 * We use the <a href="../../issues">GitHub issue tracker</a> for all bugs/issues/enhancements
 
