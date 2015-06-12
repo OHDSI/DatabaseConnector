@@ -29,6 +29,8 @@
 #' @docType package
 #' @name DatabaseConnector
 #' @import RJDBC
+#' @import ffbase
+#' @import bit
 NULL
 
 

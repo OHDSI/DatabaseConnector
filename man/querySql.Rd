@@ -2,7 +2,7 @@
 % Please edit documentation in R/HelperFunctions.R
 \name{querySql}
 \alias{querySql}
-\title{Send SQL query}
+\title{Retrieve data to a data.frame}
 \usage{
 querySql(connection, sql)
 }

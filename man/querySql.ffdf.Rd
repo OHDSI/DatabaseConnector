@@ -2,7 +2,7 @@
 % Please edit documentation in R/HelperFunctions.R
 \name{querySql.ffdf}
 \alias{querySql.ffdf}
-\title{Send SQL query}
+\title{Retrieves data to an ffdf object}
 \usage{
 querySql.ffdf(connection, sql)
 }
@@ -12,13 +12,14 @@ querySql.ffdf(connection, sql)
 \item{sql}{The SQL to be send.}
 }
 \value{
-An ffdf object.
+A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)
 }
 \description{
 This function sends SQL to the server, and returns the results in an ffdf object.
 }
 \details{
-This function sends the SQL to the server and retrieves the results. If an error occurs during
+Retrieves data from the database server and stores it in an ffdf object. This allows very large
+data sets to be retrieved without running out of memory. If an error occurs during
 SQL execution, this error is written to a file to facilitate debugging.
 }
 \examples{

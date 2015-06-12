@@ -20,10 +20,10 @@
 # @author Martijn Schuemie
 # @author Marc Suchard
 
-#' Retrieve data from server as ffdf object.
+#' Low level function for retrieving data to an ffdf object
 #'
 #' @description
-#' This allows very large data sets to be retrieved without running out of memory.
+#' This is the equivalent of the \code{\link{querySql.ffdf}} function, except no error report is written when an error occurs. 
 #'
 #' @param connection	The connection to the database server.
 #' @param query		    The SQL statement to retrieve the data
@@ -39,20 +39,12 @@
 #'
 #' @return
 #' A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)
-#'
-#' @examples \dontrun{
-#'   library("ffbase")
-#'   connectionDetails <- createConnectionDetails(dbms="mysql", server="localhost",user="root",password="blah",schema="cdm_v4")
-#'   conn <- connect(connectionDetails)
-#'   dbGetQuery.ffdf(conn,"SELECT * FROM person")
-#'   dbDisconnect(conn)
-#' }
 #' 
 #' @export
-dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAsString = FALSE){
+lowLevelQuerySql.ffdf <- function (connection, query = "", batchSize = 500000, datesAsString = FALSE){
   #Create resultset:
   rJava::.jcall("java/lang/System",,"gc")
-
+  
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
@@ -60,20 +52,20 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-
+  
   type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
   s <- rJava::.jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
-
+  
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
   rJava::.jcall(s,"V",method="setFetchSize",as.integer(2048))
-
+  
   r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
-
+  
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-
+  
   #Fetch data in batches:
   data <- NULL
   n <- batchSize
@@ -87,15 +79,15 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
           batch[,i] <- as.Date(batch[,i])
       }
     }
-
+    
     n <- nrow(batch)
     if (is.null(data)){
       charCols <- sapply(batch,class)
       charCols <- names(charCols[charCols == "character"])
-
+      
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]])
-
+      
       if (n == 0){
         data <- batch #ffdf cannot contain 0 rows, so return data.frame instead
         warning("Data has zero rows, returning an empty data frame")
@@ -104,20 +96,17 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
     } else if (n != 0){
       for(charCol in charCols)
         batch[[charCol]] <- factor(batch[[charCol]])
-
+      
       data <- ffbase::ffdfappend(data,batch)
     }
   }
   return(data)
 }
 
-#' Retrieve data from server using PostgreSQL specific commands.
+#' Low level function for retrieving data to an ffdf object
 #'
 #' @description
-#' This function is tailored to retrieve large datasets from a PostgreSQL database.
-#' Specifically, it temporarily disables auto commit and calls \code{setFetchSize}
-#' on the Statement object. Without these settings, all rows would be fetched
-#' from the server, resulting in out-of-memory errors.
+#' This is the equivalent of the \code{\link{querySql}} function, except no error report is written when an error occurs. 
 #'
 #' @param connection  The connection to the database server.
 #' @param query		    The SQL statement to retrieve the data
@@ -129,18 +118,12 @@ dbGetQuery.ffdf <- function (connection, query = "", batchSize = 500000, datesAs
 #'
 #' @return
 #' A data frame containing the data retrieved from the server
-#'
-#' @examples \dontrun{
-#'   connectionDetails <- createConnectionDetails(dbms="postgresql", server="localhost/ohdsi",user="postgres",password="blah",schema="cdm_v4")
-#'   conn <- connect(connectionDetails)
-#'   dbGetQueryPostgreSql(conn,"SELECT * FROM person")
-#'   dbDisconnect(conn)
-#' }
+#' 
 #' @export
-dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE){
+lowLevelQuerySql <- function (connection, query = "", datesAsString = FALSE){
   #Create resultset:
   rJava::.jcall("java/lang/System",,"gc")
-
+  
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize
   # (Note: reason for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
@@ -148,22 +131,22 @@ dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE)
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-
+  
   type_forward_only <- rJava::.jfield("java/sql/ResultSet","I","TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet","I","CONCUR_READ_ONLY")
   s <- rJava::.jcall(connection@jc, "Ljava/sql/Statement;", "createStatement",type_forward_only,concur_read_only)
-
+  
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
   rJava::.jcall(s,"V",method="setFetchSize",as.integer(2048))
-
+  
   r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery",as.character(query)[1])
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
   resultSet <- new("JDBCResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
-
+  
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-
+  
   data <- RJDBC::fetch(resultSet, -1)
-
+  
   if (!datesAsString){
     cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
     for (i in 1:cols) {
@@ -172,7 +155,7 @@ dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE)
         data[,i] <- as.Date(data[,i])
     }
   }
-
+  
   return(data)
 }
 
@@ -194,7 +177,6 @@ dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE)
 #' time taken to execute the SQL is displayed. Optionally, each separate SQL statement is written to file, and the execution
 #' time per statement is shown to aid in detecting performance issues.
 #'
-#'
 #' @examples \dontrun{
 #'   connectionDetails <- createConnectionDetails(dbms="mysql",
 #'                                                server="localhost",
@@ -205,6 +187,7 @@ dbGetQueryPostgreSql <- function (connection, query = "", datesAsString = FALSE)
 #'   executeSql(conn,"CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
 #'   dbDisconnect(conn)
 #' }
+#' 
 #' @export
 executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, reportOverallTime = TRUE){
   if (profile)
@@ -222,7 +205,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
     }
     tryCatch ({
       startQuery <- Sys.time()
-
+      
       #Horrible hack for Redshift, which doesn't support DROP TABLE IF EXIST (or anything similar):
       if (attr(connection,"dbms") == "redshift" & grepl("DROP TABLE IF EXISTS",sqlStatement)){
         nameStart = regexpr("DROP TABLE IF EXISTS", sqlStatement) + nchar("DROP TABLE IF EXISTS") + 1
@@ -232,14 +215,14 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
           RJDBC::dbSendUpdate(connection, paste("DROP TABLE",tableName))
       } else
         RJDBC::dbSendUpdate(connection, sqlStatement)
-
+      
       if (profile){
         delta <- Sys.time() - startQuery
         writeLines(paste("Statement ",i,"took", delta, attr(delta,"units")))
       }
     } , error = function(err) {
       writeLines(paste("Error executing SQL:",err))
-
+      
       #Write error report:
       filename <- paste(getwd(),"/errorReport.txt",sep="")
       sink(filename)
@@ -254,7 +237,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
       cat("\n\n")
       cat(.systemInfo())
       sink()
-
+      
       writeLines(paste("An error report has been created at ", filename))
       break
     })
@@ -287,7 +270,7 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
   return(paste(lines, collapse = "\n"))
 }
 
-#' Send SQL query
+#' Retrieve data to a data.frame
 #'
 #' @description
 #' This function sends SQL to the server, and returns the results.
@@ -311,17 +294,18 @@ executeSql <- function(connection, sql, profile = FALSE, progressBar = TRUE, rep
 #'   count <- querySql(conn,"SELECT COUNT(*) FROM person")
 #'   dbDisconnect(conn)
 #' }
+#' 
 #' @export
 querySql <- function(connection, sql){
   tryCatch ({
     rJava::.jcall("java/lang/System",,"gc") #Calling garbage collection prevents crashes
-
-    result <- dbGetQueryPostgreSql(connection, sql)
+    
+    result <- lowLevelQuerySql(connection, sql)
     colnames(result) <- toupper(colnames(result))
     return(result)
   } , error = function(err) {
     writeLines(paste("Error executing SQL:",err))
-
+    
     #Write error report:
     filename <- paste(getwd(),"/errorReport.txt",sep="")
     sink(filename)
@@ -336,13 +320,13 @@ querySql <- function(connection, sql){
     cat("\n\n")
     cat(.systemInfo())
     sink()
-
+    
     writeLines(paste("An error report has been created at ", filename))
     break
   })
 }
 
-#' Send SQL query
+#' Retrieves data to an ffdf object
 #'
 #' @description
 #' This function sends SQL to the server, and returns the results in an ffdf object.
@@ -351,10 +335,12 @@ querySql <- function(connection, sql){
 #' @param sql  	The SQL to be send.
 #'
 #' @details
-#' This function sends the SQL to the server and retrieves the results. If an error occurs during
+#' Retrieves data from the database server and stores it in an ffdf object. This allows very large
+#' data sets to be retrieved without running out of memory. If an error occurs during
 #' SQL execution, this error is written to a file to facilitate debugging.
 #'
-#' @return An ffdf object.
+#' @return 
+#' A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead (ffdf cannot have 0 rows)
 #'
 #' @examples \dontrun{
 #'   library(ffbase)
@@ -366,15 +352,16 @@ querySql <- function(connection, sql){
 #'   count <- querySql.ffdf(conn,"SELECT COUNT(*) FROM person")
 #'   dbDisconnect(conn)
 #' }
+#' 
 #' @export
 querySql.ffdf <- function(connection, sql){
   tryCatch ({
-    result <- dbGetQuery.ffdf(connection, sql)
+    result <- lowLevelQuerySql.ffdf(connection, sql)
     colnames(result) <- toupper(colnames(result))
     return(result)
   } , error = function(err) {
     writeLines(paste("Error executing SQL:",err))
-
+    
     #Write error report:
     filename <- paste(getwd(),"/errorReport.txt",sep="")
     sink(filename)
@@ -389,7 +376,7 @@ querySql.ffdf <- function(connection, sql){
     cat("\n\n")
     cat(.systemInfo())
     sink()
-
+    
     writeLines(paste("An error report has been created at ", filename))
     break
   })
@@ -437,17 +424,17 @@ querySql.ffdf <- function(connection, sql){
 #'                                                schema="cdm_v4")
 #'   conn <- connect(connectionDetails)
 #'   data <- data.frame(x = c(1,2,3), y = c("a","b","c"))
-#'   dbInsertTable(conn,"my_table",data)
+#'   insertTable(conn,"my_table",data)
 #'   dbDisconnect(conn)
 #' }
 #' @export
-dbInsertTable <- function(connection,
-                          tableName,
-                          data,
-                          dropTableIfExists = TRUE,
-                          createTable = TRUE,
-                          tempTable = FALSE,
-                          oracleTempSchema = NULL) {
+insertTable <- function(connection,
+                        tableName,
+                        data,
+                        dropTableIfExists = TRUE,
+                        createTable = TRUE,
+                        tempTable = FALSE,
+                        oracleTempSchema = NULL) {
   if (dropTableIfExists)
     createTable = TRUE
   if (tempTable & substr(tableName, 1, 1) != "#")
@@ -464,7 +451,7 @@ dbInsertTable <- function(connection,
   } else {
     if (!is.data.frame(data)) data <- as.data.frame(data)
   }
-
+  
   def = function(obj) {
     if (is.integer(obj)) "INTEGER"
     else if (is.numeric(obj)) "FLOAT"
@@ -481,7 +468,7 @@ dbInsertTable <- function(connection,
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote),collapse=',')
   insertSql <- paste("INSERT INTO ",qname," (",varNames,") VALUES(", paste(rep("?",length(fts)),collapse=','),")",sep='')
   insertSql <- SqlRender::translateSql(insertSql, targetDialect = attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
-
+  
   if (dropTableIfExists) {
     if (tempTable){
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -492,21 +479,21 @@ dbInsertTable <- function(connection,
     sql <- SqlRender::translateSql(sql, targetDialect = attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-
+  
   if (createTable) {
     sql <- paste("CREATE TABLE ",qname," (",fdef,");",sep= '')
     sql <- SqlRender::translateSql(sql,targetDialect=attr(connection,"dbms"), oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-
+  
   batchSize <- 10000
-
+  
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
   if (autoCommit) {
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-
+  
   insertRow <- function(row, statement){
     for (i in 1:length(row))
       rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
@@ -530,7 +517,7 @@ dbInsertTable <- function(connection,
     }
     rJava::.jcall(statement, "V", "addBatch")
   }
-
+  
   for (start in seq(1, nrow(data), by = batchSize)){
     end = min(start+batchSize-1,nrow(data))
     statement <- rJava::.jcall(connection@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", insertSql, check=FALSE)
@@ -543,9 +530,3 @@ dbInsertTable <- function(connection,
     rJava::.jcall(statement, "[I", "executeBatch")
   }
 }
-
-#' @export
-physical <- bit::physical
-
-#' @export
-physical.ffdf <- ff::physical.ffdf
