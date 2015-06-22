@@ -6,14 +6,14 @@ Date: 2015-01-03
 Author: Martijn J. Schuemie and Marc A. Suchard
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: A wrapper around RJDBC containing drivers for various DBMSs.
-Depends: 
+Depends:
     RJDBC (>= 0.2-5)
-Imports: 
+Imports:
     rJava,
     bit,
-    ffbase,
+    ffbase (>= 0.12.1),
     SqlRender
 License: Apache License
-Suggests: 
+Suggests:
     testthat,
     OhdsiRTools
