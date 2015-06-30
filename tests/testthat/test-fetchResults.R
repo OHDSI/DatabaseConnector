@@ -5,7 +5,7 @@ test_that("Fetch results", {
                         user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                         password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
                         server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-                        schema = Sys.getenv("CDM5_POSTGRESQL_SCHEMA"))
+                        schema = Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
   # Fetch data.frame:
   count <- querySql(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 63)

@@ -7,11 +7,16 @@
 connect(dbms = "sql server", user, password, server, port, schema) connect(connectionDetails)
 }
 \arguments{
-\item{dbms}{The type of DBMS running on the server. Valid values are \itemize{
-\item{"mysql" for MySQL} \item{"oracle" for Oracle} \item{"postgresql" for
-PostgreSQL} \item{"redshift" for Amazon Redshift} \item{"sql server" for
-Microsoft SQL Server} \item{"pdw" for Microsoft Parallel Data Warehouse (PDW)}
-\item{"netezza" for IBM Netezza} }}
+\item{dbms}{The type of DBMS running on the server. Valid values are
+                     \itemize{
+                       \item {"mysql" for MySQL}
+                       \item {"oracle" for Oracle}
+                       \item {"postgresql" for PostgreSQL}
+                       \item {"redshift" for Amazon Redshift}
+                       \item {"sql server" for Microsoft SQL Server}
+                       \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
+                       \item {"netezza" for IBM Netezza}
+                     }}
 
 \item{user}{The user name used to access the server.}
 
@@ -44,41 +49,75 @@ This function creates a connection to a database.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: MySQL: \itemize{ \item \code{user}. The user name used to access the server \item
-\code{password}. The password for that user \item \code{server}. The host name of the server \item
-\code{port}. Specifies the port on the server (default = 3306) \item \code{schema}. The database
-containing the tables } Oracle: \itemize{ \item \code{user}. The user name used to access the
-server \item \code{password}. The password for that user \item \code{server}. This field contains
-the SID, or host and servicename, SID, or TNSName: '<sid>', '<host>/<sid>', '<host>/<service
-name>', or '<tnsname>' \item \code{port}. Specifies the port on the server (default = 1521) \item
-\code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the tables }
-Microsoft SQL Server: \itemize{ \item \code{user}. The user used to log in to the server. If the
-user is not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC
-drivers to be installed (see details below). \item \code{domain}. Optionally, the domain can be
-specified here. \item \code{password}. The password used to log on to the server \item
-\code{server}. This field contains the host name of the server \item \code{port}. Not used for SQL
-Server \item \code{schema}. The database containing the tables. If both database and schema are
-specified (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored. }
-Microsoft PDW: \itemize{ \item \code{user}. The user used to log in to the server. If the user is
-not specified, Windows Integrated Security will be used, which requires the SQL Server JDBC drivers
-to be installed (see details below). \item \code{password}. The password used to log on to the
-server \item \code{server}. This field contains the host name of the server \item \code{port}. Not
-used for SQL Server \item \code{schema}. The database containing the tables } Connections where the
-domain need to be specified are not supported PostgreSQL: \itemize{ \item \code{user}. The user
-used to log in to the server \item \code{password}. The password used to log on to the server \item
-\code{server}. This field contains the host name of the server and the database holding the
-relevant schemas: <host>/<database> \item \code{port}. Specifies the port on the server (default =
-5432) \item \code{schema}. The schema containing the tables. } Redshift: \itemize{ \item
-\code{user}. The user used to log in to the server \item \code{password}. The password used to log
-on to the server \item \code{server}. This field contains the host name of the server and the
-database holding the relevant schemas: <host>/<database> \item \code{port}. Specifies the port on
-the server (default = 5432) \item \code{schema}. The schema containing the tables. } Netezza:
-\itemize{ \item \code{user}. The user used to log in to the server \item \code{password}. The
-password used to log on to the server \item \code{server}. This field contains the host name of the
-server and the database holding the relevant schemas: <host>/<database> \item \code{port}.
-Specifies the port on the server (default = 5480) \item \code{schema}. The schema containing the
-tables. } To be able to use Windows authentication for SQL Server (and PDW), you have to install
-the JDBC driver. Download the .exe from
+interpretations: MySQL:
+\itemize{
+  \item \code{user}. The user name used to access the server
+  \item \code{password}. The password for that user
+  \item \code{server}. The host name of the server
+  \item \code{port}. Specifies the port on the server (default = 3306)
+  \item \code{schema}. The database containing the tables
+}
+Oracle:
+\itemize{
+  \item \code{user}. The user name used to access the server
+  \item \code{password}. The password for that user
+  \item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName:
+        '<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'
+  \item \code{port}. Specifies the port on the server (default = 1521)
+  \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the
+        tables
+}
+Microsoft SQL Server:
+\itemize{
+  \item \code{user}. The user used to log in to the server. If the user is not specified, Windows
+        Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
+        (see details below).
+  \item \code{domain}. Optionally, the domain can be specified here.
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server
+  \item \code{port}. Not used for SQL Server
+  \item \code{schema}. The database containing the tables. If both database and schema are specified
+        (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored.
+}
+Microsoft PDW:
+\itemize{
+  \item \code{user}. The user used to log in to the server. If the user is not specified, Windows
+        Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
+        (see details below).
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server
+  \item \code{port}. Not used for SQL Server
+  \item \code{schema}. The database containing the tables
+}
+Connections where the domain need to be specified are not supported PostgreSQL:
+\itemize{
+  \item \code{user}. The user used to log in to the server
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server and the database holding the
+        relevant schemas: <host>/<database>
+  \item \code{port}. Specifies the port on the server (default = 5432)
+  \item \code{schema}. The schema containing the tables.
+}
+Redshift:
+\itemize{
+  \item \code{user}. The user used to log in to the server
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server and the database holding the
+        relevant schemas: <host>/<database>
+  \item \code{port}. Specifies the port on the server (default = 5432)
+  \item \code{schema}. The schema containing the tables.
+}
+Netezza:
+\itemize{
+  \item \code{user}. The user used to log in to the server
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server and the database holding the
+        relevant schemas: <host>/<database>
+  \item \code{port}. Specifies the port on the server (default = 5480)
+  \item \code{schema}. The schema containing the tables.
+}
+To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
+driver. Download the .exe from
 \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and
 run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
 sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll

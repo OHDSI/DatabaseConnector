@@ -5,7 +5,7 @@ test_that("Send updates", {
                         user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                         password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
                         server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-                        schema = Sys.getenv("CDM5_POSTGRESQL_SCHEMA"))
+                        schema = Sys.getenv("CDM5_POSTGRESQL_OHDSI_SCHEMA"))
 
   # Insert table:
   data <- data.frame(a = c(1, 2, 3), b = c("a", "b", "c"), stringsAsFactors = FALSE)
