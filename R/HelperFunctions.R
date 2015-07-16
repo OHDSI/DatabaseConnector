@@ -456,9 +456,9 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
     tempName <- paste("#",paste(sample(letters, 24, replace=TRUE), collapse=""),sep="")
     tempNames <- c(tempNames, tempName)
     # First line gets type information
-    valueString <- paste(paste("CAST(",sapply(data[start, ],esc)," AS ",fts,")", sep = ""), collapse = ",")
+    valueString <- paste(paste("CAST(",sapply(data[start, , drop = FALSE],esc)," AS ",fts,")", sep = ""), collapse = ",")
     if (end > start){
-    valueString <- paste(c(valueString, apply(sapply(data[(start+1):end,],esc),MARGIN=1,FUN = paste,collapse=",")),collapse="\nUNION ALL\nSELECT ")
+    valueString <- paste(c(valueString, apply(sapply(data[(start+1):end, , drop = FALSE],esc),MARGIN=1,FUN = paste,collapse=",")),collapse="\nUNION ALL\nSELECT ")
     }
     sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ", tempName, " (",varNames," ) WITH (LOCATION = USER_DB, DISTRIBUTION=",distribution,") AS SELECT ",valueString,sep= '')
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
