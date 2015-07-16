@@ -22,7 +22,21 @@ localTestCode <- function() {
   conn <- connect(connectionDetails)
   querySql(conn, "SELECT COUNT(*) FROM person")
   dbDisconnect(conn)
-
+  
+  #CTAS hack stuff:
+  data <- querySql(conn, "SELECT TOP 10000 * FROM condition_occurrence")
+  data <- data[,c("PERSON_ID","CONDITION_CONCEPT_ID","CONDITION_START_DATE","CONDITION_END_DATE","CONDITION_TYPE_CONCEPT_ID","CONDITION_SOURCE_VALUE")]
+  insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)
+  
+  
+  tableName <- "#temp"
+  dropTableIfExists <- TRUE
+  createTable <- TRUE
+  tempTable <- TRUE
+  oracleTempSchema <- NULL
+  connection <- conn
+  x <- querySql(conn, "SELECT * FROM #temp")
+  str(x)
   # Test PDW without integrated security:
   connectionDetails <- createConnectionDetails(dbms = "pdw",
                                                server = "JRDUSAPSCTL01",
