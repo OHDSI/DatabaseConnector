@@ -24,6 +24,10 @@ localTestCode <- function() {
   dbDisconnect(conn)
   
   #CTAS hack stuff:
+  n = 50
+  data <- data.frame(x = 1:n, y = runif(n))
+  insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)
+  
   data <- querySql(conn, "SELECT TOP 10000 * FROM condition_occurrence")
   data <- data[,c("PERSON_ID","CONDITION_CONCEPT_ID","CONDITION_START_DATE","CONDITION_END_DATE","CONDITION_TYPE_CONCEPT_ID","CONDITION_SOURCE_VALUE")]
   insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)

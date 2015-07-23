@@ -429,6 +429,32 @@ querySql.ffdf <- function(connection, sql) {
   paste(quote, s, quote, sep = "")
 }
 
+
+recursiveMerge <- function(connection, tableName, varNames, tempNames, location, distribution) {
+  maxSelects <- 300
+  if (length(tempNames) > maxSelects) {
+    batchSize =  ceiling(length(tempNames) / ceiling(length(tempNames) / maxSelects))
+    newTempNames <- c()
+    for (start in seq(1, length(tempNames), by = batchSize)) {
+      end <- min(start + batchSize - 1, length(tempNames))
+      tempName <- paste("#",paste(sample(letters, 24, replace=TRUE), collapse=""),sep="")  
+      recursiveMerge(connection, tempName, varNames, tempNames[start:end], "LOCATION = USER_DB, ", distribution)
+      newTempNames <- c(newTempNames, tempName)
+    }
+    tempNames <- newTempNames
+  }
+  unionString <- paste("\nUNION ALL\nSELECT ",varNames," FROM ", sep = "")
+  valueString <- paste(tempNames, collapse=unionString)
+  sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ", tableName, " (",varNames," ) WITH (",location,"DISTRIBUTION=",distribution,") AS SELECT ",varNames," FROM ",valueString,sep= "")
+  executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  
+  # Drop temp tables:
+  for (tempName in tempNames){
+    sql <- paste("DROP TABLE", tempName)
+    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  }
+}
+
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
   batchSize <- 1000
   if (any(tolower(names(data)) == "subject_Id")){
@@ -458,22 +484,13 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
     # First line gets type information
     valueString <- paste(paste("CAST(",sapply(data[start, , drop = FALSE],esc)," AS ",fts,")", sep = ""), collapse = ",")
     if (end > start){
-    valueString <- paste(c(valueString, apply(sapply(data[(start+1):end, , drop = FALSE],esc),MARGIN=1,FUN = paste,collapse=",")),collapse="\nUNION ALL\nSELECT ")
+      valueString <- paste(c(valueString, apply(sapply(data[(start+1):end, , drop = FALSE],esc),MARGIN=1,FUN = paste,collapse=",")),collapse="\nUNION ALL\nSELECT ")
     }
     sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ", tempName, " (",varNames," ) WITH (LOCATION = USER_DB, DISTRIBUTION=",distribution,") AS SELECT ",valueString,sep= '')
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   
-  # Combine temp tables into target table using CTAS:
-  valueString <- paste(tempNames, collapse="\nUNION ALL\nSELECT * FROM ")
-  sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ", qname, " (",varNames," ) WITH (",location,"DISTRIBUTION=",distribution,") AS SELECT * FROM ",valueString,sep= '')
-  executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-  
-  # Drop temp tables:
-  for (tempName in tempNames){
-    sql <- paste("DROP TABLE", tempName)
-    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-  }
+  recursiveMerge(connection, qname, varNames, tempNames, location, distribution)
 }
 
 #' Insert a table on the server
