@@ -6,10 +6,10 @@ jdk:
 sudo: required
 
 before_install:
-    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-    - chmod 755 ./travis-tool.sh
-    - ./travis-tool.sh bootstrap
-
+  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+  - chmod 755 ./travis-tool.sh
+  - ./travis-tool.sh bootstrap
+  
 install:
   - sudo R CMD javareconf
   - ./travis-tool.sh install_r_binary rJava
@@ -17,6 +17,11 @@ install:
   - ./travis-tool.sh install_github OHDSI/SqlRender
   - ./travis-tool.sh install_github OHDSI/OhdsiRTools
   - ./travis-tool.sh install_github jimhester/covr
+  - ./travis-tool.sh install_github eddelbuettel/drat
+
+before_script:
+  - export PKG_NAME=$(Rscript -e 'cat(paste0(devtools::as.package(".")$package))')
+  - export PKG_TARBALL=$(Rscript -e 'pkg <- devtools::as.package("."); cat(paste0(pkg$package,"_",pkg$version,".tar.gz"))')
 
 script:
     - ./travis-tool.sh run_tests
@@ -38,3 +43,8 @@ after_success:
   - Rscript -e 'library(covr);codecov()'
   # Rebuild docker container
   - curl --data "build=true" -X POST https://registry.hub.docker.com/u/ohdsi/development/trigger/e51f720d-c4e7-45df-b042-5d8a362bd7e0/
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
+
+env:
+  global:
+    secure: jVDBjrZvEidl7jxKpQNjIRWActfpgBxwi1OryKpdmXs8JK71UjwFEvToXLYdERleHZyq87Xytpm13EKZfUiBI4MB6qlhhJpCUVsWHhXvC7ST9oKA6plZW+ylaiUPHBG/P/rxK2P1j+64cisVd/j7CKUNS9TaykRKLrhMTeUSq3E=
