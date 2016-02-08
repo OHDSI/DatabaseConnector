@@ -5,7 +5,7 @@
 \title{createConnectionDetails}
 \usage{
 createConnectionDetails(dbms = "sql server", user, domain, password, server,
-  port, schema)
+  port, schema, configSettings)
 }
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
@@ -103,7 +103,7 @@ Redshift:
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
-  \item \code{port}. Specifies the port on the server (default = 5432)
+  \item \code{port}. Specifies the port on the server (default = 5439)
   \item \code{schema}. The schema containing the tables.
 }
 Netezza:
