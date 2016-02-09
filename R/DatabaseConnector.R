@@ -1,6 +1,6 @@
 # @file DatabaseConnector.R
 #
-# Copyright 2014 Observational Health Data Sciences and Informatics
+# Copyright 2016 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -78,7 +78,7 @@ createConnectionDetails <- function(dbms = "sql server",
 #' \code{connect} creates a connection to a database server.
 #'
 #' @usage
-#' connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings) 
+#' connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings)
 #' connect(connectionDetails)
 #'
 #' @template DbmsDetails
@@ -136,7 +136,14 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 }
 
 #' @export
-connect.default <- function(dbms = "sql server", user, domain, password, server, port, schema, extraSettings) {
+connect.default <- function(dbms = "sql server",
+                            user,
+                            domain,
+                            password,
+                            server,
+                            port,
+                            schema,
+                            extraSettings) {
   if (dbms == "mysql") {
     writeLines("Connecting using MySQL driver")
     if (missing(port) || is.null(port))
@@ -145,16 +152,11 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
                              "mysql-connector-java-5.1.30-bin.jar",
                              package = "DatabaseConnector")
     driver <- jdbcSingleton("com.mysql.jdbc.Driver", pathToJar, identifier.quote = "`")
-    connectionString <- paste("jdbc:mysql://",
-                              server,
-                              ":",
-                              port,
-                              "/?useCursorFetch=true",
-                              sep = "")
-    
+    connectionString <- paste("jdbc:mysql://", server, ":", port, "/?useCursorFetch=true", sep = "")
+
     if (!missing(extraSettings) && !is.null(extraSettings))
       connectionString <- paste(connectionString, "&", extraSettings, sep = "")
-    
+
     connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("USE", schema))
@@ -189,10 +191,10 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
 
       if (!missing(domain) && !is.null(domain))
         connectionString <- paste(connectionString, ";domain=", domain, sep = "")
-      
+
       if (!missing(extraSettings) && !is.null(extraSettings))
         connectionString <- paste(connectionString, ";", extraSettings, sep = "")
-      
+
       connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -245,16 +247,11 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
       host <- parts[1]
       sid <- parts[2]
     }
-    connectionString <- paste("jdbc:oracle:thin:@",
-                              host,
-                              ":",
-                              port,
-                              ":",
-                              sid,
-                              sep = "")
+    connectionString <- paste("jdbc:oracle:thin:@", host, ":", port, ":", sid, sep = "")
     if (!missing(extraSettings) && !is.null(extraSettings))
       connectionString <- paste(connectionString, extraSettings, sep = "")
-    result <- class(try(connection <- RJDBC::dbConnect(driver, connectionString, user, password), silent = TRUE))[1]
+    result <- class(try(connection <- RJDBC::dbConnect(driver, connectionString, user, password),
+                        silent = TRUE))[1]
 
     # Try using TNSName instead:
     if (result == "try-error")
@@ -311,16 +308,12 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
     database <- parts[2]
     if (missing(port) || is.null(port))
       port <- "5439"
-    pathToJar <- system.file("java", "RedshiftJDBC41-1.1.10.1010.jar", package = "DatabaseConnector")
+    pathToJar <- system.file("java",
+                             "RedshiftJDBC41-1.1.10.1010.jar",
+                             package = "DatabaseConnector")
     driver <- jdbcSingleton("com.amazon.redshift.jdbc41.Driver", pathToJar, identifier.quote = "`")
-    connectionString <- paste("jdbc:redshift://",
-                              host,
-                              ":",
-                              port,
-                              "/",
-                              database,
-                              sep = "")
-    
+    connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
+
     if (!missing(extraSettings) && !is.null(extraSettings))
       connectionString <- paste(connectionString, "?", extraSettings, sep = "")
 

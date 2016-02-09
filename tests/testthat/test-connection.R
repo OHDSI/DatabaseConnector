@@ -10,7 +10,7 @@ test_that("Open and close connection", {
   connection <- connect(details)
   expect_true(inherits(connection, "JDBCConnection"))
   expect_true(DBI::dbDisconnect(connection))
-  
+
   # SQL Server
   details <- createConnectionDetails(dbms = "sql server",
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
@@ -20,7 +20,7 @@ test_that("Open and close connection", {
   connection <- connect(details)
   expect_true(inherits(connection, "JDBCConnection"))
   expect_true(DBI::dbDisconnect(connection))
-  
+
   # Oracle
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
