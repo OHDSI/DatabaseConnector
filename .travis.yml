@@ -40,6 +40,7 @@ install:
   
   # Install OHDSI dependencies
   - Rscript -e 'devtools::install_github("OHDSI/SqlRender")'
+  - Rscript -e 'devtools::install_github("OHDSI/OhdsiRTools")'
   
   - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
