@@ -14,9 +14,9 @@
 #' @param domain        For SQL Server only: the Windows domain (optional).
 #' @param passwordThe   password for that user.
 #' @param serverThe     name of the server.
-#' @param port          @param port(optional) The port on the server to connect to.
-#' @param schema        @param schema(optional) The name of the schema to connect to.
-#' @param configSettings @param configSettings(optional) Additional configuration settings specific to the database provider to configure things as security for SSL. These must follow the format for the JDBC connection for the RDBMS specified in @param dbms
+#' @param port          (optional) The port on the server to connect to.
+#' @param schema        (optional) The name of the schema to connect to.
+#' @param extraSettings (optional) Additional configuration settings specific to the database provider to configure things as security for SSL. These must follow the format for the JDBC connection for the RDBMS specified in dbms
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
@@ -27,7 +27,7 @@
 #'   \item \code{server}. The host name of the server
 #'   \item \code{port}. Specifies the port on the server (default = 3306)
 #'   \item \code{schema}. The database containing the tables
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "SSL Mode=Required")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "SSL Mode=Required")
 #' }
 #' Oracle:
 #' \itemize{
@@ -38,7 +38,7 @@
 #'   \item \code{port}. Specifies the port on the server (default = 1521)
 #'   \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the
 #'         tables
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "(PROTOCOL=tcps)")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "(PROTOCOL=tcps)")
 #' }
 #' Microsoft SQL Server:
 #' \itemize{
@@ -51,7 +51,7 @@
 #'   \item \code{port}. Not used for SQL Server
 #'   \item \code{schema}. The database containing the tables. If both database and schema are specified
 #'         (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored.
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "encrypt=true; trustServerCertificate=false;")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "encrypt=true; trustServerCertificate=false;")
 #' }
 #' Microsoft PDW:
 #' \itemize{
@@ -62,7 +62,7 @@
 #'   \item \code{server}. This field contains the host name of the server
 #'   \item \code{port}. Not used for SQL Server
 #'   \item \code{schema}. The database containing the tables
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "encrypt=true; trustServerCertificate=false;")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "encrypt=true; trustServerCertificate=false;")
 #' }
 #' Connections where the domain need to be specified are not supported PostgreSQL:
 #' \itemize{
@@ -72,7 +72,7 @@
 #'         relevant schemas: <host>/<database>
 #'   \item \code{port}. Specifies the port on the server (default = 5432)
 #'   \item \code{schema}. The schema containing the tables.
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "ssl=true")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "ssl=true")
 #' }
 #' Redshift:
 #' \itemize{
@@ -82,7 +82,7 @@
 #'         relevant schemas: <host>/<database>
 #'   \item \code{port}. Specifies the port on the server (default = 5439)
 #'   \item \code{schema}. The schema containing the tables.
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 #' }
 #' Netezza:
 #' \itemize{
@@ -92,7 +92,7 @@
 #'         relevant schemas: <host>/<database>
 #'   \item \code{port}. Specifies the port on the server (default = 5480)
 #'   \item \code{schema}. The schema containing the tables.
-#'   \item \code{configSettings} The configuration settings for the connection (i.e. SSL Settings such as "ssl=true")
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such as "ssl=true")
 #' }
 #' To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 #' driver. Download the .exe from
