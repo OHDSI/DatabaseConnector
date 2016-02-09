@@ -16,7 +16,9 @@ addons:
     - r-base-dev
     - r-recommended
     - pandoc
-    - oracle-java8-installer
+    - default-jdk
+    - default-jre
+#    - oracle-java8-installer
 
 # cache local R libraries directory:
 cache:
@@ -30,11 +32,11 @@ install:
   - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
   - mkdir -p ~/.R
 #  - R CMD javareconf  # Might not be really necessary
-  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
+#  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
   - Rscript -e 'if(!"rJava" %in% rownames(installed.packages())) { install.packages("rJava", dependencies = TRUE) }'
-  - Rscript -e 'if(!"bit" %in% rownames(installed.packages())) { install.packages("bit", dependencies = TRUE) }'
-  - Rscript -e 'if(!"ff" %in% rownames(installed.packages())) { install.packages("ff", dependencies = TRUE) }'
-  - Rscript -e 'if(!"ffbase" %in% rownames(installed.packages())) { install.packages("ffbase", dependencies = TRUE) }'
+#  - Rscript -e 'if(!"bit" %in% rownames(installed.packages())) { install.packages("bit", dependencies = TRUE) }'
+#  - Rscript -e 'if(!"ff" %in% rownames(installed.packages())) { install.packages("ff", dependencies = TRUE) }'
+#  - Rscript -e 'if(!"ffbase" %in% rownames(installed.packages())) { install.packages("ffbase", dependencies = TRUE) }'
   
   # Install OHDSI dependencies
   - Rscript -e 'devtools::install_github("OHDSI/SqlRender")'
