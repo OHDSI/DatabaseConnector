@@ -23,15 +23,15 @@ createConnectionDetails(dbms = "sql server", user, domain, password, server,
 
 \item{domain}{For SQL Server only: the Windows domain (optional).}
 
+\item{password}{The password for that user.}
+
+\item{server}{The name of the server.}
+
 \item{port}{(optional) The port on the server to connect to.}
 
 \item{schema}{(optional) The name of the schema to connect to.}
 
 \item{extraSettings}{(optional) Additional configuration settings specific to the database provider to configure things as security for SSL. These must follow the format for the JDBC connection for the RDBMS specified in dbms}
-
-\item{passwordThe}{password for that user.}
-
-\item{serverThe}{name of the server.}
 }
 \value{
 A list with all the details needed to connect to a database.

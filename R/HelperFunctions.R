@@ -15,10 +15,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# @author Observational Health Data Sciences and Informatics
-# @author Martijn Schuemie
-# @author Marc Suchard
 
 #' Low level function for retrieving data to an ffdf object
 #'
@@ -26,9 +22,9 @@
 #' This is the equivalent of the \code{\link{querySql.ffdf}} function, except no error report is
 #' written when an error occurs.
 #'
-#' @param connectionThe   connection to the database server.
+#' @param connection      The connection to the database server.
 #' @param query           The SQL statement to retrieve the data
-#' @param batchSizeThe    number of rows that will be retrieved at a time from the server. A larger
+#' @param batchSize       The number of rows that will be retrieved at a time from the server. A larger
 #'                        batchSize means less calls to the server so better performance, but too large
 #'                        a batchSize could lead to out-of-memory errors.
 #' @param datesAsString   Should dates be imported as character vectors, our should they be converted
@@ -176,7 +172,7 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
 #' This function executes SQL consisting of one or more statements.
 #'
 #' @param connection          The connection to the database server.
-#' @param sqlThe              SQL to be executed
+#' @param sql                 The SQL to be executed
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
 #' @param progressBar         When true, a progress bar is shown based on the statements in the SQL
@@ -300,7 +296,7 @@ executeSql <- function(connection,
 #' This function sends SQL to the server, and returns the results.
 #'
 #' @param connection   The connection to the database server.
-#' @param sqlThe       SQL to be send.
+#' @param sql          The SQL to be send.
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL

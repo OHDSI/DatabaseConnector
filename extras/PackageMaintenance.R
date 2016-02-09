@@ -16,13 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.formatAndCheckCode <- function() {
-  OhdsiRTools::formatRFolder()
-  OhdsiRTools::checkUsagePackage("DatabaseConnector")
-  OhdsiRTools::ohdsiLintrFolder()
-}
+# Format and check code:
+OhdsiRTools::formatRFolder()
+OhdsiRTools::checkUsagePackage("DatabaseConnector")
+OhdsiRTools::updateCopyrightYearFolder()
 
-.createManualAndVignettes <- function() {
-  shell("rm extras/DatabaseConnector.pdf")
-  shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
-}
+# Create manual:
+shell("rm extras/DatabaseConnector.pdf")
+shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")

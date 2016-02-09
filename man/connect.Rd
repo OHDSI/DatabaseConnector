@@ -4,7 +4,8 @@
 \alias{connect}
 \title{connect}
 \usage{
-connect(dbms = "sql server", user, password, server, port, schema) connect(connectionDetails)
+connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings) 
+connect(connectionDetails)
 }
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
@@ -22,9 +23,9 @@ connect(dbms = "sql server", user, password, server, port, schema) connect(conne
 
 \item{domain}{For SQL Server only: the Windows domain (optional).}
 
-\item{passwordThe}{password for that user.}
+\item{password}{The password for that user.}
 
-\item{serverThe}{name of the server.}
+\item{server}{The name of the server.}
 
 \item{port}{(optional) The port on the server to connect to.}
 

@@ -9,7 +9,7 @@ querySql(connection, sql)
 \arguments{
 \item{connection}{The connection to the database server.}
 
-\item{sqlThe}{SQL to be send.}
+\item{sql}{The SQL to be send.}
 }
 \value{
 A data frame.

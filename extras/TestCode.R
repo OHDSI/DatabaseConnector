@@ -1,7 +1,4 @@
-
-# Temporary placeholder for testing code until we figure out unit testing with DB and filesys dependencies
-localTestCode <- function() {
-  # library(DatabaseConnector)
+  library(DatabaseConnector)
   pw <- ""
 
   # Test MySQL:
@@ -137,4 +134,3 @@ localTestCode <- function() {
   data <- as.ffdf(data)
 
   dbDisconnect(connection)
-}

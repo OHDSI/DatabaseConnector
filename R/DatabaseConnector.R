@@ -15,10 +15,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# @author Observational Health Data Sciences and Informatics
-# @author Martijn Schuemie
-# @author Marc Suchard
 
 .onLoad <- function(libname, pkgname) {
   jdbcDrivers <<- new.env()
@@ -82,7 +78,8 @@ createConnectionDetails <- function(dbms = "sql server",
 #' \code{connect} creates a connection to a database server.
 #'
 #' @usage
-#' connect(dbms = "sql server", user, password, server, port, schema) connect(connectionDetails)
+#' connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings) 
+#' connect(connectionDetails)
 #'
 #' @template DbmsDetails
 #' @param connectionDetails   An object of class \code{connectionDetails} as created by the

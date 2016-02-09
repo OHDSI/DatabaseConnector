@@ -10,6 +10,8 @@ executeSql(connection, sql, profile = FALSE, progressBar = TRUE,
 \arguments{
 \item{connection}{The connection to the database server.}
 
+\item{sql}{The SQL to be executed}
+
 \item{profile}{When true, each separate statement is written to file prior to sending to
 the server, and the time taken to execute a statement is displayed.}
 
@@ -18,8 +20,6 @@ code.}
 
 \item{reportOverallTime}{When true, the function will display the overall time taken to execute
 all statements.}
-
-\item{sqlThe}{SQL to be executed}
 }
 \description{
 This function executes SQL consisting of one or more statements.

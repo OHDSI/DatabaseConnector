@@ -8,16 +8,16 @@ lowLevelQuerySql.ffdf(connection, query = "", batchSize = 5e+05,
   datesAsString = FALSE)
 }
 \arguments{
+\item{connection}{The connection to the database server.}
+
 \item{query}{The SQL statement to retrieve the data}
+
+\item{batchSize}{The number of rows that will be retrieved at a time from the server. A larger
+batchSize means less calls to the server so better performance, but too large
+a batchSize could lead to out-of-memory errors.}
 
 \item{datesAsString}{Should dates be imported as character vectors, our should they be converted
 to R's date format?}
-
-\item{connectionThe}{connection to the database server.}
-
-\item{batchSizeThe}{number of rows that will be retrieved at a time from the server. A larger
-batchSize means less calls to the server so better performance, but too large
-a batchSize could lead to out-of-memory errors.}
 }
 \value{
 A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead

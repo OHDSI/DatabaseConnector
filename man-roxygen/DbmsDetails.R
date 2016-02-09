@@ -12,8 +12,8 @@
 #'
 #' @param user          The user name used to access the server.
 #' @param domain        For SQL Server only: the Windows domain (optional).
-#' @param passwordThe   password for that user.
-#' @param serverThe     name of the server.
+#' @param password      The password for that user.
+#' @param server        The name of the server.
 #' @param port          (optional) The port on the server to connect to.
 #' @param schema        (optional) The name of the schema to connect to.
 #' @param extraSettings (optional) Additional configuration settings specific to the database provider to configure things as security for SSL. These must follow the format for the JDBC connection for the RDBMS specified in dbms
