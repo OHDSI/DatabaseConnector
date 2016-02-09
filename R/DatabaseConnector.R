@@ -67,7 +67,8 @@ createConnectionDetails <- function(dbms = "sql server",
                                     password,
                                     server,
                                     port,
-                                    schema) {
+                                    schema,
+                                    configSettings) {
   result <- c(list(as.character(match.call()[[1]])),
               lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3))))
   class(result) <- "connectionDetails"
@@ -138,7 +139,7 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 }
 
 #' @export
-connect.default <- function(dbms = "sql server", user, domain, password, server, port, schema) {
+connect.default <- function(dbms = "sql server", user, domain, password, server, port, schema, configSettings) {
   if (dbms == "mysql") {
     writeLines("Connecting using MySQL driver")
     if (missing(port) || is.null(port))
@@ -147,12 +148,17 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
                              "mysql-connector-java-5.1.30-bin.jar",
                              package = "DatabaseConnector")
     driver <- jdbcSingleton("com.mysql.jdbc.Driver", pathToJar, identifier.quote = "`")
-    connection <- RJDBC::dbConnect(driver, paste("jdbc:mysql://",
-                                                 server,
-                                                 ":",
-                                                 port,
-                                                 "/?useCursorFetch=true",
-                                                 sep = ""), user, password)
+    connectionString <- paste("jdbc:mysql://",
+                              server,
+                              ":",
+                              port,
+                              "/?useCursorFetch=true",
+                              sep = "")
+    
+    if (!missing(configSettings) && !is.null(configSettings))
+      connectionString <- paste(connectionString, "&", configSettings, sep = "")
+    
+    connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("USE", schema))
     attr(connection, "dbms") <- dbms
@@ -167,6 +173,8 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
       connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
       if (!missing(port) && !is.null(port))
         connectionString <- paste(connectionString, ";port=", port, sep = "")
+      if (!missing(configSettings) && !is.null(configSettings))
+        connectionString <- paste(connectionString, ";", configSettings, sep = "")
       connection <- RJDBC::dbConnect(driver, connectionString)
     } else {
       # Using regular user authentication
@@ -184,6 +192,10 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
 
       if (!missing(domain) && !is.null(domain))
         connectionString <- paste(connectionString, ";domain=", domain, sep = "")
+      
+      if (!missing(configSettings) && !is.null(configSettings))
+        connectionString <- paste(connectionString, ";", configSettings, sep = "")
+      
       connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -203,11 +215,15 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
       connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
       if (!missing(port) && !is.null(port))
         connectionString <- paste(connectionString, ";port=", port, sep = "")
+      if (!missing(configSettings) && !is.null(configSettings))
+        connectionString <- paste(connectionString, ";", configSettings, sep = "")
       connection <- RJDBC::dbConnect(driver, connectionString)
     } else {
       connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=false", sep = "")
       if (!missing(port) && !is.null(port))
         connectionString <- paste(connectionString, ";port=", port, sep = "")
+      if (!missing(configSettings) && !is.null(configSettings))
+        connectionString <- paste(connectionString, ";", configSettings, sep = "")
       connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -232,13 +248,16 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
       host <- parts[1]
       sid <- parts[2]
     }
-    result <- class(try(connection <- RJDBC::dbConnect(driver, paste("jdbc:oracle:thin:@",
-                                                                     host,
-                                                                     ":",
-                                                                     port,
-                                                                     ":",
-                                                                     sid,
-                                                                     sep = ""), user, password), silent = TRUE))[1]
+    connectionString <- paste("jdbc:oracle:thin:@",
+                              host,
+                              ":",
+                              port,
+                              ":",
+                              sid,
+                              sep = "")
+    if (!missing(configSettings) && !is.null(configSettings))
+      connectionString <- paste(connectionString, configSettings, sep = "")
+    result <- class(try(connection <- RJDBC::dbConnect(driver, connectionString, user, password), silent = TRUE))[1]
 
     # Try using TNSName instead:
     if (result == "try-error")
@@ -278,6 +297,8 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
                                                  "/",
                                                  database,
                                                  sep = ""), user, password)
+    if (!missing(configSettings) && !is.null(configSettings))
+      connectionString <- paste(connectionString, "?", configSettings, sep = "")
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms
@@ -292,16 +313,21 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
     host <- parts[1]
     database <- parts[2]
     if (missing(port) || is.null(port))
-      port <- "5432"
-    pathToJar <- system.file("java", "postgresql-8.4-704.jdbc4.jar", package = "DatabaseConnector")
-    driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote = "`")
-    connection <- RJDBC::dbConnect(driver, paste("jdbc:postgresql://",
-                                                 host,
-                                                 ":",
-                                                 port,
-                                                 "/",
-                                                 database,
-                                                 sep = ""), user, password)
+      port <- "5439"
+    pathToJar <- system.file("java", "RedshiftJDBC41-1.1.10.1010.jar", package = "DatabaseConnector")
+    driver <- jdbcSingleton("com.amazon.redshift.jdbc41.Driver", pathToJar, identifier.quote = "`")
+    connectionString <- paste("jdbc:redshift://",
+                              host,
+                              ":",
+                              port,
+                              "/",
+                              database,
+                              sep = "")
+    
+    if (!missing(configSettings) && !is.null(configSettings))
+      connectionString <- paste(connectionString, "?", configSettings, sep = "")
+
+    connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms
@@ -325,6 +351,8 @@ connect.default <- function(dbms = "sql server", user, domain, password, server,
                                                  "/",
                                                  database,
                                                  sep = ""), user, password)
+    if (!missing(configSettings) && !is.null(configSettings))
+      connectionString <- paste(connectionString, "?", configSettings, sep = "")
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("SET schema TO ", schema))
     attr(connection, "dbms") <- dbms
@@ -341,5 +369,6 @@ connect.connectionDetails <- function(connectionDetails) {
   server <- connectionDetails$server
   port <- connectionDetails$port
   schema <- connectionDetails$schema
-  connect(dbms, user, domain, password, server, port, schema)
+  configSettings <- connectionDetails$configSettings
+  connect(dbms, user, domain, password, server, port, schema, configSettings)
 }

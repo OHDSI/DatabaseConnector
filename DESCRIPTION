@@ -17,3 +17,4 @@ License: Apache License
 Suggests:
     testthat,
     OhdsiRTools
+RoxygenNote: 5.0.1
