@@ -34,7 +34,7 @@ install:
 #  - R CMD javareconf  # Might not be really necessary
   - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
   - Rscript -e 'if (!require("covr")) devtools::install_github("jimhester/covr")'
-  - Rscript -e 'if (!require("drat")) install.packages("jimhester/covr")'     
+  - Rscript -e 'if (!require("drat")) install.packages("drat")'     
   - Rscript -e 'if(!"rJava" %in% rownames(installed.packages())) { install.packages("rJava", dependencies = TRUE) }'
   - Rscript -e 'if(!"bit" %in% rownames(installed.packages())) { install.packages("bit", dependencies = TRUE) }'
   - Rscript -e 'if(!"ff" %in% rownames(installed.packages())) { install.packages("ff", dependencies = TRUE) }'
