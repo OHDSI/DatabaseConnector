@@ -16,6 +16,5 @@ Imports:
     SqlRender
 License: Apache License
 Suggests:
-    testthat,
-    OhdsiRTools
+    testthat
 RoxygenNote: 5.0.1
