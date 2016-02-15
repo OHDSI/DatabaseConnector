@@ -309,9 +309,9 @@ connect.default <- function(dbms = "sql server",
     if (missing(port) || is.null(port))
       port <- "5439"
     pathToJar <- system.file("java",
-                             "RedshiftJDBC41-1.1.10.1010.jar",
+                             "RedshiftJDBC4-1.1.10.1010.jar",
                              package = "DatabaseConnector")
-    driver <- jdbcSingleton("com.amazon.redshift.jdbc41.Driver", pathToJar, identifier.quote = "`")
+    driver <- jdbcSingleton("com.amazon.redshift.jdbc4.Driver", pathToJar, identifier.quote = "`")
     connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
 
     if (!missing(extraSettings) && !is.null(extraSettings))

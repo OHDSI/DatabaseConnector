@@ -100,7 +100,7 @@ querySql(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 
 # Test Redshift:
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
+connectionDetails <- createConnectionDetails(dbms = "redshift",
                                              server = "localhost/cdm4_sim",
                                              user = "postgres",
                                              password = pw,
