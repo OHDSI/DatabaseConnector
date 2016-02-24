@@ -661,13 +661,13 @@ insertTable <- function(connection,
                                  "prepareStatement",
                                  insertSql,
                                  check = FALSE)
-      if (attr(connection, "dbms") == "postgresql" | attr(connection, "dbms") == "redshift")
+      if (attr(connection, "dbms") == "postgresql")
         apply(data[start:end,
                    ,
                    drop = FALSE],
               statement = statement,
               MARGIN = 1,
-              FUN = insertRowPostgreSql) else if (attr(connection, "dbms") == "oracle")
+              FUN = insertRowPostgreSql) else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift" )
                 apply(data[start:end,
                            ,
                            drop = FALSE],

@@ -1,5 +1,4 @@
 library(DatabaseConnector)
-pw <- ""
 
 # Test MySQL:
 connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -77,6 +76,15 @@ querySql.ffdf(conn, "SELECT TOP 100 * FROM person")
 executeSql(conn, "CREATE TABLE #temp (x int)")
 querySql(conn, "SELECT COUNT(*) FROM #temp")
 # x <- querySql.ffdf(conn,'SELECT * FROM person')
+data <- data.frame(id = c(1,2,3), date = as.Date(c("2000-01-01","2001-01-31","2004-12-31")), text = c("asdf","asdf","asdf"))
+insertTable(connection = conn,
+            tableName = "test",
+            data = data,
+            dropTableIfExists = TRUE,
+            createTable = TRUE,
+            tempTable = TRUE)
+d2 <- querySql(conn, "SELECT * FROM #test")
+str(d2)
 dbDisconnect(conn)
 
 # Test Oracle:
@@ -90,6 +98,7 @@ querySql(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 
 # Test PostgreSQL:
+pw <- Sys.getenv("pwPostgres")
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/ohdsi",
                                              user = "postgres",
@@ -100,13 +109,32 @@ querySql(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 
 # Test Redshift:
+pw <- Sys.getenv("pwRedShift")
 connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             server = "localhost/cdm4_sim",
-                                             user = "postgres",
+                                             server = "hicoe.cldcoxyrkflo.us-east-1.redshift.amazonaws.com/truven_mdcr",
+                                             port = "5439",
+                                             user = "mschuemi",
                                              password = pw,
-                                             schema = "public")
+                                             schema = "cdm",
+                                             extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
+executeSql(conn, "CREATE TABLE scratch.test (x INT)")
+
+person <- querySql.ffdf(conn, "SELECT * FROM person")
+data <- data.frame(id = c(1,2,3), date = as.Date(c("2000-01-01","2001-01-31","2004-12-31")), text = c("asdf","asdf","asdf"))
+insertTable(connection = conn,
+            tableName = "test",
+            data = data,
+            dropTableIfExists = TRUE,
+            createTable = TRUE,
+            tempTable = TRUE)
+d2 <- querySql(conn, "SELECT * FROM test")
+str(d2)
+
+options('fftempdir' = 's:/fftemp')
+d2 <- querySql.ffdf(conn, "SELECT * FROM test")
+d2
 dbDisconnect(conn)
 
 ### Tests for dbInsertTable ###
