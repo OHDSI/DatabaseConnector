@@ -454,7 +454,7 @@ recursiveMerge <- function(connection, tableName, varNames, tempNames, location,
 
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
   batchSize <- 1000
-  if (any(tolower(names(data)) == "subject_Id")) {
+  if (any(tolower(names(data)) == "subject_id")) {
     distribution <- "HASH(SUBJECT_ID)"
   } else if (any(tolower(names(data)) == "person_id")) {
     distribution <- "HASH(PERSON_ID)"
