@@ -19,7 +19,9 @@
 #' @param schema          (optional) The name of the schema to connect to.
 #' @param extraSettings   (optional) Additional configuration settings specific to the database
 #'                        provider to configure things as security for SSL. These must follow the
-#'                        format for the JDBC connection for the RDBMS specified in dbms
+#'                        format for the JDBC connection for the RDBMS specified in dbms.
+#' @param oracleDriver    Specify which Oracle drive you want to use. Choose between \code{"thin"} 
+#'                        or \code{"oci"}.                       
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
@@ -44,6 +46,7 @@
 #'         tables
 #'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
 #'         as "(PROTOCOL=tcps)")
+#'   \item \code{oracleDriver} The driver to be used. Choose between "thin"  or "oci".  
 #' }
 #' Microsoft SQL Server:
 #' \itemize{

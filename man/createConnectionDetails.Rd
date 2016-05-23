@@ -5,7 +5,7 @@
 \title{createConnectionDetails}
 \usage{
 createConnectionDetails(dbms = "sql server", user, domain, password, server,
-  port, schema, extraSettings)
+  port, schema, extraSettings, oracleDriver = "thin")
 }
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
@@ -33,7 +33,10 @@ createConnectionDetails(dbms = "sql server", user, domain, password, server,
 
 \item{extraSettings}{(optional) Additional configuration settings specific to the database
 provider to configure things as security for SSL. These must follow the
-format for the JDBC connection for the RDBMS specified in dbms}
+format for the JDBC connection for the RDBMS specified in dbms.}
+
+\item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"} 
+or \code{"oci"}.}
 }
 \value{
 A list with all the details needed to connect to a database.
@@ -69,6 +72,7 @@ Oracle:
         tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "(PROTOCOL=tcps)")
+  \item \code{oracleDriver} The driver to be used. Choose between "thin"  or "oci".  
 }
 Microsoft SQL Server:
 \itemize{

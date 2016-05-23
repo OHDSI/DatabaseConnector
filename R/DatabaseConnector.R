@@ -64,7 +64,8 @@ createConnectionDetails <- function(dbms = "sql server",
                                     server,
                                     port,
                                     schema,
-                                    extraSettings) {
+                                    extraSettings,
+                                    oracleDriver = "thin") {
   result <- c(list(as.character(match.call()[[1]])),
               lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3))))
   class(result) <- "connectionDetails"
@@ -78,7 +79,7 @@ createConnectionDetails <- function(dbms = "sql server",
 #' \code{connect} creates a connection to a database server.
 #'
 #' @usage
-#' connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings)
+#' connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings, oracleDriver)
 #' connect(connectionDetails)
 #'
 #' @template DbmsDetails
@@ -143,7 +144,8 @@ connect.default <- function(dbms = "sql server",
                             server,
                             port,
                             schema,
-                            extraSettings) {
+                            extraSettings,
+                            oracleDriver = "thin") {
   if (dbms == "mysql") {
     writeLines("Connecting using MySQL driver")
     if (missing(port) || is.null(port))
@@ -153,10 +155,10 @@ connect.default <- function(dbms = "sql server",
                              package = "DatabaseConnector")
     driver <- jdbcSingleton("com.mysql.jdbc.Driver", pathToJar, identifier.quote = "`")
     connectionString <- paste("jdbc:mysql://", server, ":", port, "/?useCursorFetch=true", sep = "")
-
+    
     if (!missing(extraSettings) && !is.null(extraSettings))
       connectionString <- paste(connectionString, "&", extraSettings, sep = "")
-
+    
     connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("USE", schema))
@@ -188,13 +190,13 @@ connect.default <- function(dbms = "sql server",
       if (!missing(port) && !is.null(port))
         server <- paste(server, port, sep = ":")
       connectionString <- paste("jdbc:jtds:sqlserver://", server, sep = "")
-
+      
       if (!missing(domain) && !is.null(domain))
         connectionString <- paste(connectionString, ";domain=", domain, sep = "")
-
+      
       if (!missing(extraSettings) && !is.null(extraSettings))
         connectionString <- paste(connectionString, ";", extraSettings, sep = "")
-
+      
       connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -208,7 +210,7 @@ connect.default <- function(dbms = "sql server",
     writeLines("Connecting using SQL Server driver")
     pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
     driver <- jdbcSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
-
+    
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
       connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
@@ -236,38 +238,48 @@ connect.default <- function(dbms = "sql server",
     writeLines("Connecting using Oracle driver")
     pathToJar <- system.file("java", "ojdbc6.jar", package = "DatabaseConnector")
     driver <- jdbcSingleton("oracle.jdbc.driver.OracleDriver", pathToJar)
-
-    # First THIN driver:
-    if (missing(port) || is.null(port))
-      port <- "1521"
-    host <- "127.0.0.1"
-    sid <- server
-    if (grepl("/", server)) {
-      parts <- unlist(strsplit(server, "/"))
-      host <- parts[1]
-      sid <- parts[2]
+    
+    if (oracleDriver == "thin") {
+      writeLines("- using THIN to connect")
+      if (missing(port) || is.null(port))
+        port <- "1521"
+      host <- "127.0.0.1"
+      sid <- server
+      if (grepl("/", server)) {
+        parts <- unlist(strsplit(server, "/"))
+        host <- parts[1]
+        sid <- parts[2]
+      }
+      # mapDateToTimestamp 
+      connectionString <- paste0("jdbc:oracle:thin:@", host, ":", port, ":", sid)
+      if (!missing(extraSettings) && !is.null(extraSettings))
+        connectionString <- paste0(connectionString, extraSettings)
+      result <- class(try(connection <- dbConnectUsingProperties(driver, 
+                                                                 connectionString, 
+                                                                 user = user, 
+                                                                 password = password, 
+                                                                 oracle.jdbc.mapDateToTimestamp = "false"),silent = FALSE))[1]
+      
+      # Try using TNSName instead:
+      if (result == "try-error") {
+        writeLines("- Trying using TNSName")
+        connectionString <-  paste0("jdbc:oracle:thin:@", server)
+        connection <- dbConnectUsingProperties(driver, 
+                                               connectionString, 
+                                               user = user, 
+                                               password = password, 
+                                               oracle.jdbc.mapDateToTimestamp = "false")
+      }
     }
-    connectionString <- paste("jdbc:oracle:thin:@", host, ":", port, ":", sid, sep = "")
-    if (!missing(extraSettings) && !is.null(extraSettings))
-      connectionString <- paste(connectionString, extraSettings, sep = "")
-    result <- class(try(connection <- RJDBC::dbConnect(driver, connectionString, user, password),
-                        silent = TRUE))[1]
-
-    # Try using TNSName instead:
-    if (result == "try-error")
-      result <- class(try(connection <- RJDBC::dbConnect(driver,
-                                                         paste("jdbc:oracle:thin:@",
-                                                               server,
-                                                               sep = ""),
-                                                         user,
-                                                         password), silent = TRUE))[1]
-
-    # Next try OCI driver:
-    if (result == "try-error")
-      connection <- RJDBC::dbConnect(driver, paste("jdbc:oracle:oci8:@",
-                                                   server,
-                                                   sep = ""), user, password)
-
+    if (oracleDriver == "oci") {
+      writeLines("- using OCI to connect")
+      connectionString <-  paste0("jdbc:oracle:oci8:@",server)
+      connection <- dbConnectUsingProperties(driver, 
+                                             connectionString, 
+                                             user = user, 
+                                             password = password, 
+                                             oracle.jdbc.mapDateToTimestamp = "false")
+    }
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("ALTER SESSION SET current_schema = ", schema))
     attr(connection, "dbms") <- dbms
@@ -313,10 +325,10 @@ connect.default <- function(dbms = "sql server",
                              package = "DatabaseConnector")
     driver <- jdbcSingleton("com.amazon.redshift.jdbc4.Driver", pathToJar, identifier.quote = "`")
     connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
-
+    
     if (!missing(extraSettings) && !is.null(extraSettings))
       connectionString <- paste(connectionString, "?", extraSettings, sep = "")
-
+    
     connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("SET search_path TO ", schema))
@@ -361,4 +373,22 @@ connect.connectionDetails <- function(connectionDetails) {
   schema <- connectionDetails$schema
   extraSettings <- connectionDetails$extraSettings
   connect(dbms, user, domain, password, server, port, schema, extraSettings)
+}
+
+dbConnectUsingProperties <- function(drv, url, ...) {
+  properties <- list(...) 
+  p <- rJava::.jnew("java/util/Properties")
+  for (i in 1:length(properties)) {
+    rJava::.jcall(p,"Ljava/lang/Object;","setProperty", names(properties)[i], as.character(properties[[i]])[1])
+  }
+  jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
+  if (rJava::is.jnull(jc)) {
+    x <- rJava::.jgetEx(TRUE)
+    if (rJava::is.jnull(x))
+      stop("Unable to connect JDBC to ", url)
+    else
+      stop("Unable to connect JDBC to ", url," (", rJava::.jcall(x, "S", "getMessage"),")")
+  }
+  connection <- new("JDBCConnection", jc=jc, identifier.quote=drv@identifier.quote)
+  return(connection)
 }
