@@ -182,22 +182,29 @@ connect.default <- function(dbms = "sql server",
       writeLines("Connecting using SQL Server driver")
       if (grepl("/", user) | grepl("\\\\", user))
         stop("User name appears to contain the domain, but this should be specified using the domain parameter")
-      # I've been unable to get Microsoft's JDBC driver to connect without integrated security, probably
-      # because I don't fully understand how to provide the domain (keep getting 'unable to log in'), so
-      # using JTDS driver instead:
-      pathToJar <- system.file("java", "jtds-1.2.7.jar", package = "DatabaseConnector")
-      driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
-      if (!missing(port) && !is.null(port))
-        server <- paste(server, port, sep = ":")
-      connectionString <- paste("jdbc:jtds:sqlserver://", server, sep = "")
-      
-      if (!missing(domain) && !is.null(domain))
-        connectionString <- paste(connectionString, ";domain=", domain, sep = "")
-      
-      if (!missing(extraSettings) && !is.null(extraSettings))
-        connectionString <- paste(connectionString, ";", extraSettings, sep = "")
-      
-      connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+      if (!missing(domain) && !is.null(domain)) {
+        # I have been unable to get Microsoft's JDBC driver to connect when a domain needs to be specified, so
+        # using JTDS driver instead: (Note, JTDS has issues with dates, which it converts to VARCHAR), see
+        # https://sourceforge.net/p/jtds/bugs/679/
+        pathToJar <- system.file("java", "jtds-1.3.1.jar", package = "DatabaseConnector")
+        driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
+        writeLines("Warning: Using JTDS driver because a domain is specified. This may lead to problems. Try using integrated security instead.")
+        if (!missing(port) && !is.null(port))
+          server <- paste(server, port, sep = ":")
+        connectionString <- paste("jdbc:jtds:sqlserver://", server, ";domain=", domain, sep = "")
+        if (!missing(extraSettings) && !is.null(extraSettings)) 
+          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+        connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+      } else {
+        pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
+        driver <- jdbcSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
+        connectionString <- paste("jdbc:sqlserver://", server, sep = "")
+        if (!missing(port) && !is.null(port))
+          connectionString <- paste(connectionString, ";port=", port, sep = "")
+        if (!missing(extraSettings) && !is.null(extraSettings))
+          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+        connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+      }
     }
     if (!missing(schema) && !is.null(schema)) {
       database <- strsplit(schema, "\\.")[[1]][1]

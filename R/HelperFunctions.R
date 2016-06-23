@@ -252,7 +252,7 @@ executeSql <- function(connection,
     close(pb)
   if (reportOverallTime) {
     delta <- Sys.time() - start
-    writeLines(paste("Analysis took", signif(delta, 3), attr(delta, "units")))
+    writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
   }
 }
 
