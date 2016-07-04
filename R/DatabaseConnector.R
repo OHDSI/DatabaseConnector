@@ -303,15 +303,10 @@ connect.default <- function(dbms = "sql server",
       port <- "5432"
     pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc4.jar", package = "DatabaseConnector")
     driver <- jdbcSingleton("org.postgresql.Driver", pathToJar, identifier.quote = "`")
-    connection <- RJDBC::dbConnect(driver, paste("jdbc:postgresql://",
-                                                 host,
-                                                 ":",
-                                                 port,
-                                                 "/",
-                                                 database,
-                                                 sep = ""), user, password)
+    connectionString <-  paste0("jdbc:postgresql://", host, ":", port, "/", database)
     if (!missing(extraSettings) && !is.null(extraSettings))
       connectionString <- paste(connectionString, "?", extraSettings, sep = "")
+    connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     if (!missing(schema) && !is.null(schema))
       RJDBC::dbSendUpdate(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms

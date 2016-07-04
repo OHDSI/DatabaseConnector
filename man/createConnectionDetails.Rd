@@ -144,7 +144,7 @@ c:/windows/system32.
 When using a Windows domain to log in to SQL Server, DatabaseConnector must rely on a non-Microsoft 
 driver. This driver has know issues with retrieving dates. We therefor recommend to either use
 Windows integrated security, or if a different user is needed, try running RStudio using that user:
-\code{runas /netonly /user:domain\username "C:\path\to\rstudio\bin\rstudio.exe"}.
+\code{runas /netonly /user:domain\\username "C:\path\to\rstudio\bin\rstudio.exe"}.
  
 In order to enable Netezza support, place your Netezza jdbc driver at
 \code{inst/java/nzjdbc.jar} in this package.
