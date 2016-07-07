@@ -31,3 +31,114 @@ test_that("Open and close connection", {
   expect_true(inherits(connection, "JDBCConnection"))
   expect_true(DBI::dbDisconnect(connection))
 })
+
+test_that("Open and close connection using connection strings with embedded user and pw", {
+  # Postgresql
+  parts <- unlist(strsplit(Sys.getenv("CDM5_POSTGRESQL_SERVER"), "/"))
+  host <- parts[1]
+  database <- parts[2]
+  port <- "5432"
+  connectionString <-  paste0("jdbc:postgresql://", 
+                              host, 
+                              ":", 
+                              port, 
+                              "/", 
+                              database, 
+                              "?user=", 
+                              Sys.getenv("CDM5_POSTGRESQL_USER"),
+                              "&password=",
+                              URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")))
+  details <- createConnectionDetails(dbms = "postgresql",
+                                     connectionString = connectionString)
+  connection <- connect(details)
+  expect_true(inherits(connection, "JDBCConnection"))
+  expect_true(DBI::dbDisconnect(connection))
+  
+  # SQL Server
+  connectionString <- paste0("jdbc:sqlserver://", 
+                             Sys.getenv("CDM5_SQL_SERVER_SERVER"),
+                             ";user=",
+                             Sys.getenv("CDM5_SQL_SERVER_USER"),
+                             ";password=",
+                             URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")))
+  
+  details <- createConnectionDetails(dbms = "sql server",
+                                     connectionString = connectionString)
+  connection <- connect(details)
+  expect_true(inherits(connection, "JDBCConnection"))
+  expect_true(DBI::dbDisconnect(connection))
+  
+  # Oracle
+  port <- "1521"
+  parts <- unlist(strsplit(Sys.getenv("CDM5_ORACLE_SERVER"), "/"))
+  host <- parts[1]
+  sid <- parts[2]
+
+  connectionString <- paste0("jdbc:oracle:thin:", 
+                             Sys.getenv("CDM5_ORACLE_USER"),
+                             "/",
+                             URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
+                             "@",
+                             host, 
+                             ":", 
+                             port, 
+                             ":", 
+                             sid)
+
+  details <- createConnectionDetails(dbms = "oracle",
+                                     connectionString = connectionString)
+  connection <- connect(details)
+  expect_true(inherits(connection, "JDBCConnection"))
+  expect_true(DBI::dbDisconnect(connection))
+})
+
+test_that("Open and close connection using connection strings with separate user and pw", {
+  # Postgresql
+  parts <- unlist(strsplit(Sys.getenv("CDM5_POSTGRESQL_SERVER"), "/"))
+  host <- parts[1]
+  database <- parts[2]
+  port <- "5432"
+  connectionString <-  paste0("jdbc:postgresql://", 
+                              host, 
+                              ":", 
+                              port, 
+                              "/", 
+                              database)
+  details <- createConnectionDetails(dbms = "postgresql",
+                                     connectionString = connectionString,
+                                     user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+                                     password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")))
+  connection <- connect(details)
+  expect_true(inherits(connection, "JDBCConnection"))
+  expect_true(DBI::dbDisconnect(connection))
+  
+  # SQL Server
+  connectionString <- paste0("jdbc:sqlserver://", 
+                             Sys.getenv("CDM5_SQL_SERVER_SERVER"))
+  details <- createConnectionDetails(dbms = "sql server",
+                                     connectionString = connectionString,
+                                     user = Sys.getenv("CDM5_SQL_SERVER_USER"),
+                                     password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")))
+  connection <- connect(details)
+  expect_true(inherits(connection, "JDBCConnection"))
+  expect_true(DBI::dbDisconnect(connection))
+  
+  # Oracle
+  port <- "1521"
+  parts <- unlist(strsplit(Sys.getenv("CDM5_ORACLE_SERVER"), "/"))
+  host <- parts[1]
+  sid <- parts[2]
+  connectionString <- paste0("jdbc:oracle:thin:@",
+                             host, 
+                             ":", 
+                             port, 
+                             ":", 
+                             sid)
+  details <- createConnectionDetails(dbms = "oracle",
+                                     connectionString = connectionString,
+                                     user = Sys.getenv("CDM5_ORACLE_USER"),
+                                     password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")))
+  connection <- connect(details)
+  expect_true(inherits(connection, "JDBCConnection"))
+  expect_true(DBI::dbDisconnect(connection))
+})

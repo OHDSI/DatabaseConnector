@@ -4,8 +4,9 @@
 \alias{createConnectionDetails}
 \title{createConnectionDetails}
 \usage{
-createConnectionDetails(dbms = "sql server", user, domain, password, server,
-  port, schema, extraSettings, oracleDriver = "thin")
+createConnectionDetails(dbms, user, domain, password, server, port, schema, extraSettings, oracleDriver = "thin")
+createConnectionDetails(dbms, connectionString)
+createConnectionDetails(dbms, connectionString, user, password)
 }
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
@@ -37,6 +38,10 @@ format for the JDBC connection for the RDBMS specified in dbms.}
 
 \item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"} 
 or \code{"oci"}.}
+
+\item{connectionString}{The JDBC connection string. If specified, the \code{server}, \code{port}, \code{extraSettings}, and \code{oracleDriver} fields are ignored. If 
+\code{user} and \code{password} are not specified, they are assumed to already be included in the connection
+string.}
 }
 \value{
 A list with all the details needed to connect to a database.
@@ -51,7 +56,9 @@ then be used in the \code{\link{connect}} function.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: MySQL:
+interpretations: 
+
+MySQL:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
@@ -100,7 +107,9 @@ Microsoft PDW:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
-Connections where the domain need to be specified are not supported PostgreSQL:
+Connections where the domain need to be specified are not supported.
+
+PostgreSQL:
 \itemize{
   \item \code{user}. The user used to log in to the server
   \item \code{password}. The password used to log on to the server

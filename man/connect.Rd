@@ -4,8 +4,10 @@
 \alias{connect}
 \title{connect}
 \usage{
-connect(dbms = "sql server", user, domain, password, server, port, schema, extraSettings, oracleDriver)
+connect(dbms, user, domain, password, server, port, schema, extraSettings, oracleDriver = "thin")
 connect(connectionDetails)
+connect(dbms, connectionString)
+connect(dbms, connectionString, user, password)
 }
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
@@ -38,6 +40,10 @@ format for the JDBC connection for the RDBMS specified in dbms.}
 \item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"} 
 or \code{"oci"}.}
 
+\item{connectionString}{The JDBC connection string. If specified, the \code{server}, \code{port}, \code{extraSettings}, and \code{oracleDriver} fields are ignored. If 
+\code{user} and \code{password} are not specified, they are assumed to already be included in the connection
+string.}
+
 \item{connectionDetails}{An object of class \code{connectionDetails} as created by the
 \code{\link{createConnectionDetails}} function.}
 }
@@ -53,7 +59,9 @@ This function creates a connection to a database.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: MySQL:
+interpretations: 
+
+MySQL:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
@@ -102,7 +110,9 @@ Microsoft PDW:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
-Connections where the domain need to be specified are not supported PostgreSQL:
+Connections where the domain need to be specified are not supported.
+
+PostgreSQL:
 \itemize{
   \item \code{user}. The user used to log in to the server
   \item \code{password}. The password used to log on to the server
@@ -172,6 +182,12 @@ conn <- connect(dbms = "oracle",
                 schema = "test")
 dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 dbDisconnect(conn)
+
+conn <- connect(dbms = "postgresql", 
+                connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
+dbGetQuery(conn, "SELECT COUNT(*) FROM person")
+dbDisconnect(conn)
+
 }
 }
 

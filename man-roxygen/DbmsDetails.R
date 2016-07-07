@@ -21,11 +21,16 @@
 #'                        provider to configure things as security for SSL. These must follow the
 #'                        format for the JDBC connection for the RDBMS specified in dbms.
 #' @param oracleDriver    Specify which Oracle drive you want to use. Choose between \code{"thin"} 
-#'                        or \code{"oci"}.                       
+#'                        or \code{"oci"}.    
+#' @param connectionString  The JDBC connection string. If specified, the \code{server}, \code{port}, \code{extraSettings}, and \code{oracleDriver} fields are ignored. If 
+#'                          \code{user} and \code{password} are not specified, they are assumed to already be included in the connection
+#'                          string.                  
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
-#' interpretations: MySQL:
+#' interpretations: 
+#' 
+#' MySQL:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
 #'   \item \code{password}. The password for that user
@@ -74,7 +79,9 @@
 #'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
 #'         as "encrypt=true; trustServerCertificate=false;")
 #' }
-#' Connections where the domain need to be specified are not supported PostgreSQL:
+#' Connections where the domain need to be specified are not supported.
+#' 
+#' PostgreSQL:
 #' \itemize{
 #'   \item \code{user}. The user used to log in to the server
 #'   \item \code{password}. The password used to log on to the server
