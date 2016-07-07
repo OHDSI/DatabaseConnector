@@ -410,26 +410,9 @@ querySql.ffdf <- function(connection, sql) {
 }
 
 
-recursiveMerge <- function(connection, tableName, varNames, tempNames, location, distribution) {
-  maxSelects <- 300
-  if (length(tempNames) > maxSelects) {
-    batchSize <- ceiling(length(tempNames)/ceiling(length(tempNames)/maxSelects))
-    newTempNames <- c()
-    for (start in seq(1, length(tempNames), by = batchSize)) {
-      end <- min(start + batchSize - 1, length(tempNames))
-      tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
-      recursiveMerge(connection,
-                     tempName,
-                     varNames,
-                     tempNames[start:end],
-                     "LOCATION = USER_DB, ",
-                     distribution)
-      newTempNames <- c(newTempNames, tempName)
-    }
-    tempNames <- newTempNames
-  }
+mergeTempTables <- function(connection, tableName, varNames, sourceNames, location, distribution) {
   unionString <- paste("\nUNION ALL\nSELECT ", varNames, " FROM ", sep = "")
-  valueString <- paste(tempNames, collapse = unionString)
+  valueString <- paste(sourceNames, collapse = unionString)
   sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
                tableName,
                " (",
@@ -445,15 +428,16 @@ recursiveMerge <- function(connection, tableName, varNames, tempNames, location,
                sep = "")
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
-  # Drop temp tables:
-  for (tempName in tempNames) {
-    sql <- paste("DROP TABLE", tempName)
+  # Drop source tables:
+  for (sourceName in sourceNames) {
+    sql <- paste("DROP TABLE", sourceName)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
 
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
   batchSize <- 1000
+  mergeSize <- 300
   if (any(tolower(names(data)) == "subject_id")) {
     distribution <- "HASH(SUBJECT_ID)"
   } else if (any(tolower(names(data)) == "person_id")) {
@@ -475,9 +459,11 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
   # Insert data in batches in temp tables using CTAS:
   tempNames <- c()
   for (start in seq(1, nrow(data), by = batchSize)) {
-    end <- min(start + batchSize - 1, nrow(data))
-    tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
-    tempNames <- c(tempNames, tempName)
+    if (length(tempNames) == mergeSize) {
+      mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
+      mergeTempTables(connection, mergedName, varNames, tempNames, location, distribution)
+      tempNames <- c(mergedName)
+    }
     # First line gets type information
     valueString <- paste(paste("CAST(",
                                sapply(data[start, , drop = FALSE], esc),
@@ -485,12 +471,15 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
                                fts,
                                ")",
                                sep = ""), collapse = ",")
+    end <- min(start + batchSize - 1, nrow(data))
     if (end > start) {
       valueString <- paste(c(valueString, apply(sapply(data[(start + 1):end, , drop = FALSE], esc),
                                                 MARGIN = 1,
                                                 FUN = paste,
                                                 collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
     }
+    tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
+    tempNames <- c(tempNames, tempName)
     sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
                  tempName,
                  " (",
@@ -502,8 +491,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
                  sep = "")
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-  
-  recursiveMerge(connection, qname, varNames, tempNames, location, distribution)
+  mergeTempTables(connection, qname, varNames, tempNames, location, distribution)
 }
 
 #' Insert a table on the server

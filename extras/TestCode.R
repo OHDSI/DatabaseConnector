@@ -14,16 +14,16 @@ dbDisconnect(conn)
 connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              server = "JRDUSAPSCTL01",
                                              port = 17001,
-                                             schema = "CDM_Truven_MDCR")
+                                             schema = "CDM_Truven_MDCR_V415")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 
 # CTAS hack stuff:
-n <- 50
+n <- 5000
 data <- data.frame(x = 1:n, y = runif(n))
 insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)
-
+querySql(conn, "SELECT COUNT(*) FROM #temp")
 data <- querySql(conn, "SELECT TOP 10000 * FROM condition_occurrence")
 data <- data[, c("PERSON_ID",
                  "CONDITION_CONCEPT_ID",
