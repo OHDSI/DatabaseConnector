@@ -16,10 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.onLoad <- function(libname, pkgname) {
-  jdbcDrivers <<- new.env()
-}
-
 #' DatabaseConnector
 #'
 #' @docType package
@@ -155,6 +151,10 @@ connect <- function(dbms,
 
 # Singleton pattern to ensure driver is instantiated only once
 jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA) {
+  if (!exists("jdbcDrivers")) {
+    jdbcDrivers <<- new.env()
+  } 
+  
   key <- paste(driverClass, classPath)
   if (key %in% ls(jdbcDrivers)) {
     driver <- get(key, jdbcDrivers)
