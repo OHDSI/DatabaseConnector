@@ -23,7 +23,7 @@ dbDisconnect(conn)
 n <- 5000
 data <- data.frame(x = 1:n, y = runif(n))
 insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)
-querySql(conn, "SELECT COUNT(*) FROM #temp")
+querySql(conn, "SELECT * FROM #temp")
 data <- querySql(conn, "SELECT TOP 10000 * FROM condition_occurrence")
 data <- data[, c("PERSON_ID",
                  "CONDITION_CONCEPT_ID",
@@ -77,14 +77,17 @@ executeSql(conn, "CREATE TABLE #temp (x int)")
 querySql(conn, "SELECT COUNT(*) FROM #temp")
 # x <- querySql.ffdf(conn,'SELECT * FROM person')
 data <- data.frame(id = c(1,2,3), date = as.Date(c("2000-01-01","2001-01-31","2004-12-31")), text = c("asdf","asdf","asdf"))
+data$date[2] <- NA
+
 insertTable(connection = conn,
             tableName = "test",
             data = data,
             dropTableIfExists = TRUE,
             createTable = TRUE,
             tempTable = TRUE)
-d2 <- querySql(conn, "SELECT * FROM #test")
+d2 <- querySql(conn, "SELECT * FROM test")
 str(d2)
+is.na(d2$DATE)
 dbDisconnect(conn)
 
 # Test Oracle:

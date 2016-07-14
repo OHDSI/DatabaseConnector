@@ -616,25 +616,42 @@ insertTable <- function(connection,
     }
     
     insertRow <- function(row, statement) {
-      for (i in 1:length(row)) rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+      for (i in 1:length(row)) {
+        if (is.na(row[i])) {
+          rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
+        } else {
+          rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+        }
+      }
       rJava::.jcall(statement, "V", "addBatch")
     }
     insertRowPostgreSql <- function(row, statement) {
       other <- rJava::.jfield("java/sql/Types", "I", "OTHER")
       for (i in 1:length(row)) {
-        value <- rJava::.jnew("java/lang/String", as.character(row[i]))
-        rJava::.jcall(statement,
-                      "V",
-                      "setObject",
-                      i,
-                      rJava::.jcast(value, "java/lang/Object"),
-                      other)
+        if (is.na(row[i])) {
+          rJava::.jcall(statement,
+                        "V",
+                        "setObject",
+                        i,
+                        rJava::.jnull(),
+                        other)
+        } else {
+          value <- rJava::.jnew("java/lang/String", as.character(row[i]))
+          rJava::.jcall(statement,
+                        "V",
+                        "setObject",
+                        i,
+                        rJava::.jcast(value, "java/lang/Object"),
+                        other)
+        }
       }
       rJava::.jcall(statement, "V", "addBatch")
     }
     insertRowOracle <- function(row, statement, isDate) {
       for (i in 1:length(row)) {
-        if (isDate[i]) {
+        if (is.na(row[i])) {
+          rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
+        } else if (isDate[i]) {
           date <- rJava::.jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))
           rJava::.jcall(statement, "V", "setDate", i, date)
         } else rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
