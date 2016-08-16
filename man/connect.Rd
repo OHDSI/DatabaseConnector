@@ -3,13 +3,10 @@
 \name{connect}
 \alias{connect}
 \title{connect}
-\usage{
-connect(dbms, user, domain, password, server, port, schema, extraSettings, oracleDriver = "thin")
-connect(connectionDetails)
-connect(dbms, connectionString)
-connect(dbms, connectionString, user, password)
-}
 \arguments{
+\item{connectionDetails}{An object of class \code{connectionDetails} as created by the
+\code{\link{createConnectionDetails}} function.}
+
 \item{dbms}{The type of DBMS running on the server. Valid values are
 \itemize{
   \item {"mysql" for MySQL}
@@ -18,7 +15,6 @@ connect(dbms, connectionString, user, password)
   \item {"redshift" for Amazon Redshift}
   \item {"sql server" for Microsoft SQL Server}
   \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
-  \item {"netezza" for IBM Netezza}
 }}
 
 \item{user}{The user name used to access the server.}
@@ -43,16 +39,20 @@ or \code{"oci"}.}
 \item{connectionString}{The JDBC connection string. If specified, the \code{server}, \code{port}, \code{extraSettings}, and \code{oracleDriver} fields are ignored. If 
 \code{user} and \code{password} are not specified, they are assumed to already be included in the connection
 string.}
-
-\item{connectionDetails}{An object of class \code{connectionDetails} as created by the
-\code{\link{createConnectionDetails}} function.}
 }
 \value{
 An object that extends \code{DBIConnection} in a database-specific manner. This object is used to
 direct commands to the database engine.
 }
 \description{
-\code{connect} creates a connection to a database server.
+\code{connect} creates a connection to a database server .There are four ways to call this function:
+ \itemize{
+  \item \code{connect(dbms, user, domain, password, server, port, schema, 
+        extraSettings, oracleDriver = "thin")}
+  \item\code{connect(connectionDetails)}
+  \item\code{connect(dbms, connectionString)}
+  \item\code{connect(dbms, connectionString, user, password)}
+}
 }
 \details{
 This function creates a connection to a database.
@@ -134,17 +134,6 @@ Redshift:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 }
-Netezza:
-\itemize{
-  \item \code{user}. The user used to log in to the server
-  \item \code{password}. The password used to log on to the server
-  \item \code{server}. This field contains the host name of the server and the database holding the
-        relevant schemas: <host>/<database>
-  \item \code{port}. Specifies the port on the server (default = 5480)
-  \item \code{schema}. The schema containing the tables.
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "ssl=true")
-}
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 driver. Download the .exe from
 \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and
@@ -157,9 +146,6 @@ When using a Windows domain to log in to SQL Server, DatabaseConnector must rely
 driver. This driver has know issues with retrieving dates. We therefor recommend to either use
 Windows integrated security, or if a different user is needed, try running RStudio using that user:
 \code{runas /netonly /user:domain\\username "C:\path\to\rstudio\bin\rstudio.exe"}.
- 
-In order to enable Netezza support, place your Netezza jdbc driver at
-\code{inst/java/nzjdbc.jar} in this package.
 }
 \examples{
 \dontrun{

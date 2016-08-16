@@ -13,7 +13,6 @@ Features
   - Postgres
   - Amazon Redshift
   - MySQL
-  - Netezza (driver not included)
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
@@ -47,10 +46,7 @@ Please note that this package requires Java to be installed. If you don't have J
 
 To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from [Microsoft](http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774) and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32.
 
-In order to enable Netezza support, place your Netezza jdbc driver at `inst/java/nzjdbc.jar` in this package.
-
 DatabaseConnector also depends on the OHDSI SqlRender package.
-
 
 Getting Started
 ===============

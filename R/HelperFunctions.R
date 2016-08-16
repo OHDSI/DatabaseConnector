@@ -355,7 +355,8 @@ querySql <- function(connection, sql) {
 #'                                              server = "localhost",
 #'                                              user = "root",
 #'                                              password = "blah",
-#'                                              schema = "cdm_v4")  #'   conn <- connect(connectionDetails)
+#'                                              schema = "cdm_v4")  
+#' conn <- connect(connectionDetails)
 #' count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
 #' dbDisconnect(conn)
 #' }

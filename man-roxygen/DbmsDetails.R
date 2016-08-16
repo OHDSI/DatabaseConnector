@@ -6,7 +6,6 @@
 #'                          \item {"redshift" for Amazon Redshift}
 #'                          \item {"sql server" for Microsoft SQL Server}
 #'                          \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
-#'                          \item {"netezza" for IBM Netezza}
 #'                        }
 #'
 #'
@@ -103,17 +102,6 @@
 #'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
 #'         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 #' }
-#' Netezza:
-#' \itemize{
-#'   \item \code{user}. The user used to log in to the server
-#'   \item \code{password}. The password used to log on to the server
-#'   \item \code{server}. This field contains the host name of the server and the database holding the
-#'         relevant schemas: <host>/<database>
-#'   \item \code{port}. Specifies the port on the server (default = 5480)
-#'   \item \code{schema}. The schema containing the tables.
-#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-#'         as "ssl=true")
-#' }
 #' To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 #' driver. Download the .exe from
 #' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and
@@ -126,6 +114,3 @@
 #' driver. This driver has know issues with retrieving dates. We therefor recommend to either use
 #' Windows integrated security, or if a different user is needed, try running RStudio using that user:
 #' \code{runas /netonly /user:domain\\username "C:\path\to\rstudio\bin\rstudio.exe"}.
-#'  
-#' In order to enable Netezza support, place your Netezza jdbc driver at
-#' \code{inst/java/nzjdbc.jar} in this package.

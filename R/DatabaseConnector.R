@@ -29,14 +29,17 @@ NULL
 #' @title
 #' createConnectionDetails
 #' 
-#' @usage
-#' createConnectionDetails(dbms, user, domain, password, server, port, schema, extraSettings, oracleDriver = "thin")
-#' createConnectionDetails(dbms, connectionString)
-#' createConnectionDetails(dbms, connectionString, user, password)
-#'
 #' @description
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a
-#' database.
+#' database. There are three ways to call this function:
+#'  \itemize{
+#'   \item \code{createConnectionDetails(dbms, user, domain, password, server, port, schema, 
+#'                         extraSettings, oracleDriver = "thin")}
+#'   \item\code{createConnectionDetails(dbms, connectionString)}
+#'   \item\code{createConnectionDetails(dbms, connectionString, user, password)}
+#' }
+#' 
+#' @usage NULL
 #'
 #' @template DbmsDetails
 #'
@@ -83,17 +86,38 @@ createConnectionDetails <- function(dbms,
   return(result)
 }
 
+jdbcDrivers <- new.env()
+
+# Singleton pattern to ensure driver is instantiated only once
+jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA) {
+  key <- paste(driverClass, classPath)
+  if (key %in% ls(jdbcDrivers)) {
+    driver <- get(key, jdbcDrivers)
+    if (rJava::is.jnull(driver@jdrv)) {
+      driver <- RJDBC::JDBC(driverClass, classPath, identifier.quote)
+      assign(key, driver, envir = jdbcDrivers)
+    }
+  } else {
+    driver <- RJDBC::JDBC(driverClass, classPath, identifier.quote)
+    assign(key, driver, envir = jdbcDrivers)
+  }
+  driver
+}
+
 #' @title
 #' connect
 #'
 #' @description
-#' \code{connect} creates a connection to a database server.
-#'
-#' @usage
-#' connect(dbms, user, domain, password, server, port, schema, extraSettings, oracleDriver = "thin")
-#' connect(connectionDetails)
-#' connect(dbms, connectionString)
-#' connect(dbms, connectionString, user, password)
+#' \code{connect} creates a connection to a database server .There are four ways to call this function:
+#'  \itemize{
+#'   \item \code{connect(dbms, user, domain, password, server, port, schema, 
+#'         extraSettings, oracleDriver = "thin")}
+#'   \item\code{connect(connectionDetails)}
+#'   \item\code{connect(dbms, connectionString)}
+#'   \item\code{connect(dbms, connectionString, user, password)}
+#' }
+#' 
+#' @usage NULL
 #'
 #' @template DbmsDetails
 #' @param connectionDetails   An object of class \code{connectionDetails} as created by the
@@ -135,7 +159,8 @@ createConnectionDetails <- function(dbms,
 #'
 #' }
 #' @export
-connect <- function(dbms, 
+connect <- function(connectionDetails,
+                    dbms, 
                     user, 
                     domain, 
                     password, 
@@ -144,45 +169,20 @@ connect <- function(dbms,
                     schema, 
                     extraSettings, 
                     oracleDriver = "thin", 
-                    connectionString, 
-                    connectionDetails) {
-  UseMethod("connect")
-}
-
-# Singleton pattern to ensure driver is instantiated only once
-jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = NA) {
-  if (!exists("jdbcDrivers")) {
-    jdbcDrivers <<- new.env()
-  } 
-  
-  key <- paste(driverClass, classPath)
-  if (key %in% ls(jdbcDrivers)) {
-    driver <- get(key, jdbcDrivers)
-    if (rJava::is.jnull(driver@jdrv)) {
-      driver <- RJDBC::JDBC(driverClass, classPath, identifier.quote)
-      assign(key, driver, envir = jdbcDrivers)
-    }
-  } else {
-    driver <- RJDBC::JDBC(driverClass, classPath, identifier.quote)
-    assign(key, driver, envir = jdbcDrivers)
-  }
-  driver
-}
-
-#' @export
-connect.default <- function(dbms, 
-                            user, 
-                            domain, 
-                            password, 
-                            server, 
-                            port, 
-                            schema, 
-                            extraSettings, 
-                            oracleDriver = "thin", 
-                            connectionString, 
-                            connectionDetails) {
+                    connectionString) {
   if (!missing(connectionDetails)  && !is.null(connectionDetails)) {
-    return(connect(connectionDetails))
+    connection <- connect(dbms = connectionDetails$dbms, 
+                          user = connectionDetails$user,
+                          domain = connectionDetails$domain,
+                          password = connectionDetails$password,
+                          server = connectionDetails$server,
+                          port = connectionDetails$port,
+                          schema = connectionDetails$schema,
+                          extraSettings = connectionDetails$extraSettings,
+                          oracleDriver = connectionDetails$oracleDriver,
+                          connectionString = connectionDetails$connectionString)
+    
+    return(connection)
   }
   if (dbms == "mysql") {
     writeLines("Connecting using MySQL driver")
@@ -450,31 +450,6 @@ connect.default <- function(dbms,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
-}
-
-#' @export
-connect.connectionDetails <- function(dbms, 
-                                      user, 
-                                      domain, 
-                                      password, 
-                                      server, 
-                                      port, 
-                                      schema, 
-                                      extraSettings, 
-                                      oracleDriver = "thin", 
-                                      connectionString, 
-                                      connectionDetails) {
-  connectionDetails <- dbms
-  connect(dbms = connectionDetails$dbms, 
-          user = connectionDetails$user,
-          domain = connectionDetails$domain,
-          password = connectionDetails$password,
-          server = connectionDetails$server,
-          port = connectionDetails$port,
-          schema = connectionDetails$schema,
-          extraSettings = connectionDetails$extraSettings,
-          oracleDriver = connectionDetails$oracleDriver,
-          connectionString = connectionDetails$connectionString)
 }
 
 dbConnectUsingProperties <- function(drv, url, ...) {
