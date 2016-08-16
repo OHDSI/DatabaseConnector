@@ -473,7 +473,11 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
                                ")",
                                sep = ""), collapse = ",")
     end <- min(start + batchSize - 1, nrow(data))
-    if (end > start) {
+    if (end == start + 1) {
+      valueString <- paste(c(valueString, 
+                             paste(sapply(data[start + 1, , drop = FALSE], esc), collapse = ",")),
+                           collapse = "\nUNION ALL\nSELECT ")
+    } else if (end > start + 1) {
       valueString <- paste(c(valueString, apply(sapply(data[(start + 1):end, , drop = FALSE], esc),
                                                 MARGIN = 1,
                                                 FUN = paste,
