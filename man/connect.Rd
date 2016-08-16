@@ -33,25 +33,27 @@
 provider to configure things as security for SSL. These must follow the
 format for the JDBC connection for the RDBMS specified in dbms.}
 
-\item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"} 
+\item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"}
 or \code{"oci"}.}
 
-\item{connectionString}{The JDBC connection string. If specified, the \code{server}, \code{port}, \code{extraSettings}, and \code{oracleDriver} fields are ignored. If 
-\code{user} and \code{password} are not specified, they are assumed to already be included in the connection
-string.}
+\item{connectionString}{The JDBC connection string. If specified, the \code{server}, \code{port},
+\code{extraSettings}, and \code{oracleDriver} fields are ignored. If
+\code{user} and \code{password} are not specified, they are assumed to
+already be included in the connection string.}
 }
 \value{
 An object that extends \code{DBIConnection} in a database-specific manner. This object is used to
 direct commands to the database engine.
 }
 \description{
-\code{connect} creates a connection to a database server .There are four ways to call this function:
- \itemize{
-  \item \code{connect(dbms, user, domain, password, server, port, schema, 
-        extraSettings, oracleDriver = "thin")}
-  \item\code{connect(connectionDetails)}
-  \item\code{connect(dbms, connectionString)}
-  \item\code{connect(dbms, connectionString, user, password)}
+\code{connect} creates a connection to a database server .There are four ways to call this
+function:
+\itemize{
+  \item \code{connect(dbms, user, domain, password, server, port, schema, extraSettings,
+        oracleDriver = "thin")}
+  \item \code{connect(connectionDetails)}
+  \item \code{connect(dbms, connectionString)}
+  \item \code{connect(dbms, connectionString, user, password)}
 }
 }
 \details{
@@ -59,8 +61,7 @@ This function creates a connection to a database.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: 
-
+interpretations:
 MySQL:
 \itemize{
   \item \code{user}. The user name used to access the server
@@ -82,7 +83,7 @@ Oracle:
         tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "(PROTOCOL=tcps)")
-  \item \code{oracleDriver} The driver to be used. Choose between "thin"  or "oci".  
+  \item \code{oracleDriver} The driver to be used. Choose between "thin" or "oci".
 }
 Microsoft SQL Server:
 \itemize{
@@ -111,7 +112,6 @@ Microsoft PDW:
         as "encrypt=true; trustServerCertificate=false;")
 }
 Connections where the domain need to be specified are not supported.
-
 PostgreSQL:
 \itemize{
   \item \code{user}. The user used to log in to the server
@@ -140,9 +140,8 @@ driver. Download the .exe from
 run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
 sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll
 (32-bits), which needs to be moved to location on the system path, for example to
-c:/windows/system32. 
-
-When using a Windows domain to log in to SQL Server, DatabaseConnector must rely on a non-Microsoft 
+c:/windows/system32.
+When using a Windows domain to log in to SQL Server, DatabaseConnector must rely on a non-Microsoft
 driver. This driver has know issues with retrieving dates. We therefor recommend to either use
 Windows integrated security, or if a different user is needed, try running RStudio using that user:
 \code{runas /netonly /user:domain\\username "C:\path\to\rstudio\bin\rstudio.exe"}.
@@ -169,7 +168,7 @@ conn <- connect(dbms = "oracle",
 dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 dbDisconnect(conn)
 
-conn <- connect(dbms = "postgresql", 
+conn <- connect(dbms = "postgresql",
                 connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)

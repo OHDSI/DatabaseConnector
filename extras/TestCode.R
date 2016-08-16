@@ -76,7 +76,9 @@ querySql.ffdf(conn, "SELECT TOP 100 * FROM person")
 executeSql(conn, "CREATE TABLE #temp (x int)")
 querySql(conn, "SELECT COUNT(*) FROM #temp")
 # x <- querySql.ffdf(conn,'SELECT * FROM person')
-data <- data.frame(id = c(1,2,3), date = as.Date(c("2000-01-01","2001-01-31","2004-12-31")), text = c("asdf","asdf","asdf"))
+data <- data.frame(id = c(1, 2, 3),
+                   date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
+                   text = c("asdf", "asdf", "asdf"))
 data$date[2] <- NA
 
 insertTable(connection = conn,
@@ -125,7 +127,9 @@ querySql(conn, "SELECT COUNT(*) FROM person")
 executeSql(conn, "CREATE TABLE scratch.test (x INT)")
 
 person <- querySql.ffdf(conn, "SELECT * FROM person")
-data <- data.frame(id = c(1,2,3), date = as.Date(c("2000-01-01","2001-01-31","2004-12-31")), text = c("asdf","asdf","asdf"))
+data <- data.frame(id = c(1, 2, 3),
+                   date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
+                   text = c("asdf", "asdf", "asdf"))
 insertTable(connection = conn,
             tableName = "test",
             data = data,
@@ -135,7 +139,7 @@ insertTable(connection = conn,
 d2 <- querySql(conn, "SELECT * FROM test")
 str(d2)
 
-options('fftempdir' = 's:/fftemp')
+options(fftempdir = "s:/fftemp")
 d2 <- querySql.ffdf(conn, "SELECT * FROM test")
 d2
 dbDisconnect(conn)

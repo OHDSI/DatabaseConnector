@@ -28,18 +28,20 @@ NULL
 
 #' @title
 #' createConnectionDetails
-#' 
+#'
 #' @description
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a
 #' database. There are three ways to call this function:
-#'  \itemize{
-#'   \item \code{createConnectionDetails(dbms, user, domain, password, server, port, schema, 
-#'                         extraSettings, oracleDriver = "thin")}
-#'   \item\code{createConnectionDetails(dbms, connectionString)}
-#'   \item\code{createConnectionDetails(dbms, connectionString, user, password)}
+#' \itemize{
+#'   \item \code{createConnectionDetails(dbms, user, domain, password, server, port, schema,
+#'         extraSettings, oracleDriver = "thin")}
+#'   \item \code{createConnectionDetails(dbms, connectionString)}
+#'   \item \code{createConnectionDetails(dbms, connectionString, user, password)}
 #' }
-#' 
-#' @usage NULL
+#'
+#'
+#' @usage
+#' NULL
 #'
 #' @template DbmsDetails
 #'
@@ -108,16 +110,19 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 #' connect
 #'
 #' @description
-#' \code{connect} creates a connection to a database server .There are four ways to call this function:
-#'  \itemize{
-#'   \item \code{connect(dbms, user, domain, password, server, port, schema, 
-#'         extraSettings, oracleDriver = "thin")}
-#'   \item\code{connect(connectionDetails)}
-#'   \item\code{connect(dbms, connectionString)}
-#'   \item\code{connect(dbms, connectionString, user, password)}
+#' \code{connect} creates a connection to a database server .There are four ways to call this
+#' function:
+#' \itemize{
+#'   \item \code{connect(dbms, user, domain, password, server, port, schema, extraSettings,
+#'         oracleDriver = "thin")}
+#'   \item \code{connect(connectionDetails)}
+#'   \item \code{connect(dbms, connectionString)}
+#'   \item \code{connect(dbms, connectionString, user, password)}
 #' }
-#' 
-#' @usage NULL
+#'
+#'
+#' @usage
+#' NULL
 #'
 #' @template DbmsDetails
 #' @param connectionDetails   An object of class \code{connectionDetails} as created by the
@@ -151,8 +156,8 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 #'                 schema = "test")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 #' dbDisconnect(conn)
-#' 
-#' conn <- connect(dbms = "postgresql", 
+#'
+#' conn <- connect(dbms = "postgresql",
 #'                 connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' dbDisconnect(conn)
@@ -160,18 +165,18 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 #' }
 #' @export
 connect <- function(connectionDetails,
-                    dbms, 
-                    user, 
-                    domain, 
-                    password, 
-                    server, 
-                    port, 
-                    schema, 
-                    extraSettings, 
-                    oracleDriver = "thin", 
+                    dbms,
+                    user,
+                    domain,
+                    password,
+                    server,
+                    port,
+                    schema,
+                    extraSettings,
+                    oracleDriver = "thin",
                     connectionString) {
-  if (!missing(connectionDetails)  && !is.null(connectionDetails)) {
-    connection <- connect(dbms = connectionDetails$dbms, 
+  if (!missing(connectionDetails) && !is.null(connectionDetails)) {
+    connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
                           domain = connectionDetails$domain,
                           password = connectionDetails$password,
@@ -181,7 +186,7 @@ connect <- function(connectionDetails,
                           extraSettings = connectionDetails$extraSettings,
                           oracleDriver = connectionDetails$oracleDriver,
                           connectionString = connectionDetails$connectionString)
-    
+
     return(connection)
   }
   if (dbms == "mysql") {
@@ -193,7 +198,12 @@ connect <- function(connectionDetails,
     if (missing(connectionString) || is.null(connectionString)) {
       if (missing(port) || is.null(port))
         port <- "3306"
-      connectionString <- paste("jdbc:mysql://", server, ":", port, "/?useCursorFetch=true", sep = "")
+      connectionString <- paste("jdbc:mysql://",
+                                server,
+                                ":",
+                                port,
+                                "/?useCursorFetch=true",
+                                sep = "")
       if (!missing(extraSettings) && !is.null(extraSettings))
         connectionString <- paste(connectionString, "&", extraSettings, sep = "")
     }
@@ -228,18 +238,18 @@ connect <- function(connectionDetails,
       if (grepl("/", user) | grepl("\\\\", user))
         stop("User name appears to contain the domain, but this should be specified using the domain parameter")
       if (!missing(domain) && !is.null(domain)) {
-        # I have been unable to get Microsoft's JDBC driver to connect when a domain needs to be specified, so
-        # using JTDS driver instead: (Note, JTDS has issues with dates, which it converts to VARCHAR), see
+        # I have been unable to get Microsoft's JDBC driver to connect when a domain needs to be specified,
+        # so using JTDS driver instead: (Note, JTDS has issues with dates, which it converts to VARCHAR), see
         # https://sourceforge.net/p/jtds/bugs/679/
         pathToJar <- system.file("java", "jtds-1.3.1.jar", package = "DatabaseConnector")
         driver <- jdbcSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
         writeLines("Warning: Using JTDS driver because a domain is specified. This may lead to problems. Try using integrated security instead.")
         if (missing(connectionString) || is.null(connectionString)) {
           if (!missing(port) && !is.null(port))
-            server <- paste(server, port, sep = ":")
+          server <- paste(server, port, sep = ":")
           connectionString <- paste("jdbc:jtds:sqlserver://", server, ";domain=", domain, sep = "")
-          if (!missing(extraSettings) && !is.null(extraSettings)) 
-            connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+          if (!missing(extraSettings) && !is.null(extraSettings))
+          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
         }
         connection <- RJDBC::dbConnect(driver, connectionString, user, password)
       } else {
@@ -248,9 +258,9 @@ connect <- function(connectionDetails,
         if (missing(connectionString) || is.null(connectionString)) {
           connectionString <- paste("jdbc:sqlserver://", server, sep = "")
           if (!missing(port) && !is.null(port))
-            connectionString <- paste(connectionString, ";port=", port, sep = "")
+          connectionString <- paste(connectionString, ";port=", port, sep = "")
           if (!missing(extraSettings) && !is.null(extraSettings))
-            connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
         }
         connection <- RJDBC::dbConnect(driver, connectionString, user, password)
       }
@@ -278,7 +288,10 @@ connect <- function(connectionDetails,
       connection <- RJDBC::dbConnect(driver, connectionString)
     } else {
       if (missing(connectionString) || is.null(connectionString)) {
-        connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=false", sep = "")
+        connectionString <- paste("jdbc:sqlserver://",
+                                  server,
+                                  ";integratedSecurity=false",
+                                  sep = "")
         if (!missing(port) && !is.null(port))
           connectionString <- paste(connectionString, ";port=", port, sep = "")
         if (!missing(extraSettings) && !is.null(extraSettings))
@@ -313,43 +326,43 @@ connect <- function(connectionDetails,
         connectionString <- paste0("jdbc:oracle:thin:@", host, ":", port, ":", sid)
         if (!missing(extraSettings) && !is.null(extraSettings))
           connectionString <- paste0(connectionString, extraSettings)
-        result <- class(try(connection <- dbConnectUsingProperties(driver, 
-                                                                   connectionString, 
-                                                                   user = user, 
-                                                                   password = password, 
-                                                                   oracle.jdbc.mapDateToTimestamp = "false"),silent = FALSE))[1]
-        
+        result <- class(try(connection <- dbConnectUsingProperties(driver,
+                                                                   connectionString,
+                                                                   user = user,
+                                                                   password = password,
+                                                                   oracle.jdbc.mapDateToTimestamp = "false"), silent = FALSE))[1]
+
         # Try using TNSName instead:
         if (result == "try-error") {
           writeLines("- Trying using TNSName")
-          connectionString <-  paste0("jdbc:oracle:thin:@", server)
-          connection <- dbConnectUsingProperties(driver, 
-                                                 connectionString, 
-                                                 user = user, 
-                                                 password = password, 
+          connectionString <- paste0("jdbc:oracle:thin:@", server)
+          connection <- dbConnectUsingProperties(driver,
+                                                 connectionString,
+                                                 user = user,
+                                                 password = password,
                                                  oracle.jdbc.mapDateToTimestamp = "false")
         }
       }
       if (oracleDriver == "oci") {
         writeLines("- using OCI to connect")
-        connectionString <-  paste0("jdbc:oracle:oci8:@",server)
-        connection <- dbConnectUsingProperties(driver, 
-                                               connectionString, 
-                                               user = user, 
-                                               password = password, 
+        connectionString <- paste0("jdbc:oracle:oci8:@", server)
+        connection <- dbConnectUsingProperties(driver,
+                                               connectionString,
+                                               user = user,
+                                               password = password,
                                                oracle.jdbc.mapDateToTimestamp = "false")
       }
     } else {
       # User has provided the connection string:
       if (missing(user) || is.null(user)) {
-        connection <- dbConnectUsingProperties(driver, 
-                                               connectionString, 
+        connection <- dbConnectUsingProperties(driver,
+                                               connectionString,
                                                oracle.jdbc.mapDateToTimestamp = "false")
       } else {
-        connection <- dbConnectUsingProperties(driver, 
-                                               connectionString, 
-                                               user = user, 
-                                               password = password, 
+        connection <- dbConnectUsingProperties(driver,
+                                               connectionString,
+                                               user = user,
+                                               password = password,
                                                oracle.jdbc.mapDateToTimestamp = "false")
       }
     }
@@ -366,14 +379,14 @@ connect <- function(connectionDetails,
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
         stop("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
-      
+
       parts <- unlist(strsplit(server, "/"))
       host <- parts[1]
       database <- parts[2]
       if (missing(port) || is.null(port)) {
         port <- "5432"
       }
-      connectionString <-  paste0("jdbc:postgresql://", host, ":", port, "/", database)
+      connectionString <- paste0("jdbc:postgresql://", host, ":", port, "/", database)
       if (!missing(extraSettings) && !is.null(extraSettings))
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
     }
@@ -389,9 +402,7 @@ connect <- function(connectionDetails,
   }
   if (dbms == "redshift") {
     writeLines("Connecting using Redshift driver")
-    pathToJar <- system.file("java",
-                             "RedshiftJDBC4-1.1.10.1010.jar",
-                             package = "DatabaseConnector")
+    pathToJar <- system.file("java", "RedshiftJDBC4-1.1.10.1010.jar", package = "DatabaseConnector")
     driver <- jdbcSingleton("com.amazon.redshift.jdbc4.Driver", pathToJar, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
@@ -403,7 +414,7 @@ connect <- function(connectionDetails,
         port <- "5439"
       }
       connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
-      
+
       if (!missing(extraSettings) && !is.null(extraSettings))
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
     }
@@ -429,12 +440,7 @@ connect <- function(connectionDetails,
       database <- parts[2]
       if (missing(port) || is.null(port))
         port <- "5480"
-      connectionString <- paste0("jdbc:netezza://",
-                                 host,
-                                 ":",
-                                 port,
-                                 "/",
-                                 database)
+      connectionString <- paste0("jdbc:netezza://", host, ":", port, "/", database)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, "?", extraSettings)
       }
@@ -453,19 +459,28 @@ connect <- function(connectionDetails,
 }
 
 dbConnectUsingProperties <- function(drv, url, ...) {
-  properties <- list(...) 
+  properties <- list(...)
   p <- rJava::.jnew("java/util/Properties")
   for (i in 1:length(properties)) {
-    rJava::.jcall(p,"Ljava/lang/Object;","setProperty", names(properties)[i], as.character(properties[[i]])[1])
+    rJava::.jcall(p,
+                  "Ljava/lang/Object;",
+                  "setProperty",
+                  names(properties)[i],
+                  as.character(properties[[i]])[1])
   }
   jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
   if (rJava::is.jnull(jc)) {
     x <- rJava::.jgetEx(TRUE)
-    if (rJava::is.jnull(x))
-      stop("Unable to connect JDBC to ", url)
-    else
-      stop("Unable to connect JDBC to ", url," (", rJava::.jcall(x, "S", "getMessage"),")")
+    if (rJava::is.jnull(x)) {
+      stop("Unable to connect JDBC to ", url) 
+    } else {
+      stop("Unable to connect JDBC to ",
+           url,
+           " (",
+           rJava::.jcall(x, "S", "getMessage"),
+           ")")
+    }
   }
-  connection <- new("JDBCConnection", jc=jc, identifier.quote=drv@identifier.quote)
+  connection <- new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)
   return(connection)
 }
