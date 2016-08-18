@@ -53,11 +53,9 @@ Getting Started
 Use the following commands in R to install the DatabaseConnector package:
 
   ```r
-  install.packages("devtools")
-  library(devtools)
-  install_github("ohdsi/SqlRender") 
-  install_github("ohdsi/DatabaseConnector") 
-  library(DatabaseConnector)
+  install.packages("drat")
+  drat::addRepo("OHDSI")
+  install.packages("DatabaseConnector")
   ```
 
 Getting Involved
