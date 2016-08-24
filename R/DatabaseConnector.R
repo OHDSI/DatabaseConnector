@@ -402,7 +402,7 @@ connect <- function(connectionDetails,
   }
   if (dbms == "redshift") {
     writeLines("Connecting using Redshift driver")
-    pathToJar <- system.file("java", "RedshiftJDBC4-1.1.10.1010.jar", package = "DatabaseConnector")
+    pathToJar <- system.file("java", "RedshiftJDBC4-1.1.17.1017.jar", package = "DatabaseConnector")
     driver <- jdbcSingleton("com.amazon.redshift.jdbc4.Driver", pathToJar, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))

@@ -173,3 +173,14 @@ library(ffbase)
 data <- as.ffdf(data)
 
 dbDisconnect(connection)
+
+
+### Test OHDSI RedShift:
+details <- createConnectionDetails(dbms = "redshift",
+                                   user = Sys.getenv("userOhdsiRedshift"),
+                                   password = Sys.getenv("pwOhdsiRedshift"),
+                                   server = paste0(Sys.getenv("serverOhdsiRedshift"),"/synpuf"),
+                                   schema = "cdm")
+connection <- connect(details)
+querySql(connection, "SELECT COUNT(*) FROM person")
+dbDisconnect(connection)
