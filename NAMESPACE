@@ -3,6 +3,7 @@
 export(connect)
 export(createConnectionDetails)
 export(executeSql)
+export(getTableNames)
 export(insertTable)
 export(lowLevelQuerySql)
 export(lowLevelQuerySql.ffdf)

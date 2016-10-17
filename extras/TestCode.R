@@ -17,6 +17,8 @@ connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              schema = "CDM_Truven_MDCR_V415")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
+
+getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
 dbDisconnect(conn)
 
 # CTAS hack stuff:
@@ -73,6 +75,7 @@ connectionDetails <- createConnectionDetails(dbms = "sql server",
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
 querySql.ffdf(conn, "SELECT TOP 100 * FROM person")
+getTableNames(conn, "cdm_hcup.dbo")
 executeSql(conn, "CREATE TABLE #temp (x int)")
 querySql(conn, "SELECT COUNT(*) FROM #temp")
 # x <- querySql.ffdf(conn,'SELECT * FROM person')
@@ -111,6 +114,7 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              schema = "cdm4_sim")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
+getTableNames(conn, "cdm4_sim")
 dbDisconnect(conn)
 
 # Test Redshift:
@@ -124,6 +128,7 @@ connectionDetails <- createConnectionDetails(dbms = "redshift",
                                              extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
+getTableNames(conn, "cdm")
 executeSql(conn, "CREATE TABLE scratch.test (x INT)")
 
 person <- querySql.ffdf(conn, "SELECT * FROM person")
