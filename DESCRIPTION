@@ -13,7 +13,9 @@ Imports:
     bit,
     ff,
     ffbase (>= 0.12.1),
-    SqlRender
+    SqlRender,
+    methods,
+    utils
 License: Apache License
 Suggests:
     testthat

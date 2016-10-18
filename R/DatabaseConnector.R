@@ -23,6 +23,8 @@
 #' @import RJDBC
 #' @import ffbase
 #' @import bit
+#' @importFrom methods new
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar
 NULL
 
 
