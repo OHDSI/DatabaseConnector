@@ -12,7 +12,8 @@ getTableNames(connection, databaseSchema)
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 }
 \value{
-A character vector of table names.
+A character vector of table names. To ensure consistency across platforms, these table names are in
+upper case.
 }
 \description{
 This function returns a list of all tables in a database schema.

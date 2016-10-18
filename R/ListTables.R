@@ -37,7 +37,8 @@
 #' MySql: The databaseSchema should specify the database.
 #' 
 #' @return
-#' A character vector of table names.
+#' A character vector of table names. To ensure consistency across platforms, these table names are in
+#' upper case.
 #'
 #' @export
 getTableNames <- function(connection, databaseSchema) {
@@ -46,8 +47,13 @@ getTableNames <- function(connection, databaseSchema) {
     query <- paste("SHOW TABLES IN", databaseSchema)
   } else if (dbms == "sql server" || dbms == "pdw") {
     databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
-    database <- databaseSchema[1]
-    schema <- databaseSchema[2]
+    if (length(databaseSchema) == 1) {
+      database <- databaseSchema
+      schema <- "dbo"
+    } else {
+      database <- databaseSchema[1]
+      schema <- databaseSchema[2]
+    }
     query <- paste0("SELECT table_name FROM ", database,".information_schema.tables WHERE table_schema = '", schema ,"' ORDER BY table_name")
   } else if (dbms == "oracle") {
     query <- paste0("SELECT table_name FROM all_tables WHERE owner='", toupper(databaseSchema),"' ORDER BY table_name")
@@ -55,5 +61,5 @@ getTableNames <- function(connection, databaseSchema) {
     query <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '", tolower(databaseSchema), "' ORDER BY table_name")
   } 
   tables <- querySql(connection, query)
-  return(tables[, 1])
+  return(toupper(tables[, 1]))
 }
