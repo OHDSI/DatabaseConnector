@@ -21,21 +21,17 @@
 #' @description
 #' This function returns a list of all tables in a database schema.
 #'
-#' @param connection      The connection to the database server.
-#' @param databaseSchema  The name of the database schema. See details for platform-specific details.
+#' @param connection       The connection to the database server.
+#' @param databaseSchema   The name of the database schema. See details for platform-specific details.
 #'
-#' @details 
+#' @details
 #' The \code{databaseSchema} argument is interpreted differently according to the different platforms:
-#' 
-#' SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g. 
+#' SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
 #' 'my_database.dbo'.
-#' 
 #' PostgreSQL and Redshift: The databaseSchema should specify the schema.
-#' 
 #' Oracle: The databaseSchema should specify the Oracle 'user'.
-#' 
 #' MySql: The databaseSchema should specify the database.
-#' 
+#'
 #' @return
 #' A character vector of table names. To ensure consistency across platforms, these table names are in
 #' upper case.
@@ -54,12 +50,20 @@ getTableNames <- function(connection, databaseSchema) {
       database <- databaseSchema[1]
       schema <- databaseSchema[2]
     }
-    query <- paste0("SELECT table_name FROM ", database,".information_schema.tables WHERE table_schema = '", schema ,"' ORDER BY table_name")
+    query <- paste0("SELECT table_name FROM ",
+                    database,
+                    ".information_schema.tables WHERE table_schema = '",
+                    schema,
+                    "' ORDER BY table_name")
   } else if (dbms == "oracle") {
-    query <- paste0("SELECT table_name FROM all_tables WHERE owner='", toupper(databaseSchema),"' ORDER BY table_name")
+    query <- paste0("SELECT table_name FROM all_tables WHERE owner='",
+                    toupper(databaseSchema),
+                    "' ORDER BY table_name")
   } else if (dbms == "postgresql" || dbms == "redshift") {
-    query <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '", tolower(databaseSchema), "' ORDER BY table_name")
-  } 
+    query <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '",
+                    tolower(databaseSchema),
+                    "' ORDER BY table_name")
+  }
   tables <- querySql(connection, query)
   return(toupper(tables[, 1]))
 }

@@ -40,6 +40,7 @@ NULL
 #' }
 #'
 #'
+#'
 #' @usage
 #' NULL
 #'
@@ -119,6 +120,7 @@ jdbcSingleton <- function(driverClass = "", classPath = "", identifier.quote = N
 #'   \item \code{connect(dbms, connectionString)}
 #'   \item \code{connect(dbms, connectionString, user, password)}
 #' }
+#'
 #'
 #'
 #' @usage
@@ -472,13 +474,9 @@ dbConnectUsingProperties <- function(drv, url, ...) {
   if (rJava::is.jnull(jc)) {
     x <- rJava::.jgetEx(TRUE)
     if (rJava::is.jnull(x)) {
-      stop("Unable to connect JDBC to ", url) 
+      stop("Unable to connect JDBC to ", url)
     } else {
-      stop("Unable to connect JDBC to ",
-           url,
-           " (",
-           rJava::.jcall(x, "S", "getMessage"),
-           ")")
+      stop("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")")
     }
   }
   connection <- new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)

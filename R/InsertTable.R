@@ -55,7 +55,7 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
                valueString,
                sep = "")
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-  
+
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
@@ -83,7 +83,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
     result[is.na(str)] <- "NULL"
     return(result)
   }
-  
+
   # Insert data in batches in temp tables using CTAS:
   tempNames <- c()
   for (start in seq(1, nrow(data), by = batchSize)) {
@@ -101,9 +101,8 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
                                sep = ""), collapse = ",")
     end <- min(start + batchSize - 1, nrow(data))
     if (end == start + 1) {
-      valueString <- paste(c(valueString, 
-                             paste(sapply(data[start + 1, , drop = FALSE], esc), collapse = ",")),
-                           collapse = "\nUNION ALL\nSELECT ")
+      valueString <- paste(c(valueString, paste(sapply(data[start + 1, , drop = FALSE], esc),
+                                                collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
     } else if (end > start + 1) {
       valueString <- paste(c(valueString, apply(sapply(data[(start + 1):end, , drop = FALSE], esc),
                                                 MARGIN = 1,
@@ -186,12 +185,12 @@ insertTable <- function(connection,
     if (!is.data.frame(data))
       data <- as.data.frame(data)
   }
-  
+
   def <- function(obj) {
     if (is.integer(obj))
       "INTEGER" else if (is.numeric(obj))
-        "FLOAT" else if (class(obj) == "Date")
-          "DATE" else "VARCHAR(255)"
+      "FLOAT" else if (class(obj) == "Date")
+      "DATE" else "VARCHAR(255)"
   }
   fts <- sapply(data[1, ], def)
   isDate <- (fts == "DATE")
@@ -201,7 +200,7 @@ insertTable <- function(connection,
     paste("'", gsub("'", "''", str), "'", sep = "")
   }
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote), collapse = ",")
-  
+
   if (dropTableIfExists) {
     if (tempTable) {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -214,11 +213,11 @@ insertTable <- function(connection,
                                    oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-  
+
   if (attr(connection, "dbms") == "pdw" && createTable) {
     ctasHack(connection, qname, tempTable, varNames, fts, data)
   } else {
-    
+
     if (createTable) {
       sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
       sql <- SqlRender::translateSql(sql,
@@ -226,7 +225,7 @@ insertTable <- function(connection,
                                      oracleTempSchema = oracleTempSchema)$sql
       executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
     }
-    
+
     insertSql <- paste("INSERT INTO ",
                        qname,
                        " (",
@@ -238,15 +237,15 @@ insertTable <- function(connection,
     insertSql <- SqlRender::translateSql(insertSql,
                                          targetDialect = attr(connection, "dbms"),
                                          oracleTempSchema = oracleTempSchema)$sql
-    
+
     batchSize <- 10000
-    
+
     autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
     if (autoCommit) {
       rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
       on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
     }
-    
+
     insertRow <- function(row, statement) {
       for (i in 1:length(row)) {
         if (is.na(row[i])) {
@@ -285,7 +284,7 @@ insertTable <- function(connection,
       }
       rJava::.jcall(statement, "V", "addBatch")
     }
-    
+
     for (start in seq(1, nrow(data), by = batchSize)) {
       end <- min(start + batchSize - 1, nrow(data))
       statement <- rJava::.jcall(connection@jc,
@@ -294,21 +293,21 @@ insertTable <- function(connection,
                                  insertSql,
                                  check = FALSE)
       if (attr(connection, "dbms") == "postgresql") {
-        apply(data[start:end, , drop = FALSE],
+        apply(data[start:end,
+              ,
+              drop = FALSE],
               statement = statement,
               MARGIN = 1,
-              FUN = insertRowPostgreSql) 
+              FUN = insertRowPostgreSql)
       } else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift") {
-        apply(data[start:end , drop = FALSE],
+        apply(data[start:end,
+              drop = FALSE],
               statement = statement,
               isDate = isDate,
               MARGIN = 1,
-              FUN = insertRowOracle) 
+              FUN = insertRowOracle)
       } else {
-        apply(data[start:end, , drop = FALSE],
-              statement = statement,
-              MARGIN = 1,
-              FUN = insertRow)
+        apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
       }
       rJava::.jcall(statement, "[I", "executeBatch")
     }

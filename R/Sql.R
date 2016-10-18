@@ -45,7 +45,7 @@ lowLevelQuerySql.ffdf <- function(connection,
                                   datesAsString = FALSE) {
   # Create resultset:
   rJava::.jcall("java/lang/System", , "gc")
-  
+
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize (Note: reason
   # for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
@@ -53,7 +53,7 @@ lowLevelQuerySql.ffdf <- function(connection,
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-  
+
   type_forward_only <- rJava::.jfield("java/sql/ResultSet", "I", "TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet", "I", "CONCUR_READ_ONLY")
   s <- rJava::.jcall(connection@jc,
@@ -61,16 +61,16 @@ lowLevelQuerySql.ffdf <- function(connection,
                      "createStatement",
                      type_forward_only,
                      concur_read_only)
-  
+
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
   rJava::.jcall(s, "V", method = "setFetchSize", as.integer(2048))
-  
+
   r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", as.character(query)[1])
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE)
   resultSet <- new("JDBCResult", jr = r, md = md, stat = s, pull = rJava::.jnull())
-  
+
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-  
+
   # Fetch data in batches:
   data <- NULL
   n <- batchSize
@@ -84,21 +84,21 @@ lowLevelQuerySql.ffdf <- function(connection,
           batch[, i] <- as.Date(batch[, i])
       }
     }
-    
+
     n <- nrow(batch)
     if (is.null(data)) {
       charCols <- sapply(batch, class)
       charCols <- names(charCols[charCols == "character"])
-      
+
       for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
-      
+
       if (n == 0) {
         data <- batch  #ffdf cannot contain 0 rows, so return data.frame instead
         warning("Data has zero rows, returning an empty data frame")
       } else data <- ff::as.ffdf(batch)
     } else if (n != 0) {
       for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
-      
+
       data <- ffbase::ffdfappend(data, batch)
     }
   }
@@ -126,7 +126,7 @@ lowLevelQuerySql.ffdf <- function(connection,
 lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
   # Create resultset:
   rJava::.jcall("java/lang/System", , "gc")
-  
+
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize (Note: reason
   # for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
@@ -134,7 +134,7 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-  
+
   type_forward_only <- rJava::.jfield("java/sql/ResultSet", "I", "TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet", "I", "CONCUR_READ_ONLY")
   s <- rJava::.jcall(connection@jc,
@@ -142,18 +142,18 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
                      "createStatement",
                      type_forward_only,
                      concur_read_only)
-  
+
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
   rJava::.jcall(s, "V", method = "setFetchSize", as.integer(2048))
-  
+
   r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", as.character(query)[1])
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE)
   resultSet <- new("JDBCResult", jr = r, md = md, stat = s, pull = rJava::.jnull())
-  
+
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-  
+
   data <- RJDBC::fetch(resultSet, -1)
-  
+
   if (!datesAsString) {
     cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
     for (i in 1:cols) {
@@ -162,7 +162,7 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
         data[, i] <- as.Date(data[, i])
     }
   }
-  
+
   return(data)
 }
 
@@ -226,7 +226,7 @@ executeSql <- function(connection,
       }
     }, error = function(err) {
       writeLines(paste("Error executing SQL:", err))
-      
+
       # Write error report:
       filename <- paste(getwd(), "/errorReport.txt", sep = "")
       sink(filename)
@@ -241,7 +241,7 @@ executeSql <- function(connection,
       cat("\n\n")
       cat(.systemInfo())
       sink()
-      
+
       writeLines(paste("An error report has been created at ", filename))
       break
     })
@@ -304,13 +304,13 @@ executeSql <- function(connection,
 querySql <- function(connection, sql) {
   tryCatch({
     rJava::.jcall("java/lang/System", , "gc")  #Calling garbage collection prevents crashes
-    
+
     result <- lowLevelQuerySql(connection, sql)
     colnames(result) <- toupper(colnames(result))
     return(result)
   }, error = function(err) {
     writeLines(paste("Error executing SQL:", err))
-    
+
     # Write error report:
     filename <- paste(getwd(), "/errorReport.txt", sep = "")
     sink(filename)
@@ -325,7 +325,7 @@ querySql <- function(connection, sql) {
     cat("\n\n")
     cat(.systemInfo())
     sink()
-    
+
     writeLines(paste("An error report has been created at ", filename))
     break
   })
@@ -368,7 +368,7 @@ querySql.ffdf <- function(connection, sql) {
     return(result)
   }, error = function(err) {
     writeLines(paste("Error executing SQL:", err))
-    
+
     # Write error report:
     filename <- paste(getwd(), "/errorReport.txt", sep = "")
     sink(filename)
@@ -383,7 +383,7 @@ querySql.ffdf <- function(connection, sql) {
     cat("\n\n")
     cat(.systemInfo())
     sink()
-    
+
     writeLines(paste("An error report has been created at ", filename))
     break
   })

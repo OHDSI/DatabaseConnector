@@ -184,7 +184,7 @@ dbDisconnect(connection)
 details <- createConnectionDetails(dbms = "redshift",
                                    user = Sys.getenv("userOhdsiRedshift"),
                                    password = Sys.getenv("pwOhdsiRedshift"),
-                                   server = paste0(Sys.getenv("serverOhdsiRedshift"),"/synpuf"),
+                                   server = paste0(Sys.getenv("serverOhdsiRedshift"), "/synpuf"),
                                    schema = "cdm")
 connection <- connect(details)
 querySql(connection, "SELECT COUNT(*) FROM person")

@@ -11,6 +11,7 @@
 #'
 #'
 #'
+#'
 #' @param user               The user name used to access the server.
 #' @param domain             For SQL Server only: the Windows domain (optional).
 #' @param password           The password for that user.
@@ -29,8 +30,7 @@
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
-#' interpretations:
-#' MySQL:
+#' interpretations: MySQL:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
 #'   \item \code{password}. The password for that user
@@ -79,8 +79,7 @@
 #'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
 #'         as "encrypt=true; trustServerCertificate=false;")
 #' }
-#' Connections where the domain need to be specified are not supported.
-#' PostgreSQL:
+#' Connections where the domain need to be specified are not supported. PostgreSQL:
 #' \itemize{
 #'   \item \code{user}. The user used to log in to the server
 #'   \item \code{password}. The password used to log on to the server
@@ -108,8 +107,8 @@
 #' run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
 #' sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll
 #' (32-bits), which needs to be moved to location on the system path, for example to
-#' c:/windows/system32.
-#' When using a Windows domain to log in to SQL Server, DatabaseConnector must rely on a non-Microsoft
-#' driver. This driver has know issues with retrieving dates. We therefor recommend to either use
-#' Windows integrated security, or if a different user is needed, try running RStudio using that user:
-#' \code{runas /netonly /user:domain\\username "C:\path\to\rstudio\bin\rstudio.exe"}.
+#' c:/windows/system32. When using a Windows domain to log in to SQL Server, DatabaseConnector must
+#' rely on a non-Microsoft driver. This driver has know issues with retrieving dates. We therefor
+#' recommend to either use Windows integrated security, or if a different user is needed, try running
+#' RStudio using that user: \code{runas /netonly /user:domain\\username
+#' "C:\path\to\rstudio\bin\rstudio.exe"}.
