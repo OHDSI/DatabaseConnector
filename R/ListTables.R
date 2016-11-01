@@ -30,7 +30,7 @@
 #' 'my_database.dbo'.
 #' PostgreSQL and Redshift: The databaseSchema should specify the schema.
 #' Oracle: The databaseSchema should specify the Oracle 'user'.
-#' MySql: The databaseSchema should specify the database.
+#' MySql and Impala: The databaseSchema should specify the database.
 #'
 #' @return
 #' A character vector of table names. To ensure consistency across platforms, these table names are in
@@ -39,7 +39,7 @@
 #' @export
 getTableNames <- function(connection, databaseSchema) {
   dbms <- attr(connection, "dbms")
-  if (dbms == "mysql") {
+  if (dbms == "mysql" || dbms == "impala") {
     query <- paste("SHOW TABLES IN", databaseSchema)
   } else if (dbms == "sql server" || dbms == "pdw") {
     databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]

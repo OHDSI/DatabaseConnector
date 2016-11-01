@@ -189,3 +189,12 @@ details <- createConnectionDetails(dbms = "redshift",
 connection <- connect(details)
 querySql(connection, "SELECT COUNT(*) FROM person")
 dbDisconnect(connection)
+
+### Test OHDSI Impala:
+options("impalaDriverDirectory" = "/impala-drivers/Cloudera_ImpalaJDBC4_2.5.36")
+details <- createConnectionDetails(dbms = "impala",
+                                   server = Sys.getenv("serverImpala"),
+                                   schema = "omop_cdm")
+connection <- connect(details)
+querySql(connection, "SELECT COUNT(*) FROM person")
+dbDisconnect(connection)

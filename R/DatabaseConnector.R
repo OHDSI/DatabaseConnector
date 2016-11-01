@@ -460,6 +460,35 @@ connect <- function(connectionDetails,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "impala") {
+    writeLines("Connecting using Impala driver")
+    impalaDriverDirectory <- getOption("impalaDriverDirectory")
+    driverClasspath <- paste(list.files(impalaDriverDirectory, "\\.jar$", full.names = TRUE), collapse=":")
+    driver <- jdbcSingleton("com.cloudera.impala.jdbc4.Driver", driverClasspath, identifier.quote = "`")
+    if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(port) || is.null(port)) {
+        port <- "21050"
+      }
+      if (missing(schema) || is.null(schema)) {
+        connectionString <- paste0("jdbc:impala://", server, ":", port)
+      } else {
+        connectionString <- paste0("jdbc:impala://", server, ":", port, "/", schema)
+      }
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
+        connectionString <- paste0(connectionString, ";", extraSettings)
+      }
+    }
+    if (missing(user) || is.null(user)) {
+      connection <- RJDBC::dbConnect(driver, connectionString)
+    } else {
+      connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+    }
+    if (!missing(schema) && !is.null(schema)) {
+      RJDBC::dbSendUpdate(connection, paste("USE", schema))
+    }
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
 }
 
 dbConnectUsingProperties <- function(drv, url, ...) {
