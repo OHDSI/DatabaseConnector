@@ -463,7 +463,14 @@ connect <- function(connectionDetails,
   if (dbms == "impala") {
     writeLines("Connecting using Impala driver")
     impalaDriverDirectory <- getOption("impalaDriverDirectory")
+    if (missing(impalaDriverDirectory) || is.null(impalaDriverDirectory)) {
+      stop(paste("Error: JDBC driver directory not set but is required for Impala. Please download Impala JDBC driver, then call ",
+        "'options(\"impalaDriverDirectory\" = \"[local path to directory containing impala JDBC JARs]\")'"))
+    }
     driverClasspath <- paste(list.files(impalaDriverDirectory, "\\.jar$", full.names = TRUE), collapse=":")
+    if (nchar(driverClasspath) == 0) {
+      stop("Error: no JAR files found in JDBC driver directory for Impala. Please check 'impalaDriverDirectory' setting.")
+    }
     driver <- jdbcSingleton("com.cloudera.impala.jdbc4.Driver", driverClasspath, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
       if (missing(port) || is.null(port)) {
