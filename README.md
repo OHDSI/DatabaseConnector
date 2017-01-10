@@ -13,6 +13,7 @@ Features
   - Postgres
   - Amazon Redshift
   - MySQL
+  - Impala
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting

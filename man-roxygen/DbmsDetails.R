@@ -10,8 +10,6 @@
 #'
 #'
 #'
-#'
-#'
 #' @param user               The user name used to access the server.
 #' @param domain             For SQL Server only: the Windows domain (optional).
 #' @param password           The password for that user.
@@ -27,10 +25,13 @@
 #'                           \code{extraSettings}, and \code{oracleDriver} fields are ignored. If
 #'                           \code{user} and \code{password} are not specified, they are assumed to
 #'                           already be included in the connection string.
+#' @param pathToDriver       Path to the JDBC driver JAR files. Currently only needed for Impala.
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
-#' interpretations: MySQL:
+#' interpretations: 
+#' 
+#' MySQL:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
 #'   \item \code{password}. The password for that user
@@ -79,7 +80,9 @@
 #'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
 #'         as "encrypt=true; trustServerCertificate=false;")
 #' }
-#' Connections where the domain need to be specified are not supported. PostgreSQL:
+#' Connections where the domain need to be specified are not supported. 
+#' 
+#' PostgreSQL:
 #' \itemize{
 #'   \item \code{user}. The user used to log in to the server
 #'   \item \code{password}. The password used to log on to the server
@@ -101,6 +104,17 @@
 #'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
 #'         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 #' }
+#' Impala:
+#' \itemize{
+#'   \item \code{user}. The user name used to access the server
+#'   \item \code{password}. The password for that user
+#'   \item \code{server}. The host name of the server
+#'   \item \code{port}. Specifies the port on the server (default = 21050)
+#'   \item \code{schema}. The database containing the tables
+#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
+#'         as "SSLKeyStorePwd=*****")
+#' }
+#' 
 #' To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 #' driver. Download the .exe from
 #' \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and

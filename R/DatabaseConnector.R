@@ -75,7 +75,8 @@ createConnectionDetails <- function(dbms,
                                     schema = NULL,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
-                                    connectionString = NULL) {
+                                    connectionString = NULL,
+                                    pathToDriver = NULL) {
   # First: get default values:
   result <- list()
   for (name in names(formals(createConnectionDetails))) {
@@ -178,7 +179,8 @@ connect <- function(connectionDetails,
                     schema,
                     extraSettings,
                     oracleDriver = "thin",
-                    connectionString) {
+                    connectionString,
+                    pathToDriver) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
@@ -189,7 +191,8 @@ connect <- function(connectionDetails,
                           schema = connectionDetails$schema,
                           extraSettings = connectionDetails$extraSettings,
                           oracleDriver = connectionDetails$oracleDriver,
-                          connectionString = connectionDetails$connectionString)
+                          connectionString = connectionDetails$connectionString,
+                          pathToDriver = connectionDetails$pathToDriver)
 
     return(connection)
   }
@@ -462,14 +465,13 @@ connect <- function(connectionDetails,
   }
   if (dbms == "impala") {
     writeLines("Connecting using Impala driver")
-    impalaDriverDirectory <- getOption("impalaDriverDirectory")
-    if (missing(impalaDriverDirectory) || is.null(impalaDriverDirectory)) {
-      stop(paste("Error: JDBC driver directory not set but is required for Impala. Please download Impala JDBC driver, then call ",
-        "'options(\"impalaDriverDirectory\" = \"[local path to directory containing impala JDBC JARs]\")'"))
+    if (missing(pathToDriver) || is.null(pathToDriver)) {
+      stop(paste("Error: pathToDriver not set but is required for Impala. Please download Impala JDBC driver, then add the argument ",
+        "'pathToDriver', pointing to the local path to directory containing impala JDBC JARs"))
     }
-    driverClasspath <- paste(list.files(impalaDriverDirectory, "\\.jar$", full.names = TRUE), collapse=":")
+    driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse=":")
     if (nchar(driverClasspath) == 0) {
-      stop("Error: no JAR files found in JDBC driver directory for Impala. Please check 'impalaDriverDirectory' setting.")
+      stop(paste0("Error: no JAR files found in '",pathToDriver,"'. Please check 'pathToDriver' setting."))
     }
     driver <- jdbcSingleton("com.cloudera.impala.jdbc4.Driver", driverClasspath, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
