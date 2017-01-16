@@ -1,6 +1,6 @@
 # @file DatabaseConnector.R
 #
-# Copyright 2016 Observational Health Data Sciences and Informatics
+# Copyright 2017 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -437,7 +437,14 @@ connect <- function(connectionDetails,
   }
   if (dbms == "netezza") {
     writeLines("Connecting using Netezza driver")
-    pathToJar <- system.file("java", "nzjdbc.jar", package = "DatabaseConnector")
+    if (missing(pathToDriver) || is.null(pathToDriver)) {
+      stop(paste("Error: pathToDriver not set but is required for Netezza Please download the Netezza JDBC driver, then add the argument ",
+                 "'pathToDriver', pointing to the local path to directory containing Netezza JDBC JAR file"))
+    }
+    pathToJar <- file.path(pathToDriver, "nzjdbc.jar")
+    if (!file.exists(pathToJar)) {
+      stop(paste0("Error: Cannot find nzjdbc.jar in ", pathToJar))
+    }
     driver <- jdbcSingleton("org.netezza.Driver", pathToJar, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
@@ -466,8 +473,8 @@ connect <- function(connectionDetails,
   if (dbms == "impala") {
     writeLines("Connecting using Impala driver")
     if (missing(pathToDriver) || is.null(pathToDriver)) {
-      stop(paste("Error: pathToDriver not set but is required for Impala. Please download Impala JDBC driver, then add the argument ",
-        "'pathToDriver', pointing to the local path to directory containing impala JDBC JARs"))
+      stop(paste("Error: pathToDriver not set but is required for Impala. Please download the Impala JDBC driver, then add the argument ",
+        "'pathToDriver', pointing to the local path to directory containing the Impala JDBC JAR files"))
     }
     driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse=":")
     if (nchar(driverClasspath) == 0) {

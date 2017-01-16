@@ -12,6 +12,7 @@
   \item {"redshift" for Amazon Redshift}
   \item {"sql server" for Microsoft SQL Server}
   \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
+  \item {"netezza" for IBM Netezza}
 }}
 
 \item{user}{The user name used to access the server.}
@@ -38,7 +39,7 @@ or \code{"oci"}.}
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
 
-\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for Impala.}
+\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for Impala and Netezza.}
 }
 \value{
 A list with all the details needed to connect to a database.
@@ -134,6 +135,18 @@ Redshift:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 }
+Netezza:
+\itemize{
+  \item \code{user}. The user used to log in to the server
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server and the database holding the
+        relevant schemas: <host>/<database>
+  \item \code{port}. Specifies the port on the server (default = 5480)
+  \item \code{schema}. The schema containing the tables.
+  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
+        as "ssl=true")
+  \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file (nzjdbc.jar).
+}
 Impala:
 \itemize{
   \item \code{user}. The user name used to access the server
@@ -143,6 +156,7 @@ Impala:
   \item \code{schema}. The database containing the tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "SSLKeyStorePwd=*****")
+  \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
 }
 
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
