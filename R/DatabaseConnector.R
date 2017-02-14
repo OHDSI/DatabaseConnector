@@ -215,9 +215,9 @@ connect <- function(connectionDetails,
         connectionString <- paste(connectionString, "&", extraSettings, sep = "")
     }
     if (missing(user) || is.null(user)) {
-      connection <- RJDBC::dbConnect(driver, connectionString, user, password)
-    } else {
       connection <- RJDBC::dbConnect(driver, connectionString)
+    } else {
+      connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     }
     if (!missing(schema) && !is.null(schema)) {
       RJDBC::dbSendUpdate(connection, paste("USE", schema))
