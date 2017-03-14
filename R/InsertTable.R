@@ -284,6 +284,18 @@ insertTable <- function(connection,
       }
       rJava::.jcall(statement, "V", "addBatch")
     }
+    insertRowImpala <- function(row, statement) {
+        for (i in 1:length(row)) {
+            if (is.na(row[i])) {
+            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
+            } else if (is.integer(row[i])) {
+                rJava::.jcall(statement, "V", "setInt", i, as.integer(row[i]))
+            } else {
+                rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+            }
+        }
+        rJava::.jcall(statement, "V", "addBatch")
+    }
 
     for (start in seq(1, nrow(data), by = batchSize)) {
       end <- min(start + batchSize - 1, nrow(data))
@@ -306,6 +318,13 @@ insertTable <- function(connection,
               isDate = isDate,
               MARGIN = 1,
               FUN = insertRowOracle)
+      } else if (attr(connection, "dbms") == "impala") {
+        apply(data[start:end,
+                ,
+                drop = FALSE],
+                statement = statement,
+                MARGIN = 1,
+                FUN = insertRowImpala)
       } else {
         apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
       }
