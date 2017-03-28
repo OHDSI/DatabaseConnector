@@ -16,6 +16,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+.getBatch <- function(resultSet, batchSize, datesAsString) {
+  batch <- RJDBC::fetch(resultSet, batchSize)
+  if (!datesAsString) {
+    cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
+    for (i in 1:cols) {
+      type <- rJava::.jcall(resultSet@md, "I", "getColumnType", i)
+      if (type == 91)
+        batch[, i] <- as.Date(batch[, i])
+    }
+  } 
+  return(batch)
+}
+
 #' Low level function for retrieving data to an ffdf object
 #'
 #' @description
@@ -26,7 +39,8 @@
 #' @param query           The SQL statement to retrieve the data
 #' @param batchSize       The number of rows that will be retrieved at a time from the server. A larger
 #'                        batchSize means less calls to the server so better performance, but too large
-#'                        a batchSize could lead to out-of-memory errors.
+#'                        a batchSize could lead to out-of-memory errors. The default is "auto", meaning
+#'                        heuristics will determine the appropriate batch size.
 #' @param datesAsString   Should dates be imported as character vectors, our should they be converted
 #'                        to R's date format?
 #'
@@ -41,7 +55,7 @@
 #' @export
 lowLevelQuerySql.ffdf <- function(connection,
                                   query = "",
-                                  batchSize = 5e+05,
+                                  batchSize = "auto",
                                   datesAsString = FALSE) {
   # Create resultset:
   rJava::.jcall("java/lang/System", , "gc")
@@ -70,36 +84,38 @@ lowLevelQuerySql.ffdf <- function(connection,
   resultSet <- new("JDBCResult", jr = r, md = md, stat = s, pull = rJava::.jnull())
 
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-
-  # Fetch data in batches:
-  data <- NULL
-  n <- batchSize
-  while (n == batchSize) {
-    batch <- RJDBC::fetch(resultSet, batchSize)
-    if (!datesAsString) {
-      cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
-      for (i in 1:cols) {
-        type <- rJava::.jcall(resultSet@md, "I", "getColumnType", i)
-        if (type == 91)
-          batch[, i] <- as.Date(batch[, i])
+  
+  # Fetch first 100 rows to estimate required memory per batch:
+  batch <- .getBatch(resultSet, 100, datesAsString)
+  if (batchSize == "auto") {
+    batchSize <- floor(5e8 / as.numeric(object.size(batch)))
+  }
+  n <- nrow(batch)
+  
+  # Convert to ffdf object:
+  charCols <- sapply(batch, class)
+  charCols <- names(charCols[charCols == "character"])
+  for (charCol in charCols) {
+    batch[[charCol]] <- factor(batch[[charCol]])
+  }
+  if (n == 0) {
+    data <- batch  #ffdf cannot contain 0 rows, so return data.frame instead
+    warning("Data has zero rows, returning an empty data frame")
+  } else {
+    data <- ff::as.ffdf(batch)
+  }
+  
+  if (n == 100) {
+    # Fetch remaining data in batches:
+    n <- batchSize
+    while (n == batchSize) {
+      batch <- .getBatch(resultSet, batchSize, datesAsString)
+      
+      n <- nrow(batch)
+      if (n != 0) {
+        for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
+        data <- ffbase::ffdfappend(data, batch)
       }
-    }
-
-    n <- nrow(batch)
-    if (is.null(data)) {
-      charCols <- sapply(batch, class)
-      charCols <- names(charCols[charCols == "character"])
-
-      for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
-
-      if (n == 0) {
-        data <- batch  #ffdf cannot contain 0 rows, so return data.frame instead
-        warning("Data has zero rows, returning an empty data frame")
-      } else data <- ff::as.ffdf(batch)
-    } else if (n != 0) {
-      for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
-
-      data <- ffbase::ffdfappend(data, batch)
     }
   }
   return(data)

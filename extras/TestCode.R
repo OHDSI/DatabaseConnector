@@ -26,7 +26,8 @@ n <- 5000
 data <- data.frame(x = 1:n, y = runif(n))
 insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)
 querySql(conn, "SELECT * FROM #temp")
-data <- querySql(conn, "SELECT TOP 10000 * FROM condition_occurrence")
+data <- querySql(conn, "SELECT COUNT(*) FROM condition_occurrence")
+data <- querySql(conn, "SELECT TOP 1000000 * FROM condition_occurrence")
 data <- data[, c("PERSON_ID",
                  "CONDITION_CONCEPT_ID",
                  "CONDITION_START_DATE",

@@ -24,7 +24,7 @@
 #' @import ffbase
 #' @import bit
 #' @importFrom methods new
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size
 NULL
 
 

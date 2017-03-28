@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: A Wrapper Around RJDBC Containing Drivers for Various DBMSs
-Version: 1.9.2
-Date: 2017-02-14
+Version: 1.10.0
+Date: 2017-03-28
 Author: Martijn J. Schuemie and Marc A. Suchard
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: A wrapper around RJDBC containing drivers for various DBMSs. Also includes support for fetching data as ffdf objects.
@@ -19,4 +19,4 @@ Imports:
 License: Apache License
 Suggests:
     testthat
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

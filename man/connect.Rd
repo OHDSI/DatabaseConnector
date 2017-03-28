@@ -175,6 +175,7 @@ recommend to either use Windows integrated security, or if a different user is n
 RStudio using that user: \code{runas /netonly /user:domain\\username
 "C:\path\to\rstudio\bin\rstudio.exe"}.
 }
+
 \examples{
 \dontrun{
 conn <- connect(dbms = "mysql",
@@ -204,4 +205,3 @@ dbDisconnect(conn)
 
 }
 }
-

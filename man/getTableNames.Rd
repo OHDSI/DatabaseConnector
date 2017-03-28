@@ -26,4 +26,3 @@ PostgreSQL and Redshift: The databaseSchema should specify the schema.
 Oracle: The databaseSchema should specify the Oracle 'user'.
 MySql and Impala: The databaseSchema should specify the database.
 }
-
