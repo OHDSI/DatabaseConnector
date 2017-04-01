@@ -142,8 +142,12 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is
-#' created, or the data is appended to an existing table.
-#'
+#' created, or the data is appended to an existing table. 
+#' 
+#' For Redshift connections, new tables can be bulk loaded using AWS S3 and COPY commands 
+#' for better performance over traditional SQL inserts by setting System Environment variables or
+#' storing keys in ~./aws/credentials file.
+#' 
 #' @examples
 #' \dontrun{
 #' connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -151,6 +155,23 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'                                              user = "root",
 #'                                              password = "blah",
 #'                                              schema = "cdm_v4")
+#' conn <- connect(connectionDetails)
+#' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
+#' insertTable(conn, "my_table", data)
+#' dbDisconnect(conn)
+#' 
+#' connectionDetails <- createConnectionDetails(dbms = "redshift", 
+#'                                              server = "localhost/database",
+#'                                              port = 5439,
+#'                                              user = "root", 
+#'                                              password = "blah")
+#' Sys.setenv("AWS_ACCESS_KEY_ID" = "some_access_key_id",
+#'            "AWS_SECRET_ACCESS_KEY" = "some_secret_access_key",
+#'            "AWS_DEFAULT_REGION" = "us-east-1",
+#'            "AWS_BUCKET_NAME" = "some-bucket", 
+#'            "AWS_OBJECT_KEY" = "some-prefix",
+#'            "AWS_SSE_TYPE" = "AES256")
+#'            
 #' conn <- connect(connectionDetails)
 #' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 #' insertTable(conn, "my_table", data)
@@ -207,17 +228,147 @@ insertTable <- function(connection,
     } else {
       sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
     }
-    sql <- SqlRender::renderSql(sql, tableName = tableName)$sql
-    sql <- SqlRender::translateSql(sql,
+    sql <- SqlRender::renderSql(sql = sql, tableName = tableName)$sql
+    sql <- SqlRender::translateSql(sql = sql,
                                    targetDialect = attr(connection, "dbms"),
                                    oracleTempSchema = oracleTempSchema)$sql
-    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    executeSql(connection = connection, sql = sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   
-  if (attr(connection, "dbms") == "pdw" && createTable) {
+  # Check if AWS S3 connection could work (Redshift)
+  checkAwsS3Connection <- function()
+  {
+    checkCredentials <- function()
+    {
+      awsS3File <- aws.signature::read_credentials()
+      if (!is.null(awsS3File))
+      {
+        aws.signature::use_credentials()
+
+        if ("AWS_BUCKET_NAME" %in% names(awsS3File[["default"]]))
+        {
+          Sys.setenv(AWS_BUCKET_NAME = awsS3File[["default"]][["AWS_BUCKET_NAME"]])
+        }
+        if ("AWS_OBJECT_KEY" %in% names(awsS3File[["default"]]))
+        {
+          Sys.setenv(AWS_OBJECT_KEY = awsS3File[["default"]][["AWS_OBJECT_KEY"]])
+        }
+        if ("AWS_SSE_TYPE" %in% names(awsS3File[["default"]]))
+        {
+          Sys.setenv(AWS_SSE_TYPE = awsS3File[["default"]][["AWS_SSE_TYPE"]])
+        }
+      }
+      
+      if (Sys.getenv("AWS_ACCESS_KEY_ID") != "" && 
+          Sys.getenv("AWS_SECRET_ACCESS_KEY") != "" &&
+          Sys.getenv("AWS_BUCKET_NAME") != "" &&
+          Sys.getenv("AWS_DEFAULT_REGION") != "")
+      {
+        return (TRUE)
+      }
+      return (FALSE)
+    }
+    
+    if (!checkCredentials())
+    {
+      warning("No valid AWS S3 credentials found, will use slower SQL inserts")
+      return(FALSE)
+    }
+    if (!aws.s3::bucket_exists(bucket = Sys.getenv("AWS_BUCKET_NAME")))
+    {
+      warning("No valid AWS S3 bucket found, will use slower SQL inserts")
+      return (FALSE)
+    }
+    writeLines("AWS S3 credentials are complete and Bucket is accessible.")
+    if (Sys.getenv("AWS_OBJECT_KEY") == "")
+    {
+      writeLines(paste0("Files will be placed at AWS S3 bucket root: ", 
+                        Sys.getenv("AWS_BUCKET_NAME")))
+    }
+    else
+    {
+      writeLines(paste0("Files will be placed at AWS S3 location: ", 
+                        paste(Sys.getenv("AWS_BUCKET_NAME"), 
+                              Sys.getenv("AWS_OBJECT_KEY"), 
+                              sep = "/", collapse = "")))
+    }
+    
+    if (Sys.getenv("AWS_SSE_TYPE") == "")
+    {
+      warning("Not using Server Side Encryption for AWS S3")
+    }
+    return(TRUE)
+  }
+  
+  if (attr(connection, "dbms") == "redshift" && createTable && checkAwsS3Connection()) {
+    writeLines('Using AWS S3/COPY bulk load')
+    
+    # add CTAS hints if possible
+    hint <- ""
+    if (any(tolower(names(data)) == "subject_id")) 
+    {
+      hint <- "---HINT DISTRIBUTE_ON_KEY(subject_id)\n"
+    } else if (any(tolower(names(data)) == "person_id"))
+    {
+      hint <- "---HINT DISTRIBUTE_ON_KEY(person_id)\n"
+    }
+    
+    fieldNames <- c()
+    splitVarNames <- unlist(strsplit(x = varNames, split = ",", fixed = TRUE))
+    for(i in 1:length(fts))
+    {
+      fieldNames <- c(fieldNames, paste(splitVarNames[i], fts[i], sep = " ", collapse = ""))    
+    }
+    
+    fieldNames <- paste(fieldNames, sep = "", collapse = ",")
+    sql <- "@hint create table @qname (@fieldNames);"
+    renderedSql <- SqlRender::renderSql(sql = sql, hint = hint, qname = qname, fieldNames = fieldNames)$sql
+    translatedSql <- SqlRender::translateSql(sql = renderedSql, targetDialect = "redshift")$sql
+    executeSql(connection = connection, sql = translatedSql, progressBar = FALSE, reportOverallTime = FALSE)
+    
+    # use time-based GUID to avoid AWS S3 file name conflicts
+    tableGuid <- uuid::UUIDgenerate(TRUE)
+    if (substr(tableName, 1, 1) == "#" && tempTable) # remove hashtag from temp table name
+    {
+      qname <- substring(text = qname, first = 2)
+    }
+    
+    # write data locally, push to AWS S3
+    filePath <- file.path(getwd(), paste0(qname, "_", tableGuid, ".csv"))
+    write.csv(x = data, 
+              file = filePath, 
+              quote = FALSE, 
+              row.names = FALSE)
+    
+    objectPath <- ifelse(Sys.getenv("AWS_OBJECT_KEY") != "", 
+                         paste(Sys.getenv("AWS_OBJECT_KEY"), paste0(qname, "_", tableGuid, ".csv"), sep = "/", collapse = ""), 
+                         paste0(qname, "_", tableGuid, ".csv"))
+    
+    aws.s3::put_object(file = filePath, 
+                       object = objectPath,
+                       headers = list("x-amz-server-side-encryption" = Sys.getenv("AWS_SSE_TYPE")), 
+                       bucket = Sys.getenv("AWS_BUCKET_NAME"))
+    
+    # Run Redshift COPY command to bulk load into table
+    copySql <- SqlRender::loadRenderTranslateSql(sqlFilename = "copy.sql", 
+                                                 packageName = "DatabaseConnector", 
+                                                 dbms = "redshift", 
+                                                 objectPath = objectPath,
+                                                 qname = qname,
+                                                 s3RepoName = Sys.getenv("AWS_BUCKET_NAME"),
+                                                 awsAccessKey = Sys.getenv("AWS_ACCESS_KEY_ID"),
+                                                 awsSecretAccessKey = Sys.getenv("AWS_SECRET_ACCESS_KEY")
+    )
+    executeSql(connection = connection, sql = copySql, progressBar = FALSE, reportOverallTime = FALSE)
+    
+    #clean up AWS S3 and local storage
+    aws.s3::delete_object(bucket = Sys.getenv("AWS_BUCKET_NAME"), 
+                          object = objectPath, quiet = TRUE) 
+    unlink(filePath)
+    
+  } else if (attr(connection, "dbms") == "pdw" && createTable) {
     ctasHack(connection, qname, tempTable, varNames, fts, data)
   } else {
-    
     if (createTable) {
       sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
       sql <- SqlRender::translateSql(sql,
