@@ -148,6 +148,8 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #' for better performance over traditional SQL inserts by setting System Environment variables or
 #' storing keys in ~./aws/credentials file.
 #' 
+#' @seealso \code{\link{CheckAwsS3Connection}}
+#' 
 #' @examples
 #' \dontrun{
 #' connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -167,10 +169,10 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'                                              password = "blah")
 #' Sys.setenv("AWS_ACCESS_KEY_ID" = "some_access_key_id",
 #'            "AWS_SECRET_ACCESS_KEY" = "some_secret_access_key",
-#'            "AWS_DEFAULT_REGION" = "us-east-1",
+#'            "AWS_DEFAULT_REGION" = "some_aws_region",
 #'            "AWS_BUCKET_NAME" = "some-bucket", 
 #'            "AWS_OBJECT_KEY" = "some-prefix",
-#'            "AWS_SSE_TYPE" = "AES256")
+#'            "AWS_SSE_TYPE" = "some_server_side_encryption")
 #'            
 #' conn <- connect(connectionDetails)
 #' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
@@ -233,71 +235,6 @@ insertTable <- function(connection,
                                    targetDialect = attr(connection, "dbms"),
                                    oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection = connection, sql = sql, progressBar = FALSE, reportOverallTime = FALSE)
-  }
-  
-  # Check if AWS S3 connection could work (Redshift)
-  checkAwsS3Connection <- function()
-  {
-    checkCredentials <- function()
-    {
-      awsS3File <- aws.signature::read_credentials()
-      if (!is.null(awsS3File))
-      {
-        aws.signature::use_credentials()
-
-        if ("AWS_BUCKET_NAME" %in% names(awsS3File[["default"]]))
-        {
-          Sys.setenv(AWS_BUCKET_NAME = awsS3File[["default"]][["AWS_BUCKET_NAME"]])
-        }
-        if ("AWS_OBJECT_KEY" %in% names(awsS3File[["default"]]))
-        {
-          Sys.setenv(AWS_OBJECT_KEY = awsS3File[["default"]][["AWS_OBJECT_KEY"]])
-        }
-        if ("AWS_SSE_TYPE" %in% names(awsS3File[["default"]]))
-        {
-          Sys.setenv(AWS_SSE_TYPE = awsS3File[["default"]][["AWS_SSE_TYPE"]])
-        }
-      }
-      
-      if (Sys.getenv("AWS_ACCESS_KEY_ID") != "" && 
-          Sys.getenv("AWS_SECRET_ACCESS_KEY") != "" &&
-          Sys.getenv("AWS_BUCKET_NAME") != "" &&
-          Sys.getenv("AWS_DEFAULT_REGION") != "")
-      {
-        return (TRUE)
-      }
-      return (FALSE)
-    }
-    
-    if (!checkCredentials())
-    {
-      warning("No valid AWS S3 credentials found, will use slower SQL inserts")
-      return(FALSE)
-    }
-    if (!aws.s3::bucket_exists(bucket = Sys.getenv("AWS_BUCKET_NAME")))
-    {
-      warning("No valid AWS S3 bucket found, will use slower SQL inserts")
-      return (FALSE)
-    }
-    writeLines("AWS S3 credentials are complete and Bucket is accessible.")
-    if (Sys.getenv("AWS_OBJECT_KEY") == "")
-    {
-      writeLines(paste0("Files will be placed at AWS S3 bucket root: ", 
-                        Sys.getenv("AWS_BUCKET_NAME")))
-    }
-    else
-    {
-      writeLines(paste0("Files will be placed at AWS S3 location: ", 
-                        paste(Sys.getenv("AWS_BUCKET_NAME"), 
-                              Sys.getenv("AWS_OBJECT_KEY"), 
-                              sep = "/", collapse = "")))
-    }
-    
-    if (Sys.getenv("AWS_SSE_TYPE") == "")
-    {
-      warning("Not using Server Side Encryption for AWS S3")
-    }
-    return(TRUE)
   }
   
   if (attr(connection, "dbms") == "redshift" && createTable && checkAwsS3Connection()) {

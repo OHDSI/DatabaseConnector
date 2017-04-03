@@ -54,14 +54,17 @@ connectionDetails <- createConnectionDetails(dbms = "redshift",
                                              password = "blah")
 Sys.setenv("AWS_ACCESS_KEY_ID" = "some_access_key_id",
            "AWS_SECRET_ACCESS_KEY" = "some_secret_access_key",
-           "AWS_DEFAULT_REGION" = "us-east-1",
+           "AWS_DEFAULT_REGION" = "some_aws_region",
            "AWS_BUCKET_NAME" = "some-bucket", 
            "AWS_OBJECT_KEY" = "some-prefix",
-           "AWS_SSE_TYPE" = "AES256")
+           "AWS_SSE_TYPE" = "some_server_side_encryption")
            
 conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 insertTable(conn, "my_table", data)
 dbDisconnect(conn)
 }
+}
+\seealso{
+\code{\link{CheckAwsS3Connection}}
 }
