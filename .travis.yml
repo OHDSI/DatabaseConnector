@@ -44,6 +44,9 @@ install:
   
   - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
+  
+  # Install CloudyR dependencies
+  - Rscript -e 'devtools::install_github("cloudyr/aws.s3")'
 
 before_script:
   - export PKG_NAME=$(Rscript -e 'cat(paste0(devtools::as.package(".")$package))')

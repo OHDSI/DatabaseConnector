@@ -18,6 +18,8 @@ Imports:
     methods,
     utils,
     uuid,
+    digest,
+    curl,
     aws.s3,
     aws.signature
 License: Apache License
