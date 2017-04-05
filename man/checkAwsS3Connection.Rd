@@ -12,7 +12,7 @@ TRUE if the Aws S3 connection is valid and usable, FALSE if not
 \description{
 For Amazon Redshift database connections, this function will check to see if a connection to 
 Amazon S3 is configured properly and usable. A valid AWS S3 connection is necessary to 
-bulk load data to Redshift when using the \code{\link{InsertTable}} function.
+bulk load data to Redshift when using the \code{\link{insertTable}} function.
 }
 \details{
 The function relies upon the CloudyR S3 library to test a connection to an S3 bucket using

@@ -66,5 +66,5 @@ dbDisconnect(conn)
 }
 }
 \seealso{
-\code{\link{CheckAwsS3Connection}}
+\code{\link{checkAwsS3Connection}}
 }

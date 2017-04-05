@@ -148,7 +148,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #' for better performance over traditional SQL inserts by setting System Environment variables or
 #' storing keys in ~./aws/credentials file.
 #' 
-#' @seealso \code{\link{CheckAwsS3Connection}}
+#' @seealso \code{\link{checkAwsS3Connection}}
 #' 
 #' @examples
 #' \dontrun{
