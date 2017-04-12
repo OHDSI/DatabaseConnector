@@ -323,8 +323,15 @@ querySql <- function(connection, sql) {
 
     result <- lowLevelQuerySql(connection, sql)
     colnames(result) <- toupper(colnames(result))
+    if(attr(connection, "dbms") == "impala") {
+      for (colname in colnames(result)) {
+        if(grepl('DATE', colname)) {
+          result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
+        }
+      }
+    }
     return(result)
-  }, error = function(err) {
+    }, error = function(err) {
     writeLines(paste("Error executing SQL:", err))
 
     # Write error report:
@@ -381,6 +388,13 @@ querySql.ffdf <- function(connection, sql) {
   tryCatch({
     result <- lowLevelQuerySql.ffdf(connection, sql)
     colnames(result) <- toupper(colnames(result))
+    if(attr(connection, "dbms") == "impala") {
+          for (colname in colnames(result)) {
+          if(grepl('DATE', colname)) {
+          result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
+        }
+      }
+    }
     return(result)
   }, error = function(err) {
     writeLines(paste("Error executing SQL:", err))
