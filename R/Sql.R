@@ -318,10 +318,13 @@ executeSql <- function(connection,
 #' }
 #' @export
 querySql <- function(connection, sql) {
+  # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
+  sqlStatements <- SqlRender::splitSql(sql)
+  if (length(sqlStatements) > 1)
+    stop(paste("A query that returns a result can only consist of one SQL statement, but", length(sqlStatements), "statements were found"))
   tryCatch({
     rJava::.jcall("java/lang/System", , "gc")  #Calling garbage collection prevents crashes
-
-    result <- lowLevelQuerySql(connection, sql)
+    result <- lowLevelQuerySql(connection, sqlStatements[1])
     colnames(result) <- toupper(colnames(result))
     return(result)
   }, error = function(err) {
