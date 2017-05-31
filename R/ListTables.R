@@ -64,6 +64,10 @@ getTableNames <- function(connection, databaseSchema) {
                     tolower(databaseSchema),
                     "' ORDER BY table_name")
   }
+  } else if (dbms == "bigquery") {
+    query <- paste0("SELECT table_id as table_name FROM ", databaseSchema,
+                    ".__TABLES__ ORDER BY table_name")
+  }
   tables <- querySql(connection, query)
   return(toupper(tables[, 1]))
 }
