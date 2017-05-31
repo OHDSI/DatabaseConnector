@@ -507,15 +507,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "bigquery") {
     writeLines("Connecting using BigQuery driver")
-    if (missing(pathToDriver) || is.null(pathToDriver)) {
-      stop(paste("Error: pathToDriver not set but is required for BigQuery. Please download the BigQuery JDBC driver, then add the argument ",
-        "'pathToDriver', pointing to the local path to directory containing the BigQuery JDBC JAR files"))
-    }
-    driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse=":")
-    if (nchar(driverClasspath) == 0) {
-      stop(paste0("Error: no JAR files found in '",pathToDriver,"'. Please check 'pathToDriver' setting."))
-    }
-    driver <- jdbcSingleton("net.starschema.clouddb.jdbc.BQDriver", driverClasspath, identifier.quote = "`")
+    pathToJar <- system.file("java", "bqjdbc.jar", package = "DatabaseConnector")
+    driver <- jdbcSingleton("net.starschema.clouddb.jdbc.BQDriver", pathToJar, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
       connectionString <- paste0("jdbc:BQDriver:", server)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
