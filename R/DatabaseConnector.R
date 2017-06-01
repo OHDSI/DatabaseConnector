@@ -505,6 +505,20 @@ connect <- function(connectionDetails,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "bigquery") {
+    writeLines("Connecting using BigQuery driver")
+    pathToJar <- system.file("java", "bqjdbc.jar", package = "DatabaseConnector")
+    driver <- jdbcSingleton("net.starschema.clouddb.jdbc.BQDriver", pathToJar, identifier.quote = "`")
+    if (missing(connectionString) || is.null(connectionString)) {
+      connectionString <- paste0("jdbc:BQDriver:", server)
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
+        connectionString <- paste0(connectionString, "?", extraSettings)
+      }
+    }
+    connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
 }
 
 dbConnectUsingProperties <- function(drv, url, ...) {
