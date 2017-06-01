@@ -16,7 +16,7 @@ connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              port = 17001,
                                              schema = "CDM_Truven_MDCR_V415")
 conn <- connect(connectionDetails)
-querySql(conn, "SELECT COUNT(*) FROM person")
+executeSql(conn, "USE asdfasd;")
 
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
 dbDisconnect(conn)

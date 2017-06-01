@@ -29,6 +29,42 @@
   return(batch)
 }
 
+.systemInfo <- function() {
+  si <- sessionInfo()
+  lines <- c()
+  lines <- c(lines, "R version:")
+  lines <- c(lines, si$R.version$version.string)
+  lines <- c(lines, "")
+  lines <- c(lines, "Platform:")
+  lines <- c(lines, si$R.version$platform)
+  lines <- c(lines, "")
+  lines <- c(lines, "Attached base packages:")
+  lines <- c(lines, paste("-", si$basePkgs))
+  lines <- c(lines, "")
+  lines <- c(lines, "Other attached packages:")
+  for (pkg in si$otherPkgs) lines <- c(lines,
+                                       paste("- ", pkg$Package, " (", pkg$Version, ")", sep = ""))
+  return(paste(lines, collapse = "\n"))
+}
+
+.createErrorReport <- function(dbms, message, sql) {
+  report <- c("DBMS:\n",
+              dbms,
+              "\n\nError:\n",
+              message,
+              "\n\nSQL:\n",
+              sql,
+              "\n\n",
+              .systemInfo())
+  
+  fileName <- paste(getwd(), "/errorReport.txt", sep = "")
+  fileConn <- file(fileName)
+  writeChar(report, fileConn, eos = NULL)
+  close(fileConn)
+  stop(paste("Error executing SQL:", message, paste("An error report has been created at ", fileName), sep = "\n"),
+       call. = FALSE)
+}
+
 #' Low level function for retrieving data to an ffdf object
 #'
 #' @description
@@ -178,7 +214,6 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
         data[, i] <- as.Date(data[, i])
     }
   }
-  
   return(data)
 }
 
@@ -229,9 +264,9 @@ executeSql <- function(connection,
   for (i in 1:length(sqlStatements)) {
     sqlStatement <- sqlStatements[i]
     if (profile) {
-      sink(paste("statement_", i, ".sql", sep = ""))
-      cat(sqlStatement)
-      sink()
+      fileConn <- file(paste("statement_", i, ".sql", sep = ""))
+      writeChar(sqlStatement, fileConn, eos = NULL)
+      close(fileConn)
     }
     tryCatch({
       startQuery <- Sys.time()
@@ -241,25 +276,7 @@ executeSql <- function(connection,
         writeLines(paste("Statement ", i, "took", delta, attr(delta, "units")))
       }
     }, error = function(err) {
-      writeLines(paste("Error executing SQL:", err))
-      
-      # Write error report:
-      filename <- paste(getwd(), "/errorReport.txt", sep = "")
-      sink(filename)
-      cat("DBMS:\n")
-      cat(attr(connection, "dbms"))
-      cat("\n\n")
-      cat("Error:\n")
-      cat(err$message)
-      cat("\n\n")
-      cat("SQL:\n")
-      cat(sqlStatement)
-      cat("\n\n")
-      cat(.systemInfo())
-      sink()
-      
-      writeLines(paste("An error report has been created at ", filename))
-      break
+      .createErrorReport(attr(connection, "dbms"), err$message, sqlStatement)
     })
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
@@ -270,24 +287,6 @@ executeSql <- function(connection,
     delta <- Sys.time() - start
     writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
   }
-}
-
-.systemInfo <- function() {
-  si <- sessionInfo()
-  lines <- c()
-  lines <- c(lines, "R version:")
-  lines <- c(lines, si$R.version$version.string)
-  lines <- c(lines, "")
-  lines <- c(lines, "Platform:")
-  lines <- c(lines, si$R.version$platform)
-  lines <- c(lines, "")
-  lines <- c(lines, "Attached base packages:")
-  lines <- c(lines, paste("-", si$basePkgs))
-  lines <- c(lines, "")
-  lines <- c(lines, "Other attached packages:")
-  for (pkg in si$otherPkgs) lines <- c(lines,
-                                       paste("- ", pkg$Package, " (", pkg$Version, ")", sep = ""))
-  return(paste(lines, collapse = "\n"))
 }
 
 #' Retrieve data to a data.frame
@@ -335,25 +334,7 @@ querySql <- function(connection, sql) {
     }
     return(result)
   }, error = function(err) {
-    writeLines(paste("Error executing SQL:", err))
-    
-    # Write error report:
-    filename <- paste(getwd(), "/errorReport.txt", sep = "")
-    sink(filename)
-    cat("DBMS:\n")
-    cat(attr(connection, "dbms"))
-    cat("\n\n")
-    cat("Error:\n")
-    cat(err$message)
-    cat("\n\n")
-    cat("SQL:\n")
-    cat(sql)
-    cat("\n\n")
-    cat(.systemInfo())
-    sink()
-    
-    writeLines(paste("An error report has been created at ", filename))
-    break
+    .createErrorReport(attr(connection, "dbms"), err$message, sql)
   })
 }
 
@@ -400,24 +381,6 @@ querySql.ffdf <- function(connection, sql) {
     }
     return(result)
   }, error = function(err) {
-    writeLines(paste("Error executing SQL:", err))
-    
-    # Write error report:
-    filename <- paste(getwd(), "/errorReport.txt", sep = "")
-    sink(filename)
-    cat("DBMS:\n")
-    cat(attr(connection, "dbms"))
-    cat("\n\n")
-    cat("Error:\n")
-    cat(err$message)
-    cat("\n\n")
-    cat("SQL:\n")
-    cat(sql)
-    cat("\n\n")
-    cat(.systemInfo())
-    sink()
-    
-    writeLines(paste("An error report has been created at ", filename))
-    break
+    .createErrorReport(attr(connection, "dbms"), err$message, sql)
   })
 }
