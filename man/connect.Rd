@@ -16,6 +16,7 @@
   \item {"sql server" for Microsoft SQL Server}
   \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
   \item {"netezza" for IBM Netezza}
+  \item {"bigquery" for Google BigQuery}
 }}
 
 \item{user}{The user name used to access the server.}

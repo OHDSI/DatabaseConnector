@@ -14,6 +14,7 @@ Features
   - Amazon Redshift
   - MySQL
   - Impala
+  - Google BigQuery
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
