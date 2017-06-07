@@ -5,7 +5,8 @@ Version: 1.11.2
 Date: 2017-06-06
 Author: Martijn J. Schuemie and Marc A. Suchard
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
-Description: A wrapper around RJDBC containing drivers for various DBMSs. Also includes support for fetching data as ffdf objects.
+Description: A wrapper around RJDBC containing drivers for various DBMSs. Also
+    includes support for fetching data as ffdf objects.
 Depends:
     RJDBC (>= 0.2-5)
 Imports:
@@ -15,7 +16,12 @@ Imports:
     ffbase (>= 0.12.1),
     SqlRender,
     methods,
-    utils
+    utils,
+    uuid,
+    digest,
+    curl,
+    aws.s3,
+    aws.signature
 License: Apache License
 Suggests:
     testthat

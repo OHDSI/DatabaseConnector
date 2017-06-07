@@ -29,7 +29,11 @@ is created, or the data is appended to an existing table.
 }
 \details{
 This function sends the data in a data frame to a table on the server. Either a new table is
-created, or the data is appended to an existing table.
+created, or the data is appended to an existing table. 
+
+For Redshift connections, new tables can be bulk loaded using AWS S3 and COPY commands 
+for better performance over traditional SQL inserts by setting System Environment variables or
+storing keys in ~./aws/credentials file.
 }
 \examples{
 \dontrun{
@@ -42,5 +46,25 @@ conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 insertTable(conn, "my_table", data)
 dbDisconnect(conn)
+
+connectionDetails <- createConnectionDetails(dbms = "redshift", 
+                                             server = "localhost/database",
+                                             port = 5439,
+                                             user = "root", 
+                                             password = "blah")
+Sys.setenv("AWS_ACCESS_KEY_ID" = "some_access_key_id",
+           "AWS_SECRET_ACCESS_KEY" = "some_secret_access_key",
+           "AWS_DEFAULT_REGION" = "some_aws_region",
+           "AWS_BUCKET_NAME" = "some-bucket", 
+           "AWS_OBJECT_KEY" = "some-prefix",
+           "AWS_SSE_TYPE" = "some_server_side_encryption")
+           
+conn <- connect(connectionDetails)
+data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
+insertTable(conn, "my_table", data)
+dbDisconnect(conn)
 }
+}
+\seealso{
+\code{\link{checkAwsS3Connection}}
 }
