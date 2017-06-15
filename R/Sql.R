@@ -281,7 +281,9 @@ executeSql <- function(connection,
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
   }
-  RJDBC::dbCommit(connection)
+  if (!rJava::.jcall(connection@jc, "Z", "getAutoCommit")) {
+    RJDBC::dbCommit(connection)
+  }
   if (progressBar)
     close(pb)
   if (reportOverallTime) {
