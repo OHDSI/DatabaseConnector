@@ -2,6 +2,7 @@
 
 export(connect)
 export(createConnectionDetails)
+export(disconnect)
 export(executeSql)
 export(getTableNames)
 export(insertTable)
