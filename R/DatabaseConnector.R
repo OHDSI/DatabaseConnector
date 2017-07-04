@@ -28,7 +28,7 @@
 NULL
 
 .onLoad <- function(libname, pkgname) {
-  rJava::.jpackage(pkgname, lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "DatabaseConnector.jar", lib.loc = libname)
 }
 
 
