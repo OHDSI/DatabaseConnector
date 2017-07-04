@@ -9,7 +9,7 @@ test_that("Get table names", {
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
   expect_true("PERSON" %in% tables)
-  DBI::dbDisconnect(connection)
+  disconnect(connection)
 
   # SQL Server
   details <- createConnectionDetails(dbms = "sql server",
@@ -19,7 +19,7 @@ test_that("Get table names", {
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
   expect_true("PERSON" %in% tables)
-  DBI::dbDisconnect(connection)
+  disconnect(connection)
 
   # Oracle
   details <- createConnectionDetails(dbms = "oracle",
@@ -29,7 +29,7 @@ test_that("Get table names", {
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"))
   expect_true("PERSON" %in% tables)
-  DBI::dbDisconnect(connection)
+  disconnect(connection)
   
   # RedShift (need to fix insert for non-AWS)
   # details <- createConnectionDetails(dbms = "redshift",
@@ -46,5 +46,5 @@ test_that("Get table names", {
   #             tempTable = FALSE)
   # tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
   # expect_true("PERSON" %in% tables)
-  # DBI::dbDisconnect(connection)
+  # disconnect(connection)
 })

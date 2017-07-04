@@ -194,12 +194,12 @@ insertTable <- function(connection,
   }
   fts <- sapply(data[1, ], def)
   isDate <- (fts == "DATE")
-  fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote), fts, collapse = ",")
-  qname <- .sql.qescape(tableName, TRUE, connection@identifier.quote)
+  fdef <- paste(.sql.qescape(names(data), TRUE, connection$identifierQuote), fts, collapse = ",")
+  qname <- .sql.qescape(tableName, TRUE, connection$identifierQuote)
   esc <- function(str) {
     paste("'", gsub("'", "''", str), "'", sep = "")
   }
-  varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifier.quote), collapse = ",")
+  varNames <- paste(.sql.qescape(names(data), TRUE, connection$identifierQuote), collapse = ",")
   
   if (dropTableIfExists) {
     if (tempTable) {
@@ -240,10 +240,10 @@ insertTable <- function(connection,
     
     batchSize <- 10000
     
-    autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
+    autoCommit <- rJava::.jcall(connection$jConnection, "Z", "getAutoCommit")
     if (autoCommit) {
-      rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
-      on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
+      rJava::.jcall(connection$jConnection, "V", "setAutoCommit", FALSE)
+      on.exit(rJava::.jcall(connection$jConnection, "V", "setAutoCommit", TRUE))
     }
     
     insertRow <- function(row, statement) {
@@ -299,7 +299,7 @@ insertTable <- function(connection,
     
     for (start in seq(1, nrow(data), by = batchSize)) {
       end <- min(start + batchSize - 1, nrow(data))
-      statement <- rJava::.jcall(connection@jc,
+      statement <- rJava::.jcall(connection$jConnection,
                                  "Ljava/sql/PreparedStatement;",
                                  "prepareStatement",
                                  insertSql,

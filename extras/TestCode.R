@@ -120,11 +120,11 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/ohdsi",
                                              user = "postgres",
                                              password = pw,
-                                             schema = "cdm4_sim")
+                                             schema = "cdm_synpuf")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
-getTableNames(conn, "cdm4_sim")
-dbDisconnect(conn)
+getTableNames(conn, "cdm_synpuf")
+disconnect(conn)
 
 # Test Redshift:
 pw <- Sys.getenv("pwRedShift")

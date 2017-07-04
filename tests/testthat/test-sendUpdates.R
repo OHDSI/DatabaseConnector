@@ -18,5 +18,5 @@ test_that("Send updates", {
   names(data2) <- tolower(names(data2))
   expect_identical(data, data2)
 
-  DBI::dbDisconnect(connection)
+  disconnect(connection)
 })
