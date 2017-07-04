@@ -13,6 +13,8 @@ Features
   - Postgres
   - Amazon Redshift
   - MySQL
+  - Impala
+  - Google BigQuery
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
@@ -72,7 +74,7 @@ Development
 ===========
 DatabaseConnector is being developed in R Studio.
 
-###Development status
+### Development status
 [![Build Status](https://travis-ci.org/OHDSI/DatabaseConnector.svg?branch=master)](https://travis-ci.org/OHDSI/DatabaseConnector)
 [![codecov.io](https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=master)](https://codecov.io/github/OHDSI/DatabaseConnector?branch=master)
 

@@ -33,4 +33,3 @@ count <- querySql(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 }
 }
-

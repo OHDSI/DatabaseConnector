@@ -44,4 +44,3 @@ insertTable(conn, "my_table", data)
 dbDisconnect(conn)
 }
 }
-

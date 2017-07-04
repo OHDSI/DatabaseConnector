@@ -16,6 +16,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+.getBatch <- function(resultSet, batchSize, datesAsString) {
+  batch <- RJDBC::fetch(resultSet, batchSize)
+  if (!datesAsString) {
+    cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
+    for (i in 1:cols) {
+      type <- rJava::.jcall(resultSet@md, "I", "getColumnType", i)
+      if (type == 91)
+        batch[, i] <- as.Date(batch[, i])
+    }
+  } 
+  return(batch)
+}
+
+.systemInfo <- function() {
+  si <- sessionInfo()
+  lines <- c()
+  lines <- c(lines, "R version:")
+  lines <- c(lines, si$R.version$version.string)
+  lines <- c(lines, "")
+  lines <- c(lines, "Platform:")
+  lines <- c(lines, si$R.version$platform)
+  lines <- c(lines, "")
+  lines <- c(lines, "Attached base packages:")
+  lines <- c(lines, paste("-", si$basePkgs))
+  lines <- c(lines, "")
+  lines <- c(lines, "Other attached packages:")
+  for (pkg in si$otherPkgs) lines <- c(lines,
+                                       paste("- ", pkg$Package, " (", pkg$Version, ")", sep = ""))
+  return(paste(lines, collapse = "\n"))
+}
+
+.createErrorReport <- function(dbms, message, sql) {
+  report <- c("DBMS:\n",
+              dbms,
+              "\n\nError:\n",
+              message,
+              "\n\nSQL:\n",
+              sql,
+              "\n\n",
+              .systemInfo())
+  
+  fileName <- paste(getwd(), "/errorReport.txt", sep = "")
+  fileConn <- file(fileName)
+  writeChar(report, fileConn, eos = NULL)
+  close(fileConn)
+  stop(paste("Error executing SQL:", message, paste("An error report has been created at ", fileName), sep = "\n"),
+       call. = FALSE)
+}
+
 #' Low level function for retrieving data to an ffdf object
 #'
 #' @description
@@ -26,7 +75,8 @@
 #' @param query           The SQL statement to retrieve the data
 #' @param batchSize       The number of rows that will be retrieved at a time from the server. A larger
 #'                        batchSize means less calls to the server so better performance, but too large
-#'                        a batchSize could lead to out-of-memory errors.
+#'                        a batchSize could lead to out-of-memory errors. The default is "auto", meaning
+#'                        heuristics will determine the appropriate batch size.
 #' @param datesAsString   Should dates be imported as character vectors, our should they be converted
 #'                        to R's date format?
 #'
@@ -41,11 +91,11 @@
 #' @export
 lowLevelQuerySql.ffdf <- function(connection,
                                   query = "",
-                                  batchSize = 5e+05,
+                                  batchSize = "auto",
                                   datesAsString = FALSE) {
   # Create resultset:
   rJava::.jcall("java/lang/System", , "gc")
-
+  
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize (Note: reason
   # for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
@@ -53,7 +103,7 @@ lowLevelQuerySql.ffdf <- function(connection,
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-
+  
   type_forward_only <- rJava::.jfield("java/sql/ResultSet", "I", "TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet", "I", "CONCUR_READ_ONLY")
   s <- rJava::.jcall(connection@jc,
@@ -61,45 +111,47 @@ lowLevelQuerySql.ffdf <- function(connection,
                      "createStatement",
                      type_forward_only,
                      concur_read_only)
-
+  
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
   rJava::.jcall(s, "V", method = "setFetchSize", as.integer(2048))
-
+  
   r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", as.character(query)[1])
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE)
   resultSet <- new("JDBCResult", jr = r, md = md, stat = s, pull = rJava::.jnull())
-
+  
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-
-  # Fetch data in batches:
-  data <- NULL
-  n <- batchSize
-  while (n == batchSize) {
-    batch <- RJDBC::fetch(resultSet, batchSize)
-    if (!datesAsString) {
-      cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
-      for (i in 1:cols) {
-        type <- rJava::.jcall(resultSet@md, "I", "getColumnType", i)
-        if (type == 91)
-          batch[, i] <- as.Date(batch[, i])
+  
+  # Fetch first 100 rows to estimate required memory per batch:
+  batch <- .getBatch(resultSet, 100, datesAsString)
+  if (batchSize == "auto") {
+    batchSize <- floor(5e8 / as.numeric(object.size(batch)))
+  }
+  n <- nrow(batch)
+  
+  # Convert to ffdf object:
+  charCols <- sapply(batch, class)
+  charCols <- names(charCols[charCols == "character"])
+  for (charCol in charCols) {
+    batch[[charCol]] <- factor(batch[[charCol]])
+  }
+  if (n == 0) {
+    data <- batch  #ffdf cannot contain 0 rows, so return data.frame instead
+    warning("Data has zero rows, returning an empty data frame")
+  } else {
+    data <- ff::as.ffdf(batch)
+  }
+  
+  if (n == 100) {
+    # Fetch remaining data in batches:
+    n <- batchSize
+    while (n == batchSize) {
+      batch <- .getBatch(resultSet, batchSize, datesAsString)
+      
+      n <- nrow(batch)
+      if (n != 0) {
+        for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
+        data <- ffbase::ffdfappend(data, batch)
       }
-    }
-
-    n <- nrow(batch)
-    if (is.null(data)) {
-      charCols <- sapply(batch, class)
-      charCols <- names(charCols[charCols == "character"])
-
-      for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
-
-      if (n == 0) {
-        data <- batch  #ffdf cannot contain 0 rows, so return data.frame instead
-        warning("Data has zero rows, returning an empty data frame")
-      } else data <- ff::as.ffdf(batch)
-    } else if (n != 0) {
-      for (charCol in charCols) batch[[charCol]] <- factor(batch[[charCol]])
-
-      data <- ffbase::ffdfappend(data, batch)
     }
   }
   return(data)
@@ -126,7 +178,7 @@ lowLevelQuerySql.ffdf <- function(connection,
 lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
   # Create resultset:
   rJava::.jcall("java/lang/System", , "gc")
-
+  
   # Have to set autocommit to FALSE for PostgreSQL, or else it will ignore setFetchSize (Note: reason
   # for this is that PostgreSQL doesn't want the data set you're getting to change during fetch)
   autoCommit <- rJava::.jcall(connection@jc, "Z", "getAutoCommit")
@@ -134,7 +186,7 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
     rJava::.jcall(connection@jc, "V", "setAutoCommit", FALSE)
     on.exit(rJava::.jcall(connection@jc, "V", "setAutoCommit", TRUE))
   }
-
+  
   type_forward_only <- rJava::.jfield("java/sql/ResultSet", "I", "TYPE_FORWARD_ONLY")
   concur_read_only <- rJava::.jfield("java/sql/ResultSet", "I", "CONCUR_READ_ONLY")
   s <- rJava::.jcall(connection@jc,
@@ -142,18 +194,18 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
                      "createStatement",
                      type_forward_only,
                      concur_read_only)
-
+  
   # Have to call setFetchSize on Statement object for PostgreSQL (RJDBC only calls it on ResultSet)
   rJava::.jcall(s, "V", method = "setFetchSize", as.integer(2048))
-
+  
   r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", as.character(query)[1])
   md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE)
   resultSet <- new("JDBCResult", jr = r, md = md, stat = s, pull = rJava::.jnull())
-
+  
   on.exit(RJDBC::dbClearResult(resultSet), add = TRUE)
-
+  
   data <- RJDBC::fetch(resultSet, -1)
-
+  
   if (!datesAsString) {
     cols <- rJava::.jcall(resultSet@md, "I", "getColumnCount")
     for (i in 1:cols) {
@@ -162,7 +214,6 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
         data[, i] <- as.Date(data[, i])
     }
   }
-
   return(data)
 }
 
@@ -213,9 +264,9 @@ executeSql <- function(connection,
   for (i in 1:length(sqlStatements)) {
     sqlStatement <- sqlStatements[i]
     if (profile) {
-      sink(paste("statement_", i, ".sql", sep = ""))
-      cat(sqlStatement)
-      sink()
+      fileConn <- file(paste("statement_", i, ".sql", sep = ""))
+      writeChar(sqlStatement, fileConn, eos = NULL)
+      close(fileConn)
     }
     tryCatch({
       startQuery <- Sys.time()
@@ -225,28 +276,13 @@ executeSql <- function(connection,
         writeLines(paste("Statement ", i, "took", delta, attr(delta, "units")))
       }
     }, error = function(err) {
-      writeLines(paste("Error executing SQL:", err))
-
-      # Write error report:
-      filename <- paste(getwd(), "/errorReport.txt", sep = "")
-      sink(filename)
-      cat("DBMS:\n")
-      cat(attr(connection, "dbms"))
-      cat("\n\n")
-      cat("Error:\n")
-      cat(err$message)
-      cat("\n\n")
-      cat("SQL:\n")
-      cat(sqlStatement)
-      cat("\n\n")
-      cat(.systemInfo())
-      sink()
-
-      writeLines(paste("An error report has been created at ", filename))
-      break
+      .createErrorReport(attr(connection, "dbms"), err$message, sqlStatement)
     })
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
+  }
+  if (!rJava::.jcall(connection@jc, "Z", "getAutoCommit")) {
+    RJDBC::dbCommit(connection)
   }
   if (progressBar)
     close(pb)
@@ -254,24 +290,6 @@ executeSql <- function(connection,
     delta <- Sys.time() - start
     writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
   }
-}
-
-.systemInfo <- function() {
-  si <- sessionInfo()
-  lines <- c()
-  lines <- c(lines, "R version:")
-  lines <- c(lines, si$R.version$version.string)
-  lines <- c(lines, "")
-  lines <- c(lines, "Platform:")
-  lines <- c(lines, si$R.version$platform)
-  lines <- c(lines, "")
-  lines <- c(lines, "Attached base packages:")
-  lines <- c(lines, paste("-", si$basePkgs))
-  lines <- c(lines, "")
-  lines <- c(lines, "Other attached packages:")
-  for (pkg in si$otherPkgs) lines <- c(lines,
-                                       paste("- ", pkg$Package, " (", pkg$Version, ")", sep = ""))
-  return(paste(lines, collapse = "\n"))
 }
 
 #' Retrieve data to a data.frame
@@ -302,32 +320,24 @@ executeSql <- function(connection,
 #' }
 #' @export
 querySql <- function(connection, sql) {
+  # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
+  sqlStatements <- SqlRender::splitSql(sql)
+  if (length(sqlStatements) > 1)
+    stop(paste("A query that returns a result can only consist of one SQL statement, but", length(sqlStatements), "statements were found"))
   tryCatch({
     rJava::.jcall("java/lang/System", , "gc")  #Calling garbage collection prevents crashes
-
-    result <- lowLevelQuerySql(connection, sql)
+    result <- lowLevelQuerySql(connection, sqlStatements[1])
     colnames(result) <- toupper(colnames(result))
+    if(attr(connection, "dbms") == "impala") {
+      for (colname in colnames(result)) {
+        if(grepl('DATE', colname)) {
+          result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
+        }
+      }
+    }
     return(result)
   }, error = function(err) {
-    writeLines(paste("Error executing SQL:", err))
-
-    # Write error report:
-    filename <- paste(getwd(), "/errorReport.txt", sep = "")
-    sink(filename)
-    cat("DBMS:\n")
-    cat(attr(connection, "dbms"))
-    cat("\n\n")
-    cat("Error:\n")
-    cat(err$message)
-    cat("\n\n")
-    cat("SQL:\n")
-    cat(sql)
-    cat("\n\n")
-    cat(.systemInfo())
-    sink()
-
-    writeLines(paste("An error report has been created at ", filename))
-    break
+    .createErrorReport(attr(connection, "dbms"), err$message, sql)
   })
 }
 
@@ -365,26 +375,15 @@ querySql.ffdf <- function(connection, sql) {
   tryCatch({
     result <- lowLevelQuerySql.ffdf(connection, sql)
     colnames(result) <- toupper(colnames(result))
+    if(attr(connection, "dbms") == "impala") {
+      for (colname in colnames(result)) {
+        if(grepl('DATE', colname)) {
+          result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
+        }
+      }
+    }
     return(result)
   }, error = function(err) {
-    writeLines(paste("Error executing SQL:", err))
-
-    # Write error report:
-    filename <- paste(getwd(), "/errorReport.txt", sep = "")
-    sink(filename)
-    cat("DBMS:\n")
-    cat(attr(connection, "dbms"))
-    cat("\n\n")
-    cat("Error:\n")
-    cat(err$message)
-    cat("\n\n")
-    cat("SQL:\n")
-    cat(sql)
-    cat("\n\n")
-    cat(.systemInfo())
-    sink()
-
-    writeLines(paste("An error report has been created at ", filename))
-    break
+    .createErrorReport(attr(connection, "dbms"), err$message, sql)
   })
 }

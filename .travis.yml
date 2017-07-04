@@ -71,7 +71,3 @@ after_success:
   - curl --data "build=true" -X POST https://registry.hub.docker.com/u/ohdsi/broadsea-methodslibrary/trigger/f0b51cec-4027-4781-9383-4b38b42dd4f5/
   - export PKG_TARBALL=$(Rscript -e 'pkg <- devtools::as.package("."); cat(paste0(pkg$package,"_",pkg$version,".tar.gz"))')      
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash deploy.sh
-
-env:
-  global:
-    secure: jVDBjrZvEidl7jxKpQNjIRWActfpgBxwi1OryKpdmXs8JK71UjwFEvToXLYdERleHZyq87Xytpm13EKZfUiBI4MB6qlhhJpCUVsWHhXvC7ST9oKA6plZW+ylaiUPHBG/P/rxK2P1j+64cisVd/j7CKUNS9TaykRKLrhMTeUSq3E=

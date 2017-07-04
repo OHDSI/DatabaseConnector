@@ -12,6 +12,8 @@
   \item {"redshift" for Amazon Redshift}
   \item {"sql server" for Microsoft SQL Server}
   \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
+  \item {"netezza" for IBM Netezza}
+  \item {"bigquery" for Google BigQuery}
 }}
 
 \item{user}{The user name used to access the server.}
@@ -37,6 +39,8 @@ or \code{"oci"}.}
 \code{extraSettings}, and \code{oracleDriver} fields are ignored. If
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
+
+\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for Impala and Netezza.}
 }
 \value{
 A list with all the details needed to connect to a database.
@@ -57,7 +61,9 @@ then be used in the \code{\link{connect}} function.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: MySQL:
+interpretations: 
+
+MySQL:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
@@ -106,7 +112,9 @@ Microsoft PDW:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
-Connections where the domain need to be specified are not supported. PostgreSQL:
+Connections where the domain need to be specified are not supported. 
+
+PostgreSQL:
 \itemize{
   \item \code{user}. The user used to log in to the server
   \item \code{password}. The password used to log on to the server
@@ -128,6 +136,30 @@ Redshift:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 }
+Netezza:
+\itemize{
+  \item \code{user}. The user used to log in to the server
+  \item \code{password}. The password used to log on to the server
+  \item \code{server}. This field contains the host name of the server and the database holding the
+        relevant schemas: <host>/<database>
+  \item \code{port}. Specifies the port on the server (default = 5480)
+  \item \code{schema}. The schema containing the tables.
+  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
+        as "ssl=true")
+  \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file (nzjdbc.jar).
+}
+Impala:
+\itemize{
+  \item \code{user}. The user name used to access the server
+  \item \code{password}. The password for that user
+  \item \code{server}. The host name of the server
+  \item \code{port}. Specifies the port on the server (default = 21050)
+  \item \code{schema}. The database containing the tables
+  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
+        as "SSLKeyStorePwd=*****")
+  \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
+}
+
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 driver. Download the .exe from
 \href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and
@@ -140,6 +172,7 @@ recommend to either use Windows integrated security, or if a different user is n
 RStudio using that user: \code{runas /netonly /user:domain\\username
 "C:\path\to\rstudio\bin\rstudio.exe"}.
 }
+
 \examples{
 \dontrun{
 connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -152,4 +185,3 @@ dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 }
 }
-

@@ -24,6 +24,5 @@ SQL Server and PDW: The databaseSchema schema should specify both the database a
 'my_database.dbo'.
 PostgreSQL and Redshift: The databaseSchema should specify the schema.
 Oracle: The databaseSchema should specify the Oracle 'user'.
-MySql: The databaseSchema should specify the database.
+MySql and Impala: The databaseSchema should specify the database.
 }
-

@@ -24,7 +24,7 @@
 #' @import ffbase
 #' @import bit
 #' @importFrom methods new
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size
 NULL
 
 
@@ -75,7 +75,8 @@ createConnectionDetails <- function(dbms,
                                     schema = NULL,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
-                                    connectionString = NULL) {
+                                    connectionString = NULL,
+                                    pathToDriver = NULL) {
   # First: get default values:
   result <- list()
   for (name in names(formals(createConnectionDetails))) {
@@ -178,7 +179,8 @@ connect <- function(connectionDetails,
                     schema,
                     extraSettings,
                     oracleDriver = "thin",
-                    connectionString) {
+                    connectionString,
+                    pathToDriver) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
@@ -189,7 +191,8 @@ connect <- function(connectionDetails,
                           schema = connectionDetails$schema,
                           extraSettings = connectionDetails$extraSettings,
                           oracleDriver = connectionDetails$oracleDriver,
-                          connectionString = connectionDetails$connectionString)
+                          connectionString = connectionDetails$connectionString,
+                          pathToDriver = connectionDetails$pathToDriver)
 
     return(connection)
   }
@@ -434,7 +437,14 @@ connect <- function(connectionDetails,
   }
   if (dbms == "netezza") {
     writeLines("Connecting using Netezza driver")
-    pathToJar <- system.file("java", "nzjdbc.jar", package = "DatabaseConnector")
+    if (missing(pathToDriver) || is.null(pathToDriver)) {
+      stop(paste("Error: pathToDriver not set but is required for Netezza Please download the Netezza JDBC driver, then add the argument ",
+                 "'pathToDriver', pointing to the local path to directory containing Netezza JDBC JAR file"))
+    }
+    pathToJar <- file.path(pathToDriver, "nzjdbc.jar")
+    if (!file.exists(pathToJar)) {
+      stop(paste0("Error: Cannot find nzjdbc.jar in ", pathToJar))
+    }
     driver <- jdbcSingleton("org.netezza.Driver", pathToJar, identifier.quote = "`")
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
@@ -457,6 +467,55 @@ connect <- function(connectionDetails,
     if (!missing(schema) && !is.null(schema)) {
       RJDBC::dbSendUpdate(connection, paste("SET schema TO ", schema))
     }
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
+  if (dbms == "impala") {
+    writeLines("Connecting using Impala driver")
+    if (missing(pathToDriver) || is.null(pathToDriver)) {
+      stop(paste("Error: pathToDriver not set but is required for Impala. Please download the Impala JDBC driver, then add the argument ",
+        "'pathToDriver', pointing to the local path to directory containing the Impala JDBC JAR files"))
+    }
+    driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse=":")
+    if (nchar(driverClasspath) == 0) {
+      stop(paste0("Error: no JAR files found in '",pathToDriver,"'. Please check 'pathToDriver' setting."))
+    }
+    driver <- jdbcSingleton("com.cloudera.impala.jdbc4.Driver", driverClasspath, identifier.quote = "`")
+    if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(port) || is.null(port)) {
+        port <- "21050"
+      }
+      if (missing(schema) || is.null(schema)) {
+        connectionString <- paste0("jdbc:impala://", server, ":", port)
+      } else {
+        connectionString <- paste0("jdbc:impala://", server, ":", port, "/", schema)
+      }
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
+        connectionString <- paste0(connectionString, ";", extraSettings)
+      }
+    }
+    if (missing(user) || is.null(user)) {
+      connection <- RJDBC::dbConnect(driver, connectionString)
+    } else {
+      connection <- RJDBC::dbConnect(driver, connectionString, user, password)
+    }
+    if (!missing(schema) && !is.null(schema)) {
+      RJDBC::dbSendUpdate(connection, paste("USE", schema))
+    }
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
+  if (dbms == "bigquery") {
+    writeLines("Connecting using BigQuery driver")
+    pathToJar <- system.file("java", "bqjdbc.jar", package = "DatabaseConnector")
+    driver <- jdbcSingleton("net.starschema.clouddb.jdbc.BQDriver", pathToJar, identifier.quote = "`")
+    if (missing(connectionString) || is.null(connectionString)) {
+      connectionString <- paste0("jdbc:BQDriver:", server)
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
+        connectionString <- paste0(connectionString, "?", extraSettings)
+      }
+    }
+    connection <- RJDBC::dbConnect(driver, connectionString, user, password)
     attr(connection, "dbms") <- dbms
     return(connection)
   }

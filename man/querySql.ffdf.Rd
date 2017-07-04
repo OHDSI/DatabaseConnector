@@ -36,4 +36,3 @@ count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
 dbDisconnect(conn)
 }
 }
-

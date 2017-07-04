@@ -4,7 +4,7 @@
 \alias{lowLevelQuerySql.ffdf}
 \title{Low level function for retrieving data to an ffdf object}
 \usage{
-lowLevelQuerySql.ffdf(connection, query = "", batchSize = 5e+05,
+lowLevelQuerySql.ffdf(connection, query = "", batchSize = "auto",
   datesAsString = FALSE)
 }
 \arguments{
@@ -14,7 +14,8 @@ lowLevelQuerySql.ffdf(connection, query = "", batchSize = 5e+05,
 
 \item{batchSize}{The number of rows that will be retrieved at a time from the server. A larger
 batchSize means less calls to the server so better performance, but too large
-a batchSize could lead to out-of-memory errors.}
+a batchSize could lead to out-of-memory errors. The default is "auto", meaning
+heuristics will determine the appropriate batch size.}
 
 \item{datesAsString}{Should dates be imported as character vectors, our should they be converted
 to R's date format?}
@@ -31,4 +32,3 @@ written when an error occurs.
 Retrieves data from the database server and stores it in an ffdf object. This allows very large
 data sets to be retrieved without running out of memory.
 }
-

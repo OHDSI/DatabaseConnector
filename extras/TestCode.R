@@ -1,4 +1,5 @@
 library(DatabaseConnector)
+options('fftempdir' = 's:/fftemp')
 
 # Test MySQL:
 connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -16,7 +17,14 @@ connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              port = 17001,
                                              schema = "CDM_Truven_MDCR_V415")
 conn <- connect(connectionDetails)
-querySql(conn, "SELECT COUNT(*) FROM person")
+runTime <- rJava::.jcall("java/lang/Runtime", "Ljava/lang/Runtime;", "getRuntime")
+rJava::.jcall(runTime, "J", "totalMemory")/1024/1024
+rJava::.jcall(runTime, "J", "maxMemory")/1024/1024
+rJava::.jcall(runTime, "J", "freeMemory")/1024/1024
+
+x <- querySql.ffdf(conn, "SELECT * FROM person")
+
+executeSql(conn, "USE asdfasd;")
 
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
 dbDisconnect(conn)
@@ -26,7 +34,8 @@ n <- 5000
 data <- data.frame(x = 1:n, y = runif(n))
 insertTable(conn, "#temp", data, TRUE, TRUE, TRUE)
 querySql(conn, "SELECT * FROM #temp")
-data <- querySql(conn, "SELECT TOP 10000 * FROM condition_occurrence")
+data <- querySql(conn, "SELECT COUNT(*) FROM condition_occurrence")
+data <- querySql(conn, "SELECT TOP 1000000 * FROM condition_occurrence")
 data <- data[, c("PERSON_ID",
                  "CONDITION_CONCEPT_ID",
                  "CONDITION_START_DATE",
@@ -186,6 +195,15 @@ details <- createConnectionDetails(dbms = "redshift",
                                    password = Sys.getenv("pwOhdsiRedshift"),
                                    server = paste0(Sys.getenv("serverOhdsiRedshift"), "/synpuf"),
                                    schema = "cdm")
+connection <- connect(details)
+querySql(connection, "SELECT COUNT(*) FROM person")
+dbDisconnect(connection)
+
+### Test OHDSI Impala:
+details <- createConnectionDetails(dbms = "impala",
+                                   server = Sys.getenv("serverImpala"),
+                                   schema = "omop_cdm",
+                                   pathToDriver = "/impala-drivers/Cloudera_ImpalaJDBC4_2.5.36")
 connection <- connect(details)
 querySql(connection, "SELECT COUNT(*) FROM person")
 dbDisconnect(connection)
