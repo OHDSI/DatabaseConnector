@@ -27,6 +27,10 @@
 #' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size
 NULL
 
+.onLoad <- function(libname, pkgname) {
+  rJava::.jpackage(pkgname, lib.loc = libname)
+}
+
 
 #' @title
 #' createConnectionDetails
