@@ -1,5 +1,5 @@
 library(DatabaseConnector)
-options('fftempdir' = 's:/fftemp')
+options(fftempdir = "s:/fftemp")
 
 # Test MySQL:
 connectionDetails <- createConnectionDetails(dbms = "mysql",

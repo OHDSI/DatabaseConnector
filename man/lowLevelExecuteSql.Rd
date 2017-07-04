@@ -12,5 +12,5 @@ lowLevelExecuteSql(connection, sql)
 \item{sql}{The SQL to be executed}
 }
 \description{
-This function executes  a single SQL statement.
+This function executes a single SQL statement.
 }

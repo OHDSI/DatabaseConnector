@@ -27,10 +27,9 @@
 #' @details
 #' The \code{databaseSchema} argument is interpreted differently according to the different platforms:
 #' SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-#' 'my_database.dbo'.
-#' PostgreSQL and Redshift: The databaseSchema should specify the schema.
-#' Oracle: The databaseSchema should specify the Oracle 'user'.
-#' MySql and Impala: The databaseSchema should specify the database.
+#' 'my_database.dbo'. PostgreSQL and Redshift: The databaseSchema should specify the schema. Oracle:
+#' The databaseSchema should specify the Oracle 'user'. MySql and Impala: The databaseSchema should
+#' specify the database.
 #'
 #' @return
 #' A character vector of table names. To ensure consistency across platforms, these table names are in
@@ -64,7 +63,8 @@ getTableNames <- function(connection, databaseSchema) {
                     tolower(databaseSchema),
                     "' ORDER BY table_name")
   } else if (dbms == "bigquery") {
-    query <- paste0("SELECT table_id as table_name FROM ", databaseSchema,
+    query <- paste0("SELECT table_id as table_name FROM ",
+                    databaseSchema,
                     ".__TABLES__ ORDER BY table_name")
   }
   tables <- querySql(connection, query)

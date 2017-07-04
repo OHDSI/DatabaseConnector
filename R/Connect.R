@@ -29,8 +29,6 @@
 #'   \item \code{createConnectionDetails(dbms, connectionString, user, password)}
 #' }
 #'
-#'
-#'
 #' @usage
 #' NULL
 #'
@@ -82,38 +80,14 @@ createConnectionDetails <- function(dbms,
 
 jdbcDrivers <- new.env()
 
-loadJdbcDriver <- function(driverClass , classPath) {
+loadJdbcDriver <- function(driverClass, classPath) {
   rJava::.jaddClassPath(classPath)
   if (nchar(driverClass) && rJava::is.jnull(rJava::.jfindClass(as.character(driverClass)[1])))
-    stop("Cannot find JDBC driver class ",driverClass)
-  jdbcDriver <- rJava::.jnew(driverClass, check=FALSE)
+    stop("Cannot find JDBC driver class ", driverClass)
+  jdbcDriver <- rJava::.jnew(driverClass, check = FALSE)
   rJava::.jcheck(TRUE)
   return(jdbcDriver)
 }
-
-# connectUsingJdbcDriver <- function(jdbcDriver, url, user = "", password = "") {
-#   connection <- .jcall("java/sql/DriverManager",
-#                        "Ljava/sql/Connection;",
-#                        "getConnection", 
-#                        as.character(url), 
-#                        as.character(user), 
-#                        as.character(password), 
-#                        check = FALSE)
-#   if (is.jnull(connection) && !is.jnull(jdbcDriver)) {
-#     .jgetEx(TRUE)
-#     properties <- .jnew("java/util/Properties")
-#     if (length(user)==1 && nchar(user)) {
-#       .jcall(p,"Ljava/lang/Object;","setProperty", "user", user)
-#     
-#     if (length(password)==1 && nchar(password)) .jcall(p,"Ljava/lang/Object;","setProperty","password",password)
-#     l <- list(...)
-#     if (length(names(l))) for (n in names(l)) .jcall(p, "Ljava/lang/Object;", "setProperty", n, as.character(l[[n]]))
-#     jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
-#   }
-#   .verify.JDBC.result(jc, "Unable to connect JDBC to ",url)
-#   new("JDBCConnection", jc=jc, identifier.quote=drv@identifier.quote)},
-# valueClass="JDBCConnection")
-# }
 
 # Singleton pattern to ensure driver is instantiated only once
 getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
@@ -144,8 +118,6 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #'   \item \code{connect(dbms, connectionString)}
 #'   \item \code{connect(dbms, connectionString, user, password)}
 #' }
-#'
-#'
 #'
 #' @usage
 #' NULL
@@ -214,7 +186,7 @@ connect <- function(connectionDetails,
                           oracleDriver = connectionDetails$oracleDriver,
                           connectionString = connectionDetails$connectionString,
                           pathToDriver = connectionDetails$pathToDriver)
-    
+
     return(connection)
   }
   if (dbms == "mysql") {
@@ -238,7 +210,10 @@ connect <- function(connectionDetails,
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString)
     } else {
-      connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password)
     }
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("USE", schema))
@@ -274,23 +249,29 @@ connect <- function(connectionDetails,
         writeLines("Warning: Using JTDS driver because a domain is specified. This may lead to problems. Try using integrated security instead.")
         if (missing(connectionString) || is.null(connectionString)) {
           if (!missing(port) && !is.null(port))
-            server <- paste(server, port, sep = ":")
+          server <- paste(server, port, sep = ":")
           connectionString <- paste("jdbc:jtds:sqlserver://", server, ";domain=", domain, sep = "")
           if (!missing(extraSettings) && !is.null(extraSettings))
-            connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
         }
-        connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+        connection <- connectUsingJdbcDriver(driver,
+                                             connectionString,
+                                             user = user,
+                                             password = password)
       } else {
         pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
         driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
         if (missing(connectionString) || is.null(connectionString)) {
           connectionString <- paste("jdbc:sqlserver://", server, sep = "")
           if (!missing(port) && !is.null(port))
-            connectionString <- paste(connectionString, ";port=", port, sep = "")
+          connectionString <- paste(connectionString, ";port=", port, sep = "")
           if (!missing(extraSettings) && !is.null(extraSettings))
-            connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
         }
-        connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+        connection <- connectUsingJdbcDriver(driver,
+                                             connectionString,
+                                             user = user,
+                                             password = password)
       }
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -325,7 +306,10 @@ connect <- function(connectionDetails,
         if (!missing(extraSettings) && !is.null(extraSettings))
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
       }
-      connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password)
     }
     if (!missing(schema) && !is.null(schema)) {
       database <- strsplit(schema, "\\.")[[1]][1]
@@ -359,7 +343,7 @@ connect <- function(connectionDetails,
                                                                  user = user,
                                                                  password = password,
                                                                  oracle.jdbc.mapDateToTimestamp = "false"), silent = FALSE))[1]
-        
+
         # Try using TNSName instead:
         if (result == "try-error") {
           writeLines("- Trying using TNSName")
@@ -407,7 +391,7 @@ connect <- function(connectionDetails,
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
         stop("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
-      
+
       parts <- unlist(strsplit(server, "/"))
       host <- parts[1]
       database <- parts[2]
@@ -421,7 +405,10 @@ connect <- function(connectionDetails,
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString)
     } else {
-      connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password)
     }
     if (!missing(schema) && !is.null(schema))
       lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
@@ -442,14 +429,17 @@ connect <- function(connectionDetails,
         port <- "5439"
       }
       connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
-      
+
       if (!missing(extraSettings) && !is.null(extraSettings))
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
     }
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString)
     } else {
-      connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password)
     }
     if (!missing(schema) && !is.null(schema))
       lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
@@ -483,7 +473,10 @@ connect <- function(connectionDetails,
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString)
     } else {
-      connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password)
     }
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("SET schema TO ", schema))
@@ -497,9 +490,11 @@ connect <- function(connectionDetails,
       stop(paste("Error: pathToDriver not set but is required for Impala. Please download the Impala JDBC driver, then add the argument ",
                  "'pathToDriver', pointing to the local path to directory containing the Impala JDBC JAR files"))
     }
-    driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse=":")
+    driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse = ":")
     if (nchar(driverClasspath) == 0) {
-      stop(paste0("Error: no JAR files found in '",pathToDriver,"'. Please check 'pathToDriver' setting."))
+      stop(paste0("Error: no JAR files found in '",
+                  pathToDriver,
+                  "'. Please check 'pathToDriver' setting."))
     }
     driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc4.Driver", driverClasspath)
     if (missing(connectionString) || is.null(connectionString)) {
@@ -518,7 +513,10 @@ connect <- function(connectionDetails,
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString)
     } else {
-      connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password)
     }
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("USE", schema))
@@ -563,12 +561,10 @@ connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "`", ...) 
       stop("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")")
     }
   }
-  connection <- list(jConnection = jConnection,
-                     identifierQuote = identifierQuote)
+  connection <- list(jConnection = jConnection, identifierQuote = identifierQuote)
   class(connection) <- "Connection"
   return(connection)
 }
-
 
 #' Disconnect from the server
 #'

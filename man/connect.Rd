@@ -43,7 +43,8 @@ or \code{"oci"}.}
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
 
-\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for Impala and Netezza.}
+\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for Impala and
+Netezza.}
 }
 \value{
 An object that extends \code{DBIConnection} in a database-specific manner. This object is used to
@@ -65,8 +66,7 @@ This function creates a connection to a database.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: 
-
+interpretations:
 MySQL:
 \itemize{
   \item \code{user}. The user name used to access the server
@@ -116,8 +116,7 @@ Microsoft PDW:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
-Connections where the domain need to be specified are not supported. 
-
+Connections where the domain need to be specified are not supported.
 PostgreSQL:
 \itemize{
   \item \code{user}. The user used to log in to the server
@@ -150,7 +149,8 @@ Netezza:
   \item \code{schema}. The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")
-  \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file (nzjdbc.jar).
+  \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file
+        (nzjdbc.jar).
 }
 Impala:
 \itemize{
