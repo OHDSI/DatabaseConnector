@@ -49,7 +49,7 @@
 #'                                              schema = "cdm_v4")
 #' conn <- connect(connectionDetails)
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #' }
 #' @export
 createConnectionDetails <- function(dbms,
@@ -141,11 +141,11 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #'                 password = "xxx",
 #'                 schema = "cdm_v4")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #'
 #' conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com", schema = "Vocabulary")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #'
 #' conn <- connect(dbms = "oracle",
 #'                 server = "127.0.0.1/xe",
@@ -153,12 +153,12 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #'                 password = "xxx",
 #'                 schema = "test")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #'
 #' conn <- connect(dbms = "postgresql",
 #'                 connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #'
 #' }
 #' @export

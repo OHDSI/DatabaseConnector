@@ -33,6 +33,6 @@ connectionDetails <- createConnectionDetails(dbms = "mysql",
                                              schema = "cdm_v4")
 conn <- connect(connectionDetails)
 count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
-dbDisconnect(conn)
+disconnect(conn)
 }
 }

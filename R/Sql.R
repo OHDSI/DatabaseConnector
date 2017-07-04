@@ -205,7 +205,7 @@ lowLevelExecuteSql <- function(connection, sql) {
 #'                                              schema = "cdm_v4")
 #' conn <- connect(connectionDetails)
 #' executeSql(conn, "CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #' }
 #' @export
 executeSql <- function(connection,
@@ -276,7 +276,7 @@ executeSql <- function(connection,
 #'                                              schema = "cdm_v4")
 #' conn <- connect(connectionDetails)
 #' count <- querySql(conn, "SELECT COUNT(*) FROM person")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #' }
 #' @export
 querySql <- function(connection, sql) {
@@ -331,7 +331,7 @@ querySql <- function(connection, sql) {
 #'                                              schema = "cdm_v4")
 #' conn <- connect(connectionDetails)
 #' count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #' }
 #' @export
 querySql.ffdf <- function(connection, sql) {

@@ -153,7 +153,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #' conn <- connect(connectionDetails)
 #' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 #' insertTable(conn, "my_table", data)
-#' dbDisconnect(conn)
+#' disconnect(conn)
 #' }
 #' @export
 insertTable <- function(connection,
