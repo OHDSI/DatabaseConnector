@@ -128,6 +128,10 @@ public class BatchedQuery {
 		return done;
 	}
 	
+	public boolean isEmpty() {
+		return (rowCount == 0);
+	}
+	
 	public int[] getColumnTypes() {
 		return columnTypes;
 	}

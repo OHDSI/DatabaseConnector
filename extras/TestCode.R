@@ -22,7 +22,7 @@ rJava::.jcall(runTime, "J", "totalMemory")/1024/1024
 rJava::.jcall(runTime, "J", "maxMemory")/1024/1024
 rJava::.jcall(runTime, "J", "freeMemory")/1024/1024
 
-x <- querySql.ffdf(conn, "SELECT * FROM person")
+x <- querySql.ffdf(conn, "SELECT * FROM observation_period WHERE person_id = -999")
 
 executeSql(conn, "USE asdfasd;")
 

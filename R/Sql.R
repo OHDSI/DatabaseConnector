@@ -36,7 +36,7 @@
 
 .createErrorReport <- function(dbms, message, sql) {
   report <- c("DBMS:\n", dbms, "\n\nError:\n", message, "\n\nSQL:\n", sql, "\n\n", .systemInfo())
-
+  
   fileName <- paste(getwd(), "/errorReport.txt", sep = "")
   fileConn <- file(fileName)
   writeChar(report, fileConn, eos = NULL)
@@ -73,24 +73,41 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection$jConnection,
                                query)
-
+  
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
-
+  
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
+  if (length(columnTypes) == 0)
+    stop("No columns found")
   columns <- vector("list", length(columnTypes))
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 1) {
-        columns[[i]] <- ffbase::ffappend(columns[[i]], rJava::.jcall(batchedQuery,
-                                                                     "[D",
-                                                                     "getNumeric",
-                                                                     as.integer(i)))
-      } else {
-        columns[[i]] <- ffbase::ffappend(columns[[i]], factor(rJava::.jcall(batchedQuery,
-                                                                            "[Ljava/lang/String;",
-                                                                            "getString",
-                                                                            i)))
+    if (is.null(columns[[1]]) && rJava::.jcall(batchedQuery, "Z", "isEmpty")) {
+      # Empty result set: return data frame instead because ffdf can't have zero rows
+      for (i in seq.int(length(columnTypes))) {
+        if (columnTypes[i] == 1) {
+          columns[[i]] <- vector("numeric", length = 0)
+        } else {
+          columns[[i]] <- vector("character", length = 0)
+        }
+      }
+      names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
+      attr(columns, "row.names") <- c(NA_integer_, length(columns[[1]]))
+      class(columns) <- "data.frame"
+      return(columns)
+    } else {
+      for (i in seq.int(length(columnTypes))) {
+        if (columnTypes[i] == 1) {
+          columns[[i]] <- ffbase::ffappend(columns[[i]], rJava::.jcall(batchedQuery,
+                                                                       "[D",
+                                                                       "getNumeric",
+                                                                       as.integer(i)))
+        } else {
+          columns[[i]] <- ffbase::ffappend(columns[[i]], factor(rJava::.jcall(batchedQuery,
+                                                                              "[Ljava/lang/String;",
+                                                                              "getString",
+                                                                              i)))
+        }
       }
     }
   }
@@ -130,9 +147,9 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection$jConnection,
                                query)
-
+  
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
-
+  
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
   columns <- vector("list", length(columnTypes))
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
