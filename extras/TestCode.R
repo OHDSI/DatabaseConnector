@@ -27,7 +27,7 @@ x <- querySql.ffdf(conn, "SELECT * FROM observation_period WHERE person_id = -99
 executeSql(conn, "USE asdfasd;")
 
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
-dbDisconnect(conn)
+disconnect(conn)
 
 # CTAS hack stuff:
 n <- 5000

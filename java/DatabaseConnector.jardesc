@@ -4,30 +4,13 @@
     <options buildIfNeeded="true" compress="true" descriptionLocation="/DatabaseConnector/java/DatabaseConnector.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
-    <manifest generateManifest="true" manifestLocation="/WhiteRabbit/jarDesc/WhiteRabbit.MF" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+    <manifest generateManifest="true" manifestLocation="DatabaseConnector/inst/java/WhiteRabbit.MF" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
         <sealing sealJar="false">
             <packagesToSeal/>
             <packagesToUnSeal/>
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <file path="/DatabaseConnector/NAMESPACE"/>
-        <file path="/DatabaseConnector/.Rbuildignore"/>
-        <file path="/DatabaseConnector/DatabaseConnector.Rproj"/>
-        <file path="/DatabaseConnector/DESCRIPTION"/>
-        <folder path="/DatabaseConnector/tests"/>
-        <file path="/DatabaseConnector/deploy.sh"/>
-        <file path="/DatabaseConnector/.travis.yml"/>
-        <file path="/DatabaseConnector/.gitignore"/>
-        <folder path="/DatabaseConnector/inst"/>
-        <folder path="/DatabaseConnector/man-roxygen"/>
-        <file path="/DatabaseConnector/README.md"/>
-        <file path="/DatabaseConnector/.project"/>
         <javaElement handleIdentifier="=DatabaseConnector/java"/>
-        <folder path="/DatabaseConnector/man"/>
-        <folder path="/DatabaseConnector/extras"/>
-        <file path="/DatabaseConnector/.classpath"/>
-        <folder path="/DatabaseConnector/R"/>
-        <file path="/DatabaseConnector/.gitattributes"/>
     </selectedElements>
 </jardesc>
