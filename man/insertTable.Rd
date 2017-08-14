@@ -41,6 +41,6 @@ connectionDetails <- createConnectionDetails(dbms = "mysql",
 conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 insertTable(conn, "my_table", data)
-dbDisconnect(conn)
+disconnect(conn)
 }
 }

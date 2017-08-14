@@ -40,6 +40,6 @@ connectionDetails <- createConnectionDetails(dbms = "mysql",
                                              schema = "cdm_v4")
 conn <- connect(connectionDetails)
 executeSql(conn, "CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
-dbDisconnect(conn)
+disconnect(conn)
 }
 }

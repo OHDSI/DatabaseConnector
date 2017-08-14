@@ -1,4 +1,5 @@
 library(DatabaseConnector)
+options(fftempdir = "s:/fftemp")
 
 # Test MySQL:
 connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -16,10 +17,17 @@ connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              port = 17001,
                                              schema = "CDM_Truven_MDCR_V415")
 conn <- connect(connectionDetails)
+runTime <- rJava::.jcall("java/lang/Runtime", "Ljava/lang/Runtime;", "getRuntime")
+rJava::.jcall(runTime, "J", "totalMemory")/1024/1024
+rJava::.jcall(runTime, "J", "maxMemory")/1024/1024
+rJava::.jcall(runTime, "J", "freeMemory")/1024/1024
+
+x <- querySql.ffdf(conn, "SELECT * FROM observation_period WHERE person_id = -999")
+
 executeSql(conn, "USE asdfasd;")
 
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
-dbDisconnect(conn)
+disconnect(conn)
 
 # CTAS hack stuff:
 n <- 5000
@@ -112,11 +120,11 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/ohdsi",
                                              user = "postgres",
                                              password = pw,
-                                             schema = "cdm4_sim")
+                                             schema = "cdm_synpuf")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
-getTableNames(conn, "cdm4_sim")
-dbDisconnect(conn)
+getTableNames(conn, "cdm_synpuf")
+disconnect(conn)
 
 # Test Redshift:
 pw <- Sys.getenv("pwRedShift")

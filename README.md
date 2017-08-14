@@ -3,7 +3,7 @@ DatabaseConnector
 
 Introduction
 ============
-This R package is a wrapper around RJDBC containing drivers for various DBMSs. 
+This R package provides function for connecting to various DBMSs. 
 
 Features
 ========
@@ -31,7 +31,7 @@ connectionDetails <- createConnectionDetails(dbms="mysql",
                                              schema="cdm_v4")
 conn <- connect(connectionDetails)
 querySql(conn,"SELECT COUNT(*) FROM person")
-dbDisconnect(conn)
+disconnect(conn)
 ```
 
 Technology

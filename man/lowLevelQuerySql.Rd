@@ -2,7 +2,7 @@
 % Please edit documentation in R/Sql.R
 \name{lowLevelQuerySql}
 \alias{lowLevelQuerySql}
-\title{Low level function for retrieving data to an ffdf object}
+\title{Low level function for retrieving data to a data frame}
 \usage{
 lowLevelQuerySql(connection, query = "", datesAsString = FALSE)
 }

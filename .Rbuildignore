@@ -1,7 +1,10 @@
 extras
 man-roxygen
+bin
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
 R/LocalEnvironment.R
 deploy.sh
+.classpath
+.project

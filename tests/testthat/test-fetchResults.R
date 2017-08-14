@@ -14,5 +14,5 @@ test_that("Fetch results", {
   count <- querySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 63)
 
-  DBI::dbDisconnect(connection)
+  disconnect(connection)
 })
