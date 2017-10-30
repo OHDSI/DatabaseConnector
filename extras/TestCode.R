@@ -126,10 +126,11 @@ querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm_synpuf")
 disconnect(conn)
 
-# Test Redshift:
+# Test Redshift -----------------------
 pw <- Sys.getenv("pwRedShift")
+server <- paste0(Sys.getenv("serverRedShift"), "/jmdc")
 connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             server = "hicoe.cldcoxyrkflo.us-east-1.redshift.amazonaws.com/truven_mdcr",
+                                             server = server,
                                              port = "5439",
                                              user = "mschuemi",
                                              password = pw,
@@ -156,7 +157,7 @@ str(d2)
 options(fftempdir = "s:/fftemp")
 d2 <- querySql.ffdf(conn, "SELECT * FROM test")
 d2
-dbDisconnect(conn)
+disconnect(conn)
 
 ### Tests for dbInsertTable ###
 day.start <- "1900/01/01"

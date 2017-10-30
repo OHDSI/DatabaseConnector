@@ -417,7 +417,7 @@ connect <- function(connectionDetails,
   }
   if (dbms == "redshift") {
     writeLines("Connecting using Redshift driver")
-    pathToJar <- system.file("java", "RedshiftJDBC4-1.1.17.1017.jar", package = "DatabaseConnector")
+    pathToJar <- system.file("java", "RedshiftJDBC4-1.2.8.1005.jar", package = "DatabaseConnector")
     driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", pathToJar)
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
@@ -490,8 +490,8 @@ connect <- function(connectionDetails,
       stop(paste("Error: pathToDriver not set but is required for Impala. Please download the Impala JDBC driver, then add the argument ",
                  "'pathToDriver', pointing to the local path to directory containing the Impala JDBC JAR files"))
     }
-    driverClasspath <- paste(list.files(pathToDriver, "\\.jar$", full.names = TRUE), collapse = ":")
-    if (nchar(driverClasspath) == 0) {
+    driverClasspath <- list.files(pathToDriver, "\\.jar$", full.names = TRUE)
+    if (length(driverClasspath) == 0) {
       stop(paste0("Error: no JAR files found in '",
                   pathToDriver,
                   "'. Please check 'pathToDriver' setting."))

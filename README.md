@@ -11,6 +11,7 @@ Features
   - SQL Server
   - Oracle
   - Postgres
+  - Microsoft Parallel Data Warehouse (a.k.a. Analytics Platform System)
   - Amazon Redshift
   - MySQL
   - Impala

@@ -354,8 +354,14 @@ querySql <- function(connection, sql) {
 querySql.ffdf <- function(connection, sql) {
   if (rJava::is.jnull(connection$jConnection))
     stop("Connection is closed")
+  # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
+  sqlStatements <- SqlRender::splitSql(sql)
+  if (length(sqlStatements) > 1)
+    stop(paste("A query that returns a result can only consist of one SQL statement, but",
+               length(sqlStatements),
+               "statements were found"))
   tryCatch({
-    result <- lowLevelQuerySql.ffdf(connection, sql)
+    result <- lowLevelQuerySql.ffdf(connection, sqlStatements[1])
     colnames(result) <- toupper(colnames(result))
     if (attr(connection, "dbms") == "impala") {
       for (colname in colnames(result)) {

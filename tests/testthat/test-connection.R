@@ -31,15 +31,15 @@ test_that("Open and close connection", {
   expect_true(inherits(connection, "Connection"))
   expect_true(disconnect(connection))
 
-  # RedShift
-  details <- createConnectionDetails(dbms = "redshift",
-                                     user = Sys.getenv("CDM5_REDSHIFT_USER"),
-                                     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
-                                     server = Sys.getenv("CDM5_REDSHIFT_SERVER"),
-                                     schema = Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
-  connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
-  expect_true(disconnect(connection))
+  # # RedShift
+  # details <- createConnectionDetails(dbms = "redshift",
+  #                                    user = Sys.getenv("CDM5_REDSHIFT_USER"),
+  #                                    password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+  #                                    server = Sys.getenv("CDM5_REDSHIFT_SERVER"),
+  #                                    schema = Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "Connection"))
+  # expect_true(disconnect(connection))
 })
 
 test_that("Open and close connection using connection strings with embedded user and pw", {
@@ -99,24 +99,24 @@ test_that("Open and close connection using connection strings with embedded user
   expect_true(disconnect(connection))
 
   # RedShift
-  parts <- unlist(strsplit(Sys.getenv("CDM5_REDSHIFT_SERVER"), "/"))
-  host <- parts[1]
-  database <- parts[2]
-  port <- "5439"
-  connectionString <- paste0("jdbc:redshift://",
-                             host,
-                             ":",
-                             port,
-                             "/",
-                             database,
-                             "?user=",
-                             Sys.getenv("CDM5_REDSHIFT_USER"),
-                             "&password=",
-                             URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
-  details <- createConnectionDetails(dbms = "redshift", connectionString = connectionString)
-  connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
-  expect_true(disconnect(connection))
+  # parts <- unlist(strsplit(Sys.getenv("CDM5_REDSHIFT_SERVER"), "/"))
+  # host <- parts[1]
+  # database <- parts[2]
+  # port <- "5439"
+  # connectionString <- paste0("jdbc:redshift://",
+  #                            host,
+  #                            ":",
+  #                            port,
+  #                            "/",
+  #                            database,
+  #                            "?user=",
+  #                            Sys.getenv("CDM5_REDSHIFT_USER"),
+  #                            "&password=",
+  #                            URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
+  # details <- createConnectionDetails(dbms = "redshift", connectionString = connectionString)
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "Connection"))
+  # expect_true(disconnect(connection))
 })
 
 test_that("Open and close connection using connection strings with separate user and pw", {
@@ -159,16 +159,16 @@ test_that("Open and close connection using connection strings with separate user
   expect_true(disconnect(connection))
 
   # RedShift
-  parts <- unlist(strsplit(Sys.getenv("CDM5_REDSHIFT_SERVER"), "/"))
-  host <- parts[1]
-  database <- parts[2]
-  port <- "5439"
-  connectionString <- paste0("jdbc:redshift://", host, ":", port, "/", database)
-  details <- createConnectionDetails(dbms = "redshift",
-                                     connectionString = connectionString,
-                                     user = Sys.getenv("CDM5_REDSHIFT_USER"),
-                                     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
-  connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
-  expect_true(disconnect(connection))
+  # parts <- unlist(strsplit(Sys.getenv("CDM5_REDSHIFT_SERVER"), "/"))
+  # host <- parts[1]
+  # database <- parts[2]
+  # port <- "5439"
+  # connectionString <- paste0("jdbc:redshift://", host, ":", port, "/", database)
+  # details <- createConnectionDetails(dbms = "redshift",
+  #                                    connectionString = connectionString,
+  #                                    user = Sys.getenv("CDM5_REDSHIFT_USER"),
+  #                                    password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "Connection"))
+  # expect_true(disconnect(connection))
 })
