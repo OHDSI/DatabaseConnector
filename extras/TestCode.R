@@ -208,3 +208,23 @@ details <- createConnectionDetails(dbms = "impala",
 connection <- connect(details)
 querySql(connection, "SELECT COUNT(*) FROM person")
 dbDisconnect(connection)
+
+
+### Test NULL dates on RedShift:
+
+library(DatabaseConnector)
+conn <- connect(dbms = "redshift",
+                user = Sys.getenv("userRedShift"),
+                password = Sys.getenv("pwRedShift"),
+                port = 5439,
+                server = "",
+                extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
+
+executeSql(conn, "CREATE TABLE #temp (a DATE, b INT);")
+executeSql(conn, "INSERT INTO #temp (b) VALUES (3);")
+executeSql(conn, "INSERT INTO #temp (a,b) VALUES ('2000-01-01', 4);")
+
+x <- querySql(conn, "SELECT * FROM #temp;")
+str(x)
+executeSql(conn, "DROP TABLE #temp;")
+disconnect(conn)

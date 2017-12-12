@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: A Package for Connecting to Various DBMSs
-Version: 2.0.2
-Date: 2017-10-24
+Version: 2.0.3
+Date: 2017-12-12
 Author: Martijn J. Schuemie and Marc A. Suchard
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: Package for connecting to various DBMSs. Also includes support for fetching data as ffdf objects.
