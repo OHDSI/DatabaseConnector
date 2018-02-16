@@ -238,9 +238,14 @@ insertTable <- function(connection,
   
   if (createTable 
       && !tempTable 
-      && useMppBulkLoad 
-      && .checkMppCredentials(connection)) 
+      && useMppBulkLoad) 
   {
+    if (!.checkMppCredentials(connection))
+    {
+      stop("MPP credentials could not be confirmed. Please review them or set 'useMppBulkLoad' to FALSE")
+    }
+    
+    writeLines("Attempting to use MPP bulk loading...")
     sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
     sql <- SqlRender::translateSql(sql,
                                    targetDialect = attr(connection, "dbms"))$sql
@@ -421,18 +426,21 @@ insertTable <- function(connection,
                          qname,
                          data)
 {
+  eol <- "0x0d0x0a"
   fileName <- sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
-  write.csv(x = data, file = sprintf("%s.csv", fileName), sep = , row.names = FALSE, quote = TRUE, 
-            eol = eol, col.names = TRUE, qmethod = "~*~")
-  R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName))
+  write.table(x = data, file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE, 
+            eol = eol, col.names = TRUE, sep = "~*~")
+  R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName),
+                remove = TRUE)
   
-  
-  command <- sprintf("%1s -M append -i %2s -T %3s -R %4s/dwloader.txt -fh 1 -t %5s -r 0x0d0x0a -D %6s -E -S %7s %8s %9s", 
+  command <- sprintf("%1s -M append -i %2s -T %3s -R %4s/dwloader.txt -fh 1 -t %5s -r %6 -D %7s 
+                     -E -S %8s %9s %10s", 
                      shQuote(Sys.getenv("DWLOADER_PATH")), 
                      shQuote(sprintf("%s.gz", fileName)), 
                      qname, 
                      getwd(), 
                      shQuote("~*~"), 
+                     eol,
                      shQuote("yyyy-MM-dd"), 
                      connectionDetails$server, 
                      ifelse(!is.null(connectionDetails$user), sprintf(" -U %s", connectionDetails$user), " -W"),
@@ -448,11 +456,9 @@ insertTable <- function(connection,
                                qname,
                                data)
 {
-  # data <- data.frame(lapply(data, function(x) {
-  #   gsub("\"", "`", x)
-  # }))
   fileName <- sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
-  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE)
+  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), col.names = TRUE,
+            row.names = FALSE, quote = TRUE)
   R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName),
                 remove = TRUE)
   
