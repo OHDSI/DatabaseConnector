@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2017 Observational Health Data Sciences and Informatics
+# Copyright 2018 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -138,11 +138,32 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #' @param tempTable           Should the table created as a temp table?
 #' @param oracleTempSchema    Specifically for Oracle, a schema with write priviliges where temp tables
 #'                            can be created.
+#' @param useMppBulkLoad      If using Redshift or PDW, use more performant bulk loading techniques.
+#'                            Please note, Redshift requires valid S3 credentials; 
+#'                            PDW requires valid DWLoader installation. 
+#'                            Also, can only be used for permanent tables, and cannot be used to append to an existing table.
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is
 #' created, or the data is appended to an existing table.
 #'
+#' If using Redshift or PDW, bulk uploading techniques may be more performant than relying upon 
+#' a batch of insert statements.
+#' 
+#' Redshift: The MPP bulk loading relies upon the CloudyR S3 library to test a connection to an S3 bucket using
+#' AWS S3 credentials. Credentials are configured either directly into the System Environment
+#' using the following keys: 
+#' 
+#' Sys.setenv("AWS_ACCESS_KEY_ID" = "some_access_key_id",
+#'            "AWS_SECRET_ACCESS_KEY" = "some_secret_access_key",
+#'            "AWS_DEFAULT_REGION" = "some_aws_region",
+#'            "AWS_BUCKET_NAME" = "some_bucket_name",
+#'            "AWS_OBJECT_KEY" = "some_object_key",
+#'            "AWS_SSE_TYPE" = "server_side_encryption_type")
+#'            
+#' PDW: The MPP bulk loading relies upon the client having a Windows OS and the DWLoader exe installed.
+#' Set the R environment variable DWLOADER_PATH to the location of the binary.
+#'            
 #' @examples
 #' \dontrun{
 #' connectionDetails <- createConnectionDetails(dbms = "mysql",
@@ -162,7 +183,9 @@ insertTable <- function(connection,
                         dropTableIfExists = TRUE,
                         createTable = TRUE,
                         tempTable = FALSE,
-                        oracleTempSchema = NULL) {
+                        oracleTempSchema = NULL,
+                        useMppBulkLoad = FALSE) 
+{
   if (dropTableIfExists)
     createTable <- TRUE
   if (tempTable & substr(tableName, 1, 1) != "#")
@@ -184,12 +207,12 @@ insertTable <- function(connection,
     if (!is.data.frame(data))
       data <- as.data.frame(data)
   }
-
+  
   def <- function(obj) {
     if (is.integer(obj))
       "INTEGER" else if (is.numeric(obj))
-      "FLOAT" else if (class(obj) == "Date")
-      "DATE" else "VARCHAR(255)"
+        "FLOAT" else if (class(obj) == "Date")
+          "DATE" else "VARCHAR(255)"
   }
   fts <- sapply(data[1, ], def)
   isDate <- (fts == "DATE")
@@ -199,7 +222,7 @@ insertTable <- function(connection,
     paste("'", gsub("'", "''", str), "'", sep = "")
   }
   varNames <- paste(.sql.qescape(names(data), TRUE, connection$identifierQuote), collapse = ",")
-
+  
   if (dropTableIfExists) {
     if (tempTable) {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -212,123 +235,248 @@ insertTable <- function(connection,
                                    oracleTempSchema = oracleTempSchema)$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-
-  if (attr(connection, "dbms") == "pdw" && createTable) {
-    ctasHack(connection, qname, tempTable, varNames, fts, data)
-  } else {
-
-    if (createTable) {
-      sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
-      sql <- SqlRender::translateSql(sql,
-                                     targetDialect = attr(connection, "dbms"),
-                                     oracleTempSchema = oracleTempSchema)$sql
-      executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  
+  if (createTable 
+      && !tempTable 
+      && useMppBulkLoad 
+      && .checkMppCredentials(connection)) 
+  {
+    sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
+    sql <- SqlRender::translateSql(sql,
+                                   targetDialect = attr(connection, "dbms"))$sql
+    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    
+    if (attr(connection, "dbms") == "redshift")
+    {
+      .bulkLoadRedshift(connection, qname, data)
     }
-
-    insertSql <- paste("INSERT INTO ",
-                       qname,
-                       " (",
-                       varNames,
-                       ") VALUES(",
-                       paste(rep("?", length(fts)), collapse = ","),
-                       ")",
-                       sep = "")
-    insertSql <- SqlRender::translateSql(insertSql,
-                                         targetDialect = attr(connection, "dbms"),
-                                         oracleTempSchema = oracleTempSchema)$sql
-
-    batchSize <- 10000
-
-    autoCommit <- rJava::.jcall(connection$jConnection, "Z", "getAutoCommit")
-    if (autoCommit) {
-      rJava::.jcall(connection$jConnection, "V", "setAutoCommit", FALSE)
-      on.exit(rJava::.jcall(connection$jConnection, "V", "setAutoCommit", TRUE))
-    }
-
-    insertRow <- function(row, statement) {
-      for (i in 1:length(row)) {
-        if (is.na(row[i])) {
-          rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
-        } else {
-          rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
-        }
-      }
-      rJava::.jcall(statement, "V", "addBatch")
-    }
-    insertRowPostgreSql <- function(row, statement) {
-      other <- rJava::.jfield("java/sql/Types", "I", "OTHER")
-      for (i in 1:length(row)) {
-        if (is.na(row[i])) {
-          rJava::.jcall(statement, "V", "setObject", i, rJava::.jnull(), other)
-        } else {
-          value <- rJava::.jnew("java/lang/String", as.character(row[i]))
-          rJava::.jcall(statement,
-                        "V",
-                        "setObject",
-                        i,
-                        rJava::.jcast(value, "java/lang/Object"),
-                        other)
-        }
-      }
-      rJava::.jcall(statement, "V", "addBatch")
-    }
-    insertRowOracle <- function(row, statement, isDate) {
-      for (i in 1:length(row)) {
-        if (is.na(row[i])) {
-          rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
-        } else if (isDate[i]) {
-          date <- rJava::.jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))
-          rJava::.jcall(statement, "V", "setDate", i, date)
-        } else rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
-      }
-      rJava::.jcall(statement, "V", "addBatch")
-    }
-    insertRowImpala <- function(row, statement) {
-      for (i in 1:length(row)) {
-        if (is.na(row[i])) {
-          rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
-        } else if (is.integer(row[i])) {
-          rJava::.jcall(statement, "V", "setInt", i, as.integer(row[i]))
-        } else {
-          rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
-        }
-      }
-      rJava::.jcall(statement, "V", "addBatch")
-    }
-
-    for (start in seq(1, nrow(data), by = batchSize)) {
-      end <- min(start + batchSize - 1, nrow(data))
-      statement <- rJava::.jcall(connection$jConnection,
-                                 "Ljava/sql/PreparedStatement;",
-                                 "prepareStatement",
-                                 insertSql,
-                                 check = FALSE)
-      if (attr(connection, "dbms") == "postgresql") {
-        apply(data[start:end,
-              ,
-              drop = FALSE],
-              statement = statement,
-              MARGIN = 1,
-              FUN = insertRowPostgreSql)
-      } else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift") {
-        apply(data[start:end,
-              ,
-              drop = FALSE],
-              statement = statement,
-              isDate = isDate,
-              MARGIN = 1,
-              FUN = insertRowOracle)
-      } else if (attr(connection, "dbms") == "impala") {
-        apply(data[start:end,
-              ,
-              drop = FALSE],
-              statement = statement,
-              MARGIN = 1,
-              FUN = insertRowImpala)
-      } else {
-        apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
-      }
-      rJava::.jcall(statement, "[I", "executeBatch")
+    else if (attr(connection, "dbms") == "pdw")
+    {
+      .bulkLoadPdw(connection, qname, data)
     }
   }
+  else
+  {
+    if (attr(connection, "dbms") == "pdw" && createTable) {
+      ctasHack(connection, qname, tempTable, varNames, fts, data)
+    } else {
+      
+      if (createTable) {
+        sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
+        sql <- SqlRender::translateSql(sql,
+                                       targetDialect = attr(connection, "dbms"),
+                                       oracleTempSchema = oracleTempSchema)$sql
+        executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+      }
+      
+      insertSql <- paste("INSERT INTO ",
+                         qname,
+                         " (",
+                         varNames,
+                         ") VALUES(",
+                         paste(rep("?", length(fts)), collapse = ","),
+                         ")",
+                         sep = "")
+      insertSql <- SqlRender::translateSql(insertSql,
+                                           targetDialect = attr(connection, "dbms"),
+                                           oracleTempSchema = oracleTempSchema)$sql
+      
+      batchSize <- 10000
+      
+      autoCommit <- rJava::.jcall(connection$jConnection, "Z", "getAutoCommit")
+      if (autoCommit) {
+        rJava::.jcall(connection$jConnection, "V", "setAutoCommit", FALSE)
+        on.exit(rJava::.jcall(connection$jConnection, "V", "setAutoCommit", TRUE))
+      }
+      
+      insertRow <- function(row, statement) {
+        for (i in 1:length(row)) {
+          if (is.na(row[i])) {
+            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
+          } else {
+            rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+          }
+        }
+        rJava::.jcall(statement, "V", "addBatch")
+      }
+      insertRowPostgreSql <- function(row, statement) {
+        other <- rJava::.jfield("java/sql/Types", "I", "OTHER")
+        for (i in 1:length(row)) {
+          if (is.na(row[i])) {
+            rJava::.jcall(statement, "V", "setObject", i, rJava::.jnull(), other)
+          } else {
+            value <- rJava::.jnew("java/lang/String", as.character(row[i]))
+            rJava::.jcall(statement,
+                          "V",
+                          "setObject",
+                          i,
+                          rJava::.jcast(value, "java/lang/Object"),
+                          other)
+          }
+        }
+        rJava::.jcall(statement, "V", "addBatch")
+      }
+      insertRowOracle <- function(row, statement, isDate) {
+        for (i in 1:length(row)) {
+          if (is.na(row[i])) {
+            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
+          } else if (isDate[i]) {
+            date <- rJava::.jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))
+            rJava::.jcall(statement, "V", "setDate", i, date)
+          } else rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+        }
+        rJava::.jcall(statement, "V", "addBatch")
+      }
+      insertRowImpala <- function(row, statement) {
+        for (i in 1:length(row)) {
+          if (is.na(row[i])) {
+            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
+          } else if (is.integer(row[i])) {
+            rJava::.jcall(statement, "V", "setInt", i, as.integer(row[i]))
+          } else {
+            rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
+          }
+        }
+        rJava::.jcall(statement, "V", "addBatch")
+      }
+      
+      for (start in seq(1, nrow(data), by = batchSize)) {
+        end <- min(start + batchSize - 1, nrow(data))
+        statement <- rJava::.jcall(connection$jConnection,
+                                   "Ljava/sql/PreparedStatement;",
+                                   "prepareStatement",
+                                   insertSql,
+                                   check = FALSE)
+        if (attr(connection, "dbms") == "postgresql") {
+          apply(data[start:end,
+                     ,
+                     drop = FALSE],
+                statement = statement,
+                MARGIN = 1,
+                FUN = insertRowPostgreSql)
+        } else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift") {
+          apply(data[start:end,
+                     ,
+                     drop = FALSE],
+                statement = statement,
+                isDate = isDate,
+                MARGIN = 1,
+                FUN = insertRowOracle)
+        } else if (attr(connection, "dbms") == "impala") {
+          apply(data[start:end,
+                     ,
+                     drop = FALSE],
+                statement = statement,
+                MARGIN = 1,
+                FUN = insertRowImpala)
+        } else {
+          apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
+        }
+        rJava::.jcall(statement, "[I", "executeBatch")
+      }
+    }
+  }
+}
+
+.checkMppCredentials <- function(connection)
+{
+  if (attr(connection, "dbms") == "pdw" 
+      && tolower(Sys.info()["sysname"]) == "windows" 
+      && Sys.getenv("DWLOADER_PATH") != "")
+  {
+     writeLines("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
+     return (FALSE)
+  }
+  else if (attr(connection, "dbms") == "redshift")
+  {
+    envSet <- FALSE
+    bucket <- FALSE
+    
+    if (Sys.getenv("AWS_ACCESS_KEY_ID") != "" && 
+        Sys.getenv("AWS_SECRET_ACCESS_KEY") != "" &&
+        Sys.getenv("AWS_BUCKET_NAME") != "" &&
+        Sys.getenv("AWS_DEFAULT_REGION") != "")
+    {
+      envSet <- TRUE
+    }
+
+    if (aws.s3::bucket_exists(bucket = Sys.getenv("AWS_BUCKET_NAME")))
+    {
+      bucket <- TRUE
+    }
+    
+    if (Sys.getenv("AWS_SSE_TYPE") == "")
+    {
+      warning("Not using Server Side Encryption for AWS S3")
+    }
+    return(envSet & bucket)
+  }
+  else
+  {
+    return (FALSE)
+  }
+}
+
+.bulkLoadPdw <- function(connection,
+                         qname,
+                         data)
+{
+  fileName <- sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
+  write.csv(x = data, file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE, 
+            eol = eol, col.names = TRUE, qmethod = "`")
+  R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName))
+  
+  
+  command <- sprintf("%1s -M append -i %2s -T %3s -R %4s/dwloader.txt -fh 1 -t %5s -r 0x0d -D %6s -E -S -s 0x60 %7s %8s %9s", 
+                     shQuote(Sys.getenv("DWLOADER_PATH")), 
+                     shQuote(sprintf("%s.gz", fileName)), 
+                     qname, 
+                     getwd(), 
+                     shQuote(","), 
+                     shQuote("yyyy-MM-dd"), 
+                     connectionDetails$server, 
+                     ifelse(!is.null(connectionDetails$user), sprintf(" -U %s", connectionDetails$user), " -W"),
+                     ifelse(!is.null(connectionDetails$password), sprintf(" -P %s", connectionDetails$password), ""))
+  
+  system(command, intern = FALSE,
+         ignore.stdout = FALSE, ignore.stderr = FALSE,
+         wait = TRUE, input = NULL, show.output.on.console = TRUE,
+         minimized = FALSE, invisible = TRUE)
+}
+
+.bulkLoadRedshift <- function (connection,
+                               qname,
+                               data)
+{
+  eol <- "\n"
+  if (Sys.info()["sysname"] == "Windows")
+  {
+    eol <- "\r\n"
+  }
+  
+  fileName <- sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
+  write.csv(x = data, file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE, 
+            eol = eol, col.names = TRUE, qmethod = "`")
+  R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName))
+  
+  aws.s3::put_object(file = sprintf("%s.gz", fileName), check_region = FALSE,
+                     headers = list("x-amz-server-side-encryption" = Sys.getenv("AWS_SSE_TYPE")), 
+                     object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"), 
+                     bucket = Sys.getenv("AWS_BUCKET_NAME"))
+  
+  
+  sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "redshiftCopy.sql", 
+                                           packageName = "DatabaseConnector", 
+                                           dbms = "redshift",
+                                           qname = qname,
+                                           fileName = fileName,
+                                           s3RepoName = Sys.getenv("AWS_BUCKET_NAME"), 
+                                           pathToFiles = Sys.getenv("AWS_OBJECT_KEY"),
+                                           awsAccessKey = Sys.getenv("AWS_ACCESS_KEY_ID"), 
+                                           awsSecretAccessKey = Sys.getenv("AWS_SECRET_ACCESS_KEY"))
+  
+  connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+  
+  DatabaseConnector::executeSql(connection = connection, sql = sql)
+  DatabaseConnector::disconnect(connection = connection)
 }
