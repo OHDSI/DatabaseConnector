@@ -138,17 +138,18 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #' @param tempTable           Should the table created as a temp table?
 #' @param oracleTempSchema    Specifically for Oracle, a schema with write priviliges where temp tables
 #'                            can be created.
-#' @param useMppBulkLoad      If using Redshift or PDW, use more performant bulk loading techniques.
+#' @param useMppBulkLoad      If using Redshift or PDW, use more performant bulk loading techniques. 
+#'                            Setting the system environment variable "USE_MPP_BULK_LOAD" to TRUE is another way to enable this mode.
 #'                            Please note, Redshift requires valid S3 credentials; 
 #'                            PDW requires valid DWLoader installation. 
-#'                            Also, can only be used for permanent tables, and cannot be used to append to an existing table.
+#'                            This can only be used for permanent tables, and cannot be used to append to an existing table.
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is
 #' created, or the data is appended to an existing table.
 #'
 #' If using Redshift or PDW, bulk uploading techniques may be more performant than relying upon 
-#' a batch of insert statements.
+#' a batch of insert statements, depending upon data size and network throughput.
 #' 
 #' Redshift: The MPP bulk loading relies upon the CloudyR S3 library to test a connection to an S3 bucket using
 #' AWS S3 credentials. Credentials are configured either directly into the System Environment
@@ -170,11 +171,27 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'                                              server = "localhost",
 #'                                              user = "root",
 #'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#'                                              schema = "cdm_v5")
 #' conn <- connect(connectionDetails)
 #' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 #' insertTable(conn, "my_table", data)
 #' disconnect(conn)
+#' 
+#' ## bulk data insert with Redshift or PDW
+#' connectionDetails <- createConnectionDetails(dbms = "redshift",
+#'                                              server = "localhost",
+#'                                              user = "root",
+#'                                              password = "blah",
+#'                                              schema = "cdm_v5")
+#' conn <- connect(connectionDetails)
+#' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
+#' insertTable(connection = connection, 
+#'             tableName = "scratch.somedata", 
+#'             data = data, 
+#'             dropTableIfExists = TRUE, 
+#'             createTable = TRUE, 
+#'             tempTable = FALSE, 
+#'             useMppBulkLoad = TRUE) # or, Sys.setenv("USE_MPP_BULK_LOAD" = TRUE)
 #' }
 #' @export
 insertTable <- function(connection,
@@ -186,6 +203,10 @@ insertTable <- function(connection,
                         oracleTempSchema = NULL,
                         useMppBulkLoad = FALSE) 
 {
+  if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE")
+  {
+    useMppBulkLoad <- TRUE
+  }
   if (dropTableIfExists)
     createTable <- TRUE
   if (tempTable & substr(tableName, 1, 1) != "#")
@@ -386,11 +407,14 @@ insertTable <- function(connection,
 .checkMppCredentials <- function(connection)
 {
   if (attr(connection, "dbms") == "pdw" 
-      && tolower(Sys.info()["sysname"]) == "windows" 
-      && Sys.getenv("DWLOADER_PATH") != "")
+      && tolower(Sys.info()["sysname"]) == "windows" )
   {
-     writeLines("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
-     return (FALSE)
+    if (Sys.getenv("DWLOADER_PATH") == "")
+    {
+      writeLines("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
+      return (FALSE)
+    }
+     return (TRUE)
   }
   else if (attr(connection, "dbms") == "redshift")
   {
@@ -426,45 +450,60 @@ insertTable <- function(connection,
                          qname,
                          data)
 {
-  eol <- "0x0d0x0a"
+  start <- Sys.time()
+  eol <- "\r\n"
   fileName <- sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
-  write.table(x = data, file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE, 
-            eol = eol, col.names = TRUE, sep = "~*~")
+  write.table(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = FALSE, 
+              col.names = TRUE, sep = "~*~")
   R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName),
                 remove = TRUE)
   
-  command <- sprintf("%1s -M append -i %2s -T %3s -R %4s/dwloader.txt -fh 1 -t %5s -r %6 -D %7s 
-                     -E -S %8s %9s %10s", 
+  auth <- sprintf("-U %1s -P %2s", attr(connection, "user"), attr(connection, "password"))
+  if (is.null(attr(connection, "user")) && is.null(attr(connection, "password")))
+  {
+    auth <- "-W"
+  }
+  
+  command <- sprintf("%1s -M append -e UTF8 -i %2s -T %3s -R dwloader.txt -fh 1 -t %4s -r %5s -D ymd -E -se -rv 1 -S %6s %7s", 
                      shQuote(Sys.getenv("DWLOADER_PATH")), 
                      shQuote(sprintf("%s.gz", fileName)), 
                      qname, 
-                     getwd(), 
                      shQuote("~*~"), 
-                     eol,
-                     shQuote("yyyy-MM-dd"), 
+                     shQuote(eol),
                      connectionDetails$server, 
-                     ifelse(!is.null(connectionDetails$user), sprintf(" -U %s", connectionDetails$user), " -W"),
-                     ifelse(!is.null(connectionDetails$password), sprintf(" -P %s", connectionDetails$password), ""))
+                     auth)
   
-  system(command, intern = FALSE,
-         ignore.stdout = FALSE, ignore.stderr = FALSE,
-         wait = TRUE, input = NULL, show.output.on.console = TRUE,
-         minimized = FALSE, invisible = TRUE)
+  tryCatch(
+    {
+      system(command, intern = FALSE,
+             ignore.stdout = FALSE, ignore.stderr = FALSE,
+             wait = TRUE, input = NULL, show.output.on.console = FALSE,
+             minimized = FALSE, invisible = TRUE)
+      delta <- Sys.time() - start
+      writeLines(paste("Bulk load to PDW took", signif(delta, 3), attr(delta, "units")))
+    },
+    error = function (e) {
+      stop("Error in PDW bulk upload. Please check dwloader.txt and dwloader.txt.reason.")
+    },
+    finally = {
+      try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)    
+    }
+  )
 }
 
 .bulkLoadRedshift <- function (connection,
                                qname,
                                data)
 {
+  start <- Sys.time()
   fileName <- sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
-  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), col.names = TRUE,
+  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName),
             row.names = FALSE, quote = TRUE)
   R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName),
                 remove = TRUE)
   
   s3Put <- aws.s3::put_object(file = sprintf("%s.gz", fileName), 
                               check_region = FALSE, 
-                              #multipart = TRUE,
                               headers = list("x-amz-server-side-encryption" = Sys.getenv("AWS_SSE_TYPE")), 
                               object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"), 
                               bucket = Sys.getenv("AWS_BUCKET_NAME"))
@@ -485,11 +524,13 @@ insertTable <- function(connection,
   
   tryCatch(
     {
-      DatabaseConnector::executeSql(connection = connection, sql = sql)
+      DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
+      delta <- Sys.time() - start
+      writeLines(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
     }, 
     error = function(e)
     {
-      writeLines("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
+      stop("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
     },
     finally = {
       DatabaseConnector::disconnect(connection = connection)
