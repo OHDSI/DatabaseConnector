@@ -422,17 +422,17 @@ insertTable <- function(connection,
                          data)
 {
   fileName <- sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
-  write.csv(x = data, file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE, 
-            eol = eol, col.names = TRUE, qmethod = "`")
+  write.csv(x = data, file = sprintf("%s.csv", fileName), sep = , row.names = FALSE, quote = TRUE, 
+            eol = eol, col.names = TRUE, qmethod = "~*~")
   R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName))
   
   
-  command <- sprintf("%1s -M append -i %2s -T %3s -R %4s/dwloader.txt -fh 1 -t %5s -r 0x0d -D %6s -E -S -s 0x60 %7s %8s %9s", 
+  command <- sprintf("%1s -M append -i %2s -T %3s -R %4s/dwloader.txt -fh 1 -t %5s -r 0x0d0x0a -D %6s -E -S %7s %8s %9s", 
                      shQuote(Sys.getenv("DWLOADER_PATH")), 
                      shQuote(sprintf("%s.gz", fileName)), 
                      qname, 
                      getwd(), 
-                     shQuote(","), 
+                     shQuote("~*~"), 
                      shQuote("yyyy-MM-dd"), 
                      connectionDetails$server, 
                      ifelse(!is.null(connectionDetails$user), sprintf(" -U %s", connectionDetails$user), " -W"),
@@ -448,23 +448,25 @@ insertTable <- function(connection,
                                qname,
                                data)
 {
-  eol <- "\n"
-  if (Sys.info()["sysname"] == "Windows")
-  {
-    eol <- "\r\n"
-  }
-  
+  # data <- data.frame(lapply(data, function(x) {
+  #   gsub("\"", "`", x)
+  # }))
   fileName <- sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
-  write.csv(x = data, file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE, 
-            eol = eol, col.names = TRUE, qmethod = "`")
-  R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName))
+  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE)
+  R.utils::gzip(filename = sprintf("%s.csv", fileName), destname = sprintf("%s.gz", fileName),
+                remove = TRUE)
   
-  aws.s3::put_object(file = sprintf("%s.gz", fileName), check_region = FALSE,
-                     headers = list("x-amz-server-side-encryption" = Sys.getenv("AWS_SSE_TYPE")), 
-                     object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"), 
-                     bucket = Sys.getenv("AWS_BUCKET_NAME"))
+  s3Put <- aws.s3::put_object(file = sprintf("%s.gz", fileName), 
+                              check_region = FALSE, 
+                              #multipart = TRUE,
+                              headers = list("x-amz-server-side-encryption" = Sys.getenv("AWS_SSE_TYPE")), 
+                              object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"), 
+                              bucket = Sys.getenv("AWS_BUCKET_NAME"))
   
-  
+  if (!s3Put)
+  {
+    stop("Failed to upload data to AWS S3. Please check your credentials and access.")
+  }
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "redshiftCopy.sql", 
                                            packageName = "DatabaseConnector", 
                                            dbms = "redshift",
@@ -475,8 +477,20 @@ insertTable <- function(connection,
                                            awsAccessKey = Sys.getenv("AWS_ACCESS_KEY_ID"), 
                                            awsSecretAccessKey = Sys.getenv("AWS_SECRET_ACCESS_KEY"))
   
-  connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
-  
-  DatabaseConnector::executeSql(connection = connection, sql = sql)
-  DatabaseConnector::disconnect(connection = connection)
+  tryCatch(
+    {
+      DatabaseConnector::executeSql(connection = connection, sql = sql)
+    }, 
+    error = function(e)
+    {
+      writeLines("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
+    },
+    finally = {
+      DatabaseConnector::disconnect(connection = connection)
+      #try(file.remove(sprintf("%s.csv", fileName)), silent = TRUE)
+      try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
+      try(aws.s3::delete_object(object = sprintf("%s.gz", fileName), 
+                            bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
+    }
+  )
 }

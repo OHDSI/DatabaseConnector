@@ -1,4 +1,5 @@
 COPY @qname
-FROM 's3://@s3RepoName/@pathToFiles/@fileName.gz'
+FROM 's3://@s3RepoName/@pathToFiles/@fileName'
 CREDENTIALS 'aws_access_key_id=@awsAccessKey;aws_secret_access_key=@awsSecretAccessKey'
-IGNOREHEADER AS 1 BLANKSASNULL EMPTYASNULL DELIMITER ',' csv quote as '`';
+gzip
+IGNOREHEADER AS 1 BLANKSASNULL EMPTYASNULL DELIMITER ',' csv;
