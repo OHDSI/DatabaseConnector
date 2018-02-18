@@ -13,11 +13,11 @@ Imports:
     ffbase (>= 0.12.1),
     SqlRender,
     methods,
-    utils,
+    utils
+Suggests:
     aws.s3,
     uuid,
-    R.utils
-License: Apache License
-Suggests:
+    R.utils,
     testthat
+License: Apache License
 RoxygenNote: 6.0.1

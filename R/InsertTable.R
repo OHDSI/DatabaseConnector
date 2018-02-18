@@ -54,7 +54,7 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
                valueString,
                sep = "")
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-
+  
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
@@ -82,7 +82,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
     result[is.na(str)] <- "NULL"
     return(result)
   }
-
+  
   # Insert data in batches in temp tables using CTAS:
   tempNames <- c()
   for (start in seq(1, nrow(data), by = batchSize)) {
@@ -203,8 +203,7 @@ insertTable <- function(connection,
                         oracleTempSchema = NULL,
                         useMppBulkLoad = FALSE) 
 {
-  if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE")
-  {
+  if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
     useMppBulkLoad <- TRUE
   }
   if (dropTableIfExists)
@@ -257,36 +256,28 @@ insertTable <- function(connection,
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   
-  if (createTable 
-      && !tempTable 
-      && useMppBulkLoad) 
-  {
-    if (!.checkMppCredentials(connection))
-    {
+  if (createTable && !tempTable && useMppBulkLoad) {
+    ensure_installed("aws.s3")
+    ensure_installed("uuid")
+    ensure_installed("R.utils")
+    if (!.checkMppCredentials(connection)) {
       stop("MPP credentials could not be confirmed. Please review them or set 'useMppBulkLoad' to FALSE")
     }
-    
     writeLines("Attempting to use MPP bulk loading...")
     sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
     sql <- SqlRender::translateSql(sql,
                                    targetDialect = attr(connection, "dbms"))$sql
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
     
-    if (attr(connection, "dbms") == "redshift")
-    {
+    if (attr(connection, "dbms") == "redshift") {
       .bulkLoadRedshift(connection, qname, data)
-    }
-    else if (attr(connection, "dbms") == "pdw")
-    {
+    } else if (attr(connection, "dbms") == "pdw") {
       .bulkLoadPdw(connection, qname, data)
     }
-  }
-  else
-  {
+  } else {
     if (attr(connection, "dbms") == "pdw" && createTable) {
       ctasHack(connection, qname, tempTable, varNames, fts, data)
     } else {
-      
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
         sql <- SqlRender::translateSql(sql,
@@ -404,52 +395,40 @@ insertTable <- function(connection,
   }
 }
 
-.checkMppCredentials <- function(connection)
-{
-  if (attr(connection, "dbms") == "pdw" 
-      && tolower(Sys.info()["sysname"]) == "windows" )
-  {
-    if (Sys.getenv("DWLOADER_PATH") == "")
-    {
+.checkMppCredentials <- function(connection) { 
+  if (attr(connection, "dbms") == "pdw" && tolower(Sys.info()["sysname"]) == "windows" ) {
+    if (Sys.getenv("DWLOADER_PATH") == "") {
       writeLines("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
       return (FALSE)
     }
-     return (TRUE)
-  }
-  else if (attr(connection, "dbms") == "redshift")
-  {
+    return (TRUE)
+  } else if (attr(connection, "dbms") == "redshift") {
     envSet <- FALSE
     bucket <- FALSE
     
     if (Sys.getenv("AWS_ACCESS_KEY_ID") != "" && 
         Sys.getenv("AWS_SECRET_ACCESS_KEY") != "" &&
         Sys.getenv("AWS_BUCKET_NAME") != "" &&
-        Sys.getenv("AWS_DEFAULT_REGION") != "")
-    {
+        Sys.getenv("AWS_DEFAULT_REGION") != "") {
       envSet <- TRUE
     }
-
-    if (aws.s3::bucket_exists(bucket = Sys.getenv("AWS_BUCKET_NAME")))
-    {
+    
+    if (aws.s3::bucket_exists(bucket = Sys.getenv("AWS_BUCKET_NAME"))) {
       bucket <- TRUE
     }
     
-    if (Sys.getenv("AWS_SSE_TYPE") == "")
-    {
+    if (Sys.getenv("AWS_SSE_TYPE") == "") {
       warning("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
-  }
-  else
-  {
+  } else {
     return (FALSE)
   }
 }
 
 .bulkLoadPdw <- function(connection,
                          qname,
-                         data)
-{
+                         data) {
   start <- Sys.time()
   eol <- "\r\n"
   fileName <- sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
@@ -459,8 +438,7 @@ insertTable <- function(connection,
                 remove = TRUE)
   
   auth <- sprintf("-U %1s -P %2s", attr(connection, "user"), attr(connection, "password"))
-  if (is.null(attr(connection, "user")) && is.null(attr(connection, "password")))
-  {
+  if (is.null(attr(connection, "user")) && is.null(attr(connection, "password"))) {
     auth <- "-W"
   }
   
@@ -473,28 +451,26 @@ insertTable <- function(connection,
                      connectionDetails$server, 
                      auth)
   
-  tryCatch(
-    {
-      system(command, intern = FALSE,
-             ignore.stdout = FALSE, ignore.stderr = FALSE,
-             wait = TRUE, input = NULL, show.output.on.console = FALSE,
-             minimized = FALSE, invisible = TRUE)
-      delta <- Sys.time() - start
-      writeLines(paste("Bulk load to PDW took", signif(delta, 3), attr(delta, "units")))
-    },
-    error = function (e) {
-      stop("Error in PDW bulk upload. Please check dwloader.txt and dwloader.txt.reason.")
-    },
-    finally = {
-      try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)    
-    }
+  tryCatch({
+    system(command, intern = FALSE,
+           ignore.stdout = FALSE, ignore.stderr = FALSE,
+           wait = TRUE, input = NULL, show.output.on.console = FALSE,
+           minimized = FALSE, invisible = TRUE)
+    delta <- Sys.time() - start
+    writeLines(paste("Bulk load to PDW took", signif(delta, 3), attr(delta, "units")))
+  },
+  error = function (e) {
+    stop("Error in PDW bulk upload. Please check dwloader.txt and dwloader.txt.reason.")
+  },
+  finally = {
+    try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)    
+  }
   )
 }
 
 .bulkLoadRedshift <- function (connection,
                                qname,
-                               data)
-{
+                               data) {
   start <- Sys.time()
   fileName <- sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
   write.csv(x = data, na = "", file = sprintf("%s.csv", fileName),
@@ -508,8 +484,7 @@ insertTable <- function(connection,
                               object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"), 
                               bucket = Sys.getenv("AWS_BUCKET_NAME"))
   
-  if (!s3Put)
-  {
+  if (!s3Put) {
     stop("Failed to upload data to AWS S3. Please check your credentials and access.")
   }
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "redshiftCopy.sql", 
@@ -522,22 +497,45 @@ insertTable <- function(connection,
                                            awsAccessKey = Sys.getenv("AWS_ACCESS_KEY_ID"), 
                                            awsSecretAccessKey = Sys.getenv("AWS_SECRET_ACCESS_KEY"))
   
-  tryCatch(
-    {
-      DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
-      delta <- Sys.time() - start
-      writeLines(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
-    }, 
-    error = function(e)
-    {
-      stop("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
-    },
-    finally = {
-      DatabaseConnector::disconnect(connection = connection)
-      #try(file.remove(sprintf("%s.csv", fileName)), silent = TRUE)
-      try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
-      try(aws.s3::delete_object(object = sprintf("%s.gz", fileName), 
-                            bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
-    }
+  tryCatch({
+    DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
+    delta <- Sys.time() - start
+    writeLines(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
+  }, 
+  error = function(e) {
+    stop("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
+  },
+  finally = {
+    DatabaseConnector::disconnect(connection = connection)
+    #try(file.remove(sprintf("%s.csv", fileName)), silent = TRUE)
+    try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
+    try(aws.s3::delete_object(object = sprintf("%s.gz", fileName), 
+                              bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
+  }
   )
+}
+
+
+# Borrowed from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44
+is_installed <- function (pkg, version = 0) {
+  installed_version <- tryCatch(utils::packageVersion(pkg), 
+                                error = function(e) NA)
+  !is.na(installed_version) && installed_version >= version
+}
+
+# Borrowed and adapted from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
+ensure_installed <- function(pkg) {
+  if (!is_installed(pkg)) {
+    msg <- paste0(sQuote(pkg), " must be installed for this functionality.")
+    if (interactive()) {
+      message(msg, "\nWould you like to install it?")
+      if (menu(c("Yes", "No")) == 1) {
+        install.packages(pkg)
+      } else {
+        stop(msg, call. = FALSE)
+      }
+    } else {
+      stop(msg, call. = FALSE)
+    }
+  }
 }
