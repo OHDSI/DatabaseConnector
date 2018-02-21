@@ -21,6 +21,7 @@ Features
   - Progress reporting
   - Multiple statements per query
 - Support for fetching data to ffdf objects
+- Insert data frame to a database table
 
 Examples
 ========
@@ -33,6 +34,26 @@ connectionDetails <- createConnectionDetails(dbms="mysql",
 conn <- connect(connectionDetails)
 querySql(conn,"SELECT COUNT(*) FROM person")
 disconnect(conn)
+```
+
+```r
+## regular data insert
+insertTable(connection = connection, 
+            tableName = "scratch.somedata", 
+            data = data, 
+            dropTableIfExists = TRUE, 
+            createTable = TRUE, 
+            tempTable = FALSE, 
+            useMppBulkLoad = FALSE)
+            
+## bulk data insert with Redshift or PDW
+insertTable(connection = connection, 
+            tableName = "scratch.somedata", 
+            data = data, 
+            dropTableIfExists = TRUE, 
+            createTable = TRUE, 
+            tempTable = FALSE, 
+            useMppBulkLoad = TRUE)
 ```
 
 Technology
@@ -50,6 +71,8 @@ Please note that this package requires Java to be installed. If you don't have J
 To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from [Microsoft](http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774) and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32.
 
 DatabaseConnector also depends on the OHDSI SqlRender package.
+
+For Redshift Bulk Mpp inserts, the cloudyR aws S3 pacakge is required.
 
 Getting Started
 ===============
