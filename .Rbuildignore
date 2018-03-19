@@ -8,3 +8,4 @@ R/LocalEnvironment.R
 deploy.sh
 .classpath
 .project
+compare_versions
