@@ -452,6 +452,11 @@ insertTable <- function(connection,
   
   databaseMetaData <- rJava::.jcall(connection$jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+  pdwServer <- urltools::url_parse(url)$domain
+  
+  if (pdwServer == "" | is.null(pdwServer)) {
+    stop("PDW Server name cannot be parsed from JDBC URL string")
+  }
   
   command <- sprintf("%1s -M append -e UTF8 -i %2s -T %3s -R dwloader.txt -fh 1 -t %4s -r %5s -D ymd -E -se -rv 1 -S %6s %7s", 
                      shQuote(Sys.getenv("DWLOADER_PATH")), 
@@ -459,7 +464,7 @@ insertTable <- function(connection,
                      qname, 
                      shQuote("~*~"), 
                      shQuote(eol),
-                     urltools::url_parse(url)$domain, 
+                     pdwServer, 
                      auth)
   
   tryCatch({
