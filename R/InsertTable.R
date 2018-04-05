@@ -162,7 +162,15 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'            "AWS_OBJECT_KEY" = "some_object_key",
 #'            "AWS_SSE_TYPE" = "server_side_encryption_type")
 #'            
-#' PDW: The MPP bulk loading relies upon the client having a Windows OS and the DWLoader exe installed.
+#' PDW: The MPP bulk loading relies upon the client having a Windows OS and the DWLoader exe installed,
+#' and the following permissions granted:
+#'   --Grant BULK Load permissions – needed at a server level
+#'   USE master;
+#'   GRANT ADMINISTER BULK OPERATIONS TO user;
+#'   --Grant Staging database permissions – we will use the user db.
+#'   USE scratch;
+#'   EXEC sp_addrolemember 'db_ddladmin', user;
+
 #' Set the R environment variable DWLOADER_PATH to the location of the binary.
 #'            
 #' @examples
@@ -442,13 +450,16 @@ insertTable <- function(connection,
     auth <- "-W"
   }
   
+  databaseMetaData <- rJava::.jcall(connection$jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+  url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+  
   command <- sprintf("%1s -M append -e UTF8 -i %2s -T %3s -R dwloader.txt -fh 1 -t %4s -r %5s -D ymd -E -se -rv 1 -S %6s %7s", 
                      shQuote(Sys.getenv("DWLOADER_PATH")), 
                      shQuote(sprintf("%s.gz", fileName)), 
                      qname, 
                      shQuote("~*~"), 
                      shQuote(eol),
-                     connectionDetails$server, 
+                     urltools::url_parse(url)$domain, 
                      auth)
   
   tryCatch({

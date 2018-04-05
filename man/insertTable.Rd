@@ -52,7 +52,14 @@ Sys.setenv("AWS_ACCESS_KEY_ID" = "some_access_key_id",
            "AWS_OBJECT_KEY" = "some_object_key",
            "AWS_SSE_TYPE" = "server_side_encryption_type")
            
-PDW: The MPP bulk loading relies upon the client having a Windows OS and the DWLoader exe installed.
+PDW: The MPP bulk loading relies upon the client having a Windows OS and the DWLoader exe installed,
+and the following permissions granted:
+  --Grant BULK Load permissions – needed at a server level
+  USE master;
+  GRANT ADMINISTER BULK OPERATIONS TO user;
+  --Grant Staging database permissions – we will use the user db.
+  USE scratch;
+  EXEC sp_addrolemember 'db_ddladmin', user;
 Set the R environment variable DWLOADER_PATH to the location of the binary.
 }
 \examples{
