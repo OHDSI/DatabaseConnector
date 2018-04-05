@@ -268,6 +268,7 @@ insertTable <- function(connection,
     ensure_installed("aws.s3")
     ensure_installed("uuid")
     ensure_installed("R.utils")
+    ensure_installed("urltools")
     if (!.checkMppCredentials(connection)) {
       stop("MPP credentials could not be confirmed. Please review them or set 'useMppBulkLoad' to FALSE")
     }
