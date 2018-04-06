@@ -18,6 +18,7 @@ Suggests:
     aws.s3,
     uuid,
     R.utils,
-    testthat
+    testthat,
+    urltools
 License: Apache License
 RoxygenNote: 6.0.1
