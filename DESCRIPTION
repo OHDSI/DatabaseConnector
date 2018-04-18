@@ -5,20 +5,24 @@ Version: 2.0.5
 Date: 2018-02-22
 Author: Martijn J. Schuemie and Marc A. Suchard
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
-Description: Package for connecting to various DBMSs. Also includes support for fetching data as ffdf objects.
+Description: Package for connecting to various DBMSs. Also includes support for
+    fetching data as ffdf objects.
+Depends: 
+    rJava
 Imports:
-    rJava,
     bit,
     ff,
     ffbase (>= 0.12.1),
     SqlRender,
     methods,
-    utils
+    utils,
+    DBI (>= 0.3.0)
 Suggests:
     aws.s3,
     uuid,
     R.utils,
     testthat,
-    urltools
+    urltools,
+    DBItest
 License: Apache License
-RoxygenNote: 6.0.1
+RoxygenNote: 5.0.1

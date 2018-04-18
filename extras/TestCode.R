@@ -119,7 +119,7 @@ pw <- Sys.getenv("pwPostgres")
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/ohdsi",
                                              user = "postgres",
-                                             password = pw,
+                                             password = "@quar1us",
                                              schema = "cdm_synpuf")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")

@@ -208,12 +208,13 @@ connect <- function(connectionDetails,
         connectionString <- paste(connectionString, "&", extraSettings, sep = "")
     }
     if (missing(user) || is.null(user)) {
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
-                                           password = password)
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("USE", schema))
@@ -234,7 +235,7 @@ connect <- function(connectionDetails,
         if (!missing(extraSettings) && !is.null(extraSettings))
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
       }
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       # Using regular user authentication
       writeLines("Connecting using SQL Server driver")
@@ -257,7 +258,8 @@ connect <- function(connectionDetails,
         connection <- connectUsingJdbcDriver(driver,
                                              connectionString,
                                              user = user,
-                                             password = password)
+                                             password = password, 
+                                             dbms = dbms)
       } else {
         pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
         driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
@@ -271,7 +273,8 @@ connect <- function(connectionDetails,
         connection <- connectUsingJdbcDriver(driver,
                                              connectionString,
                                              user = user,
-                                             password = password)
+                                             password = password, 
+                                             dbms = dbms)
       }
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -294,7 +297,7 @@ connect <- function(connectionDetails,
         if (!missing(extraSettings) && !is.null(extraSettings))
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
       }
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       if (missing(connectionString) || is.null(connectionString)) {
         connectionString <- paste("jdbc:sqlserver://",
@@ -309,7 +312,8 @@ connect <- function(connectionDetails,
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
-                                           password = password)
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema)) {
       database <- strsplit(schema, "\\.")[[1]][1]
@@ -342,7 +346,8 @@ connect <- function(connectionDetails,
                                                                  connectionString,
                                                                  user = user,
                                                                  password = password,
-                                                                 oracle.jdbc.mapDateToTimestamp = "false"), silent = FALSE))[1]
+                                                                 oracle.jdbc.mapDateToTimestamp = "false", 
+                                                                 dbms = dbms), silent = FALSE))[1]
 
         # Try using TNSName instead:
         if (result == "try-error") {
@@ -352,7 +357,8 @@ connect <- function(connectionDetails,
                                                connectionString,
                                                user = user,
                                                password = password,
-                                               oracle.jdbc.mapDateToTimestamp = "false")
+                                               oracle.jdbc.mapDateToTimestamp = "false", 
+                                               dbms = dbms)
         }
       }
       if (oracleDriver == "oci") {
@@ -362,20 +368,23 @@ connect <- function(connectionDetails,
                                              connectionString,
                                              user = user,
                                              password = password,
-                                             oracle.jdbc.mapDateToTimestamp = "false")
+                                             oracle.jdbc.mapDateToTimestamp = "false", 
+                                             dbms = dbms)
       }
     } else {
       # User has provided the connection string:
       if (missing(user) || is.null(user)) {
         connection <- connectUsingJdbcDriver(driver,
                                              connectionString,
-                                             oracle.jdbc.mapDateToTimestamp = "false")
+                                             oracle.jdbc.mapDateToTimestamp = "false", 
+                                             dbms = dbms)
       } else {
         connection <- connectUsingJdbcDriver(driver,
                                              connectionString,
                                              user = user,
                                              password = password,
-                                             oracle.jdbc.mapDateToTimestamp = "false")
+                                             oracle.jdbc.mapDateToTimestamp = "false", 
+                                             dbms = dbms)
       }
     }
     if (!missing(schema) && !is.null(schema)) {
@@ -403,16 +412,21 @@ connect <- function(connectionDetails,
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
     }
     if (missing(user) || is.null(user)) {
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
-                                           password = password)
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema))
       lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms
+    registerWithRStudio(connection = connection, 
+                        dbms = dbms,
+                        server = server,
+                        connectionString = connectionString)
     return(connection)
   }
   if (dbms == "redshift") {
@@ -434,12 +448,13 @@ connect <- function(connectionDetails,
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
     }
     if (missing(user) || is.null(user)) {
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
-                                           password = password)
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema))
       lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
@@ -471,12 +486,13 @@ connect <- function(connectionDetails,
       }
     }
     if (missing(user) || is.null(user)) {
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
-                                           password = password)
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("SET schema TO ", schema))
@@ -511,12 +527,13 @@ connect <- function(connectionDetails,
       }
     }
     if (missing(user) || is.null(user)) {
-      connection <- connectUsingJdbcDriver(driver, connectionString)
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
-                                           password = password)
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("USE", schema))
@@ -534,13 +551,13 @@ connect <- function(connectionDetails,
         connectionString <- paste0(connectionString, "?", extraSettings)
       }
     }
-    connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password)
+    connection <- connectUsingJdbcDriver(driver, connectionString, user = user, password = password, dbms = dbms)
     attr(connection, "dbms") <- dbms
     return(connection)
   }
 }
 
-connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "`", ...) {
+connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "'", dbms = "Unknown", ...) {
   properties <- list(...)
   p <- rJava::.jnew("java/util/Properties")
   if (length(properties) > 0) {
@@ -561,10 +578,15 @@ connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "`", ...) 
       stop("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")")
     }
   }
-  connection <- list(jConnection = jConnection, identifierQuote = identifierQuote)
-  class(connection) <- "Connection"
+  # connection <- list(jConnection = jConnection, identifierQuote = identifierQuote)
+  # class(connection) <- "Connection"
+  connection <- new("DatabaseConnectorConnection", 
+                    jConnection = jConnection, 
+                    identifierQuote = identifierQuote,
+                    dbms = dbms)
   return(connection)
 }
+
 
 #' Disconnect from the server
 #'
@@ -587,8 +609,12 @@ connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "`", ...) 
 #' }
 #' @export
 disconnect <- function(connection) {
-  if (rJava::is.jnull(connection$jConnection))
+  if (rJava::is.jnull(connection@jConnection)) {
     warning("Connection is already closed")
-  rJava::.jcall(connection$jConnection, "V", "close")
+  } else {
+    unregisterWithRStudio(connection)
+  }
+  rJava::.jcall(connection@jConnection, "V", "close")
+  
   invisible(TRUE)
 }

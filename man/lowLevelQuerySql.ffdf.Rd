@@ -26,3 +26,4 @@ written when an error occurs.
 Retrieves data from the database server and stores it in an ffdf object. This allows very large
 data sets to be retrieved without running out of memory.
 }
+

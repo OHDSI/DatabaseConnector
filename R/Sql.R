@@ -68,10 +68,10 @@
 #'
 #' @export
 lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE) {
-  if (rJava::is.jnull(connection$jConnection))
+  if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
-                               connection$jConnection,
+                               connection@jConnection,
                                query)
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
@@ -142,10 +142,10 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
 #'
 #' @export
 lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
-  if (rJava::is.jnull(connection$jConnection))
+  if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
-                               connection$jConnection,
+                               connection@jConnection,
                                query)
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
@@ -187,7 +187,7 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
 #'
 #' @export
 lowLevelExecuteSql <- function(connection, sql) {
-  statement <- rJava::.jcall(connection$jConnection, "Ljava/sql/Statement;", "createStatement")
+  statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
   rJava::.jcall(statement, "I", "executeUpdate", as.character(sql), check = FALSE)
 }
@@ -230,7 +230,7 @@ executeSql <- function(connection,
                        profile = FALSE,
                        progressBar = TRUE,
                        reportOverallTime = TRUE) {
-  if (rJava::is.jnull(connection$jConnection))
+  if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   if (profile)
     progressBar <- FALSE
@@ -258,7 +258,7 @@ executeSql <- function(connection,
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
   }
-  if (!rJava::.jcall(connection$jConnection, "Z", "getAutoCommit")) {
+  if (!rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
   if (progressBar)
@@ -297,7 +297,7 @@ executeSql <- function(connection,
 #' }
 #' @export
 querySql <- function(connection, sql) {
-  if (rJava::is.jnull(connection$jConnection))
+  if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
@@ -352,7 +352,7 @@ querySql <- function(connection, sql) {
 #' }
 #' @export
 querySql.ffdf <- function(connection, sql) {
-  if (rJava::is.jnull(connection$jConnection))
+  if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)

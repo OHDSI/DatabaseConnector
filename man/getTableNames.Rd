@@ -25,3 +25,4 @@ SQL Server and PDW: The databaseSchema schema should specify both the database a
 The databaseSchema should specify the Oracle 'user'. MySql and Impala: The databaseSchema should
 specify the database.
 }
+

@@ -24,3 +24,4 @@ when an error occurs.
 \details{
 Retrieves data from the database server and stores it in a data frame.
 }
+
