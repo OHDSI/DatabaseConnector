@@ -8,4 +8,3 @@
 DatabaseConnector results class.
 }
 \keyword{internal}
-

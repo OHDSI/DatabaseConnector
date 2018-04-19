@@ -20,9 +20,6 @@
 #'
 #' @docType package
 #' @name DatabaseConnector
-#' @import ffbase
-#' @import bit
-#' @importFrom methods new
 #' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table install.packages menu
 NULL
 

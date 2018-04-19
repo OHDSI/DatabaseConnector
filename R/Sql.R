@@ -189,7 +189,8 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
 lowLevelExecuteSql <- function(connection, sql) {
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
-  rJava::.jcall(statement, "I", "executeUpdate", as.character(sql), check = FALSE)
+  rowsAffected <- rJava::.jcall(statement, "I", "executeUpdate", as.character(sql), check = FALSE)
+  invisible(rowsAffected)
 }
 
 #' Execute SQL code

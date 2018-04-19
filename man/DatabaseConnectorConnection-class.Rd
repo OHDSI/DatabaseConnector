@@ -8,4 +8,3 @@
 DatabaseConnectorConnection class.
 }
 \keyword{internal}
-

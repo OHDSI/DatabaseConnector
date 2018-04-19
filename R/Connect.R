@@ -553,7 +553,7 @@ connect <- function(connectionDetails,
   }
 }
 
-connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "'", dbms = "Unknown", ...) {
+connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "'", stringQuote = "'", dbms = "Unknown", ...) {
   properties <- list(...)
   p <- rJava::.jnew("java/util/Properties")
   if (length(properties) > 0) {
@@ -574,16 +574,14 @@ connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "'", dbms 
       stop("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")")
     }
   }
-  # connection <- list(jConnection = jConnection, identifierQuote = identifierQuote)
-  # class(connection) <- "Connection"
   connection <- new("DatabaseConnectorConnection", 
                     jConnection = jConnection, 
                     identifierQuote = identifierQuote,
+                    stringQuote = stringQuote,
                     dbms = dbms)
   registerWithRStudio(connection)
   return(connection)
 }
-
 
 #' Disconnect from the server
 #'

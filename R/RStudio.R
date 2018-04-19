@@ -64,28 +64,28 @@ hasCatalogs <- function(connection) {
 
 listDatabaseConnectorColumns <- function(connection, catalog = NULL, schema = NULL, table = NULL, ...) {
   if (is.null(catalog))
-    catalog <- .jnull("java/lang/String")
+    catalog <- rJava::.jnull("java/lang/String")
   if (is.null(schema))
-    schema <- .jnull("java/lang/String")
+    schema <- rJava::.jnull("java/lang/String")
   if (connection@dbms == "oracle") {
     table <- toupper(table)
   } else {
     table <- tolower(table)
   }
-  metaData <- .jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-  resultSet <- .jcall(metaData, 
+  metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+  resultSet <- rJava::.jcall(metaData, 
                       "Ljava/sql/ResultSet;", 
                       "getColumns", 
                       catalog,
                       schema, 
                       table, 
-                      .jnull("java/lang/String"))
-  on.exit(.jcall(resultSet, "V", "close"))
+                      rJava::.jnull("java/lang/String"))
+  on.exit(rJava::.jcall(resultSet, "V", "close"))
   fields <- character()
   types <- character()
-  while (.jcall(resultSet, "Z", "next")) {
-    fields <- c(fields, .jcall(resultSet, "S", "getString", "COLUMN_NAME"))
-    types <- c(types, .jcall(resultSet, "S", "getString", "TYPE_NAME"))
+  while (rJava::.jcall(resultSet, "Z", "next")) {
+    fields <- c(fields, rJava::.jcall(resultSet, "S", "getString", "COLUMN_NAME"))
+    types <- c(types, rJava::.jcall(resultSet, "S", "getString", "TYPE_NAME"))
   }
   return(data.frame(name = fields,
                     type = types,
@@ -181,34 +181,34 @@ compileReconnectCode <- function(connection) {
 
 getSchemaNames <- function(conn, catalog = NULL) {
   if (is.null(catalog))
-    catalog <- .jnull("java/lang/String")
-  metaData <- .jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-  resultSet <- .jcall(metaData, 
+    catalog <- rJava::.jnull("java/lang/String")
+  metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+  resultSet <- rJava::.jcall(metaData, 
                       "Ljava/sql/ResultSet;", 
                       "getSchemas",
                       catalog,
-                      .jnull("java/lang/String"))
-  on.exit(.jcall(resultSet, "V", "close"))
+                      rJava::.jnull("java/lang/String"))
+  on.exit(rJava::.jcall(resultSet, "V", "close"))
   schemas <- character()
-  while (.jcall(resultSet, "Z", "next")) {
-    thisCatalog <- .jcall(resultSet, "S", "getString", "TABLE_CATALOG")
+  while (rJava::.jcall(resultSet, "Z", "next")) {
+    thisCatalog <- rJava::.jcall(resultSet, "S", "getString", "TABLE_CATALOG")
     if (is.null(thisCatalog) || (!is.null(catalog) && thisCatalog == catalog)) {
-      schemas <- c(schemas, .jcall(resultSet, "S", "getString", "TABLE_SCHEM"))
+      schemas <- c(schemas, rJava::.jcall(resultSet, "S", "getString", "TABLE_SCHEM"))
     }
   }
   return(schemas)
 }
 
 getCatalogs <- function(conn) {
-  metaData <- .jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-  resultSet <- .jcall(metaData, 
+  metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+  resultSet <- rJava::.jcall(metaData, 
                       "Ljava/sql/ResultSet;", 
                       "getCatalogs")
-  on.exit(.jcall(resultSet, "V", "close"))
+  on.exit(rJava::.jcall(resultSet, "V", "close"))
   schemas <- character()
   catalogs <- character()
-  while (.jcall(resultSet, "Z", "next")) {
-    catalogs <- c(catalogs, .jcall(resultSet, "S", "getString", "TABLE_CAT"))
+  while (rJava::.jcall(resultSet, "Z", "next")) {
+    catalogs <- c(catalogs, rJava::.jcall(resultSet, "S", "getString", "TABLE_CAT"))
   }
   return(catalogs)
 }

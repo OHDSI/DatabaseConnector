@@ -21,11 +21,6 @@ connectionDetails <- createConnectionDetails(dbms = "oracle",
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
 
-dbListTables(conn, schema = "CDM_SYNPUF")
-dbListTables(conn, schema = "cdm_synpuf")
-dbGetQuery(conn, "SELECT * FROM cdm_synpuf.vocabulary")
-
-dbDisconnect(conn)
 
 # Test PostgreSQL --------------------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
@@ -34,10 +29,51 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              password = Sys.getenv("pwPostgres"),
                                              schema = "cdm_synpuf")
 conn <- connect(connectionDetails)
-
 querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm_synpuf")
 disconnect(conn)
+
+# DBI compatability
+conn <- dbConnect(DatabaseConnectorDriver(), connectionDetails)
+dbIsValid(conn)
+dbListTables(conn, schema = "cdm_synpuf")
+dbListFields(conn, schema = "cdm_synpuf", name = "vocabulary")
+dbExistsTable(conn, schema = "cdm_synpuf", name = "vocabulary")
+res <- dbSendQuery(conn, "SELECT * FROM cdm_synpuf.vocabulary")
+dbColumnInfo(res)
+dbGetRowCount(res)
+dbHasCompleted(res)
+dbFetch(res)
+dbGetRowCount(res)
+dbHasCompleted(res)
+dbGetStatement(res)
+dbClearResult(res)
+dbQuoteIdentifier(conn, "test results")
+dbQuoteString(conn, "one two three")
+dbGetQuery(conn, "SELECT * FROM cdm_synpuf.vocabulary")
+
+res <- dbSendStatement(conn, "CREATE TEMP TABLE temp(x int);")
+dbHasCompleted(res)
+dbGetRowsAffected(res)
+dbGetStatement(res)
+dbClearResult(res)
+dbListFields(conn, "temp")
+dbRemoveTable(conn, "temp")
+
+dbExecute(conn, "CREATE TEMP TABLE temp(x int);")
+dbExistsTable(conn, name = "temp")
+
+
+dbRemoveTable(conn, "temp")
+
+data <- data.frame(name = c("john", "mary"), age = c(35, 26))
+dbWriteTable(conn, "temp", data, temporary = TRUE)
+dbGetQuery(conn, "SELECT * FROM temp")
+dbReadTable(conn, "temp") 
+dbRemoveTable(conn, "temp")
+
+dbDisconnect(conn)
+
 
 # Test Redshift -----------------------
 connectionDetails <- createConnectionDetails(dbms = "redshift",

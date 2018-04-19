@@ -8,7 +8,7 @@ test_that("Open and close connection", {
                                      server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
                                      schema = Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # SQL Server
@@ -18,7 +18,7 @@ test_that("Open and close connection", {
                                      server = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
                                      schema = Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # Oracle
@@ -28,7 +28,7 @@ test_that("Open and close connection", {
                                      server = Sys.getenv("CDM5_ORACLE_SERVER"),
                                      schema = Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"))
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # # RedShift
@@ -38,7 +38,7 @@ test_that("Open and close connection", {
   #                                    server = Sys.getenv("CDM5_REDSHIFT_SERVER"),
   #                                    schema = Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
   # connection <- connect(details)
-  # expect_true(inherits(connection, "Connection"))
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
   # expect_true(disconnect(connection))
 })
 
@@ -60,7 +60,7 @@ test_that("Open and close connection using connection strings with embedded user
                              URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")))
   details <- createConnectionDetails(dbms = "postgresql", connectionString = connectionString)
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # SQL Server
@@ -73,7 +73,7 @@ test_that("Open and close connection using connection strings with embedded user
 
   details <- createConnectionDetails(dbms = "sql server", connectionString = connectionString)
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # Oracle
@@ -95,7 +95,7 @@ test_that("Open and close connection using connection strings with embedded user
 
   details <- createConnectionDetails(dbms = "oracle", connectionString = connectionString)
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # RedShift
@@ -115,7 +115,7 @@ test_that("Open and close connection using connection strings with embedded user
   #                            URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
   # details <- createConnectionDetails(dbms = "redshift", connectionString = connectionString)
   # connection <- connect(details)
-  # expect_true(inherits(connection, "Connection"))
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
   # expect_true(disconnect(connection))
 })
 
@@ -131,7 +131,7 @@ test_that("Open and close connection using connection strings with separate user
                                      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")))
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # SQL Server
@@ -141,7 +141,7 @@ test_that("Open and close connection using connection strings with separate user
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")))
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # Oracle
@@ -155,7 +155,7 @@ test_that("Open and close connection using connection strings with separate user
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")))
   connection <- connect(details)
-  expect_true(inherits(connection, "Connection"))
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 
   # RedShift
@@ -169,6 +169,6 @@ test_that("Open and close connection using connection strings with separate user
   #                                    user = Sys.getenv("CDM5_REDSHIFT_USER"),
   #                                    password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
   # connection <- connect(details)
-  # expect_true(inherits(connection, "Connection"))
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
   # expect_true(disconnect(connection))
 })

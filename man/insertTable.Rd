@@ -91,4 +91,3 @@ insertTable(connection = connection,
             useMppBulkLoad = TRUE) # or, Sys.setenv("USE_MPP_BULK_LOAD" = TRUE)
 }
 }
-

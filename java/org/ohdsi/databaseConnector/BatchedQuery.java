@@ -19,7 +19,9 @@ public class BatchedQuery {
 	private Object[]				columns;
 	private int[]					columnTypes;
 	private String[]				columnNames;
+	private String[]				columnSqlTypes;
 	private int						rowCount;
+	private int						totalRowCount;
 	private int						batchSize;
 	private ResultSet				resultSet;
 	private Connection				connection;
@@ -58,7 +60,9 @@ public class BatchedQuery {
 		resultSet.setFetchSize(FETCH_SIZE);
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		columnTypes = new int[metaData.getColumnCount()];
+		columnSqlTypes = new String[metaData.getColumnCount()];
 		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
+			columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
 			int type = metaData.getColumnType(columnIndex + 1);
 			if (type == Types.BIGINT || type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.INTEGER || type == Types.NUMERIC
 					|| type == Types.REAL || type == Types.SMALLINT || type == Types.TINYINT)
@@ -73,6 +77,7 @@ public class BatchedQuery {
 			columnNames[columnIndex] = metaData.getColumnLabel(columnIndex + 1);
 		reserveMemory();
 		done = false;
+		totalRowCount = 0;
 	}
 
 	public void fetchBatch() throws SQLException {
@@ -96,6 +101,7 @@ public class BatchedQuery {
 			done = true;
 			connection.setAutoCommit(true);
 		}
+		totalRowCount += rowCount;
 	}
 
 	public void clear() {
@@ -142,7 +148,15 @@ public class BatchedQuery {
 		return columnTypes;
 	}
 
+	public String[] getColumnSqlTypes() {
+		return columnSqlTypes;
+	}
+	
 	public String[] getColumnNames() {
 		return columnNames;
+	}
+	
+	public int getTotalRowCount() {
+		return totalRowCount;
 	}
 }

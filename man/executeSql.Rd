@@ -43,4 +43,3 @@ executeSql(conn, "CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
 disconnect(conn)
 }
 }
-

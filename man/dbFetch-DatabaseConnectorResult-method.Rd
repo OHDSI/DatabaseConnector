@@ -3,11 +3,58 @@
 \docType{methods}
 \name{dbFetch,DatabaseConnectorResult-method}
 \alias{dbFetch,DatabaseConnectorResult-method}
-\title{Retrieve records from Kazam query}
+\title{Fetch records from a previously executed query}
 \usage{
-\S4method{dbFetch}{DatabaseConnectorResult}(res, n = -1, ...)
+\S4method{dbFetch}{DatabaseConnectorResult}(res, datesAsString = FALSE, ...)
+}
+\arguments{
+\item{res}{An object inheriting from \linkS4class{DBIResult}, created by
+\code{\link[=dbSendQuery]{dbSendQuery()}}.}
+
+\item{datesAsString}{Should dates be represented as strings? (instead of Date objects)}
+
+\item{...}{Other arguments passed on to methods.}
+}
+\value{
+\code{dbFetch()} always returns a \link{data.frame}
+with as many rows as records were fetched and as many
+columns as fields in the result set,
+even if the result is a single value
+or has one
+or zero rows.
+An attempt to fetch from a closed result set raises an error.
+If the \code{n} argument is not an atomic whole number
+greater or equal to -1 or Inf, an error is raised,
+but a subsequent call to \code{dbFetch()} with proper \code{n} argument succeeds.
+Calling \code{dbFetch()} on a result set from a data manipulation query
+created by \code{\link[=dbSendStatement]{dbSendStatement()}}
+can be fetched and return an empty data frame, with a warning.
 }
 \description{
-Retrieve records from Kazam query
-}
+Fetch the next \code{n} elements (rows) from the result set and return them
+as a data.frame.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbFetch")}
+}
+\details{
+\code{fetch()} is provided for compatibility with older DBI clients - for all
+new code you are strongly encouraged to use \code{dbFetch()}. The default
+implementation for \code{dbFetch()} calls \code{fetch()} so that it is compatible with
+existing code. Modern backends should implement for \code{dbFetch()} only.
+}
+\seealso{
+Close the result set with \code{\link[=dbClearResult]{dbClearResult()}} as soon as you
+finish retrieving the records you want.
+
+Other DBIResult generics: \code{\link{DBIResult-class}},
+  \code{\link{dbBind}}, \code{\link{dbClearResult}},
+  \code{\link{dbColumnInfo}}, \code{\link{dbGetInfo}},
+  \code{\link{dbGetRowCount}},
+  \code{\link{dbGetRowsAffected}},
+  \code{\link{dbGetStatement}},
+  \code{\link{dbHasCompleted}}, \code{\link{dbIsValid}},
+  \code{\link{dbQuoteIdentifier}},
+  \code{\link{dbQuoteLiteral}},
+  \code{\link{dbQuoteString}},
+  \code{\link{dbUnquoteIdentifier}}
+}

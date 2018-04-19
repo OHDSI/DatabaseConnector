@@ -3,13 +3,8 @@
 \docType{class}
 \name{DatabaseConnectorDriver-class}
 \alias{DatabaseConnectorDriver-class}
-\alias{dbUnloadDriver,DatabaseConnectorDriver-method}
 \title{DatabaseConnectorDriver class.}
-\usage{
-\S4method{dbUnloadDriver}{DatabaseConnectorDriver}(drv, ...)
-}
 \description{
 DatabaseConnectorDriver class.
 }
 \keyword{internal}
-

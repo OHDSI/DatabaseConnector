@@ -244,12 +244,12 @@ insertTable <- function(connection,
   }
   fts <- sapply(data[1, ], def)
   isDate <- (fts == "DATE")
-  fdef <- paste(.sql.qescape(names(data), TRUE, connection$identifierQuote), fts, collapse = ",")
-  qname <- .sql.qescape(tableName, TRUE, connection$identifierQuote)
+  fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
+  qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
   esc <- function(str) {
     paste("'", gsub("'", "''", str), "'", sep = "")
   }
-  varNames <- paste(.sql.qescape(names(data), TRUE, connection$identifierQuote), collapse = ",")
+  varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
   
   if (dropTableIfExists) {
     if (tempTable) {
@@ -309,10 +309,10 @@ insertTable <- function(connection,
       
       batchSize <- 10000
       
-      autoCommit <- rJava::.jcall(connection$jConnection, "Z", "getAutoCommit")
+      autoCommit <- rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")
       if (autoCommit) {
-        rJava::.jcall(connection$jConnection, "V", "setAutoCommit", FALSE)
-        on.exit(rJava::.jcall(connection$jConnection, "V", "setAutoCommit", TRUE))
+        rJava::.jcall(connection@jConnection, "V", "setAutoCommit", FALSE)
+        on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE))
       }
       
       insertRow <- function(row, statement) {
@@ -368,7 +368,7 @@ insertTable <- function(connection,
       
       for (start in seq(1, nrow(data), by = batchSize)) {
         end <- min(start + batchSize - 1, nrow(data))
-        statement <- rJava::.jcall(connection$jConnection,
+        statement <- rJava::.jcall(connection@jConnection,
                                    "Ljava/sql/PreparedStatement;",
                                    "prepareStatement",
                                    insertSql,
@@ -451,7 +451,7 @@ insertTable <- function(connection,
     auth <- "-W"
   }
   
-  databaseMetaData <- rJava::.jcall(connection$jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+  databaseMetaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
   pdwServer <- urltools::url_parse(url)$domain
   
