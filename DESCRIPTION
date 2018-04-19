@@ -16,13 +16,13 @@ Imports:
     SqlRender,
     methods,
     utils,
-    DBI (>= 0.3.0)
+    DBI (>= 0.3.0),
+    urltools
 Suggests:
     aws.s3,
     uuid,
     R.utils,
     testthat,
-    urltools,
     DBItest
 License: Apache License
 RoxygenNote: 5.0.1

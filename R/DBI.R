@@ -77,7 +77,7 @@ setMethod("dbDisconnect", "DatabaseConnectorConnection", function(conn) {
 #' @rdname DatabaseConnectorDriver
 #' @export
 setMethod("show", "DatabaseConnectorConnection", function(object) {
-  cat("Hello world")
+  cat("<DatabaseConnectorConnection>", getServer(object))
 })
 
 # Results -----------------------------------------------------------------------------------------
@@ -94,7 +94,14 @@ setClass("DatabaseConnectorResult",
 #' Send a query to DatabaseConnector
 #' 
 #' @export
-setMethod("dbSendQuery", "DatabaseConnectorConnection", function(conn, statement) {
+setMethod("dbSendQuery", "DatabaseConnectorConnection", function(conn, statement, ...) {
+  querySql(conn, statement)
+})
+
+#' Send a query to DatabaseConnector
+#' 
+#' @export
+setMethod("dbGetQuery", "DatabaseConnectorConnection", function(conn, statement, ...) {
   querySql(conn, statement)
 })
 
@@ -115,21 +122,30 @@ setMethod("dbHasCompleted", "DatabaseConnectorResult", function(res, ...) {
 })
 
 #' @export
-setMethod("dbListFields", "DatabaseConnectorConnection", def=function(conn, table) {
+setMethod("dbListFields", "DatabaseConnectorConnection", def=function(conn, name) {
   metaData <- .jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   resultSet <- .jcall(metaData, 
                       "Ljava/sql/ResultSet;", 
                       "getColumns", 
                       .jnull("java/lang/String"),
                       .jnull("java/lang/String"), 
-                      table, 
+                      name, 
                       .jnull("java/lang/String"))
   on.exit(.jcall(resultSet, "V", "close"))
   fields <- character()
   while (.jcall(resultSet, "Z", "next"))
     fields <- c(fields, .jcall(resultSet, "S", "getString", "COLUMN_NAME"))
-  # .jcall(resultSet, "V", "close")
   return(fields)
+})
+
+#' @export
+setMethod("dbListTables", "DatabaseConnectorConnection", def=function(conn, catalog = NULL, schema = NULL, ...) {
+  if (is.null(catalog)) {
+    databaseSchema <- schema
+  } else {
+    databaseSchema <- paste(catalog, schema, sep = ".")
+  }
+  return(getTableNames(conn, databaseSchema))
 })
 
 

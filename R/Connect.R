@@ -423,10 +423,6 @@ connect <- function(connectionDetails,
     if (!missing(schema) && !is.null(schema))
       lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms
-    registerWithRStudio(connection = connection, 
-                        dbms = dbms,
-                        server = server,
-                        connectionString = connectionString)
     return(connection)
   }
   if (dbms == "redshift") {
@@ -584,6 +580,7 @@ connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "'", dbms 
                     jConnection = jConnection, 
                     identifierQuote = identifierQuote,
                     dbms = dbms)
+  registerWithRStudio(connection)
   return(connection)
 }
 
