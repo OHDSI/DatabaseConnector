@@ -9,6 +9,44 @@ connectionDetails <- createConnectionDetails(dbms = "pdw",
 conn <- connect(connectionDetails)
 x <- querySql.ffdf(conn, "SELECT * FROM observation_period WHERE person_id = -999")
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
+
+
+# DBI compatability
+dbIsValid(conn)
+dbListTables(conn, database = "CDM_Truven_MDCR_V415", schema = "dbo")
+dbListFields(conn, database = "CDM_Truven_MDCR_V415", schema = "dbo", name = "vocabulary")
+dbExistsTable(conn, database = "CDM_Truven_MDCR_V415", schema = "dbo", name = "vocabulary")
+res <- dbSendQuery(conn, "SELECT * FROM CDM_Truven_MDCR_V415.dbo.vocabulary")
+dbColumnInfo(res)
+dbGetRowCount(res)
+dbHasCompleted(res)
+dbFetch(res)
+dbGetRowCount(res)
+dbHasCompleted(res)
+dbGetStatement(res)
+dbClearResult(res)
+dbQuoteIdentifier(conn, "test results")
+dbQuoteString(conn, "one two three")
+dbGetQuery(conn, "SELECT * FROM CDM_Truven_MDCR_V415.dbo.vocabulary")
+
+res <- dbSendStatement(conn, "CREATE TABLE #temp(x int);")
+dbHasCompleted(res)
+dbGetRowsAffected(res)
+dbGetStatement(res)
+dbClearResult(res)
+dbListFields(conn, "#temp")
+dbRemoveTable(conn, "#temp")
+
+dbExecute(conn, "CREATE TABLE #temp(x int);")
+dbExistsTable(conn, name = "temp")
+dbRemoveTable(conn, "#temp")
+
+data <- data.frame(name = c("john", "mary"), age = c(35, 26))
+dbWriteTable(conn, "#temp", data, temporary = TRUE)
+dbGetQuery(conn, "SELECT * FROM #temp")
+dbReadTable(conn, "#temp") 
+dbRemoveTable(conn, "#temp")
+
 disconnect(conn)
 
 
@@ -20,6 +58,10 @@ connectionDetails <- createConnectionDetails(dbms = "oracle",
                                              schema = "cdm_synpuf")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
+
+dbIsValid(conn)
+dbListTables(conn, schema = "cdm_synpuf")
+disconnect(conn)
 
 
 # Test PostgreSQL --------------------------------------------------------
@@ -140,6 +182,6 @@ connectionDetails <- createConnectionDetails(dbms = "sql server",
                                              user = Sys.getenv("RDS_USER"),
                                              password = Sys.getenv("RDS_PW"))
 conn <- connect(connectionDetails)
-querySql(conn, "SELECT COUNT(*) FROM person")
+querySql(conn, "SELECT COUNT(*) FROM testing.cdm_testing_jmdc.person")
 disconnect(conn)
 

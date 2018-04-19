@@ -63,15 +63,29 @@ hasCatalogs <- function(connection) {
 }
 
 listDatabaseConnectorColumns <- function(connection, catalog = NULL, schema = NULL, table = NULL, ...) {
+  if (connection@dbms == "oracle") {
+    table <- toupper(table)
+    if (!is.null(catalog)) {
+      catalog <- toupper(catalog)
+    }
+    if (!is.null(schema)) {
+      schema <- toupper(schema)
+    }
+    
+  } else {
+    table <- tolower(table)
+    if (!is.null(catalog)) {
+      catalog <- tolower(catalog)
+    }
+    if (!is.null(schema)) {
+      schema <- tolower(schema)
+    }
+  }
   if (is.null(catalog))
     catalog <- rJava::.jnull("java/lang/String")
   if (is.null(schema))
     schema <- rJava::.jnull("java/lang/String")
-  if (connection@dbms == "oracle") {
-    table <- toupper(table)
-  } else {
-    table <- tolower(table)
-  }
+
   metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   resultSet <- rJava::.jcall(metaData, 
                       "Ljava/sql/ResultSet;", 

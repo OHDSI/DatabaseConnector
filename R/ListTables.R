@@ -41,6 +41,9 @@ getTableNames <- function(connection, databaseSchema) {
     database <- rJava::.jnull("java/lang/String")
     schema <- rJava::.jnull("java/lang/String")
   } else {
+    if (connection@dbms == "oracle") {
+      databaseSchema <- toupper(databaseSchema)
+    }
     databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
     if (length(databaseSchema) == 1) {
       if (connection@dbms %in% c("sql server", "pdw")) {
