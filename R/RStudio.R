@@ -1,6 +1,6 @@
 # @file RStudio.R
 #
-# Copyright 2017 Observational Health Data Sciences and Informatics
+# Copyright 2018 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
