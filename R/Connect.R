@@ -23,7 +23,7 @@
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a
 #' database. There are three ways to call this function:
 #' \itemize{
-#'   \item \code{createConnectionDetails(dbms, user, domain, password, server, port, schema,
+#'   \item \code{createConnectionDetails(dbms, user, password, server, port, schema,
 #'         extraSettings, oracleDriver = "thin")}
 #'   \item \code{createConnectionDetails(dbms, connectionString)}
 #'   \item \code{createConnectionDetails(dbms, connectionString, user, password)}
@@ -54,7 +54,6 @@
 #' @export
 createConnectionDetails <- function(dbms,
                                     user = NULL,
-                                    domain = NULL,
                                     password = NULL,
                                     server = NULL,
                                     port = NULL,
@@ -112,7 +111,7 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #' \code{connect} creates a connection to a database server .There are four ways to call this
 #' function:
 #' \itemize{
-#'   \item \code{connect(dbms, user, domain, password, server, port, schema, extraSettings,
+#'   \item \code{connect(dbms, user, password, server, port, schema, extraSettings,
 #'         oracleDriver = "thin")}
 #'   \item \code{connect(connectionDetails)}
 #'   \item \code{connect(dbms, connectionString)}
@@ -165,7 +164,6 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 connect <- function(connectionDetails,
                     dbms,
                     user,
-                    domain,
                     password,
                     server,
                     port,
@@ -177,7 +175,6 @@ connect <- function(connectionDetails,
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
-                          domain = connectionDetails$domain,
                           password = connectionDetails$password,
                           server = connectionDetails$server,
                           port = connectionDetails$port,
@@ -239,43 +236,20 @@ connect <- function(connectionDetails,
     } else {
       # Using regular user authentication
       writeLines("Connecting using SQL Server driver")
-      if (grepl("/", user) | grepl("\\\\", user))
-        stop("User name appears to contain the domain, but this should be specified using the domain parameter")
-      if (!missing(domain) && !is.null(domain)) {
-        # I have been unable to get Microsoft's JDBC driver to connect when a domain needs to be specified,
-        # so using JTDS driver instead: (Note, JTDS has issues with dates, which it converts to VARCHAR), see
-        # https://sourceforge.net/p/jtds/bugs/679/
-        pathToJar <- system.file("java", "jtds-1.3.1.jar", package = "DatabaseConnector")
-        driver <- getJbcDriverSingleton("net.sourceforge.jtds.jdbc.Driver", pathToJar)
-        writeLines("Warning: Using JTDS driver because a domain is specified. This may lead to problems. Try using integrated security instead.")
-        if (missing(connectionString) || is.null(connectionString)) {
-          if (!missing(port) && !is.null(port))
-          server <- paste(server, port, sep = ":")
-          connectionString <- paste("jdbc:jtds:sqlserver://", server, ";domain=", domain, sep = "")
-          if (!missing(extraSettings) && !is.null(extraSettings))
-          connectionString <- paste(connectionString, ";", extraSettings, sep = "")
-        }
-        connection <- connectUsingJdbcDriver(driver,
-                                             connectionString,
-                                             user = user,
-                                             password = password, 
-                                             dbms = dbms)
-      } else {
-        pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
-        driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
-        if (missing(connectionString) || is.null(connectionString)) {
-          connectionString <- paste("jdbc:sqlserver://", server, sep = "")
-          if (!missing(port) && !is.null(port))
+      pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
+      driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
+      if (missing(connectionString) || is.null(connectionString)) {
+        connectionString <- paste("jdbc:sqlserver://", server, sep = "")
+        if (!missing(port) && !is.null(port))
           connectionString <- paste(connectionString, ";port=", port, sep = "")
-          if (!missing(extraSettings) && !is.null(extraSettings))
+        if (!missing(extraSettings) && !is.null(extraSettings))
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
-        }
-        connection <- connectUsingJdbcDriver(driver,
-                                             connectionString,
-                                             user = user,
-                                             password = password, 
-                                             dbms = dbms)
       }
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password, 
+                                           dbms = dbms)
     }
     if (!missing(schema) && !is.null(schema)) {
       database <- strsplit(schema, "\\.")[[1]][1]
