@@ -51,7 +51,8 @@ direct commands to the database engine.
 \code{connect} creates a connection to a database server .There are four ways to call this
 function:
 \itemize{
-  \item \code{connect(dbms, user, password, server, port, schema, extraSettings, oracleDriver, pathToDriver)}
+  \item \code{connect(dbms, user, password, server, port, schema, extraSettings, oracleDriver,
+        pathToDriver)}
   \item \code{connect(connectionDetails)}
   \item \code{connect(dbms, connectionString, pathToDriver))}
   \item \code{connect(dbms, connectionString, user, password, pathToDriver)}
@@ -62,8 +63,7 @@ This function creates a connection to a database.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations:
-Oracle:
+interpretations: Oracle:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
@@ -167,9 +167,7 @@ conn <- connect(dbms = "postgresql",
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)
 
-conn <- connect(dbms = "sql server", 
-                server = "RNDUSRDHIT06.jnj.com", 
-                schema = "Vocabulary")
+conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com", schema = "Vocabulary")
 dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
 disconnect(conn)
 

@@ -47,7 +47,8 @@ A list with all the details needed to connect to a database.
 \code{createConnectionDetails} creates a list containing all details needed to connect to a
 database. There are three ways to call this function:
 \itemize{
-  \item \code{createConnectionDetails(dbms, user, password, server, port, schema, extraSettings, oracleDriver, pathToDriver)}
+  \item \code{createConnectionDetails(dbms, user, password, server, port, schema, extraSettings,
+        oracleDriver, pathToDriver)}
   \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
 }
@@ -58,8 +59,7 @@ then be used in the \code{\link{connect}} function.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations:
-Oracle:
+interpretations: Oracle:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user

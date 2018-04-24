@@ -20,7 +20,8 @@
 #'
 #' @docType package
 #' @name DatabaseConnector
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table install.packages menu
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table
+#' install.packages menu
 NULL
 
 .onLoad <- function(libname, pkgname) {
@@ -28,35 +29,43 @@ NULL
 }
 
 #' @name jdbcDrivers
-#' 
-#' @title How to download JDBC drivers for the various data platforms.
 #'
-#' @section PostgresSql:
-#' Go to \href{https://jdbc.postgresql.org/download.html}{the PostgresSQL JDBC site} and download 
-#' the current version. The file is called something like 'postgresql-42.2.2.jar'.
-#' 
-#' @section Oracle:
-#' Go to \href{http://www.oracle.com/technetwork/database/features/jdbc/jdbc-drivers-12c-download-1958347.html}{the Oracle JDBC site}.
-#' Select 'Accept License Agreement' and download the jar file. The file is called something like 'ojdbc7.jar'.
-#' 
-#' @section SQL Server and PDW:
-#' Go to \href{https://www.microsoft.com/en-us/download/details.aspx?id=11774}{the Microsoft SQL Server JDBC site},
-#' click 'Download' and select the tar.gz file. Click 'Next' to start the download. Decompress the file
-#' and find a file called seomthing like 'sqljdbc41.jar' in the a folder named something like 'sqljdbc_6.0/enu/jre7'.
-#' 
-#' @section RedShift:
-#' Go to the \href{https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver}{Amazon RedShfit JDBC driver page}
-#' and download the latest JDBC driver. The file is called something like 'RedshiftJDBC42-1.2.12.1017.jar'.
-#' 
-#' @section Netezza:
-#' Read the instructions \href{https://www.ibm.com/support/knowledgecenter/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html}{here}
+#' @title
+#' How to download JDBC drivers for the various data platforms.
+#'
+#' @section
+#' PostgresSql: Go to \href{https://jdbc.postgresql.org/download.html}{the PostgresSQL JDBC site} and
+#' download the current version. The file is called something like 'postgresql-42.2.2.jar'.
+#'
+#' @section
+#' Oracle: Go to
+#' \href{http://www.oracle.com/technetwork/database/features/jdbc/jdbc-drivers-12c-download-1958347.html}{the
+#' Oracle JDBC site}. Select 'Accept License Agreement' and download the jar file. The file is called
+#' something like 'ojdbc7.jar'.
+#'
+#' @section
+#' SQL Server and PDW: Go to \href{https://www.microsoft.com/en-us/download/details.aspx?id=11774}{the
+#' Microsoft SQL Server JDBC site}, click 'Download' and select the tar.gz file. Click 'Next' to start
+#' the download. Decompress the file and find a file called seomthing like 'sqljdbc41.jar' in the a
+#' folder named something like 'sqljdbc_6.0/enu/jre7'.
+#'
+#' @section
+#' RedShift: Go to the
+#' \href{https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver}{Amazon
+#' RedShfit JDBC driver page} and download the latest JDBC driver. The file is called something like
+#' 'RedshiftJDBC42-1.2.12.1017.jar'.
+#'
+#' @section
+#' Netezza: Read the instructions
+#' \href{https://www.ibm.com/support/knowledgecenter/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html}{here}
 #' on how to obtain the Netezza JDBC driver.
-#' 
-#' @section BigQuery:
-#' Go to \href{https://cloud.google.com/bigquery/partners/simba-drivers/}{Google's site} and download the latest
-#' JDBC driver. Unzip the file, and locate the appropriate jar files.
-#' 
-#' @section Impala:
-#' Go to \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick your OS version,
-#' and click "GET IT NOW!'. Register, and you should be able to download the driver.
+#'
+#' @section
+#' BigQuery: Go to \href{https://cloud.google.com/bigquery/partners/simba-drivers/}{Google's site} and
+#' download the latest JDBC driver. Unzip the file, and locate the appropriate jar files.
+#'
+#' @section
+#' Impala: Go to
+#' \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick
+#' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 NULL

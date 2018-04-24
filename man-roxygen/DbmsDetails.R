@@ -9,6 +9,10 @@
 #'                             \item {"bigquery" for Google BigQuery}
 #'                           }
 #'
+#'
+#'
+#'
+#'
 #' @param user               The user name used to access the server.
 #' @param password           The password for that user.
 #' @param server             The name of the server.
@@ -28,8 +32,7 @@
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
-#' interpretations:
-#' Oracle:
+#' interpretations: Oracle:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
 #'   \item \code{password}. The password for that user
@@ -120,4 +123,4 @@
 #' run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
 #' sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll
 #' (32-bits), which needs to be moved to location on the system path, for example to
-#' c:/windows/system32. 
+#' c:/windows/system32.

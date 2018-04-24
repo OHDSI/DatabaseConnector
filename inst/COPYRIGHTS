@@ -53,7 +53,7 @@ The package DatabseConnector includes other software components. The following i
    Project Website: https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
    License Information: https://s3.amazonaws.com/redshift-downloads/drivers/Amazon+Redshift+JDBC+Driver+License+Agreement.pdf
    
-   OHDSI has been granted permission to include the RedShift JDBC driver in the open source DatabaseConnector package. Contact the package maintainer for details.
+   Observational Health Data Sciences and Informatics has been granted permission to include the RedShift JDBC driver in the open source DatabaseConnector package. Contact the package maintainer for details.
 
    Related JARs: RedshiftJDBC*.jar
    

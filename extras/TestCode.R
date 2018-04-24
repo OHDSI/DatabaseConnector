@@ -45,7 +45,7 @@ dbRemoveTable(conn, "#temp")
 data <- data.frame(name = c("john", "mary"), age = c(35, 26))
 dbWriteTable(conn, "#temp", data, temporary = TRUE)
 dbGetQuery(conn, "SELECT * FROM #temp")
-dbReadTable(conn, "#temp") 
+dbReadTable(conn, "#temp")
 dbRemoveTable(conn, "#temp")
 
 disconnect(conn)
@@ -112,7 +112,7 @@ dbRemoveTable(conn, "temp")
 data <- data.frame(name = c("john", "mary"), age = c(35, 26))
 dbWriteTable(conn, "temp", data, temporary = TRUE)
 dbGetQuery(conn, "SELECT * FROM temp")
-dbReadTable(conn, "temp") 
+dbReadTable(conn, "temp")
 dbRemoveTable(conn, "temp")
 
 dbDisconnect(conn)
@@ -120,7 +120,8 @@ dbDisconnect(conn)
 
 # Test Redshift -----------------------
 connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             server = paste0(Sys.getenv("REDSHIFT_SERVER"), "/jmdc"),
+                                             server = paste0(Sys.getenv("REDSHIFT_SERVER"),
+                                                             "/jmdc"),
                                              user = Sys.getenv("REDSHIFT_USER"),
                                              password = Sys.getenv("REDSHIFT_PW"),
                                              extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")

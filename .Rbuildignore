@@ -9,3 +9,4 @@ deploy.sh
 .classpath
 .project
 compare_versions
+^cran-comments.md$

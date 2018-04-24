@@ -10,26 +10,25 @@
 \arguments{
 \item{drv}{The result of the \code{link{DatabaseConnectorDriver}} function}
 
-\item{...}{Other parameters. These are the same as expected by the \code{\link{connect}} 
-function.}
+\item{...}{Other parameters. These are the same as expected by the \code{\link{connect}} function.}
 }
 \value{
-Returns a DatabaseConnectorConnection object that can be used with most of the other functions in 
+Returns a DatabaseConnectorConnection object that can be used with most of the other functions in
 this package.
 }
 \description{
-Connect to a database. This function is synonymous with the \code{\link{connect}} function. 
-except a dummy driver needs to be specified
+Connect to a database. This function is synonymous with the \code{\link{connect}} function. except
+a dummy driver needs to be specified
 }
 \examples{
 \dontrun{
-  conn <- dbConnect(DatabaseConnectorDriver(), 
-                    dbms = "postgresql", 
-                    server = "localhost/ohdsi", 
-                    user = "joe", 
-                    password = "secret")
-  querySql(conn, "SELECT * FROM cdm_synpuf.person")
-  dbDisconnet(conn)
+conn <- dbConnect(DatabaseConnectorDriver(),
+                  dbms = "postgresql",
+                  server = "localhost/ohdsi",
+                  user = "joe",
+                  password = "secret")
+querySql(conn, "SELECT * FROM cdm_synpuf.person")
+dbDisconnet(conn)
 }
 
 }

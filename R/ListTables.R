@@ -48,7 +48,7 @@ getTableNames <- function(connection, databaseSchema) {
     if (length(databaseSchema) == 1) {
       if (connection@dbms %in% c("sql server", "pdw")) {
         database <- databaseSchema
-        "dbo"
+        schema <- "dbo"
       } else {
         database <- rJava::.jnull("java/lang/String")
         schema <- databaseSchema
@@ -60,56 +60,18 @@ getTableNames <- function(connection, databaseSchema) {
   }
   metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   types <- rJava::.jarray(c("TABLE", "VIEW"))
-  # resultSet <- rJava::.jcall(metaData, 
-  #                            "Ljava/sql/ResultSet;", 
-  #                            "getTableTypes")
-  # types <- character()
-  # while (rJava::.jcall(resultSet, "Z", "next")) {
-  #   types <- c(types, rJava::.jcall(resultSet, "S", "getString", "TABLE_TYPE"))
-  # }
-  resultSet <- rJava::.jcall(metaData, 
-                             "Ljava/sql/ResultSet;", 
+  resultSet <- rJava::.jcall(metaData,
+                             "Ljava/sql/ResultSet;",
                              "getTables",
                              database,
                              schema,
                              rJava::.jnull("java/lang/String"),
-                             types, #rJava::.jnull("[Ljava/lang/String;"),
-                             check=FALSE)
+                             types,
+                             check = FALSE)
   tables <- character()
   while (rJava::.jcall(resultSet, "Z", "next")) {
     tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
   }
   return(toupper(tables))
-  # dbms <- attr(connection, "dbms")
-  # if (dbms == "mysql" || dbms == "impala") {
-  #   query <- paste("SHOW TABLES IN", databaseSchema)
-  # } else if (dbms == "sql server" || dbms == "pdw") {
-  #   databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
-  #   if (length(databaseSchema) == 1) {
-  #     database <- databaseSchema
-  #     schema <- "dbo"
-  #   } else {
-  #     database <- databaseSchema[1]
-  #     schema <- databaseSchema[2]
-  #   }
-  #   query <- paste0("SELECT table_name FROM ",
-  #                   database,
-  #                   ".information_schema.tables WHERE table_schema = '",
-  #                   schema,
-  #                   "' ORDER BY table_name")
-  # } else if (dbms == "oracle") {
-  #   query <- paste0("SELECT table_name FROM all_tables WHERE owner='",
-  #                   toupper(databaseSchema),
-  #                   "' ORDER BY table_name")
-  # } else if (dbms == "postgresql" || dbms == "redshift") {
-  #   query <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '",
-  #                   tolower(databaseSchema),
-  #                   "' ORDER BY table_name")
-  # } else if (dbms == "bigquery") {
-  #   query <- paste0("SELECT table_id as table_name FROM ",
-  #                   databaseSchema,
-  #                   ".__TABLES__ ORDER BY table_name")
-  # }
-  # tables <- querySql(connection, query)
-  # return(toupper(tables[, 1]))
+  
 }

@@ -95,7 +95,7 @@ Getting Involved
 
 License
 =======
-DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers fall under their own respective licenses.
+DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers [fall under their own respective licenses](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/inst/COPYRIGHTS).
 
 Development
 ===========
