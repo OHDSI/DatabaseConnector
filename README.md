@@ -8,20 +8,22 @@ This R package provides function for connecting to various DBMSs.
 Features
 ========
 - Create connections to the various database platforms:
-  - SQL Server
+  - MicrosoftSQL Server
   - Oracle
-  - Postgres
+  - PostgresSql
   - Microsoft Parallel Data Warehouse (a.k.a. Analytics Platform System)
   - Amazon Redshift
-  - MySQL
-  - Impala
+  - Apache Impala
   - Google BigQuery
+  - IBM Netezza
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
   - Multiple statements per query
 - Support for fetching data to ffdf objects
 - Insert data frame to a database table
+- Supports the DBI interface
+- Integrates with RStudio's Connections tab
 
 Examples
 ========
@@ -85,7 +87,8 @@ Use the following commands in R to install the DatabaseConnector package:
   ```
 
 Getting Involved
-=============
+================
+* Vignette: [Using DatabaseConnector](http://ohdsi.github.io/DatabaseConnector/articles/UsingDatabaseConnector.html)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf) 
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
 * We use the <a href="../../issues">GitHub issue tracker</a> for all bugs/issues/enhancements

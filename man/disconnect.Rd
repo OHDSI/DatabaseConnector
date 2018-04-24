@@ -15,7 +15,7 @@ This function sends SQL to the server, and returns the results in an ffdf object
 \examples{
 \dontrun{
 library(ffbase)
-connectionDetails <- createConnectionDetails(dbms = "mysql",
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost",
                                              user = "root",
                                              password = "blah",

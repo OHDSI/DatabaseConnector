@@ -24,3 +24,15 @@ OhdsiRTools::updateCopyrightYearFolder()
 # Create manual:
 shell("rm extras/DatabaseConnector.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
+
+rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
+                  output_file = "../inst/doc/UsingDatabaseConnector.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+
+
+# Release package:
+devtools::build_win()
+
+devtools::release()

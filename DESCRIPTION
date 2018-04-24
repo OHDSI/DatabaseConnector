@@ -24,4 +24,5 @@ Suggests:
     testthat,
     DBItest
 License: Apache License
+Copyright: See file COPYRIGHTS
 RoxygenNote: 6.0.1.9000

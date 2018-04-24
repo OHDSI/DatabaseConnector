@@ -23,10 +23,9 @@
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a
 #' database. There are three ways to call this function:
 #' \itemize{
-#'   \item \code{createConnectionDetails(dbms, user, password, server, port, schema,
-#'         extraSettings, oracleDriver = "thin")}
-#'   \item \code{createConnectionDetails(dbms, connectionString)}
-#'   \item \code{createConnectionDetails(dbms, connectionString, user, password)}
+#'   \item \code{createConnectionDetails(dbms, user, password, server, port, schema, extraSettings, oracleDriver, pathToDriver)}
+#'   \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
+#'   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
 #' }
 #'
 #' @usage
@@ -42,8 +41,8 @@
 #' A list with all the details needed to connect to a database.
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "mysql",
-#'                                              server = "localhost",
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#'                                              server = "localhost/postgres",
 #'                                              user = "root",
 #'                                              password = "blah",
 #'                                              schema = "cdm_v4")
@@ -61,7 +60,7 @@ createConnectionDetails <- function(dbms,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
-                                    pathToDriver = NULL) {
+                                    pathToDriver = getOption("pathToDriver")) {
   # First: get default values:
   result <- list()
   for (name in names(formals(createConnectionDetails))) {
@@ -104,6 +103,24 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
   driver
 }
 
+findPathToJar <- function(name, pathToDriver) {
+  if (missing(pathToDriver) || is.null(pathToDriver)) {
+    pathToDriver <- system.file("java", package = "DatabaseConnector")
+  } else {
+    if (grepl(".jar$", tolower(pathToDriver))) {
+      pathToDriver <- basename(pathToDriver) 
+    }
+  }
+  files <- list.files(path = pathToDriver, pattern = name, full.names = TRUE)
+  if (length(files) == 0) {
+    stop("No drives matching pattern ", name, " found in folder ", pathToDriver, ". Please download the JDBC ",
+         "driver, then add the argument 'pathToDriver', pointing to the local path to directory containing ",
+         "the JDBC JAR file. Type ?jdbcDrivers for help on downloading drivers.") 
+  } else {
+    return(files)
+  }
+}
+
 #' @title
 #' connect
 #'
@@ -111,11 +128,10 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #' \code{connect} creates a connection to a database server .There are four ways to call this
 #' function:
 #' \itemize{
-#'   \item \code{connect(dbms, user, password, server, port, schema, extraSettings,
-#'         oracleDriver = "thin")}
+#'   \item \code{connect(dbms, user, password, server, port, schema, extraSettings, oracleDriver, pathToDriver)}
 #'   \item \code{connect(connectionDetails)}
-#'   \item \code{connect(dbms, connectionString)}
-#'   \item \code{connect(dbms, connectionString, user, password)}
+#'   \item \code{connect(dbms, connectionString, pathToDriver))}
+#'   \item \code{connect(dbms, connectionString, user, password, pathToDriver)}
 #' }
 #'
 #' @usage
@@ -134,15 +150,17 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #'
 #' @examples
 #' \dontrun{
-#' conn <- connect(dbms = "mysql",
-#'                 server = "localhost",
+#' conn <- connect(dbms = "postgresql",
+#'                 server = "localhost/postgres",
 #'                 user = "root",
 #'                 password = "xxx",
 #'                 schema = "cdm_v4")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #'
-#' conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com", schema = "Vocabulary")
+#' conn <- connect(dbms = "sql server", 
+#'                 server = "RNDUSRDHIT06.jnj.com", 
+#'                 schema = "Vocabulary")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
 #' disconnect(conn)
 #'
@@ -150,7 +168,8 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 #'                 server = "127.0.0.1/xe",
 #'                 user = "system",
 #'                 password = "xxx",
-#'                 schema = "test")
+#'                 schema = "test",
+#'                 pathToDriver = "c:/temp")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 #' disconnect(conn)
 #'
@@ -171,7 +190,7 @@ connect <- function(connectionDetails,
                     extraSettings,
                     oracleDriver = "thin",
                     connectionString,
-                    pathToDriver) {
+                    pathToDriver = getOption("pathToDriver")) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
@@ -186,45 +205,12 @@ connect <- function(connectionDetails,
 
     return(connection)
   }
-  if (dbms == "mysql") {
-    writeLines("Connecting using MySQL driver")
-    pathToJar <- system.file("java",
-                             "mysql-connector-java-5.1.30-bin.jar",
-                             package = "DatabaseConnector")
-    driver <- getJbcDriverSingleton("com.mysql.jdbc.Driver", pathToJar)
-    if (missing(connectionString) || is.null(connectionString)) {
-      if (missing(port) || is.null(port))
-        port <- "3306"
-      connectionString <- paste("jdbc:mysql://",
-                                server,
-                                ":",
-                                port,
-                                "/?useCursorFetch=true",
-                                sep = "")
-      if (!missing(extraSettings) && !is.null(extraSettings))
-        connectionString <- paste(connectionString, "&", extraSettings, sep = "")
-    }
-    if (missing(user) || is.null(user)) {
-      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
-    } else {
-      connection <- connectUsingJdbcDriver(driver,
-                                           connectionString,
-                                           user = user,
-                                           password = password, 
-                                           dbms = dbms)
-    }
-    if (!missing(schema) && !is.null(schema)) {
-      lowLevelExecuteSql(connection, paste("USE", schema))
-    }
-    attr(connection, "dbms") <- dbms
-    return(connection)
-  }
   if (dbms == "sql server") {
+    jarPath <- findPathToJar("^sqljdbc.\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
       writeLines("Connecting using SQL Server driver using Windows integrated security")
-      pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
-      driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
       if (missing(connectionString) || is.null(connectionString)) {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port))
@@ -236,8 +222,6 @@ connect <- function(connectionDetails,
     } else {
       # Using regular user authentication
       writeLines("Connecting using SQL Server driver")
-      pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
-      driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
       if (missing(connectionString) || is.null(connectionString)) {
         connectionString <- paste("jdbc:sqlserver://", server, sep = "")
         if (!missing(port) && !is.null(port))
@@ -260,8 +244,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "pdw") {
     writeLines("Connecting using SQL Server driver")
-    pathToJar <- system.file("java", "sqljdbc4.jar", package = "DatabaseConnector")
-    driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", pathToJar)
+    jarPath <- findPathToJar("^sqljdbc.\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
       if (missing(connectionString) || is.null(connectionString)) {
@@ -298,8 +282,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "oracle") {
     writeLines("Connecting using Oracle driver")
-    pathToJar <- system.file("java", "ojdbc6.jar", package = "DatabaseConnector")
-    driver <- getJbcDriverSingleton("oracle.jdbc.driver.OracleDriver", pathToJar)
+    jarPath <- findPathToJar("^ojdbc.\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("oracle.jdbc.driver.OracleDriver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       # Build connection string from parts
       if (oracleDriver == "thin") {
@@ -369,8 +353,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "postgresql") {
     writeLines("Connecting using PostgreSQL driver")
-    pathToJar <- system.file("java", "postgresql-9.3-1101.jdbc4.jar", package = "DatabaseConnector")
-    driver <- getJbcDriverSingleton("org.postgresql.Driver", pathToJar)
+    jarPath <- findPathToJar("^postgresql-.*\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("org.postgresql.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
         stop("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
@@ -401,8 +385,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "redshift") {
     writeLines("Connecting using Redshift driver")
-    pathToJar <- system.file("java", "RedshiftJDBC4-1.2.10.1009.jar", package = "DatabaseConnector")
-    driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", pathToJar)
+    jarPath <- findPathToJar("^RedshiftJDBC.*\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
         stop("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
@@ -433,15 +417,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "netezza") {
     writeLines("Connecting using Netezza driver")
-    if (missing(pathToDriver) || is.null(pathToDriver)) {
-      stop(paste("Error: pathToDriver not set but is required for Netezza Please download the Netezza JDBC driver, then add the argument ",
-                 "'pathToDriver', pointing to the local path to directory containing Netezza JDBC JAR file"))
-    }
-    pathToJar <- file.path(pathToDriver, "nzjdbc.jar")
-    if (!file.exists(pathToJar)) {
-      stop(paste0("Error: Cannot find nzjdbc.jar in ", pathToJar))
-    }
-    driver <- getJbcDriverSingleton("org.netezza.Driver", pathToJar)
+    jarPath <- findPathToJar("^nzjdbc\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("org.netezza.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
         stop("Error: database name not included in server string but is required for Netezza. Please specify server as <host>/<database>")
@@ -472,17 +449,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "impala") {
     writeLines("Connecting using Impala driver")
-    if (missing(pathToDriver) || is.null(pathToDriver)) {
-      stop(paste("Error: pathToDriver not set but is required for Impala. Please download the Impala JDBC driver, then add the argument ",
-                 "'pathToDriver', pointing to the local path to directory containing the Impala JDBC JAR files"))
-    }
-    driverClasspath <- list.files(pathToDriver, "\\.jar$", full.names = TRUE)
-    if (length(driverClasspath) == 0) {
-      stop(paste0("Error: no JAR files found in '",
-                  pathToDriver,
-                  "'. Please check 'pathToDriver' setting."))
-    }
-    driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc4.Driver", driverClasspath)
+    jarPath <- findPathToJar("\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc4.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       if (missing(port) || is.null(port)) {
         port <- "21050"
@@ -513,8 +481,8 @@ connect <- function(connectionDetails,
   }
   if (dbms == "bigquery") {
     writeLines("Connecting using BigQuery driver")
-    pathToJar <- system.file("java", "bqjdbc.jar", package = "DatabaseConnector")
-    driver <- getJbcDriverSingleton("net.starschema.clouddb.jdbc.BQDriver", pathToJar)
+    jarPath <- findPathToJar("^bqjdbc\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("net.starschema.clouddb.jdbc.BQDriver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       connectionString <- paste0("jdbc:BQDriver:", server)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
@@ -567,7 +535,7 @@ connectUsingJdbcDriver <- function(jdbcDriver, url, identifierQuote = "'", strin
 #' @examples
 #' \dontrun{
 #' library(ffbase)
-#' connectionDetails <- createConnectionDetails(dbms = "mysql",
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              server = "localhost",
 #'                                              user = "root",
 #'                                              password = "blah",

@@ -1,6 +1,7 @@
 library(DatabaseConnector)
 options(fftempdir = "s:/fftemp")
-
+options(pathToDriver = "c:/temp/jdbcDrivers")
+options(pathToDriver = "c:/temp")
 # Test PDW with integrated security ----------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              server = Sys.getenv("PDW_SERVER"),
@@ -184,4 +185,5 @@ connectionDetails <- createConnectionDetails(dbms = "sql server",
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM testing.cdm_testing_jmdc.person")
 disconnect(conn)
+
 

@@ -1,0 +1,195 @@
+---
+title: "Using DatabaseConnectorr"
+author: "Martijn J. Schuemie"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+  html_document:
+    number_sections: yes
+    toc: yes
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Using DatabaseConnector}
+  %\VignetteEncoding{UTF-8}    
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(SqlRender)
+knitr::opts_chunk$set(
+  cache=FALSE,
+  comment = "#>",
+  error = FALSE,
+  tidy = FALSE)
+```
+
+# Introduction
+
+DatabaseConnector is an R package for connecting to various database platforms using Java's JDBC drivers. 
+
+Supported database platforms:
+
+* Microsoft SQL Server
+* Oracle
+* PostgresSql
+* Microsoft Parallel Data Warehouse (a.k.a. Analytics Platform System)
+* Amazon Redshift
+* Apache Impala
+* Google BigQuery
+* IBM Netezza
+
+# Obtaining drivers for Netezza and Impala
+
+The package already contins most drivers, but because of licensing reasons the drivers for Netezza and Impala are not included but must be obtained by the user. Type
+
+```{r eval=FALSE}
+?jdbcDrivers
+```
+
+for instructions on how to download these drivers. Once downloaded, you can use the `pathToDriver` argument of the `connect`, `dbConnect`, and `createConnectionDetails` functions.
+
+# Creating a connection
+
+To connect to a database a number of details need to be specified, such as the database platform, the location of the server, the user name, and password. We can call the `connect` function and specify these details directly:
+
+```{r eval=FALSE}
+conn <- connect(dbms = "postgresql",
+                server = "localhost/postgres",
+                user = "joe",
+                password = "secret",
+                schema = "cdm")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+See `?connect` for information on which details are required for each platform. Don't forget to close any connection afterwards:
+
+```{r eval=FALSE}
+disconect(conn)
+```  
+
+Note that, instead of providing the server name, it is also possible to provide the JDBC connection string if this is more convenient:
+
+```{r eval=FALSE}
+conn <- connect(dbms = "postgresql",
+                connectionString = "jdbc:postgresql://localhost:5432/postgres",
+                user = "joe",
+                password = "secret",
+                schema = "cdm")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+
+Sometimes we may want to first specify the connection details, and defer connecting until later. This may be convenient for example when the connection is established inside a function, and the details need to be passed as an argument. We can use the `createConnectionDetails` function for this purpose:
+
+```{r eval=FALSE}
+details <- createConnectionDetails(dbms = "postgresql",
+                                   server = "localhost/postgres",
+                                   user = "joe",
+                                   password = "secret",
+                                   schema = "cdm")
+conn <- connect(details)
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+## Specifying the driver location for Netezza and Impala
+
+For Netezza and Impala the drivers are not included in the `DatabaseConnector` package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the `pathToDriver` argument:
+
+```{r eval=FALSE}
+details <- createConnectionDetails(dbms = "netezza",
+                                   server = "myserver.com/mainDb",
+                                   user = "joe",
+                                   password = "secret",
+                                   schema = "cdm",
+                                   pathToDriver = "c:/temp")
+conn <- connect(details)
+```
+```{r echo=FALSE}
+writeLines("Connecting using Netezza driver")
+```
+
+# Querying
+
+The main functions for querying database are the `querySql` and `executeSql` functions. The difference between these functions is that `querySql` expects data to be returned by the database, and can handle only one SQL statement at a time. In contrast, `executeSql` does not expect data to be returned, and accepts multiple SQL statments in a single SQL string. 
+
+Some examples:
+
+```{r eval=FALSE}
+querySql(conn, "SELECT TOP 3 * FROM person")
+```
+```{r echo=FALSE}
+data.frame(PERSON_ID = c(1,2,3), GENDER_CONCEPT_ID = c(8507, 8507, 8507), YEAR_OF_BIRTH = c(1975, 1976, 1977))
+```
+
+```{r eval=FALSE}
+executeSql(conn, "TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);")
+```
+
+Both function provide extensive error reporting: When an error is thrown by the server, the error message and the offending piece of SQL are written to a text file to allow better debugging. The `executeSql` function also by default shows a progress bar, indicating the percentage of SQL statements that has been executed. If those attributes are not desired, the package also offers the `lowLevelQuerySql` and `lowLevelExecuteSql` functions.
+
+## Querying using ffdf objects
+
+Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the `ff` package to store R data objects on file, and use them as if they are available in memory. `DatabaseConnector` can download data directly into ffdf objects:
+
+```{r eval=FALSE}
+x <- querySql.ffdf(conn, "SELECT * FROM person")
+```
+
+Where x is now an ffdf object. 
+
+# Inserting tables
+
+Although it is also possible to insert data in the database by sending SQL statements using the `executeSql` function, it is often convenient and faster to use the `insertTable` function:
+
+```{r eval=FALSE}
+data(mtcars)
+insertTable(conn, "mtcars", mtcars, createTable = TRUE)
+```
+
+In this example, we're uploading the mtcars data frame to a table called 'mtcars' on the server, that will be automatically created.
+
+# DBI interface
+
+`DatabaseConnector` implements the DBI interface for compatability with other R packages. One can use the DBI functions instead of the ones described before, for example:
+
+```{r eval=FALSE}
+conn <- dbConnect(DatabaseConnectorDriver(), 
+                  dbms = "postgresql",
+                  server = "localhost/postgres",
+                  user = "joe",
+                  password = "secret",
+                  schema = "cdm")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+```{r eval=FALSE}
+dbIsValid(conn)
+```
+```{r echo=FALSE}
+TRUE
+```
+```{r eval=FALSE}
+res <- dbSendQuery(conn, "SELECT TOP 3 * FROM person")
+dbFetch(res)
+```
+```{r echo=FALSE}
+data.frame(PERSON_ID = c(1,2,3), GENDER_CONCEPT_ID = c(8507, 8507, 8507), YEAR_OF_BIRTH = c(1975, 1976, 1977))
+```
+```{r eval=FALSE}
+dbHasCompleted(res)
+```
+```{r echo=FALSE}
+TRUE
+```
+```{r eval=FALSE}
+dbClearResult(res)
+dbDisconnect(res)
+```

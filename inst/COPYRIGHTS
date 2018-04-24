@@ -1,0 +1,59 @@
+The package DatabseConnector includes other software components. The following is a list of these components:
+
+** Microsoft SQL Server JDBC driver
+
+   Copyright © 2017: Microsoft
+
+   Microsoft and Microsoft SQL Server are trademarks of Microsoft.
+
+   Project Website: https://github.com/Microsoft/mssql-jdbc
+   License Information: https://github.com/Microsoft/mssql-jdbc/blob/master/LICENSE
+
+   Related JARs: sqljdbc4.jar
+
+** PostgresSQL JDBC driver
+
+   Copyright © 1997: PostgreSQL Global Development Group
+
+   PostgreSQL is a trademark of the PostgreSQL Global Development Group.
+
+   Project Website: https://github.com/pgjdbc/pgjdbc
+   License Information: https://github.com/pgjdbc/pgjdbc/blob/master/LICENSE
+
+   Related JARs: postgresql*.jar
+
+** Google BigQuery JDBC driver
+
+   Copyright © 2015: Starschema LTD.
+
+   Starchema and the Starschema logo are trademarks of Starschema LTD.
+
+   Project Website: https://github.com/myounglai/starschema-bigquery-jdbc
+   License Information: https://github.com/myounglai/starschema-bigquery-jdbc/blob/master/LICENSE.txt
+
+   Related JARs: bqjdbc.jar
+   
+** Oracle JDBC driver
+
+   Copyright © 2018: Oracle
+
+   Oracle is a trademark of Oracle.
+
+   Project Website: http://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html
+   License Information: http://www.oracle.com/technetwork/licenses/distribution-license-152002.html
+
+   Related JARs: ojdbc*.jar
+   
+** RedShift JDBC driver
+
+   Copyright © 2018: Amazon Inc.
+
+   Amazon and RedShift are trademarks of Amazon Inc.
+
+   Project Website: https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
+   License Information: https://s3.amazonaws.com/redshift-downloads/drivers/Amazon+Redshift+JDBC+Driver+License+Agreement.pdf
+   
+   OHDSI has been granted permission to include the RedShift JDBC driver in the open source DatabaseConnector package. Contact the package maintainer for details.
+
+   Related JARs: RedshiftJDBC*.jar
+   

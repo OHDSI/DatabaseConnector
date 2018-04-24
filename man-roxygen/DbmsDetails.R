@@ -1,6 +1,5 @@
 #' @param dbms               The type of DBMS running on the server. Valid values are
 #'                           \itemize{
-#'                             \item {"mysql" for MySQL}
 #'                             \item {"oracle" for Oracle}
 #'                             \item {"postgresql" for PostgreSQL}
 #'                             \item {"redshift" for Amazon Redshift}
@@ -25,21 +24,11 @@
 #'                           \code{user} and \code{password} are not specified, they are assumed to
 #'                           already be included in the connection string.
 #' @param pathToDriver       Path to the JDBC driver JAR files. Currently only needed for Impala and
-#'                           Netezza.
+#'                           Netezza. See \link{jdbcDrivers} for details on how to get the drivers.
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
 #' interpretations:
-#' MySQL:
-#' \itemize{
-#'   \item \code{user}. The user name used to access the server
-#'   \item \code{password}. The password for that user
-#'   \item \code{server}. The host name of the server
-#'   \item \code{port}. Specifies the port on the server (default = 3306)
-#'   \item \code{schema}. The database containing the tables
-#'   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-#'         as "SSL Mode=Required")
-#' }
 #' Oracle:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
