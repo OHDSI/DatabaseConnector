@@ -13,9 +13,9 @@ Authors@R: c(
     person("Oracle Inc.", role = c("cph"), comment = "Oracle  JDBC driver"),
     person("Amazon Inc.", role = c("cph"), comment = "RedShift  JDBC driver")
   )
-Description:  A DBI-compatible interface to various database platforms (PostgreSQL, Oracle, Microsoft SQL Server, 
-    Amazon Redshift, Microsoft PDW, IBM Netezza, Apache Impala, and Google BigQuery). Also includes support for
-    fetching data as ffdf objects. Uses JDBC to connect to databases.
+Description:  An R DataBase Interface (DBI) compatible interface to various database platforms (PostgreSQL, Oracle, Microsoft SQL Server, 
+    Amazon Redshift, Microsoft Parallel Database Warehouse, IBM Netezza, Apache Impala, and Google BigQuery). Also includes support for
+    fetching data as ffdf objects. Uses Java Database Connectivity (JDBC) to connect to databases.
 Imports:
     rJava,
     bit,
