@@ -1,4 +1,4 @@
-<Need to write some text>
+This R package allows users to connect to a wide set of database platforms. It has already been extensively used in the OHDSI research network. It uses JDBC drivers, and the jar files of several drivers are included in the package for the user's convenience. This does mean the inst/java folder is fairly large.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ## R CMD check results
 
-There were no ERRORs or WARNINGs. 
+There were no ERRORs or WARNINGs. There is une note because the java directory is 15.8Mb.
 
 ## Downstream dependencies
 
