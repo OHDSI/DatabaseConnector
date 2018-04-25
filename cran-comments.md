@@ -8,7 +8,7 @@ This R package allows users to connect to a wide set of database platforms. It h
 
 ## R CMD check results
 
-There were no ERRORs or WARNINGs. There is une note because the java directory is 15.8Mb.
+There were no ERRORs or WARNINGs. There is one note because the java directory is 15.8Mb.
 
 ## Downstream dependencies
 
