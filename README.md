@@ -88,7 +88,7 @@ Use the following commands in R to install the DatabaseConnector package:
 
 Getting Involved
 ================
-* Vignette: [Using DatabaseConnector](http://ohdsi.github.io/DatabaseConnector/articles/UsingDatabaseConnector.html)
+* Vignette: [Using DatabaseConnector](https://github.com/OHDSI/DatabaseConnector/raw/master/inst/doc/UsingDatabaseConnector.pdf)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf) 
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
 * We use the <a href="../../issues">GitHub issue tracker</a> for all bugs/issues/enhancements
