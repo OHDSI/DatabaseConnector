@@ -510,8 +510,6 @@ insertTable <- function(connection,
   }, error = function(e) {
     stop("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
   }, finally = {
-    DatabaseConnector::disconnect(connection = connection)
-    # try(file.remove(sprintf('%s.csv', fileName)), silent = TRUE)
     try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
     try(aws.s3::delete_object(object = sprintf("%s.gz", fileName),
                               bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
