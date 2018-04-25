@@ -35,40 +35,6 @@ complete, original object, with misleading results.  See the
 \code{simpleInheritanceOnly} argument to \code{\link{setGeneric}} and
 the discussion in \code{\link{setIs}} for the general concept.
 }
-\examples{
-## following the example shown in the setMethod documentation ...
-setClass("track", slots = c(x="numeric", y="numeric"))
-setClass("trackCurve", contains = "track", slots = c(smooth = "numeric"))
-
-t1 <- new("track", x=1:20, y=(1:20)^2)
-
-tc1 <- new("trackCurve", t1)
-
-setMethod("show", "track",
-  function(object)print(rbind(x = object@x, y=object@y))
-)
-## The method will now be used for automatic printing of t1
-
-t1
-
-\dontrun{  [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12]
-x    1    2    3    4    5    6    7    8    9    10    11    12
-y    1    4    9   16   25   36   49   64   81   100   121   144
-  [,13] [,14] [,15] [,16] [,17] [,18] [,19] [,20]
-x    13    14    15    16    17    18    19    20
-y   169   196   225   256   289   324   361   400
-}
-## and also for tc1, an object of a class that extends "track"
-tc1
-
-\dontrun{  [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12]
-x    1    2    3    4    5    6    7    8    9    10    11    12
-y    1    4    9   16   25   36   49   64   81   100   121   144
-  [,13] [,14] [,15] [,16] [,17] [,18] [,19] [,20]
-x    13    14    15    16    17    18    19    20
-y   169   196   225   256   289   324   361   400
-}
-}
 \seealso{
 \code{\link{showMethods}} prints all the methods for one or more
   functions.

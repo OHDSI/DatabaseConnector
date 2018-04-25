@@ -1,7 +1,6 @@
 library(DatabaseConnector)
 options(fftempdir = "s:/fftemp")
-options(pathToDriver = "c:/temp/jdbcDrivers")
-options(pathToDriver = "c:/temp")
+
 # Test PDW with integrated security ----------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              server = Sys.getenv("PDW_SERVER"),

@@ -16,7 +16,7 @@ vignette: >
 ---
 
 ```{r, echo = FALSE, message = FALSE}
-library(SqlRender)
+library(DatabaseConnector)
 knitr::opts_chunk$set(
   cache=FALSE,
   comment = "#>",
@@ -67,7 +67,7 @@ writeLines("Connecting using PostgreSQL driver")
 See `?connect` for information on which details are required for each platform. Don't forget to close any connection afterwards:
 
 ```{r eval=FALSE}
-disconect(conn)
+disconnect(conn)
 ```  
 
 Note that, instead of providing the server name, it is also possible to provide the JDBC connection string if this is more convenient:

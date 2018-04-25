@@ -2,7 +2,7 @@ The package DatabseConnector includes other software components. The following i
 
 ** Microsoft SQL Server JDBC driver
 
-   Copyright © 2017: Microsoft
+   Copyright © 2017: Microsoft Inc.
 
    Microsoft and Microsoft SQL Server are trademarks of Microsoft.
 
@@ -24,9 +24,9 @@ The package DatabseConnector includes other software components. The following i
 
 ** Google BigQuery JDBC driver
 
-   Copyright © 2015: Starschema LTD.
+   Copyright © 2015: Starschema Ltd.
 
-   Starchema and the Starschema logo are trademarks of Starschema LTD.
+   Starchema and the Starschema logo are trademarks of Starschema Ltd.
 
    Project Website: https://github.com/myounglai/starschema-bigquery-jdbc
    License Information: https://github.com/myounglai/starschema-bigquery-jdbc/blob/master/LICENSE.txt
@@ -35,9 +35,9 @@ The package DatabseConnector includes other software components. The following i
    
 ** Oracle JDBC driver
 
-   Copyright © 2018: Oracle
+   Copyright © 2018: Oracle Inc.
 
-   Oracle is a trademark of Oracle.
+   Oracle is a trademark of Oracle Inc.
 
    Project Website: http://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html
    License Information: http://www.oracle.com/technetwork/licenses/distribution-license-152002.html

@@ -423,7 +423,7 @@ insertTable <- function(connection,
 .bulkLoadPdw <- function(connection, qname, data) {
   start <- Sys.time()
   eol <- "\r\n"
-  fileName <- sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
+  fileName <- file.path(tempdir(), sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
   write.table(x = data,
               na = "",
               file = sprintf("%s.csv", fileName),
@@ -479,7 +479,7 @@ insertTable <- function(connection,
 
 .bulkLoadRedshift <- function(connection, qname, data) {
   start <- Sys.time()
-  fileName <- sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE))
+  fileName <- file.path(tempdir(), sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
   write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE)
   R.utils::gzip(filename = sprintf("%s.csv",
                                    fileName), destname = sprintf("%s.gz", fileName), remove = TRUE)
@@ -517,7 +517,6 @@ insertTable <- function(connection,
                               bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
   })
 }
-
 
 # Borrowed from devtools:
 # https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44

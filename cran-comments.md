@@ -1,4 +1,13 @@
-This R package allows users to connect to a wide set of database platforms. It has already been extensively used in the OHDSI research network. It uses JDBC drivers, and the jar files of several drivers are included in the package for the user's convenience. This does mean the inst/java folder is fairly large.
+Resubmission based on previous CRAN submission comments. I've addressed all but two:
+
+1. "Please reduce the tarball size (15587618 bytes) to less than 5 MB."
+
+I can't reduce the size because the JDBC jar files take up this much space. Is there a way around this restriction? For example, I noticed the XLConnect package has its jar files in the XLConnectJars package.
+
+
+2. "Please ensure that your functions do not write by default or in your examples/vignettes/tests in the user's home filespace. That is not allow by CRAN policies. Please only write/save files if the user has specified a directory. In your examples/vignettes/tests you can write to tempdir()."
+
+I assume this relates to the .bulkLoadRedshift and .bulkLoadPdw functions? I've modified these to use tempdir() since these are temporary files that will be deleted at the end of the function. Is that sufficient?
 
 ---
 

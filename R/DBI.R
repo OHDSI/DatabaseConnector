@@ -34,7 +34,7 @@ setMethod("dbUnloadDriver", "DatabaseConnectorDriver", function(drv, ...) {
 })
 
 #' @inherit
-#' methods::show
+#' methods::show title description params details references return seealso
 #' @export
 setMethod("show", "DatabaseConnectorDriver", function(object) {
   cat("<DatabaseConnectorDriver>\n")
@@ -101,7 +101,7 @@ setMethod("dbDisconnect", "DatabaseConnectorConnection", function(conn) {
 })
 
 #' @inherit
-#' methods::show
+#' methods::show title description params details references return seealso
 #' @export
 setMethod("show", "DatabaseConnectorConnection", function(object) {
   cat("<DatabaseConnectorConnection>", getServer(object))
