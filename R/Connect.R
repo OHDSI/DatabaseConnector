@@ -110,7 +110,7 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
 
 findPathToJar <- function(name, pathToDriver) {
   if (missing(pathToDriver) || is.null(pathToDriver)) {
-    pathToDriver <- system.file("java", package = "DatabaseConnector")
+    pathToDriver <- system.file("java", package = "DatabaseConnectorJars")
   } else {
     if (grepl(".jar$", tolower(pathToDriver))) {
       pathToDriver <- basename(pathToDriver)
