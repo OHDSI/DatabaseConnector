@@ -5,7 +5,8 @@
 \title{Execute SQL code}
 \usage{
 executeSql(connection, sql, profile = FALSE, progressBar = TRUE,
-  reportOverallTime = TRUE)
+  reportOverallTime = TRUE, errorReportFile = file.path(getwd(),
+  "errorReport.txt"))
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -20,6 +21,9 @@ code.}
 
 \item{reportOverallTime}{When true, the function will display the overall time taken to execute
 all statements.}
+
+\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
+'errorReport.txt' in the current working directory.}
 }
 \description{
 This function executes SQL consisting of one or more statements.

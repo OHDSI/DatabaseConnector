@@ -34,10 +34,8 @@
   return(paste(lines, collapse = "\n"))
 }
 
-.createErrorReport <- function(dbms, message, sql) {
+.createErrorReport <- function(dbms, message, sql, fileName) {
   report <- c("DBMS:\n", dbms, "\n\nError:\n", message, "\n\nSQL:\n", sql, "\n\n", .systemInfo())
-  
-  fileName <- paste(getwd(), "/errorReport.txt", sep = "")
   fileConn <- file(fileName)
   writeChar(report, fileConn, eos = NULL)
   close(fileConn)
@@ -206,6 +204,8 @@ lowLevelExecuteSql <- function(connection, sql) {
 #'                            code.
 #' @param reportOverallTime   When true, the function will display the overall time taken to execute
 #'                            all statements.
+#' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
+#'                            'errorReport.txt' in the current working directory.
 #'
 #' @details
 #' This function splits the SQL in separate statements and sends it to the server for execution. If an
@@ -230,7 +230,8 @@ executeSql <- function(connection,
                        sql,
                        profile = FALSE,
                        progressBar = TRUE,
-                       reportOverallTime = TRUE) {
+                       reportOverallTime = TRUE, 
+                       errorReportFile = file.path(getwd(), "errorReport.txt")) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   if (profile)
@@ -254,7 +255,7 @@ executeSql <- function(connection,
         writeLines(paste("Statement ", i, "took", delta, attr(delta, "units")))
       }
     }, error = function(err) {
-      .createErrorReport(attr(connection, "dbms"), err$message, sqlStatement)
+      .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
     })
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
@@ -275,8 +276,10 @@ executeSql <- function(connection,
 #' @description
 #' This function sends SQL to the server, and returns the results.
 #'
-#' @param connection   The connection to the database server.
-#' @param sql          The SQL to be send.
+#' @param connection        The connection to the database server.
+#' @param sql               The SQL to be send.
+#' @param errorReportFile   The file where an error report will be written if an error occurs. Defaults to
+#'                          'errorReport.txt' in the current working directory.
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
@@ -297,7 +300,7 @@ executeSql <- function(connection,
 #' disconnect(conn)
 #' }
 #' @export
-querySql <- function(connection, sql) {
+querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt")) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
@@ -318,7 +321,7 @@ querySql <- function(connection, sql) {
     }
     return(result)
   }, error = function(err) {
-    .createErrorReport(attr(connection, "dbms"), err$message, sql)
+    .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
   })
 }
 
@@ -327,8 +330,10 @@ querySql <- function(connection, sql) {
 #' @description
 #' This function sends SQL to the server, and returns the results in an ffdf object.
 #'
-#' @param connection   The connection to the database server.
-#' @param sql          The SQL to be send.
+#' @param connection        The connection to the database server.
+#' @param sql               The SQL to be send.
+#' @param errorReportFile   The file where an error report will be written if an error occurs. Defaults to
+#'                          'errorReport.txt' in the current working directory.
 #'
 #' @details
 #' Retrieves data from the database server and stores it in an ffdf object. This allows very large
@@ -352,7 +357,7 @@ querySql <- function(connection, sql) {
 #' disconnect(conn)
 #' }
 #' @export
-querySql.ffdf <- function(connection, sql) {
+querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt")) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
@@ -373,6 +378,6 @@ querySql.ffdf <- function(connection, sql) {
     }
     return(result)
   }, error = function(err) {
-    .createErrorReport(attr(connection, "dbms"), err$message, sql)
+    .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
   })
 }
