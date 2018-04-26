@@ -4,12 +4,16 @@
 \alias{querySql.ffdf}
 \title{Retrieves data to an ffdf object}
 \usage{
-querySql.ffdf(connection, sql)
+querySql.ffdf(connection, sql, errorReportFile = file.path(getwd(),
+  "errorReport.txt"))
 }
 \arguments{
 \item{connection}{The connection to the database server.}
 
 \item{sql}{The SQL to be send.}
+
+\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
+'errorReport.txt' in the current working directory.}
 }
 \value{
 A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead

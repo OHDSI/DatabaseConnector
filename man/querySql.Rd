@@ -4,12 +4,16 @@
 \alias{querySql}
 \title{Retrieve data to a data.frame}
 \usage{
-querySql(connection, sql)
+querySql(connection, sql, errorReportFile = file.path(getwd(),
+  "errorReport.txt"))
 }
 \arguments{
 \item{connection}{The connection to the database server.}
 
 \item{sql}{The SQL to be send.}
+
+\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
+'errorReport.txt' in the current working directory.}
 }
 \value{
 A data frame.
