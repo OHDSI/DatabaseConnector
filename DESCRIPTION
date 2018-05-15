@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 2.1.0
-Date: 2018-04-26
+Version: 2.1.1
+Date: 2018-05-15
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -13,9 +13,9 @@ Authors@R: c(
     person("Oracle Inc.", role = c("cph"), comment = "Oracle  JDBC driver"),
     person("Amazon Inc.", role = c("cph"), comment = "RedShift  JDBC driver")
   )
-Description:  An R DataBase Interface (DBI) compatible interface to various database platforms (PostgreSQL, Oracle, Microsoft SQL Server, 
-    Amazon Redshift, Microsoft Parallel Database Warehouse, IBM Netezza, Apache Impala, and Google BigQuery). Also includes support for
-    fetching data as ffdf objects. Uses Java Database Connectivity (JDBC) to connect to databases.
+Description:  An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 
+    'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', and 'Google BigQuery'). Also includes support for
+    fetching data as ffdf objects. Uses 'Java Database Connectivity' ('JDBC') to connect to databases.
 Imports:
     DatabaseConnectorJars,
     rJava,
