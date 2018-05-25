@@ -1,6 +1,9 @@
 DatabaseConnector
 =================
 
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
+[![CRAN_Status_Badge](http://cranlogs.r-pkg.org/badges/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
+
 Introduction
 ============
 This R package provides function for connecting to various DBMSs. 
@@ -78,13 +81,20 @@ For Redshift Bulk Mpp inserts, the cloudyR aws S3 pacakge is required.
 
 Getting Started
 ===============
-Use the following commands in R to install the DatabaseConnector package:
+To install the latest stable version, install from CRAN:
 
-  ```r
-  install.packages("drat")
-  drat::addRepo("OHDSI")
-  install.packages("DatabaseConnector")
-  ```
+```r
+install.packages("DatabaseConnector")
+```
+  
+  
+To install the latest development version, install from GitHub:
+
+```r
+install.packages("devtools")
+devtools::install_github("ohdsi/DatabaseConnectorJars")
+devtools::install_github("ohdsi/DatabaseConnector")
+```
 
 Getting Involved
 ================
