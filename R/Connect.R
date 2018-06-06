@@ -192,16 +192,16 @@ findPathToJar <- function(name, pathToDriver) {
 #'
 #' }
 #' @export
-connect <- function(connectionDetails,
-                    dbms,
-                    user,
-                    password,
-                    server,
-                    port,
-                    schema,
-                    extraSettings,
+connect <- function(connectionDetails = NULL,
+                    dbms = NULL,
+                    user = NULL,
+                    password = NULL,
+                    server = NULL,
+                    port = NULL,
+                    schema = NULL,
+                    extraSettings = NULL,
                     oracleDriver = "thin",
-                    connectionString,
+                    connectionString = NULL,
                     pathToDriver = getOption("pathToDriver")) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
