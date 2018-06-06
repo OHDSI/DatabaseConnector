@@ -36,17 +36,23 @@ the result is always free-d by \code{\link[=dbClearResult]{dbClearResult()}}.
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbExecute")}
 }
+\details{
+You can also use \code{dbExecute()} to call a stored procedure
+that performs data manipulation or other actions that do not return a result set.
+To execute a stored procedure that returns a result set use \code{\link[=dbGetQuery]{dbGetQuery()}} instead.
+}
 \seealso{
 For queries: \code{\link[=dbSendQuery]{dbSendQuery()}} and \code{\link[=dbGetQuery]{dbGetQuery()}}.
 
 Other DBIConnection generics: \code{\link{DBIConnection-class}},
+  \code{\link{dbAppendTable}}, \code{\link{dbCreateTable}},
   \code{\link{dbDataType}}, \code{\link{dbDisconnect}},
   \code{\link{dbExistsTable}},
   \code{\link{dbGetException}}, \code{\link{dbGetInfo}},
-  \code{\link{dbGetQuery}}, \code{\link{dbIsValid}},
-  \code{\link{dbListFields}}, \code{\link{dbListObjects}},
-  \code{\link{dbListResults}}, \code{\link{dbListTables}},
-  \code{\link{dbReadTable}}, \code{\link{dbRemoveTable}},
-  \code{\link{dbSendQuery}}, \code{\link{dbSendStatement}},
-  \code{\link{dbWriteTable}}
+  \code{\link{dbGetQuery}}, \code{\link{dbIsReadOnly}},
+  \code{\link{dbIsValid}}, \code{\link{dbListFields}},
+  \code{\link{dbListObjects}}, \code{\link{dbListResults}},
+  \code{\link{dbListTables}}, \code{\link{dbReadTable}},
+  \code{\link{dbRemoveTable}}, \code{\link{dbSendQuery}},
+  \code{\link{dbSendStatement}}, \code{\link{dbWriteTable}}
 }
