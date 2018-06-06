@@ -50,7 +50,13 @@ dbGetQuery(conn, "SELECT * FROM #temp")
 dbReadTable(conn, "#temp")
 dbRemoveTable(conn, "#temp")
 
-disconnect(conn)
+dbCreateTable(conn, "#temp", data, temporary = TRUE)
+dbAppendTable(conn, "#temp", data)
+dbGetQuery(conn, "SELECT * FROM #temp")
+dbRemoveTable(conn, "#temp")
+
+
+dbDisconnect(conn)
 
 
 # Test Oracle ---------------------------------------------------
@@ -79,7 +85,10 @@ getTableNames(conn, "cdm_synpuf")
 disconnect(conn)
 
 # DBI compatability
+dbCanConnect(DatabaseConnectorDriver(), connectionDetails)
+
 conn <- dbConnect(DatabaseConnectorDriver(), connectionDetails)
+dbIsReadOnly(conn)
 dbIsValid(conn)
 dbListTables(conn, schema = "cdm_synpuf")
 dbListFields(conn, schema = "cdm_synpuf", name = "vocabulary")
@@ -115,6 +124,11 @@ data <- data.frame(name = c("john", "mary"), age = c(35, 26))
 dbWriteTable(conn, "temp", data, temporary = TRUE)
 dbGetQuery(conn, "SELECT * FROM temp")
 dbReadTable(conn, "temp")
+dbRemoveTable(conn, "temp")
+
+dbCreateTable(conn, "temp", data, temporary = TRUE)
+dbAppendTable(conn, "temp", data)
+dbGetQuery(conn, "SELECT * FROM temp")
 dbRemoveTable(conn, "temp")
 
 dbDisconnect(conn)

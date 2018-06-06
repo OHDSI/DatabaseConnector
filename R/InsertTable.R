@@ -234,9 +234,9 @@ insertTable <- function(connection,
   isDate <- (fts == "DATE")
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
-  esc <- function(str) {
-    paste("'", gsub("'", "''", str), "'", sep = "")
-  }
+  # esc <- function(str) {
+  #   paste("'", gsub("'", "''", str), "'", sep = "")
+  # }
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
   
   if (dropTableIfExists) {
@@ -271,7 +271,7 @@ insertTable <- function(connection,
       .bulkLoadPdw(connection, qname, data)
     }
   } else {
-    if (attr(connection, "dbms") == "pdw" && createTable) {
+    if (attr(connection, "dbms") == "pdw" && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data)
     } else {
       if (createTable) {
@@ -352,40 +352,41 @@ insertTable <- function(connection,
         }
         rJava::.jcall(statement, "V", "addBatch")
       }
-      
-      for (start in seq(1, nrow(data), by = batchSize)) {
-        end <- min(start + batchSize - 1, nrow(data))
-        statement <- rJava::.jcall(connection@jConnection,
-                                   "Ljava/sql/PreparedStatement;",
-                                   "prepareStatement",
-                                   insertSql,
-                                   check = FALSE)
-        if (attr(connection, "dbms") == "postgresql") {
-          apply(data[start:end,
-                     ,
-                     drop = FALSE],
-                statement = statement,
-                MARGIN = 1,
-                FUN = insertRowPostgreSql)
-        } else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift") {
-          apply(data[start:end,
-                     ,
-                     drop = FALSE],
-                statement = statement,
-                isDate = isDate,
-                MARGIN = 1,
-                FUN = insertRowOracle)
-        } else if (attr(connection, "dbms") == "impala") {
-          apply(data[start:end,
-                     ,
-                     drop = FALSE],
-                statement = statement,
-                MARGIN = 1,
-                FUN = insertRowImpala)
-        } else {
-          apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
+      if (nrow(data) > 0) {
+        for (start in seq(1, nrow(data), by = batchSize)) {
+          end <- min(start + batchSize - 1, nrow(data))
+          statement <- rJava::.jcall(connection@jConnection,
+                                     "Ljava/sql/PreparedStatement;",
+                                     "prepareStatement",
+                                     insertSql,
+                                     check = FALSE)
+          if (attr(connection, "dbms") == "postgresql") {
+            apply(data[start:end,
+                       ,
+                       drop = FALSE],
+                  statement = statement,
+                  MARGIN = 1,
+                  FUN = insertRowPostgreSql)
+          } else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift") {
+            apply(data[start:end,
+                       ,
+                       drop = FALSE],
+                  statement = statement,
+                  isDate = isDate,
+                  MARGIN = 1,
+                  FUN = insertRowOracle)
+          } else if (attr(connection, "dbms") == "impala") {
+            apply(data[start:end,
+                       ,
+                       drop = FALSE],
+                  statement = statement,
+                  MARGIN = 1,
+                  FUN = insertRowImpala)
+          } else {
+            apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
+          }
+          rJava::.jcall(statement, "[I", "executeBatch")
         }
-        rJava::.jcall(statement, "[I", "executeBatch")
       }
     }
   }
