@@ -7,6 +7,9 @@ connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              port = Sys.getenv("PDW_PORT"),
                                              schema = "CDM_Truven_MDCR_V415")
 conn <- connect(connectionDetails)
+conn2 <- connect(connectionDetails)
+disconnect(conn)
+disconnect(conn2)
 x <- querySql.ffdf(conn, "SELECT * FROM observation_period WHERE person_id = -999")
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
 

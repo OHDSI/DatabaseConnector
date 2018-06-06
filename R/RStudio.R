@@ -20,10 +20,25 @@
 registerWithRStudio <- function(connection) {
   observer <- getOption("connectionObserver")
   if (!is.null(observer)) {
+    registeredDisplayNames <- getOption("registeredDisplayNames")
+    if (is.null(registeredDisplayNames)) {
+      registeredDisplayNames <- data.frame()
+    }
     server <- getServer(connection)
+    displayName <- server
+    i <- 1
+    while (displayName %in% registeredDisplayNames$displayName) {
+      i <- i + 1
+      displayName <- paste0(server, " (", i, ")")
+    }
+    registeredDisplayNames <- rbind(registeredDisplayNames,
+                                    data.frame(uuid = connection@uuid,
+                                               displayName = displayName,
+                                               stringsAsFactors = FALSE))
+    options(registeredDisplayNames = registeredDisplayNames)
     observer$connectionOpened(type = compileTypeLabel(connection),
-                              displayName = server,
-                              host = server,
+                              displayName = displayName,
+                              host = displayName,
                               connectCode = compileReconnectCode(connection),
                               icon = "",
                               disconnect = function() {
@@ -47,7 +62,11 @@ compileTypeLabel <- function(connection) {
 unregisterWithRStudio <- function(connection) {
   observer <- getOption("connectionObserver")
   if (!is.null(observer)) {
-    observer$connectionClosed(compileTypeLabel(connection), getServer(connection))
+    registeredDisplayNames <- getOption("registeredDisplayNames")
+    displayName <- registeredDisplayNames$displayName[registeredDisplayNames$uuid == connection@uuid]
+    registeredDisplayNames <- registeredDisplayNames[registeredDisplayNames$uuid != connection@uuid, ]
+    options(registeredDisplayNames = registeredDisplayNames)
+    observer$connectionClosed(compileTypeLabel(connection), displayName)
   }
 }
 

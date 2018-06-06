@@ -62,7 +62,8 @@ setClass("DatabaseConnectorConnection",
          slots = list(jConnection = "jobjRef",
                       identifierQuote = "character",
                       stringQuote = "character",
-                      dbms = "character"))
+                      dbms = "character",
+                      uuid = "character"))
 
 #' Create a connection to a DBMS
 #'
