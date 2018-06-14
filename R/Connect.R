@@ -21,11 +21,12 @@
 #'
 #' @description
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a
-#' database. There are three ways to call this function:
+#' database. There are four ways to call this function:
 #' \itemize{
 #'   \item \code{createConnectionDetails(dbms, user, password, server, port, schema, extraSettings,
 #'         oracleDriver, pathToDriver)}
 #'   \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
+#'   \item \code{createConnectionDetails(dbms, connectionString, kerberosAuthenticationDetails, pathToDriver)}
 #'   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
 #' }
 #'
@@ -65,6 +66,7 @@ createConnectionDetails <- function(dbms,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
+                                    kerberosAuthenticationDetails = NULL,
                                     pathToDriver = getOption("pathToDriver")) {
   # First: get default values:
   result <- list()
@@ -128,6 +130,66 @@ findPathToJar <- function(name, pathToDriver) {
   } else {
     return(files)
   }
+}
+
+#' @title
+#' createKerberosAuthenticationDetails
+#'
+#' @description
+#' \code{createKerberosAuthenticationDetails} creates a list containing all details needed to authenticate to the
+#' Kerberos. There is one way to call this function:
+#' \itemize{
+#'   \item \code{createConnectionDetails(principal, keytabFilePath)}
+#' }
+#'
+#'
+#'
+#'
+#'
+#' @usage
+#' NULL
+#'
+#' @template DbmsDetails
+#'
+#' @details
+#' This function creates a list containing all details needed to authenticate to the Kerberos. The list can
+#' then be used in the \code{\link{createConnectionDetails}} function.
+#'
+#' @return
+#' A list with all the details needed to authenticate to the Kerberos.
+#' @examples
+#' \dontrun{
+#' kerberosAuthenticationDetails <- createKerberosAuthenticationDetails(principal = "impala/quickstart.cloudera@CLOUDERA",
+#'                                              keytabFilePath = "/path/to/file/impala.keytab")
+#'
+#' connectionDetails <- createConnectionDetails(dbms = "hive",
+#'                                              server = "localhost",
+#'                                              port = 21050,
+#'                                              extraSettings = "principal=impala/quickstart.cloudera@CLOUDERA",
+#'                                              kerberosAuthenticationDetails = kerberosAuthenticationDetails,
+#'                                              pathToDriver = "/path/to/hive/jdbc/jar/folder"
+#'                                              )
+#'
+#' conn <- connect(connectionDetails)
+#' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
+#' disconnect(conn)
+#' }
+#' @export
+createKerberosAuthenticationDetails <- function(principal,
+                                            keytabFilePath) {
+  # First: get default values:
+  result <- list()
+  for (name in names(formals(createKerberosAuthenticationDetails))) {
+    result[[name]] <- get(name)
+  }
+  # Second: overwrite defaults with actual values:
+  values <- lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3)))
+  for (name in names(values)) {
+    if (name %in% names(result))
+    result[[name]] <- values[[name]]
+  }
+  class(result) <- "kerberosDetails"
+  return(result)
 }
 
 #' @title
@@ -202,6 +264,7 @@ connect <- function(connectionDetails = NULL,
                     extraSettings = NULL,
                     oracleDriver = "thin",
                     connectionString = NULL,
+                    kerberosAuthenticationDetails = NULL,
                     pathToDriver = getOption("pathToDriver")) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
@@ -213,6 +276,7 @@ connect <- function(connectionDetails = NULL,
                           extraSettings = connectionDetails$extraSettings,
                           oracleDriver = connectionDetails$oracleDriver,
                           connectionString = connectionDetails$connectionString,
+                          kerberosAuthenticationDetails = connectionDetails$kerberosAuthenticationDetails,
                           pathToDriver = connectionDetails$pathToDriver)
     
     return(connection)
@@ -461,7 +525,7 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "impala") {
     writeLines("Connecting using Impala driver")
-    jarPath <- findPathToJar("\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^ImpalaJDBC4.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc4.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       if (missing(port) || is.null(port)) {
@@ -485,6 +549,44 @@ connect <- function(connectionDetails = NULL,
                                            password = password,
                                            dbms = dbms)
     }
+    if (!missing(schema) && !is.null(schema)) {
+      lowLevelExecuteSql(connection, paste("USE", schema))
+    }
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
+  if(dbms == "hive") {
+    writeLines("Connecting using Hive driver")
+    jarPath <- findPathToJar("^hive-jdbc.*\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
+
+    if(!missing(kerberosAuthenticationDetails) && !is.null(kerberosAuthenticationDetails)) {
+      authenticateAtKerberos(kerberosAuthenticationDetails)
+    }
+
+    if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(port) || is.null(port)) {
+        port <- "10000"
+      }
+      if (missing(schema) || is.null(schema)) {
+        connectionString <- paste0("jdbc:hive2://", server, ":", port, "/")
+      } else {
+        connectionString <- paste0("jdbc:hive2://", server, ":", port, "/", schema)
+      }
+      if (! missing(extraSettings) && ! is.null(extraSettings)) {
+        connectionString <- paste0(connectionString, ";", extraSettings)
+      }
+    }
+    if (missing(user) || is.null(user)) {
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
+    } else {
+      connection <- connectUsingJdbcDriver(driver,
+      connectionString,
+      user = user,
+      password = password,
+      dbms = dbms)
+    }
+
     if (!missing(schema) && !is.null(schema)) {
       lowLevelExecuteSql(connection, paste("USE", schema))
     }
@@ -546,6 +648,19 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     uuid = uuid)
   registerWithRStudio(connection)
   return(connection)
+}
+
+authenticateAtKerberos <- function(kerberosAuthenticationDetails) {
+  hadoopConfigurationClass <- "org.apache.hadoop.conf.Configuration"
+  userGroupInformationClass <- "org.apache.hadoop.security.UserGroupInformation"
+  principal <- kerberosAuthenticationDetails$principal
+  keytabFilePath <- kerberosAuthenticationDetails$keytabFilePath
+
+  configuration <- rJava::.jnew(hadoopConfigurationClass)
+
+  rJava::.jcall(configuration, "V", "set", "hadoop.security.authentication", "Kerberos")
+  rJava::J(as.character(userGroupInformationClass))$setConfiguration(configuration)
+  rJava::J(as.character(userGroupInformationClass))$loginUserFromKeytab(as.character(principal), as.character(keytabFilePath))
 }
 
 #' Disconnect from the server
