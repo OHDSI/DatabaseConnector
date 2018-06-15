@@ -9,4 +9,6 @@ deploy.sh
 .classpath
 .project
 compare_versions
+.idea
+^.*\.iml$
 ^cran-comments.md$
