@@ -45,8 +45,9 @@ A list with all the details needed to authenticate to the Kerberos.
 }
 \description{
 \code{createKerberosAuthenticationDetails} creates a list containing all details needed to authenticate to the
-Kerberos. There is one way to call this function:
+Kerberos. There are two ways to call this function:
 \itemize{
+  \item \code{createConnectionDetails()}
   \item \code{createConnectionDetails(principal, keytabFilePath)}
 }
 }

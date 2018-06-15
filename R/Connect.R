@@ -137,8 +137,9 @@ findPathToJar <- function(name, pathToDriver) {
 #'
 #' @description
 #' \code{createKerberosAuthenticationDetails} creates a list containing all details needed to authenticate to the
-#' Kerberos. There is one way to call this function:
+#' Kerberos. There are two ways to call this function:
 #' \itemize{
+#'   \item \code{createConnectionDetails()}
 #'   \item \code{createConnectionDetails(principal, keytabFilePath)}
 #' }
 #'
@@ -175,8 +176,9 @@ findPathToJar <- function(name, pathToDriver) {
 #' disconnect(conn)
 #' }
 #' @export
-createKerberosAuthenticationDetails <- function(principal,
-                                            keytabFilePath) {
+createKerberosAuthenticationDetails <- function(useKerberos = TRUE,
+                                            principal = NULL,
+                                            keytabFilePath = NULL) {
   # First: get default values:
   result <- list()
   for (name in names(formals(createKerberosAuthenticationDetails))) {
@@ -653,14 +655,33 @@ connectUsingJdbcDriver <- function(jdbcDriver,
 authenticateAtKerberos <- function(kerberosAuthenticationDetails) {
   hadoopConfigurationClass <- "org.apache.hadoop.conf.Configuration"
   userGroupInformationClass <- "org.apache.hadoop.security.UserGroupInformation"
+  useKerberos <- kerberosAuthenticationDetails$useKerberos
   principal <- kerberosAuthenticationDetails$principal
   keytabFilePath <- kerberosAuthenticationDetails$keytabFilePath
+  if(!useKerberos) {
+    return()
+  }
 
   configuration <- rJava::.jnew(hadoopConfigurationClass)
-
   rJava::.jcall(configuration, "V", "set", "hadoop.security.authentication", "Kerberos")
   rJava::J(as.character(userGroupInformationClass))$setConfiguration(configuration)
-  rJava::J(as.character(userGroupInformationClass))$loginUserFromKeytab(as.character(principal), as.character(keytabFilePath))
+
+  if (!is.null(principal) && ! is.null(keytabFilePath)) {
+    writeLines("Loggining to Kerberos using keytab file")
+    rJava::J(as.character(userGroupInformationClass))$loginUserFromKeytab(as.character(principal), as.character(keytabFilePath))
+  }
+
+  currentUser <- rJava::J(as.character(userGroupInformationClass))$getCurrentUser()
+  if(is.null(currentUser)) {
+    stop("Can't read user details")
+  }
+  userName <- rJava::.jcall(currentUser, "S", "getUserName")
+  writeLines(sprintf("Loggined as user %s", userName))
+
+  hasKerberosCredentials <- rJava::.jcall(currentUser, "Z", "hasKerberosCredentials")
+  if(!hasKerberosCredentials) {
+    stop("User don't have Kerberos credentials")
+  }
 }
 
 #' Disconnect from the server
