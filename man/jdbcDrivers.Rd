@@ -3,9 +3,6 @@
 \name{jdbcDrivers}
 \alias{jdbcDrivers}
 \title{How to download JDBC drivers for the various data platforms.}
-\description{
-How to download JDBC drivers for the various data platforms.
-}
 \section{PostgresSql}{
  Go to \href{https://jdbc.postgresql.org/download.html}{the PostgresSQL JDBC site} and
 download the current version. The file is called something like 'postgresql-42.2.2.jar'.

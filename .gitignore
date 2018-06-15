@@ -3,3 +3,5 @@
 .RData
 R/LocalEnvironment.R
 /bin/
+.idea
+*.iml
