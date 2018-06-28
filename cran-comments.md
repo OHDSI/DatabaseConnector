@@ -1,9 +1,9 @@
-I have moved all the JAR files to a separate package called DatabaseConnectorJars, as suggested in the CRAN Repository Policy.
+Two changes and one bugfix (see NEWS).
 
 ---
 
 ## Test environments
-* Ubuntu 14.04.5 LTS (Travis), R 3.4.4
+* Ubuntu 14.04.5 LTS (Travis), R 3.5.0
 * Windows 7, R 3.4.4
 
 ## R CMD check results

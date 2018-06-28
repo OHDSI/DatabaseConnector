@@ -1,4 +1,16 @@
-DatabseConnector v2.2.2 (Release date: 2018-05-22)
+DatabaseConnector v2.1.3 (Release date: 2018-06-28)
+==================================================
+
+Changes:
+
+1. Updated to DBI specification 1.0
+2. Defaulting connect arguments to NULL to prevent missing argument warnings in RStudio
+
+Bugfixes:
+
+1. Now generating unique display names for RStudio's Connections tab to prevent problems when opening two connections to the same server.
+
+DatabaseConnector v2.1.2 (Release date: 2018-05-22)
 ==================================================
 
 Changes: initial submission to CRAN
