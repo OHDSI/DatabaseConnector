@@ -96,24 +96,6 @@ public class BatchedInsert {
 		}
 	}
 
-	public void testString(String[] column) {
-		for (int i = 0; i < column.length; i++) {
-			if (column[i] == null)
-				System.out.println("<null>");
-			else
-				System.out.println(column[i]);
-		}
-	}
-
-	public void testInteger(int[] column) {
-		for (int i = 0; i < column.length; i++) {
-			if (column[i] == Integer.MAX_VALUE)
-				System.out.println("NA");
-			else
-				System.out.println(column[i]);
-		}
-	}
-
 	public void setInteger(int columnIndex, int[] column) {
 		columns[columnIndex - 1] = column;
 		columnTypes[columnIndex - 1] = INTEGER;
