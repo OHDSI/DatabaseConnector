@@ -24,5 +24,6 @@ written when an error occurs.
 }
 \details{
 Retrieves data from the database server and stores it in an ffdf object. This allows very large
-data sets to be retrieved without running out of memory.
+data sets to be retrieved without running out of memory. Null values in the database are converted
+to NA values in R.
 }

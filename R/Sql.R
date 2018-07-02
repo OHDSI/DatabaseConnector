@@ -58,7 +58,8 @@
 #'
 #' @details
 #' Retrieves data from the database server and stores it in an ffdf object. This allows very large
-#' data sets to be retrieved without running out of memory.
+#' data sets to be retrieved without running out of memory. Null values in the database are converted
+#' to NA values in R.
 #'
 #' @return
 #' A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead
@@ -96,10 +97,13 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
     } else {
       for (i in seq.int(length(columnTypes))) {
         if (columnTypes[i] == 1) {
-          columns[[i]] <- ffbase::ffappend(columns[[i]], rJava::.jcall(batchedQuery,
-                                                                       "[D",
-                                                                       "getNumeric",
-                                                                       as.integer(i)))
+          column <- rJava::.jcall(batchedQuery,
+                                  "[D",
+                                  "getNumeric",
+                                  as.integer(i))
+          # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
+          column[is.nan(column)] <- NA
+          columns[[i]] <- ffbase::ffappend(columns[[i]], column)
         } else {
           columns[[i]] <- ffbase::ffappend(columns[[i]], factor(rJava::.jcall(batchedQuery,
                                                                               "[Ljava/lang/String;",
@@ -133,7 +137,8 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
 #'                        to R's date format?
 #'
 #' @details
-#' Retrieves data from the database server and stores it in a data frame.
+#' Retrieves data from the database server and stores it in a data frame. Null values in the database are converted
+#' to NA values in R.
 #'
 #' @return
 #' A data frame containing the data retrieved from the server
@@ -154,8 +159,13 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
     for (i in seq.int(length(columnTypes))) {
       if (columnTypes[i] == 1) {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i)))
+        column <- rJava::.jcall(batchedQuery,
+                                "[D",
+                                "getNumeric",
+                                as.integer(i))
+        # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
+        column[is.nan(column)] <- NA
+        columns[[i]] <- c(columns[[i]], column)
       } else {
         columns[[i]] <- c(columns[[i]],
                           rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
@@ -283,7 +293,8 @@ executeSql <- function(connection,
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
-#' execution, this error is written to a file to facilitate debugging.
+#' execution, this error is written to a file to facilitate debugging. Null values in the database are converted
+#' to NA values in R.
 #'
 #' @return
 #' A data frame.
@@ -338,11 +349,12 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
 #' @details
 #' Retrieves data from the database server and stores it in an ffdf object. This allows very large
 #' data sets to be retrieved without running out of memory. If an error occurs during SQL execution,
-#' this error is written to a file to facilitate debugging.
+#' this error is written to a file to facilitate debugging. Null values in the database are converted
+#' to NA values in R.
 #'
 #' @return
 #' A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead
-#' (ffdf cannot have 0 rows)
+#' (ffdf cannot have 0 rows).
 #'
 #' @examples
 #' \dontrun{

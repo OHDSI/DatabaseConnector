@@ -37,7 +37,8 @@ is created, or the data is appended to an existing table.
 }
 \details{
 This function sends the data in a data frame to a table on the server. Either a new table is
-created, or the data is appended to an existing table. If using Redshift or PDW, bulk uploading
+created, or the data is appended to an existing table. NA values are inserted as null values in the
+database. If using Redshift or PDW, bulk uploading
 techniques may be more performant than relying upon a batch of insert statements, depending upon
 data size and network throughput. Redshift: The MPP bulk loading relies upon the CloudyR S3 library
 to test a connection to an S3 bucket using AWS S3 credentials. Credentials are configured either

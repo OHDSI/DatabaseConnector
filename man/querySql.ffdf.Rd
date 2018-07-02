@@ -17,7 +17,7 @@ querySql.ffdf(connection, sql, errorReportFile = file.path(getwd(),
 }
 \value{
 A ffdf object containing the data. If there are 0 rows, a regular data frame is returned instead
-(ffdf cannot have 0 rows)
+(ffdf cannot have 0 rows).
 }
 \description{
 This function sends SQL to the server, and returns the results in an ffdf object.
@@ -25,7 +25,8 @@ This function sends SQL to the server, and returns the results in an ffdf object
 \details{
 Retrieves data from the database server and stores it in an ffdf object. This allows very large
 data sets to be retrieved without running out of memory. If an error occurs during SQL execution,
-this error is written to a file to facilitate debugging.
+this error is written to a file to facilitate debugging. Null values in the database are converted
+to NA values in R.
 }
 \examples{
 \dontrun{

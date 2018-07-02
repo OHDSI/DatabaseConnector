@@ -204,3 +204,56 @@ querySql(conn, "SELECT COUNT(*) FROM testing.cdm_testing_jmdc.person")
 disconnect(conn)
 
 
+# Test insert table performance on PostgreSQL -----------------------------
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
+                                             server = "localhost/ohdsi",
+                                             user = "postgres",
+                                             password = Sys.getenv("pwPostgres"),
+                                             schema = "cdm_synpuf")
+conn <- connect(connectionDetails)
+set.seed(1)
+day.start <- "1900/01/01"
+day.end <- "2012/12/31"
+dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "day")
+makeRandomStrings <- function(n = 1, lenght = 12) {
+  randomString <- c(1:n)
+  for (i in 1:n) randomString[i] <- paste(sample(c(0:9, letters, LETTERS), lenght, replace = TRUE),
+                                          collapse = "")
+  return(randomString)
+}
+data <- data.frame(start_date = dayseq,
+                   person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
+                   value = runif(length(dayseq)),
+                   id = makeRandomStrings(length(dayseq)))
+
+data$start_date[4] <- NA
+data$person_id[5] <- NA
+data$value[2] <- NA
+data$id[3] <- NA
+
+system.time(
+  insertTable(connection = conn,
+              tableName = "scratch.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE)
+)
+# Without batched insert: 
+#user  system elapsed 
+#62.36    0.46   65.38 
+#user  system elapsed 
+# 59.13    0.11   61.70 
+# user  system elapsed 
+#60.10    0.21   64.14 
+
+# With batched insert:
+# user  system elapsed 
+# 4.28    0.29    3.74 
+# user  system elapsed 
+# 1.50    0.11    2.83 
+
+# user  system elapsed 
+# 0.98    0.10    2.76 
+
+disconnect(conn)

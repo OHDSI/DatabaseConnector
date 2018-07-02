@@ -23,7 +23,8 @@ This function sends SQL to the server, and returns the results.
 }
 \details{
 This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
-execution, this error is written to a file to facilitate debugging.
+execution, this error is written to a file to facilitate debugging. Null values in the database are converted
+to NA values in R.
 }
 \examples{
 \dontrun{

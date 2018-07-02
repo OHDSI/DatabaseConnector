@@ -22,5 +22,6 @@ This is the equivalent of the \code{\link{querySql}} function, except no error r
 when an error occurs.
 }
 \details{
-Retrieves data from the database server and stores it in a data frame.
+Retrieves data from the database server and stores it in a data frame. Null values in the database are converted
+to NA values in R.
 }
