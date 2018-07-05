@@ -226,10 +226,24 @@ insertTable <- function(connection,
   }
   
   def <- function(obj) {
-    if (is.integer(obj))
-      "INTEGER" else if (is.numeric(obj))
-        "FLOAT" else if (class(obj) == "Date")
-          "DATE" else "VARCHAR(255)"
+    if (is.integer(obj)) {
+      return("INTEGER")
+    } else if (is.numeric(obj)) {
+      return("FLOAT")
+    } else if (class(obj) == "Date") {
+      return("DATE")
+    } else {
+      if (is.factor(obj)) {
+        maxLength <- max(nchar(levels(obj)), na.rm = TRUE)
+      } else {
+        maxLength <- max(nchar(as.character(obj)), na.rm = TRUE)
+      }
+      if (is.na(maxLength) || maxLength <= 255) {
+        return("VARCHAR(255)")
+      } else {
+        return(sprintf("VARCHAR(%s)", maxLength))
+      }
+    }
   }
   fts <- sapply(data[1, ], def)
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
