@@ -6,7 +6,7 @@
 \usage{
 insertTable(connection, tableName, data, dropTableIfExists = TRUE,
   createTable = TRUE, tempTable = FALSE, oracleTempSchema = NULL,
-  useMppBulkLoad = FALSE)
+  useMppBulkLoad = FALSE, progressBar = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -30,6 +30,8 @@ another way to enable this mode. Please note, Redshift requires valid S3
 credentials; PDW requires valid DWLoader installation. This can only be
 used for permanent tables, and cannot be used to append to an existing
 table.}
+
+\item{progressBar}{Show a progress bar when uploading?}
 }
 \description{
 This function sends the data in a data frame or ffdf to a table on the server. Either a new table

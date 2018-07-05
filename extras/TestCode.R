@@ -237,7 +237,8 @@ system.time(
               data = data,
               dropTableIfExists = TRUE,
               createTable = TRUE,
-              tempTable = FALSE)
+              tempTable = FALSE,
+              progressBar = TRUE)
 )
 # Without batched insert: 
 #user  system elapsed 

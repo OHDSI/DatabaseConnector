@@ -62,7 +62,7 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
   }
 }
 
-ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
+ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar) {
   batchSize <- 1000
   mergeSize <- 300
   if (any(tolower(names(data)) == "subject_id")) {
@@ -84,8 +84,14 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
   }
   
   # Insert data in batches in temp tables using CTAS:
+  if (progressBar) {
+    pb <- txtProgressBar(style = 3)
+  }
   tempNames <- c()
   for (start in seq(1, nrow(data), by = batchSize)) {
+    if (progressBar) {
+      setTxtProgressBar(pb, start/nrow(data))
+    }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
       mergeTempTables(connection, mergedName, varNames, tempNames, location, distribution)
@@ -121,6 +127,10 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
                  sep = "")
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
+  if (progressBar) {
+    setTxtProgressBar(pb, 1)
+    close(pb)
+  }
   mergeTempTables(connection, qname, varNames, tempNames, location, distribution)
 }
 
@@ -144,6 +154,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'                            credentials; PDW requires valid DWLoader installation. This can only be
 #'                            used for permanent tables, and cannot be used to append to an existing
 #'                            table.
+#' @param progressBar         Show a progress bar when uploading?
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is
@@ -199,7 +210,8 @@ insertTable <- function(connection,
                         createTable = TRUE,
                         tempTable = FALSE,
                         oracleTempSchema = NULL,
-                        useMppBulkLoad = FALSE) {
+                        useMppBulkLoad = FALSE,
+                        progressBar = FALSE) {
   if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
     useMppBulkLoad <- TRUE
   }
@@ -283,7 +295,7 @@ insertTable <- function(connection,
     }
   } else {
     if (attr(connection, "dbms") == "pdw" && createTable && nrow(data) > 0) {
-      ctasHack(connection, qname, tempTable, varNames, fts, data)
+      ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar)
     } else {
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
@@ -314,11 +326,17 @@ insertTable <- function(connection,
       }
       
       if (nrow(data) > 0) {
+        if (progressBar) {
+          pb <- txtProgressBar(style = 3)
+        }
         batchedInsert <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedInsert",
                                       connection@jConnection,
                                       insertSql,
                                       ncol(data))
         for (start in seq(1, nrow(data), by = batchSize)) {
+          if (progressBar) {
+            setTxtProgressBar(pb, start/nrow(data))
+          }
           end <- min(start + batchSize - 1, nrow(data))
           setColumn <- function(i, start, end) {
             column <- data[start:end, i]
@@ -335,6 +353,10 @@ insertTable <- function(connection,
           }
           lapply(1:ncol(data), setColumn, start = start, end = end)
           rJava::.jcall(batchedInsert, "V", "executeBatch")
+        }
+        if (progressBar) {
+          setTxtProgressBar(pb, 1)
+          close(pb)
         }
       }
     }
