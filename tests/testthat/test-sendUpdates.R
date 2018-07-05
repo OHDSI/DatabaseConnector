@@ -1,6 +1,7 @@
 library(testthat)
 
 test_that("Send updates", {
+  set.seed(0)
   day.start <- "1960/01/01"
   day.end <- "2000/12/31"
   dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "week")
