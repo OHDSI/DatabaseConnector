@@ -256,4 +256,11 @@ system.time(
 # user  system elapsed 
 # 0.98    0.10    2.76 
 
+insertTable(connection = conn,
+            tableName = "scratch.insert_test",
+            data = data[1, ],
+            dropTableIfExists = TRUE,
+            createTable = TRUE,
+            tempTable = FALSE)
+
 disconnect(conn)

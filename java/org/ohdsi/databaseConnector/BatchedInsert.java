@@ -119,4 +119,28 @@ public class BatchedInsert {
 		columnTypes[columnIndex - 1] = STRING;
 		rowCount = column.length;
 	}
+	
+	public void setInteger(int columnIndex, int column) {
+		columns[columnIndex - 1] = new int[] {column};
+		columnTypes[columnIndex - 1] = INTEGER;
+		rowCount = 1;
+	}
+
+	public void setNumeric(int columnIndex, double column) {
+		columns[columnIndex - 1] = new double[] {column};
+		columnTypes[columnIndex - 1] = NUMERIC;
+		rowCount = 1;
+	}
+
+	public void setDate(int columnIndex, String column) {
+		columns[columnIndex - 1] = new String[] {column};
+		columnTypes[columnIndex - 1] = DATE;
+		rowCount = 1;
+	}
+
+	public void setString(int columnIndex, String column) {
+		columns[columnIndex - 1] = new String[] {column};
+		columnTypes[columnIndex - 1] = STRING;
+		rowCount = 1;
+	}
 }
