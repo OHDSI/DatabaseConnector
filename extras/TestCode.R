@@ -265,3 +265,37 @@ insertTable(connection = conn,
             tempTable = FALSE)
 
 disconnect(conn)
+
+# Test bulk import -----------------------------------------------
+connectionDetails <- createConnectionDetails(dbms = "pdw",
+                                             server = Sys.getenv("PDW_SERVER"),
+                                             port = Sys.getenv("PDW_PORT"),
+                                             schema = "scratch.dbo")
+conn <- connect(connectionDetails)
+set.seed(1)
+day.start <- "1900/01/01"
+day.end <- "2012/12/31"
+dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "day")
+makeRandomStrings <- function(n = 1, lenght = 12) {
+  randomString <- c(1:n)
+  for (i in 1:n) randomString[i] <- paste(sample(c(0:9, letters, LETTERS), lenght, replace = TRUE),
+                                          collapse = "")
+  return(randomString)
+}
+data <- data.frame(start_date = dayseq,
+                   person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
+                   value = runif(length(dayseq)),
+                   id = makeRandomStrings(length(dayseq)))
+
+system.time(
+  insertTable(connection = conn,
+              tableName = "scratch.dbo.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE,
+              progressBar = TRUE,
+              useMppBulkLoad = TRUE)
+)
+executeSql(conn, "DROP TABLE scratch.dbo.insert_test;")
+disconnect(conn)
