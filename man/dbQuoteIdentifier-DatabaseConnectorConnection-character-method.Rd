@@ -5,8 +5,8 @@
 \alias{dbQuoteIdentifier,DatabaseConnectorConnection,character-method}
 \title{Quote identifiers}
 \usage{
-\S4method{dbQuoteIdentifier}{DatabaseConnectorConnection,character}(conn, x,
-  ...)
+\S4method{dbQuoteIdentifier}{DatabaseConnectorConnection,character}(conn,
+  x, ...)
 }
 \arguments{
 \item{conn}{A subclass of \linkS4class{DBIConnection}, representing

@@ -5,8 +5,8 @@
 \alias{dbListTables,DatabaseConnectorConnection-method}
 \title{List remote tables}
 \usage{
-\S4method{dbListTables}{DatabaseConnectorConnection}(conn, database = NULL,
-  schema = NULL, ...)
+\S4method{dbListTables}{DatabaseConnectorConnection}(conn,
+  database = NULL, schema = NULL, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by

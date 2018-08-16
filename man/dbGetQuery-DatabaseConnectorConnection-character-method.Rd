@@ -5,8 +5,8 @@
 \alias{dbGetQuery,DatabaseConnectorConnection,character-method}
 \title{Send query, retrieve results and then clear result set}
 \usage{
-\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement,
-  ...)
+\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn,
+  statement, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by

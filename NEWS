@@ -1,3 +1,11 @@
+DatabaseConnector v2.1.4 (Release date: 2018-08-16)
+==================================================
+
+Changes:
+
+1. Faster inserts by building batches in Java instead of R
+
+
 DatabaseConnector v2.1.3 (Release date: 2018-06-28)
 ==================================================
 

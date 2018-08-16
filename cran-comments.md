@@ -1,10 +1,10 @@
-Two changes and one bugfix (see NEWS).
+One change (see NEWS).
 
 ---
 
 ## Test environments
 * Ubuntu 14.04.5 LTS (Travis), R 3.5.0
-* Windows 7, R 3.4.4
+* Windows 7, R 3.5.1
 
 ## R CMD check results
 
