@@ -447,6 +447,13 @@ insertTable <- function(connection,
   }, finally = {
     try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
   })
+  
+  sql <- "SELECT COUNT(*) FROM @table"
+  sql <- SqlRender::renderSql(sql, table = qname)$sql
+  count <- querySql(connection, sql)
+  if (count[1, 1] != nrow(data)) {
+    stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", count[1, 1], " records")
+  }
 }
 
 .bulkLoadRedshift <- function(connection, qname, data) {
