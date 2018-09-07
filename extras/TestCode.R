@@ -306,7 +306,7 @@ disconnect(conn)
 setwd("c:/temp/")
 zipFile <- "c:/temp/testData.zip"
 fileToZip <- "c:/temp/testData.csv"
-rows <- 1000000
+rows <- 1e8
 x <- data.frame(a = runif(rows), b = sample(letters, rows, replace = TRUE))  
 write.csv(x, fileToZip)
 createZipFile(zipFile = zipFile,
