@@ -3,6 +3,7 @@
 export(DatabaseConnectorDriver)
 export(connect)
 export(createConnectionDetails)
+export(createZipFile)
 export(disconnect)
 export(executeSql)
 export(getTableNames)

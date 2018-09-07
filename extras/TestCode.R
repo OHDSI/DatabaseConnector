@@ -299,3 +299,23 @@ system.time(
 )
 executeSql(conn, "DROP TABLE scratch.dbo.insert_test;")
 disconnect(conn)
+
+
+
+# Test compression -----------------------------------
+setwd("c:/temp/")
+zipFile <- "c:/temp/testData.zip"
+fileToZip <- "c:/temp/testData.csv"
+rows <- 1000000
+x <- data.frame(a = runif(rows), b = sample(letters, rows, replace = TRUE))  
+write.csv(x, fileToZip)
+createZipFile(zipFile = zipFile,
+              files = fileToZip)
+
+files <- "vignetteFeatureExtraction"
+zipFile <- "data.zip"
+rootFolder <- "c:/temp"
+createZipFile(zipFile = "data.zip", files = "vignetteFeatureExtraction")
+
+
+files <- c("AppStore.log", "AppStoreInstallLogs.txt")
