@@ -5,7 +5,8 @@
 \alias{dbFetch,DatabaseConnectorResult-method}
 \title{Fetch records from a previously executed query}
 \usage{
-\S4method{dbFetch}{DatabaseConnectorResult}(res, datesAsString = FALSE, ...)
+\S4method{dbFetch}{DatabaseConnectorResult}(res, datesAsString = FALSE,
+  ...)
 }
 \arguments{
 \item{res}{An object inheriting from \linkS4class{DBIResult}, created by

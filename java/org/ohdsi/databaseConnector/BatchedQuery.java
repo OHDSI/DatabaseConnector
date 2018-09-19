@@ -84,9 +84,11 @@ public class BatchedQuery {
 		rowCount = 0;
 		while (rowCount < batchSize && resultSet.next()) {
 			for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
-				if (columnTypes[columnIndex] == NUMERIC)
+				if (columnTypes[columnIndex] == NUMERIC) {
 					((double[]) columns[columnIndex])[rowCount] = resultSet.getDouble(columnIndex + 1);
-				else if (columnTypes[columnIndex] == STRING)
+					if (resultSet.wasNull())
+						((double[]) columns[columnIndex])[rowCount] = Double.NaN;
+				} else if (columnTypes[columnIndex] == STRING)
 					((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
 				else {
 					Date date = resultSet.getDate(columnIndex + 1);

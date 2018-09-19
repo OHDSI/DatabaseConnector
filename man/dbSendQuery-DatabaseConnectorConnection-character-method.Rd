@@ -5,8 +5,8 @@
 \alias{dbSendQuery,DatabaseConnectorConnection,character-method}
 \title{Execute a query on a given database connection}
 \usage{
-\S4method{dbSendQuery}{DatabaseConnectorConnection,character}(conn, statement,
-  ...)
+\S4method{dbSendQuery}{DatabaseConnectorConnection,character}(conn,
+  statement, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by

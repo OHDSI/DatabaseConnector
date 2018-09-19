@@ -5,7 +5,8 @@
 \alias{dbWriteTable,DatabaseConnectorConnection,character,data.frame-method}
 \title{Copy data frames to database tables}
 \usage{
-\S4method{dbWriteTable}{DatabaseConnectorConnection,character,data.frame}(conn,
+
+  \S4method{dbWriteTable}{DatabaseConnectorConnection,character,data.frame}(conn,
   name, value, overwrite = FALSE, append = FALSE, temporary = FALSE,
   oracleTempSchema = NULL, ...)
 }

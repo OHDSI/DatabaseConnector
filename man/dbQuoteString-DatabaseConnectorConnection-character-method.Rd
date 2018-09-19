@@ -5,7 +5,8 @@
 \alias{dbQuoteString,DatabaseConnectorConnection,character-method}
 \title{Quote literal strings}
 \usage{
-\S4method{dbQuoteString}{DatabaseConnectorConnection,character}(conn, x, ...)
+\S4method{dbQuoteString}{DatabaseConnectorConnection,character}(conn, x,
+  ...)
 }
 \arguments{
 \item{conn}{A subclass of \linkS4class{DBIConnection}, representing

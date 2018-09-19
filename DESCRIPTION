@@ -2,7 +2,7 @@ Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
 Version: 2.2.0
-Date: 2018-05-22
+Date: 2018-09-19
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -13,7 +13,7 @@ Authors@R: c(
     person("Oracle Inc.", role = c("cph"), comment = "Oracle  JDBC driver"),
     person("Amazon Inc.", role = c("cph"), comment = "RedShift  JDBC driver")
   )
-Description:  An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 
+Description: An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 
     'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', and 'Google BigQuery'). Also includes support for
     fetching data as 'ffdf' objects. Uses 'Java Database Connectivity' ('JDBC') to connect to databases.
 Imports:
@@ -40,4 +40,4 @@ VignetteBuilder: knitr
 URL: https://github.com/OHDSI/DatabaseConnector
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.0

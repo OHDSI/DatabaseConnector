@@ -62,7 +62,7 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
   }
 }
 
-ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
+ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar) {
   batchSize <- 1000
   mergeSize <- 300
   if (any(tolower(names(data)) == "subject_id")) {
@@ -84,8 +84,14 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
   }
   
   # Insert data in batches in temp tables using CTAS:
+  if (progressBar) {
+    pb <- txtProgressBar(style = 3)
+  }
   tempNames <- c()
   for (start in seq(1, nrow(data), by = batchSize)) {
+    if (progressBar) {
+      setTxtProgressBar(pb, start/nrow(data))
+    }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
       mergeTempTables(connection, mergedName, varNames, tempNames, location, distribution)
@@ -121,6 +127,10 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
                  sep = "")
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
+  if (progressBar) {
+    setTxtProgressBar(pb, 1)
+    close(pb)
+  }
   mergeTempTables(connection, qname, varNames, tempNames, location, distribution)
 }
 
@@ -144,10 +154,12 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data) {
 #'                            credentials; PDW requires valid DWLoader installation. This can only be
 #'                            used for permanent tables, and cannot be used to append to an existing
 #'                            table.
+#' @param progressBar         Show a progress bar when uploading?
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is
-#' created, or the data is appended to an existing table. If using Redshift or PDW, bulk uploading
+#' created, or the data is appended to an existing table. NA values are inserted as null values in the
+#' database. If using Redshift or PDW, bulk uploading
 #' techniques may be more performant than relying upon a batch of insert statements, depending upon
 #' data size and network throughput. Redshift: The MPP bulk loading relies upon the CloudyR S3 library
 #' to test a connection to an S3 bucket using AWS S3 credentials. Credentials are configured either
@@ -198,7 +210,8 @@ insertTable <- function(connection,
                         createTable = TRUE,
                         tempTable = FALSE,
                         oracleTempSchema = NULL,
-                        useMppBulkLoad = FALSE) {
+                        useMppBulkLoad = FALSE,
+                        progressBar = FALSE) {
   if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
     useMppBulkLoad <- TRUE
   }
@@ -225,18 +238,28 @@ insertTable <- function(connection,
   }
   
   def <- function(obj) {
-    if (is.integer(obj))
-      "INTEGER" else if (is.numeric(obj))
-        "FLOAT" else if (class(obj) == "Date")
-          "DATE" else "VARCHAR(255)"
+    if (is.integer(obj)) {
+      return("INTEGER")
+    } else if (is.numeric(obj)) {
+      return("FLOAT")
+    } else if (class(obj) == "Date") {
+      return("DATE")
+    } else {
+      if (is.factor(obj)) {
+        maxLength <- max(nchar(levels(obj)), na.rm = TRUE)
+      } else {
+        maxLength <- max(nchar(as.character(obj)), na.rm = TRUE)
+      }
+      if (is.na(maxLength) || maxLength <= 255) {
+        return("VARCHAR(255)")
+      } else {
+        return(sprintf("VARCHAR(%s)", maxLength))
+      }
+    }
   }
   fts <- sapply(data[1, ], def)
-  isDate <- (fts == "DATE")
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
-  # esc <- function(str) {
-  #   paste("'", gsub("'", "''", str), "'", sep = "")
-  # }
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
   
   if (dropTableIfExists) {
@@ -272,7 +295,7 @@ insertTable <- function(connection,
     }
   } else {
     if (attr(connection, "dbms") == "pdw" && createTable && nrow(data) > 0) {
-      ctasHack(connection, qname, tempTable, varNames, fts, data)
+      ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar)
     } else {
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
@@ -302,90 +325,38 @@ insertTable <- function(connection,
         on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE))
       }
       
-      insertRow <- function(row, statement) {
-        for (i in 1:length(row)) {
-          if (is.na(row[i])) {
-            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
-          } else {
-            rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
-          }
-        }
-        rJava::.jcall(statement, "V", "addBatch")
-      }
-      insertRowPostgreSql <- function(row, statement) {
-        other <- rJava::.jfield("java/sql/Types", "I", "OTHER")
-        for (i in 1:length(row)) {
-          if (is.na(row[i])) {
-            rJava::.jcall(statement, "V", "setObject", i, rJava::.jnull(), other)
-          } else {
-            value <- rJava::.jnew("java/lang/String", as.character(row[i]))
-            rJava::.jcall(statement,
-                          "V",
-                          "setObject",
-                          i,
-                          rJava::.jcast(value, "java/lang/Object"),
-                          other)
-          }
-        }
-        rJava::.jcall(statement, "V", "addBatch")
-      }
-      insertRowOracle <- function(row, statement, isDate) {
-        for (i in 1:length(row)) {
-          if (is.na(row[i])) {
-            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
-          } else if (isDate[i]) {
-            date <- rJava::.jcall("java/sql/Date", "Ljava/sql/Date;", "valueOf", as.character(row[i]))
-            rJava::.jcall(statement, "V", "setDate", i, date)
-          } else rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
-        }
-        rJava::.jcall(statement, "V", "addBatch")
-      }
-      insertRowImpala <- function(row, statement) {
-        for (i in 1:length(row)) {
-          if (is.na(row[i])) {
-            rJava::.jcall(statement, "V", "setString", i, rJava::.jnull(class = "java/lang/String"))
-          } else if (is.integer(row[i])) {
-            rJava::.jcall(statement, "V", "setInt", i, as.integer(row[i]))
-          } else {
-            rJava::.jcall(statement, "V", "setString", i, as.character(row[i]))
-          }
-        }
-        rJava::.jcall(statement, "V", "addBatch")
-      }
       if (nrow(data) > 0) {
+        if (progressBar) {
+          pb <- txtProgressBar(style = 3)
+        }
+        batchedInsert <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedInsert",
+                                      connection@jConnection,
+                                      insertSql,
+                                      ncol(data))
         for (start in seq(1, nrow(data), by = batchSize)) {
-          end <- min(start + batchSize - 1, nrow(data))
-          statement <- rJava::.jcall(connection@jConnection,
-                                     "Ljava/sql/PreparedStatement;",
-                                     "prepareStatement",
-                                     insertSql,
-                                     check = FALSE)
-          if (attr(connection, "dbms") == "postgresql") {
-            apply(data[start:end,
-                       ,
-                       drop = FALSE],
-                  statement = statement,
-                  MARGIN = 1,
-                  FUN = insertRowPostgreSql)
-          } else if (attr(connection, "dbms") == "oracle" | attr(connection, "dbms") == "redshift") {
-            apply(data[start:end,
-                       ,
-                       drop = FALSE],
-                  statement = statement,
-                  isDate = isDate,
-                  MARGIN = 1,
-                  FUN = insertRowOracle)
-          } else if (attr(connection, "dbms") == "impala") {
-            apply(data[start:end,
-                       ,
-                       drop = FALSE],
-                  statement = statement,
-                  MARGIN = 1,
-                  FUN = insertRowImpala)
-          } else {
-            apply(data[start:end, , drop = FALSE], statement = statement, MARGIN = 1, FUN = insertRow)
+          if (progressBar) {
+            setTxtProgressBar(pb, start/nrow(data))
           }
-          rJava::.jcall(statement, "[I", "executeBatch")
+          end <- min(start + batchSize - 1, nrow(data))
+          setColumn <- function(i, start, end) {
+            column <- data[start:end, i]
+            if (is.integer(column)) {
+              rJava::.jcall(batchedInsert, "V", "setInteger", i, column)
+            } else if (is.numeric(column)) {
+              rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
+            } else if (class(column) == "Date") {
+              rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
+            } else {
+              rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
+            }
+            return(NULL)
+          }
+          lapply(1:ncol(data), setColumn, start = start, end = end)
+          rJava::.jcall(batchedInsert, "V", "executeBatch")
+        }
+        if (progressBar) {
+          setTxtProgressBar(pb, 1)
+          close(pb)
         }
       }
     }
@@ -476,6 +447,13 @@ insertTable <- function(connection,
   }, finally = {
     try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
   })
+  
+  sql <- "SELECT COUNT(*) FROM @table"
+  sql <- SqlRender::renderSql(sql, table = qname)$sql
+  count <- querySql(connection, sql)
+  if (count[1, 1] != nrow(data)) {
+    stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", count[1, 1], " records")
+  }
 }
 
 .bulkLoadRedshift <- function(connection, qname, data) {

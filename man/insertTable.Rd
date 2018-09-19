@@ -6,7 +6,7 @@
 \usage{
 insertTable(connection, tableName, data, dropTableIfExists = TRUE,
   createTable = TRUE, tempTable = FALSE, oracleTempSchema = NULL,
-  useMppBulkLoad = FALSE)
+  useMppBulkLoad = FALSE, progressBar = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -30,6 +30,8 @@ another way to enable this mode. Please note, Redshift requires valid S3
 credentials; PDW requires valid DWLoader installation. This can only be
 used for permanent tables, and cannot be used to append to an existing
 table.}
+
+\item{progressBar}{Show a progress bar when uploading?}
 }
 \description{
 This function sends the data in a data frame or ffdf to a table on the server. Either a new table
@@ -37,7 +39,8 @@ is created, or the data is appended to an existing table.
 }
 \details{
 This function sends the data in a data frame to a table on the server. Either a new table is
-created, or the data is appended to an existing table. If using Redshift or PDW, bulk uploading
+created, or the data is appended to an existing table. NA values are inserted as null values in the
+database. If using Redshift or PDW, bulk uploading
 techniques may be more performant than relying upon a batch of insert statements, depending upon
 data size and network throughput. Redshift: The MPP bulk loading relies upon the CloudyR S3 library
 to test a connection to an S3 bucket using AWS S3 credentials. Credentials are configured either
