@@ -1,4 +1,4 @@
-One change (see NEWS).
+Two changes (see NEWS).
 
 ---
 

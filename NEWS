@@ -1,3 +1,12 @@
+DatabaseConnector v2.2.0 (Release date: 2018-10-01)
+==================================================
+
+Changes:
+
+1. Checking number of inserted rows after bulk upload, throwing error if not correct
+2. Added convenience function for cross-platform zipping of files and folders
+.
+
 DatabaseConnector v2.1.4 (Release date: 2018-08-16)
 ==================================================
 

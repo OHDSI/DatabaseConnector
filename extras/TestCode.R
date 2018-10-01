@@ -300,6 +300,18 @@ system.time(
 executeSql(conn, "DROP TABLE scratch.dbo.insert_test;")
 disconnect(conn)
 
+# Test RedShift ------------------------------------------
+dbms <- "redshift"
+user <- Sys.getenv("jmdcRedShiftUser")
+pw <- Sys.getenv("jmdcRedShiftPassword")
+connectionString <- Sys.getenv("jmdcRedShiftConnectionString")
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
+                                                                connectionString = connectionString,
+                                                                user = user,
+                                                                password = pw)
+conn <- connect(connectionDetails)
+getTableNames(conn, "cdm")
+disconnect(conn)
 
 
 # Test compression -----------------------------------
