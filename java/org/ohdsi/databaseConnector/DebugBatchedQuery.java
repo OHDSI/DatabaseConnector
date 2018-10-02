@@ -1,16 +1,10 @@
 package org.ohdsi.databaseConnector;
 
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.sql.SQLException;
-
 public class DebugBatchedQuery {
 
-	@SuppressWarnings("unused")
-	public static void main(String[] args) throws SecurityException, NoSuchMethodException, IllegalArgumentException, MalformedURLException,
-			IllegalAccessException, InvocationTargetException, ClassNotFoundException, SQLException {
+	public static void main(String[] args) {
 
-		Compression.createZipFile(new String[] {"c:/temp/vignetteFeatureExtraction"}, "c:/temp", "c:/temp/data2.zip", 9);
+		Compression.createZipFile(new String[] {"c:/temp/skeleton2"}, "c:/temp", "c:/temp/data2.zip", 9);
 //		File jarFile = new File("C:\\Users\\mschuemi\\Git\\DatabaseConnector\\inst\\java\\RedshiftJDBC4-1.2.10.1009.jar");
 //		Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
 //		method.setAccessible(true);
