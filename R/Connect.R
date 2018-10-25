@@ -218,7 +218,7 @@ connect <- function(connectionDetails = NULL,
     return(connection)
   }
   if (dbms == "sql server") {
-    jarPath <- findPathToJar("^sqljdbc.\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
@@ -256,7 +256,7 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "pdw") {
     writeLines("Connecting using SQL Server driver")
-    jarPath <- findPathToJar("^sqljdbc.\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
@@ -294,7 +294,7 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "oracle") {
     writeLines("Connecting using Oracle driver")
-    jarPath <- findPathToJar("^ojdbc.\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^ojdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("oracle.jdbc.driver.OracleDriver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       # Build connection string from parts
