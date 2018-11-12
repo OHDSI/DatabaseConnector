@@ -45,6 +45,16 @@
              sep = "\n"), call. = FALSE)
 }
 
+as.POSIXct.ff_vector <- function(x) {
+  chunks <- bit::chunk(x)
+  i <- chunks[[1]]
+  result <- ff::as.ff(as.POSIXct(x[i]))
+  for (i in chunks[-1]) {
+    result <- ffbase::ffappend(result, ff::as.ff(as.POSIXct(x[i])))
+  }
+  return(result)
+}
+
 #' Low level function for retrieving data to an ffdf object
 #'
 #' @description
@@ -117,6 +127,8 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
     for (i in seq.int(length(columnTypes))) {
       if (columnTypes[i] == 3) {
         columns[[i]] <- ffbase::as.Date.ff_vector(columns[[i]])
+      } else  if (columnTypes[i] == 4) {
+        columns[[i]] <- as.POSIXct.ff_vector(columns[[i]])
       }
     }
   }
@@ -176,6 +188,8 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
     for (i in seq.int(length(columnTypes))) {
       if (columnTypes[i] == 3) {
         columns[[i]] <- as.Date(columns[[i]])
+      } else if (columnTypes[i] == 4) {
+        columns[[i]] <- as.POSIXct(columns[[i]])
       }
     }
   }

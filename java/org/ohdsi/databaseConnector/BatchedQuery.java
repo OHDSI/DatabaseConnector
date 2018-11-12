@@ -5,16 +5,19 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class BatchedQuery {
-	public static int				NUMERIC		= 1;
-	public static int				STRING		= 2;
-	public static int				DATE		= 3;
-	public static int				FETCH_SIZE	= 2048;
-	private static SimpleDateFormat	DATE_FORMAT	= new SimpleDateFormat("yyyy-MM-dd");
+	public static int				NUMERIC			= 1;
+	public static int				STRING			= 2;
+	public static int				DATE			= 3;
+	public static int				DATETIME		= 4;
+	public static int				FETCH_SIZE		= 2048;
+	private static SimpleDateFormat	DATE_FORMAT		= new SimpleDateFormat("yyyy-MM-dd");
+	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private Object[]				columns;
 	private int[]					columnTypes;
@@ -69,6 +72,8 @@ public class BatchedQuery {
 				columnTypes[columnIndex] = NUMERIC;
 			else if (type == Types.DATE)
 				columnTypes[columnIndex] = DATE;
+			else if (type == Types.TIMESTAMP)
+				columnTypes[columnIndex] = DATETIME;
 			else
 				columnTypes[columnIndex] = STRING;
 		}
@@ -90,12 +95,19 @@ public class BatchedQuery {
 						((double[]) columns[columnIndex])[rowCount] = Double.NaN;
 				} else if (columnTypes[columnIndex] == STRING)
 					((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
-				else {
+				else if (columnTypes[columnIndex] == DATE) {
 					Date date = resultSet.getDate(columnIndex + 1);
 					if (date == null)
 						((String[]) columns[columnIndex])[rowCount] = null;
 					else
 						((String[]) columns[columnIndex])[rowCount] = DATE_FORMAT.format(date);
+				} else {
+					Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
+					if (timestamp == null)
+						((String[]) columns[columnIndex])[rowCount] = null;
+					else
+						((String[]) columns[columnIndex])[rowCount] = DATETIME_FORMAT.format(timestamp);
+					
 				}
 			rowCount++;
 		}
@@ -153,11 +165,11 @@ public class BatchedQuery {
 	public String[] getColumnSqlTypes() {
 		return columnSqlTypes;
 	}
-	
+
 	public String[] getColumnNames() {
 		return columnNames;
 	}
-	
+
 	public int getTotalRowCount() {
 		return totalRowCount;
 	}

@@ -4,7 +4,9 @@ test_that("Send updates", {
   set.seed(0)
   day.start <- "1960/01/01"
   day.end <- "2000/12/31"
+  time.start <- as.POSIXct("2018-11-12 09:04:07 CET")
   dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "week")
+  timeSeq <- time.start + (1:length(dayseq)) * 60 * 60 * 24
   makeRandomStrings <- function(n = 1, lenght = 12) {
     randomString <- c(1:n)
     for (i in 1:n) randomString[i] <- paste(sample(c(0:9, letters, LETTERS), lenght, replace = TRUE),
@@ -12,12 +14,14 @@ test_that("Send updates", {
     return(randomString)
   }
   data <- data.frame(start_date = dayseq,
+                     some_time = timeSeq,
                      person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
                      value = runif(length(dayseq)),
                      id = makeRandomStrings(length(dayseq)),
                      stringsAsFactors = FALSE)
   
   data$start_date[4] <- NA
+  data$some_time[6] <- NA
   data$person_id[5] <- NA
   data$value[2] <- NA
   data$id[3] <- NA
@@ -58,7 +62,7 @@ test_that("Send updates", {
   expect_equal(data, data2)
   disconnect(connection)
   
-  
+
   # Oracle
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),

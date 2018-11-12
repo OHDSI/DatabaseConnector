@@ -6,10 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class BatchedInsert {
-	public static int	INTEGER	= 0;
-	public static int	NUMERIC	= 1;
-	public static int	STRING	= 2;
-	public static int	DATE	= 3;
+	public static int	INTEGER		= 0;
+	public static int	NUMERIC		= 1;
+	public static int	STRING		= 2;
+	public static int	DATE		= 3;
+	public static int	DATETIME	= 4;
 
 	private Object[]	columns;
 	private int[]		columnTypes;
@@ -69,6 +70,12 @@ public class BatchedInsert {
 							statement.setObject(j + 1, null);
 						else
 							statement.setDate(j + 1, java.sql.Date.valueOf(value));
+					} else if (columnTypes[j] == DATETIME) {
+						String value = ((String[]) columns[j])[i];
+						if (value == null)
+							statement.setObject(j + 1, null);
+						else
+							statement.setTimestamp(j + 1, java.sql.Timestamp.valueOf(value));
 					} else {
 						String value = ((String[]) columns[j])[i];
 						if (value == null)
@@ -113,33 +120,45 @@ public class BatchedInsert {
 		columnTypes[columnIndex - 1] = DATE;
 		rowCount = column.length;
 	}
+	
+	public void setDateTime(int columnIndex, String[] column) {
+		columns[columnIndex - 1] = column;
+		columnTypes[columnIndex - 1] = DATETIME;
+		rowCount = column.length;
+	}
 
 	public void setString(int columnIndex, String[] column) {
 		columns[columnIndex - 1] = column;
 		columnTypes[columnIndex - 1] = STRING;
 		rowCount = column.length;
 	}
-	
+
 	public void setInteger(int columnIndex, int column) {
-		columns[columnIndex - 1] = new int[] {column};
+		columns[columnIndex - 1] = new int[] { column };
 		columnTypes[columnIndex - 1] = INTEGER;
 		rowCount = 1;
 	}
 
 	public void setNumeric(int columnIndex, double column) {
-		columns[columnIndex - 1] = new double[] {column};
+		columns[columnIndex - 1] = new double[] { column };
 		columnTypes[columnIndex - 1] = NUMERIC;
 		rowCount = 1;
 	}
 
 	public void setDate(int columnIndex, String column) {
-		columns[columnIndex - 1] = new String[] {column};
+		columns[columnIndex - 1] = new String[] { column };
 		columnTypes[columnIndex - 1] = DATE;
+		rowCount = 1;
+	}
+	
+	public void setDatTimee(int columnIndex, String column) {
+		columns[columnIndex - 1] = new String[] { column };
+		columnTypes[columnIndex - 1] = DATETIME;
 		rowCount = 1;
 	}
 
 	public void setString(int columnIndex, String column) {
-		columns[columnIndex - 1] = new String[] {column};
+		columns[columnIndex - 1] = new String[] { column };
 		columnTypes[columnIndex - 1] = STRING;
 		rowCount = 1;
 	}
