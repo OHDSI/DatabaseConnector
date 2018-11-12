@@ -244,6 +244,8 @@ insertTable <- function(connection,
       return("FLOAT")
     } else if (class(obj) == "Date") {
       return("DATE")
+    } else if (class(obj) == c("POSIXct", "POSIXt")) {
+      return("DATETIME")
     } else {
       if (is.factor(obj)) {
         maxLength <- max(nchar(levels(obj)), na.rm = TRUE)
