@@ -37,7 +37,7 @@ Suggests:
     rmarkdown,
 License: Apache License
 VignetteBuilder: knitr
-URL: https://github.com/OHDSI/DatabaseConnector
+URL: https://ohdsi.github.io/DatabaseConnector, https://github.com/OHDSI/DatabaseConnector
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
