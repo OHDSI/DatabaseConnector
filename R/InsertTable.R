@@ -40,19 +40,35 @@
 mergeTempTables <- function(connection, tableName, varNames, sourceNames, location, distribution) {
   unionString <- paste("\nUNION ALL\nSELECT ", varNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
-  sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
-               tableName,
-               " (",
-               varNames,
-               " ) WITH (",
-               location,
-               "DISTRIBUTION=",
-               distribution,
-               ") AS SELECT ",
-               varNames,
-               " FROM ",
-               valueString,
-               sep = "")
+  if (attr(connection, "dbms") == "pdw") {
+    sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
+                 tableName,
+                 " (",
+                 varNames,
+                 " ) WITH (",
+                 location,
+                 "DISTRIBUTION=",
+                 distribution,
+                 ") AS SELECT ",
+                 varNames,
+                 " FROM ",
+                 valueString,
+                 sep = "")
+  } else {
+    sql <- paste("CREATE ",
+                 location,
+                 "TABLE ",
+                 tableName,
+                 " (",
+                 varNames,
+                 " ) ",
+                 distribution,
+                 " AS SELECT ",
+                 varNames,
+                 " FROM ",
+                 valueString,
+                 sep = "")
+  }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   # Drop source tables:
@@ -65,17 +81,34 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar) {
   batchSize <- 1000
   mergeSize <- 300
-  if (any(tolower(names(data)) == "subject_id")) {
-    distribution <- "HASH(SUBJECT_ID)"
-  } else if (any(tolower(names(data)) == "person_id")) {
-    distribution <- "HASH(PERSON_ID)"
+  if (attr(connection, "dbms") == "pdw") {
+    if (any(tolower(names(data)) == "subject_id")) {
+      distribution <- "HASH(SUBJECT_ID)"
+    } else if (any(tolower(names(data)) == "person_id")) {
+      distribution <- "HASH(PERSON_ID)"
+    } else {
+      distribution <- "REPLICATE"
+    }
+    tempLocation <- "LOCATION = USER_DB, "
+    if (tempTable) {
+      location <- tempLocation
+    } else {
+      location <- ""
+    }
   } else {
-    distribution <- "REPLICATE"
-  }
-  if (tempTable) {
-    location <- "LOCATION = USER_DB, "
-  } else {
-    location <- ""
+    if (any(tolower(names(data)) == "subject_id")) {
+      distribution <- "DISTKEY(SUBJECT_ID)"
+    } else if (any(tolower(names(data)) == "person_id")) {
+      distribution <- "DISTKEY(PERSON_ID)"
+    } else {
+      distribution <- ""
+    }
+    tempLocation <- "TEMP "
+    if (tempTable) {
+      location <- tempLocation
+    } else {
+      location <- ""
+    }
   }
   esc <- function(str) {
     result <- paste("'", gsub("'", "''", str), "'", sep = "")
@@ -94,7 +127,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, varNames, tempNames, location, distribution)
+      mergeTempTables(connection, mergedName, varNames, tempNames, tempLocation, distribution)
       tempNames <- c(mergedName)
     }
     # First line gets type information
@@ -116,15 +149,32 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     }
     tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
-    sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
-                 tempName,
-                 " (",
-                 varNames,
-                 " ) WITH (LOCATION = USER_DB, DISTRIBUTION=",
-                 distribution,
-                 ") AS SELECT ",
-                 valueString,
-                 sep = "")
+    if (attr(connection, "dbms") == "pdw") {
+      sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
+                   tempName,
+                   " (",
+                   varNames,
+                   " ) WITH (",
+                   tempLocation,
+                   "DISTRIBUTION=",
+                   distribution,
+                   ") AS SELECT ",
+                   valueString,
+                   sep = "")
+    } else {
+      sql <- paste("CREATE ",
+                   tempLocation,
+                   "TABLE ",
+                   tempName,
+                   " (",
+                   varNames,
+                   " ) ",
+                   distribution,
+                   " AS SELECT ",
+                   valueString,
+                   sep = "")
+      
+    }
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   if (progressBar) {
@@ -296,7 +346,7 @@ insertTable <- function(connection,
       .bulkLoadPdw(connection, qname, data)
     }
   } else {
-    if (attr(connection, "dbms") == "pdw" && createTable && nrow(data) > 0) {
+    if ((attr(connection, "dbms") == "pdw" | attr(connection, "dbms") == "redshift") && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar)
     } else {
       if (createTable) {
