@@ -151,7 +151,7 @@ public class BatchedInsert {
 		rowCount = 1;
 	}
 	
-	public void setDatTimee(int columnIndex, String column) {
+	public void setDateTime(int columnIndex, String column) {
 		columns[columnIndex - 1] = new String[] { column };
 		columnTypes[columnIndex - 1] = DATETIME;
 		rowCount = 1;
