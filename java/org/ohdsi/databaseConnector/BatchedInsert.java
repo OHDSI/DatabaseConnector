@@ -11,6 +11,7 @@ public class BatchedInsert {
 	public static int	STRING		= 2;
 	public static int	DATE		= 3;
 	public static int	DATETIME	= 4;
+	public static int	BIGINT		= 5;
 
 	private Object[]	columns;
 	private int[]		columnTypes;
@@ -76,6 +77,12 @@ public class BatchedInsert {
 							statement.setObject(j + 1, null);
 						else
 							statement.setTimestamp(j + 1, java.sql.Timestamp.valueOf(value));
+					} else if(columnTypes[j] == BIGINT) {
+						long value = ((long[]) columns[j])[i];
+						if (value == Long.MIN_VALUE)
+							statement.setObject(j + 1, null);
+						else
+							statement.setLong(j + 1, value);
 					} else {
 						String value = ((String[]) columns[j])[i];
 						if (value == null)
@@ -127,6 +134,12 @@ public class BatchedInsert {
 		rowCount = column.length;
 	}
 
+	public void setBigint(int columnIndex, long[] column) {
+		columns[columnIndex - 1] = column;
+		columnTypes[columnIndex - 1] = BIGINT;
+		rowCount = column.length;
+	}
+
 	public void setString(int columnIndex, String[] column) {
 		columns[columnIndex - 1] = column;
 		columnTypes[columnIndex - 1] = STRING;
@@ -160,6 +173,12 @@ public class BatchedInsert {
 	public void setString(int columnIndex, String column) {
 		columns[columnIndex - 1] = new String[] { column };
 		columnTypes[columnIndex - 1] = STRING;
+		rowCount = 1;
+	}
+
+	public void setBigint(int columnIndex, long column) {
+		columns[columnIndex - 1] = new long[] { column };
+		columnTypes[columnIndex - 1] = BIGINT;
 		rowCount = 1;
 	}
 }
