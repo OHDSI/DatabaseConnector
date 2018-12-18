@@ -134,6 +134,15 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
   mergeTempTables(connection, qname, varNames, tempNames, location, distribution)
 }
 
+is.bigint <- function(x) {
+  num <- 2^63
+  
+  bigint.min <- -num
+  bigint.max <- num - 1
+  
+  return(!is.na(x) && !is.character(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
+}
+
 #' Insert a table on the server
 #'
 #' @description
@@ -240,12 +249,14 @@ insertTable <- function(connection,
   def <- function(obj) {
     if (is.integer(obj)) {
       return("INTEGER")
-    } else if (is.numeric(obj)) {
-      return("FLOAT")
     } else if (identical(class(obj), c("POSIXct", "POSIXt"))) {
       return("DATETIME2")
     } else if (class(obj) == "Date") {
       return("DATE")
+    } else if (is.bigint(obj)) {
+      return("BIGINT")
+    } else if (is.numeric(obj)) {
+      return("FLOAT")
     } else {
       if (is.factor(obj)) {
         maxLength <- max(nchar(levels(obj)), na.rm = TRUE)
@@ -350,6 +361,8 @@ insertTable <- function(connection,
               rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
             } else if (class(column) == "Date") {
               rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
+            } else if (is.bigint(column)) {
+              rJava::.jcall(batchedInsert, "V", "setBigint", i, as.numeric(column))
             } else {
               rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
             }
