@@ -13,11 +13,13 @@ test_that("Send updates", {
                                             collapse = "")
     return(randomString)
   }
+  bigInts <- 1:length(dayseq) + 2^40
   data <- data.frame(start_date = dayseq,
                      some_time = timeSeq,
                      person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
                      value = runif(length(dayseq)),
                      id = makeRandomStrings(length(dayseq)),
+                     big_ints = bigInts,
                      stringsAsFactors = FALSE)
   
   data$start_date[4] <- NA
@@ -25,7 +27,7 @@ test_that("Send updates", {
   data$person_id[5] <- NA
   data$value[2] <- NA
   data$id[3] <- NA
-  
+  data$big_ints[7] <- NA
   
   # Postgresql
   details <- createConnectionDetails(dbms = "postgresql",
@@ -39,9 +41,18 @@ test_that("Send updates", {
               data = data,
               createTable = TRUE,
               tempTable = TRUE)
+  
+  # Check data on server is same as local
   data2 <- querySql(connection, "SELECT * FROM temp")
   names(data2) <- tolower(names(data2))
   expect_equal(data, data2)
+  
+  # Check data types
+  res <- dbSendQuery(connection, "SELECT * FROM temp")
+  columnInfo <- dbColumnInfo(res)
+  dbClearResult(res)
+  expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "numeric", "varchar", "int8"))
+  
   disconnect(connection)
   
   
@@ -57,9 +68,18 @@ test_that("Send updates", {
               data = data,
               createTable = TRUE,
               tempTable = TRUE)
+  
+  # Check data on server is same as local
   data2 <- querySql(connection, "SELECT * FROM #temp")
   names(data2) <- tolower(names(data2))
   expect_equal(data, data2)
+  
+  # Check data types
+  res <- dbSendQuery(connection, "SELECT * FROM #temp")
+  columnInfo <- dbColumnInfo(res)
+  dbClearResult(res)
+  expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+  
   disconnect(connection)
   
 
@@ -75,6 +95,8 @@ test_that("Send updates", {
               data = data,
               createTable = TRUE,
               tempTable = FALSE)
+  
+  # Check data on server is same as local
   data2 <- querySql(connection, "SELECT * FROM temp")
   names(data2) <- tolower(names(data2))
   data <- data[order(data$person_id), ]
@@ -82,5 +104,12 @@ test_that("Send updates", {
   row.names(data) <- NULL
   row.names(data2) <- NULL
   expect_equal(data, data2)
+  
+  # Check data types
+  res <- dbSendQuery(connection, "SELECT * FROM temp")
+  columnInfo <- dbColumnInfo(res)
+  dbClearResult(res)
+  expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "NUMBER", "NUMBER", "VARCHAR2", "NUMBER"))
+  
   disconnect(connection)
 })
