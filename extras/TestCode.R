@@ -331,3 +331,73 @@ createZipFile(zipFile = "data.zip", files = "vignetteFeatureExtraction")
 
 
 files <- c("AppStore.log", "AppStoreInstallLogs.txt")
+
+
+
+# Test insert table performance on RedShift -----------------------------
+dbms <- "redshift"
+user <- Sys.getenv("jmdcRedShiftUser")
+pw <- Sys.getenv("jmdcRedShiftPassword")
+connectionString <- Sys.getenv("jmdcRedShiftConnectionString")
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
+                                                                connectionString = connectionString,
+                                                                user = user,
+                                                                password = pw)
+conn <- connect(connectionDetails)
+set.seed(1)
+day.start <- "1900/01/01"
+day.end <- "2012/12/31"
+dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "day")
+makeRandomStrings <- function(n = 1, lenght = 12) {
+  randomString <- c(1:n)
+  for (i in 1:n) randomString[i] <- paste(sample(c(0:9, letters, LETTERS), lenght, replace = TRUE),
+                                          collapse = "")
+  return(randomString)
+}
+data <- data.frame(start_date = dayseq,
+                   person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
+                   value = runif(length(dayseq)),
+                   id = makeRandomStrings(length(dayseq)))
+
+data$start_date[4] <- NA
+data$person_id[5] <- NA
+data$value[2] <- NA
+data$id[3] <- NA
+
+data <- data[1:10000, ]
+
+system.time(
+  insertTable(connection = conn,
+              tableName = "scratch_mschuemi.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE,
+              progressBar = TRUE)
+)
+
+# 100 rows:
+# Using default:
+# user  system elapsed 
+# 1.45    0.36  265.66 
+
+# 2nd time using default:
+# user  system elapsed 
+# 0.34    0.06  213.82 
+
+# Using CTAS 
+# user  system elapsed 
+# 0.49    0.05   32.93 
+
+#1000 rows:
+# Using CTAS:
+# user  system elapsed 
+# 1.40    0.08  149.74 
+
+# 10000 rows:
+# user  system elapsed 
+# 4.72    0.36 1703.59 
+
+data2 <- querySql(conn, "SELECT * FROM scratch_mschuemi.insert_test;")
+
+disconnect(conn)
