@@ -190,7 +190,7 @@ is.bigint <- function(x) {
   bigint.min <- -num
   bigint.max <- num - 1
   
-  return(!is.na(x) && !is.character(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
+  return(!is.na(x) && is.numeric(x) && !is.factor(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
 }
 
 #' Insert a table on the server
