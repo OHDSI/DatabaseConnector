@@ -9,7 +9,6 @@ Authors@R: c(
     person("Observational Health Data Science and Informatics", role = c("cph")),
     person("Microsoft Inc.", role = c("cph"), comment = "SQL Server JDBC driver"),
     person("PostgreSQL Global Development Group", role = c("cph"), comment = "PostgreSQL JDBC driver"),
-    person("Starschema  Ltd.", role = c("cph"), comment = "BigQuery JDBC driver"),
     person("Oracle Inc.", role = c("cph"), comment = "Oracle  JDBC driver"),
     person("Amazon Inc.", role = c("cph"), comment = "RedShift  JDBC driver")
   )
