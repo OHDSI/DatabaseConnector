@@ -493,8 +493,14 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "bigquery") {
     writeLines("Connecting using BigQuery driver")
-    jarPath <- findPathToJar("^bqjdbc\\.jar$", pathToDriver)
-    driver <- getJbcDriverSingleton("net.starschema.clouddb.jdbc.BQDriver", jarPath)
+    
+    files <- list.files(path = pathToDriver, full.names = TRUE)
+    for (jar in files) {
+      .jaddClassPath(jar)
+    }
+    
+    jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       connectionString <- paste0("jdbc:BQDriver:", server)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
