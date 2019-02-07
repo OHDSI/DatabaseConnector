@@ -79,6 +79,11 @@ as.POSIXct.ff_vector <- function(x, ...) {
 lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE) {
   if (connection@dbms == 'sqlite') {
     results <- lowLevelQuerySql(connection, query)
+    for (i in 1:ncol(results)) {
+      if (class(results[, i]) == "character") {
+        results[, i] <- as.factor(results[, i])
+      }
+    }
     return(ff::as.ffdf(results))
   } 
   if (rJava::is.jnull(connection@jConnection))
@@ -167,9 +172,6 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
     for (i in 1:ncol(results)) {
       if (class(results[, i]) == "integer64") {
         results[, i] <- as.numeric(results[, i])
-      }
-      if (class(results[, i]) == "character") {
-        results[, i] <- as.factor(results[, i])
       }
     }
     return(results)
