@@ -37,6 +37,11 @@
 #'
 #' @export
 getTableNames <- function(connection, databaseSchema) {
+  if (connection@dbms == 'sqlite') {
+    tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
+    return(toupper(tables))
+  }
+  
   if (is.null(databaseSchema)) {
     database <- rJava::.jnull("java/lang/String")
     schema <- rJava::.jnull("java/lang/String")

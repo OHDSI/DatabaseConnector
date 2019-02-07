@@ -56,14 +56,31 @@ DatabaseConnectorDriver <- function() {
 #' @keywords internal
 #' @export
 #' @import DBI
-#' @import rJava
 setClass("DatabaseConnectorConnection",
          contains = "DBIConnection",
-         slots = list(jConnection = "jobjRef",
-                      identifierQuote = "character",
+         slots = list(identifierQuote = "character",
                       stringQuote = "character",
                       dbms = "character",
                       uuid = "character"))
+
+#' DatabaseConnectorJdbcConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import rJava
+setClass("DatabaseConnectorJdbcConnection",
+         contains = "DatabaseConnectorConnection",
+         slots = list(jConnection = "jobjRef"))
+
+#' DatabaseConnectorDbiConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+setClass("DatabaseConnectorDbiConnection",
+         contains = "DatabaseConnectorConnection",
+         slots = list(dbiConnection = "DBIConnection",
+                      server = "character"))
 
 #' Create a connection to a DBMS
 #'
@@ -175,6 +192,9 @@ setClass("DatabaseConnectorResult",
 setMethod("dbSendQuery",
           signature("DatabaseConnectorConnection", "character"),
           function(conn, statement, ...) {
+            if (conn@dbms == 'sqlite') {
+              return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
+            }
             if (rJava::is.jnull(conn@jConnection))
               stop("Connection is closed")
             batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",

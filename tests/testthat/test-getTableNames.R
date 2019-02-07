@@ -31,6 +31,17 @@ test_that("Get table names", {
   expect_true("PERSON" %in% tables)
   disconnect(connection)
 
+  # Sqlite
+  dbFile <- tempfile()
+  details <- createConnectionDetails(dbms = "sqlite",
+                                     server = dbFile)
+  connection <- connect(details)
+  executeSql(connection, "CREATE TABLE person (x INT);")
+  tables <- getTableNames(connection, "main")
+  expect_true("PERSON" %in% tables)
+  disconnect(connection)
+  unlink(dbFile)
+  
   # RedShift (need to fix insert for non-AWS) details <- createConnectionDetails(dbms = 'redshift',
   # user = Sys.getenv('CDM5_REDSHIFT_USER'), password =
   # URLdecode(Sys.getenv('CDM5_REDSHIFT_PASSWORD')), server = Sys.getenv('CDM5_REDSHIFT_SERVER'),

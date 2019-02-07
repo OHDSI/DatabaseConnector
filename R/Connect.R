@@ -515,6 +515,13 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "sqlite") {
+    writeLines("Connecting using SQLite driver")
+    ensure_installed("RSQLite")
+    connection <- connectUsingRsqLite(server = server)
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
 }
 
 connectUsingJdbcDriver <- function(jdbcDriver,
@@ -544,13 +551,27 @@ connectUsingJdbcDriver <- function(jdbcDriver,
     }
   }
   uuid <- paste(sample(c(LETTERS, letters, 0:9), 20, TRUE), collapse = "")
-  connection <- new("DatabaseConnectorConnection",
+  connection <- new("DatabaseConnectorJdbcConnection",
                     jConnection = jConnection,
                     identifierQuote = identifierQuote,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
   registerWithRStudio(connection)
+  return(connection)
+}
+
+connectUsingRsqLite <- function(server) {
+  uuid <- paste(sample(c(LETTERS, letters, 0:9), 20, TRUE), collapse = "")
+  dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server)
+  connection <- new("DatabaseConnectorDbiConnection",
+                    server = server,
+                    dbiConnection = dbiConnection,
+                    identifierQuote = "'",
+                    stringQuote = "'",
+                    dbms = "sqlite",
+                    uuid = uuid)
+  # registerWithRStudio(connection)
   return(connection)
 }
 
@@ -575,12 +596,15 @@ connectUsingJdbcDriver <- function(jdbcDriver,
 #' }
 #' @export
 disconnect <- function(connection) {
-  if (rJava::is.jnull(connection@jConnection)) {
-    warning("Connection is already closed")
+  if (connection@dbms == 'sqlite') {
+    DBI::dbDisconnect(connection@dbiConnection)
   } else {
-    unregisterWithRStudio(connection)
+    if (rJava::is.jnull(connection@jConnection)) {
+      warning("Connection is already closed")
+    } else {
+      unregisterWithRStudio(connection)
+    }
+    rJava::.jcall(connection@jConnection, "V", "close")
   }
-  rJava::.jcall(connection@jConnection, "V", "close")
-  
   invisible(TRUE)
 }

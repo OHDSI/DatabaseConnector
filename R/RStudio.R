@@ -87,7 +87,6 @@ listDatabaseConnectorColumns <- function(connection,
     if (!is.null(schema)) {
       schema <- toupper(schema)
     }
-    
   } else {
     table <- tolower(table)
     if (!is.null(catalog)) {
@@ -97,6 +96,9 @@ listDatabaseConnectorColumns <- function(connection,
       schema <- tolower(schema)
     }
   }
+  
+  
+  
   if (is.null(catalog))
     catalog <- rJava::.jnull("java/lang/String")
   if (is.null(schema))
@@ -174,25 +176,35 @@ connectionActions <- function(connection) {
 }
 
 getServer <- function(connection) {
-  databaseMetaData <- rJava::.jcall(connection@jConnection,
-                                    "Ljava/sql/DatabaseMetaData;",
-                                    "getMetaData")
-  url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
-  server <- urltools::url_parse(url)$domain
-  return(server)
+  if (connection@dbms == "sqlite") {
+    return(connection@server)
+  } else {
+    databaseMetaData <- rJava::.jcall(connection@jConnection,
+                                      "Ljava/sql/DatabaseMetaData;",
+                                      "getMetaData")
+    url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+    server <- urltools::url_parse(url)$domain
+    return(server)
+  }
 }
 
 compileReconnectCode <- function(connection) {
-  databaseMetaData <- rJava::.jcall(connection@jConnection,
-                                    "Ljava/sql/DatabaseMetaData;",
-                                    "getMetaData")
-  url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
-  user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
-  code <- sprintf("con <- library(DatabaseConnector)\nconnect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
-                  connection@dbms,
-                  url,
-                  user)
-  return(code)
+  if (connection@dbms == "sqlite") {
+    code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"sqlite\", server = \"%s\")", 
+                    connection@server)
+    return(code)
+  } else {
+    databaseMetaData <- rJava::.jcall(connection@jConnection,
+                                      "Ljava/sql/DatabaseMetaData;",
+                                      "getMetaData")
+    url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+    user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
+    code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
+                    connection@dbms,
+                    url,
+                    user)
+    return(code)
+  }
 }
 
 getSchemaNames <- function(conn, catalog = NULL) {

@@ -45,12 +45,12 @@
              sep = "\n"), call. = FALSE)
 }
 
-as.POSIXct.ff_vector <- function(x) {
+as.POSIXct.ff_vector <- function(x, ...) {
   chunks <- bit::chunk(x)
   i <- chunks[[1]]
-  result <- ff::as.ff(as.POSIXct(x[i]))
+  result <- ff::as.ff(as.POSIXct(x[i], ...))
   for (i in chunks[-1]) {
-    result <- ffbase::ffappend(result, ff::as.ff(as.POSIXct(x[i])))
+    result <- ffbase::ffappend(result, ff::as.ff(as.POSIXct(x[i], ...)))
   }
   return(result)
 }
@@ -77,6 +77,10 @@ as.POSIXct.ff_vector <- function(x) {
 #'
 #' @export
 lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE) {
+  if (connection@dbms == 'sqlite') {
+    results <- lowLevelQuerySql(connection, query)
+    return(ff::as.ffdf(results))
+  } 
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -157,6 +161,20 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
 #'
 #' @export
 lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
+  if (connection@dbms == 'sqlite') {
+    results <- DBI::dbGetQuery(connection@dbiConnection, query)
+    # For compatibility with JDBC:
+    for (i in 1:ncol(results)) {
+      if (class(results[, i]) == "integer64") {
+        results[, i] <- as.numeric(results[, i])
+      }
+      if (class(results[, i]) == "character") {
+        results[, i] <- as.factor(results[, i])
+      }
+    }
+    return(results)
+  } 
+  
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -209,14 +227,19 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
 #'
 #' @export
 lowLevelExecuteSql <- function(connection, sql) {
-  statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
-  on.exit(rJava::.jcall(statement, "V", "close"))
-  hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
-  rowsAffected <- 0
-  if (!hasResultSet) {
-    rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
+  if (connection@dbms == "sqlite") {
+    rowsAffected <- DBI::dbExecute(connection@dbiConnection, sql)
+    invisible(rowsAffected)
+  } else {
+    statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
+    on.exit(rJava::.jcall(statement, "V", "close"))
+    hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+    rowsAffected <- 0
+    if (!hasResultSet) {
+      rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
+    }
+    invisible(rowsAffected)
   }
-  invisible(rowsAffected)
 }
 
 #' Execute SQL code
@@ -260,7 +283,7 @@ executeSql <- function(connection,
                        progressBar = TRUE,
                        reportOverallTime = TRUE, 
                        errorReportFile = file.path(getwd(), "errorReport.txt")) {
-  if (rJava::is.jnull(connection@jConnection))
+  if (connection@dbms != "sqlite" && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   if (profile)
     progressBar <- FALSE
@@ -288,7 +311,7 @@ executeSql <- function(connection,
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
   }
-  if (!rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
+  if (connection@dbms != "sqlite" && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
   if (progressBar)
@@ -299,15 +322,42 @@ executeSql <- function(connection,
   }
 }
 
+convertFields <- function(dbms, result) {
+  if (dbms == "impala") {
+    for (colname in colnames(result)) {
+      if (grepl("DATE", colname)) {
+        result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
+      }
+    }
+  }
+  if (dbms == "sqlite") {
+    for (colname in colnames(result)) {
+      if (grepl("DATE$", colname)) {
+        result[[colname]] <- as.Date(as.POSIXct(result[[colname]], origin = "1970-01-01", tz = "GMT"))
+      }
+      if (grepl("DATETIME$", colname)) {
+        if (ff::is.ffdf(result)) {
+          result[[colname]] <- as.POSIXct.ff_vector(result[[colname]], origin = "1970-01-01", tz = "GMT")
+        } else {
+          result[[colname]] <- as.POSIXct(result[[colname]], origin = "1970-01-01", tz = "GMT")
+        }
+      }
+      
+    }
+  } 
+  return(result)
+}
+
 #' Retrieve data to a data.frame
 #'
 #' @description
 #' This function sends SQL to the server, and returns the results.
 #'
-#' @param connection        The connection to the database server.
-#' @param sql               The SQL to be send.
-#' @param errorReportFile   The file where an error report will be written if an error occurs. Defaults to
-#'                          'errorReport.txt' in the current working directory.
+#' @param connection           The connection to the database server.
+#' @param sql                  The SQL to be send.
+#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
+#'                             'errorReport.txt' in the current working directory.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
@@ -329,8 +379,8 @@ executeSql <- function(connection,
 #' disconnect(conn)
 #' }
 #' @export
-querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt")) {
-  if (rJava::is.jnull(connection@jConnection))
+querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt"), snakeCaseToCamelCase = FALSE) {
+  if (connection@dbms != "sqlite" && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
@@ -341,12 +391,9 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
   tryCatch({
     result <- lowLevelQuerySql(connection, sqlStatements[1])
     colnames(result) <- toupper(colnames(result))
-    if (attr(connection, "dbms") == "impala") {
-      for (colname in colnames(result)) {
-        if (grepl("DATE", colname)) {
-          result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
-        }
-      }
+    result <- convertFields(connection@dbms, result)
+    if (snakeCaseToCamelCase) {
+      colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
     }
     return(result)
   }, error = function(err) {
@@ -359,10 +406,11 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
 #' @description
 #' This function sends SQL to the server, and returns the results in an ffdf object.
 #'
-#' @param connection        The connection to the database server.
-#' @param sql               The SQL to be send.
-#' @param errorReportFile   The file where an error report will be written if an error occurs. Defaults to
-#'                          'errorReport.txt' in the current working directory.
+#' @param connection           The connection to the database server.
+#' @param sql                  The SQL to be send.
+#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
+#'                             'errorReport.txt' in the current working directory.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
 #'
 #' @details
 #' Retrieves data from the database server and stores it in an ffdf object. This allows very large
@@ -387,8 +435,8 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
 #' disconnect(conn)
 #' }
 #' @export
-querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt")) {
-  if (rJava::is.jnull(connection@jConnection))
+querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt"), snakeCaseToCamelCase = FALSE) {
+  if (connection@dbms != "sqlite" && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
@@ -399,12 +447,9 @@ querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), 
   tryCatch({
     result <- lowLevelQuerySql.ffdf(connection, sqlStatements[1])
     colnames(result) <- toupper(colnames(result))
-    if (attr(connection, "dbms") == "impala") {
-      for (colname in colnames(result)) {
-        if (grepl("DATE", colname)) {
-          result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
-        }
-      }
+    result <- convertFields(connection@dbms, result)
+    if (snakeCaseToCamelCase) { 
+      colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
     }
     return(result)
   }, error = function(err) {

@@ -193,6 +193,21 @@ is.bigint <- function(x) {
   return(!is.na(x) && is.numeric(x) && !is.factor(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
 }
 
+
+insertSqlite <- function(connection, tableName, data, dropTableIfExists, tempTable) {
+  tableName <- gsub("^#", "", tableName)
+  # Convert dates and datetime to UNIX timestamp:
+  for (i in 1:ncol(data)) {
+    if (inherits(data[, i], "Date")) {
+      data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
+    }
+    if (inherits(data[, i], "POSIXct")) {
+      data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
+    }
+  }
+  DBI::dbWriteTable(connection@dbiConnection, tableName, data, overwrite = dropTableIfExists, temporary = tempTable)
+}
+
 #' Insert a table on the server
 #'
 #' @description
@@ -214,6 +229,8 @@ is.bigint <- function(x) {
 #'                            used for permanent tables, and cannot be used to append to an existing
 #'                            table.
 #' @param progressBar         Show a progress bar when uploading?
+#' @param camelCaseToSnakeCase If TRUE, the data frame column names are assumed to use camelCase and
+#'                             are converted to snake_case before uploading.
 #'
 #' @details
 #' This function sends the data in a data frame to a table on the server. Either a new table is
@@ -270,7 +287,19 @@ insertTable <- function(connection,
                         tempTable = FALSE,
                         oracleTempSchema = NULL,
                         useMppBulkLoad = FALSE,
-                        progressBar = FALSE) {
+                        progressBar = FALSE,
+                        camelCaseToSnakeCase = FALSE) {
+  if (camelCaseToSnakeCase) {
+    colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+  }
+  if (!tempTable & substr(tableName, 1, 1) == "#") {
+    tempTable <- TRUE
+    warning("Temp table name detected, setting tempTable parameter to TRUE")
+  }
+  if (connection@dbms == "sqlite") {
+    insertSqlite(connection, tableName, data, dropTableIfExists, tempTable)
+    return(NULL)
+  }  
   if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
     useMppBulkLoad <- TRUE
   }
@@ -278,10 +307,8 @@ insertTable <- function(connection,
     createTable <- TRUE
   if (tempTable & substr(tableName, 1, 1) != "#")
     tableName <- paste("#", tableName, sep = "")
-  if (!tempTable & substr(tableName, 1, 1) == "#") {
-    tempTable <- TRUE
-    warning("Temp table name detected, setting tempTable parameter to TRUE")
-  }
+  
+   
   if (is.vector(data) && !is.list(data))
     data <- data.frame(x = data)
   if (length(data) < 1)
@@ -377,7 +404,7 @@ insertTable <- function(connection,
                          ")",
                          sep = "")
       insertSql <- SqlRender::translateSql(insertSql,
-                                           targetDialect = attr(connection, "dbms"),
+                                           targetDialect = connection@dbms,
                                            oracleTempSchema = oracleTempSchema)$sql
       
       batchSize <- 10000
@@ -387,7 +414,6 @@ insertTable <- function(connection,
         rJava::.jcall(connection@jConnection, "V", "setAutoCommit", FALSE)
         on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE))
       }
-      
       if (nrow(data) > 0) {
         if (progressBar) {
           pb <- txtProgressBar(style = 3)

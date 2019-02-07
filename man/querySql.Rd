@@ -5,7 +5,7 @@
 \title{Retrieve data to a data.frame}
 \usage{
 querySql(connection, sql, errorReportFile = file.path(getwd(),
-  "errorReport.txt"))
+  "errorReport.txt"), snakeCaseToCamelCase = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -14,6 +14,8 @@ querySql(connection, sql, errorReportFile = file.path(getwd(),
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
 'errorReport.txt' in the current working directory.}
+
+\item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 }
 \value{
 A data frame.
