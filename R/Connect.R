@@ -144,10 +144,6 @@ findPathToJar <- function(name, pathToDriver) {
 #'   \item \code{connect(dbms, connectionString, user, password, pathToDriver)}
 #' }
 #'
-#'
-#'
-#'
-#'
 #' @usage
 #' NULL
 #'
@@ -571,7 +567,7 @@ connectUsingRsqLite <- function(server) {
                     stringQuote = "'",
                     dbms = "sqlite",
                     uuid = uuid)
-  # registerWithRStudio(connection)
+  registerWithRStudio(connection)
   return(connection)
 }
 
@@ -596,15 +592,24 @@ connectUsingRsqLite <- function(server) {
 #' }
 #' @export
 disconnect <- function(connection) {
-  if (connection@dbms == 'sqlite') {
-    DBI::dbDisconnect(connection@dbiConnection)
+  UseMethod("disconnect", connection) 
+}
+
+#' @export
+disconnect.default <- function(connection) {
+  if (rJava::is.jnull(connection@jConnection)) {
+    warning("Connection is already closed")
   } else {
-    if (rJava::is.jnull(connection@jConnection)) {
-      warning("Connection is already closed")
-    } else {
-      unregisterWithRStudio(connection)
-    }
-    rJava::.jcall(connection@jConnection, "V", "close")
+    unregisterWithRStudio(connection)
   }
+  rJava::.jcall(connection@jConnection, "V", "close")
   invisible(TRUE)
 }
+
+#' @export
+disconnect.DatabaseConnectorDbiConnection <- function(connection) {
+  DBI::dbDisconnect(connection@dbiConnection)
+  unregisterWithRStudio(connection)
+  invisible(TRUE)
+}
+

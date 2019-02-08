@@ -193,21 +193,6 @@ is.bigint <- function(x) {
   return(!is.na(x) && is.numeric(x) && !is.factor(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
 }
 
-
-insertSqlite <- function(connection, tableName, data, dropTableIfExists, tempTable) {
-  tableName <- gsub("^#", "", tableName)
-  # Convert dates and datetime to UNIX timestamp:
-  for (i in 1:ncol(data)) {
-    if (inherits(data[, i], "Date")) {
-      data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
-    }
-    if (inherits(data[, i], "POSIXct")) {
-      data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
-    }
-  }
-  DBI::dbWriteTable(connection@dbiConnection, tableName, data, overwrite = dropTableIfExists, temporary = tempTable)
-}
-
 #' Insert a table on the server
 #'
 #' @description
@@ -289,6 +274,20 @@ insertTable <- function(connection,
                         useMppBulkLoad = FALSE,
                         progressBar = FALSE,
                         camelCaseToSnakeCase = FALSE) {
+  UseMethod("insertTable", connection)
+}
+
+#' @export
+insertTable.default <- function(connection,
+                        tableName,
+                        data,
+                        dropTableIfExists = TRUE,
+                        createTable = TRUE,
+                        tempTable = FALSE,
+                        oracleTempSchema = NULL,
+                        useMppBulkLoad = FALSE,
+                        progressBar = FALSE,
+                        camelCaseToSnakeCase = FALSE) {
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -296,10 +295,6 @@ insertTable <- function(connection,
     tempTable <- TRUE
     warning("Temp table name detected, setting tempTable parameter to TRUE")
   }
-  if (connection@dbms == "sqlite") {
-    insertSqlite(connection, tableName, data, dropTableIfExists, tempTable)
-    return(NULL)
-  }  
   if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
     useMppBulkLoad <- TRUE
   }
@@ -454,6 +449,38 @@ insertTable <- function(connection,
       }
     }
   }
+}
+
+#' @export
+insertTable.DatabaseConnectorDbiConnection <- function(connection,
+                                                       tableName,
+                                                       data,
+                                                       dropTableIfExists = TRUE,
+                                                       createTable = TRUE,
+                                                       tempTable = FALSE,
+                                                       oracleTempSchema = NULL,
+                                                       useMppBulkLoad = FALSE,
+                                                       progressBar = FALSE,
+                                                       camelCaseToSnakeCase = FALSE) {
+  if (camelCaseToSnakeCase) {
+    colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+  }
+  if (!tempTable & substr(tableName, 1, 1) == "#") {
+    tempTable <- TRUE
+    warning("Temp table name detected, setting tempTable parameter to TRUE")
+  }
+  tableName <- gsub("^#", "", tableName)
+  # Convert dates and datetime to UNIX timestamp:
+  for (i in 1:ncol(data)) {
+    if (inherits(data[, i], "Date")) {
+      data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
+    }
+    if (inherits(data[, i], "POSIXct")) {
+      data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
+    }
+  }
+  DBI::dbWriteTable(connection@dbiConnection, tableName, data, overwrite = dropTableIfExists, temporary = tempTable)
+  invisible(NULL)
 }
 
 .checkMppCredentials <- function(connection) {

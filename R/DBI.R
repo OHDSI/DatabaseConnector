@@ -134,8 +134,15 @@ setMethod("show", "DatabaseConnectorConnection", function(object) {
 #' @inherit
 #' DBI::dbIsValid title description params details references return seealso
 #' @export
-setMethod("dbIsValid", "DatabaseConnectorConnection", function(dbObj, ...) {
+setMethod("dbIsValid", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
   return(!rJava::is.jnull(dbObj@jConnection))
+})
+
+#' @inherit
+#' DBI::dbIsValid title description params details references return seealso
+#' @export
+setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
+  return(DBI::dbIsValid(dbObj@dbiConnection))
 })
 
 #' @inherit
@@ -190,11 +197,8 @@ setClass("DatabaseConnectorResult",
 #' DBI::dbSendQuery title description params details references return seealso
 #' @export
 setMethod("dbSendQuery",
-          signature("DatabaseConnectorConnection", "character"),
+          signature("DatabaseConnectorJdbcConnection", "character"),
           function(conn, statement, ...) {
-            if (conn@dbms == 'sqlite') {
-              return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
-            }
             if (rJava::is.jnull(conn@jConnection))
               stop("Connection is closed")
             batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -205,6 +209,15 @@ setMethod("dbSendQuery",
                           type = "batchedQuery",
                           statement = statement)
             return(result)
+          })
+
+#' @inherit
+#' DBI::dbSendQuery title description params details references return seealso
+#' @export
+setMethod("dbSendQuery",
+          signature("DatabaseConnectorDbiConnection", "character"),
+          function(conn, statement, ...) {
+              return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
           })
 
 #' @inherit
@@ -505,6 +518,8 @@ setMethod("dbRemoveTable",
             sql <- SqlRender::translateSql(sql = sql,
                                            targetDialect = conn@dbms,
                                            oracleTempSchema = oracleTempSchema)$sql
-            lowLevelExecuteSql(conn, sql)
+            for (statement in SqlRender::splitSql(sql)) {
+              lowLevelExecuteSql(conn, statement)
+            }
             return(TRUE)
           })

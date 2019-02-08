@@ -13,6 +13,7 @@
   \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
   \item {"netezza" for IBM Netezza}
   \item {"bigquery" for Google BigQuery}
+  \item {"sqlite" for SQLite}
 }}
 
 \item{user}{The user name used to access the server.}
@@ -59,7 +60,9 @@ then be used in the \code{\link{connect}} function.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations: Oracle:
+interpretations: 
+
+Oracle:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
@@ -142,6 +145,10 @@ Impala:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "SSLKeyStorePwd=*****")
   \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
+}
+SQLite:
+\itemize{
+  \item \code{server}. The path to the SQLIte file
 }
 
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC

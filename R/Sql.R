@@ -77,15 +77,11 @@ as.POSIXct.ff_vector <- function(x, ...) {
 #'
 #' @export
 lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE) {
-  if (connection@dbms == 'sqlite') {
-    results <- lowLevelQuerySql(connection, query)
-    for (i in 1:ncol(results)) {
-      if (class(results[, i]) == "character") {
-        results[, i] <- as.factor(results[, i])
-      }
-    }
-    return(ff::as.ffdf(results))
-  } 
+  UseMethod("lowLevelQuerySql.ffdf", connection)
+}
+
+#' @export
+lowLevelQuerySql.ffdf.default <- function(connection, query = "", datesAsString = FALSE) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -146,6 +142,21 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
   return(ffdf)
 }
 
+#' @export
+lowLevelQuerySql.ffdf.DatabaseConnectorDbiConnection <- function(connection, query = "", datesAsString = FALSE) {
+  results <- lowLevelQuerySql(connection, query)
+  for (i in 1:ncol(results)) {
+    if (class(results[, i]) == "character") {
+      results[, i] <- as.factor(results[, i])
+    }
+  }
+  if (nrow(results) == 0) {
+    return(results)
+  } else {
+    return(ff::as.ffdf(results))
+  }
+}
+
 #' Low level function for retrieving data to a data frame
 #'
 #' @description
@@ -166,7 +177,8 @@ lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE)
 #'
 #' @export
 lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
-  if (connection@dbms == 'sqlite') {
+  # Not using UseMethod pattern to avoid note about lowLevelQuerySql.ffdf being a method:
+  if (inherits(connection, "DatabaseConnectorDbiConnection")) {
     results <- DBI::dbGetQuery(connection@dbiConnection, query)
     # For compatibility with JDBC:
     for (i in 1:ncol(results)) {
@@ -175,7 +187,7 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
       }
     }
     return(results)
-  } 
+  }
   
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
@@ -229,19 +241,25 @@ lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
 #'
 #' @export
 lowLevelExecuteSql <- function(connection, sql) {
-  if (connection@dbms == "sqlite") {
-    rowsAffected <- DBI::dbExecute(connection@dbiConnection, sql)
-    invisible(rowsAffected)
-  } else {
-    statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
-    on.exit(rJava::.jcall(statement, "V", "close"))
-    hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
-    rowsAffected <- 0
-    if (!hasResultSet) {
-      rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
-    }
-    invisible(rowsAffected)
+  UseMethod("lowLevelExecuteSql", connection)
+}
+
+#' @export
+lowLevelExecuteSql.default <- function(connection, sql) {
+  statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
+  on.exit(rJava::.jcall(statement, "V", "close"))
+  hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+  rowsAffected <- 0
+  if (!hasResultSet) {
+    rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
   }
+  invisible(rowsAffected)
+}
+
+#' @export
+lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
+  rowsAffected <- DBI::dbExecute(connection@dbiConnection, sql)
+  invisible(rowsAffected)
 }
 
 #' Execute SQL code
@@ -285,7 +303,7 @@ executeSql <- function(connection,
                        progressBar = TRUE,
                        reportOverallTime = TRUE, 
                        errorReportFile = file.path(getwd(), "errorReport.txt")) {
-  if (connection@dbms != "sqlite" && rJava::is.jnull(connection@jConnection))
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   if (profile)
     progressBar <- FALSE
@@ -313,7 +331,7 @@ executeSql <- function(connection,
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
   }
-  if (connection@dbms != "sqlite" && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
   if (progressBar)
@@ -382,7 +400,7 @@ convertFields <- function(dbms, result) {
 #' }
 #' @export
 querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt"), snakeCaseToCamelCase = FALSE) {
-  if (connection@dbms != "sqlite" && rJava::is.jnull(connection@jConnection))
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
@@ -438,7 +456,7 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
 #' }
 #' @export
 querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReport.txt"), snakeCaseToCamelCase = FALSE) {
-  if (connection@dbms != "sqlite" && rJava::is.jnull(connection@jConnection))
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
