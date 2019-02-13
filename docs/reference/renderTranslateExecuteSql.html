@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>The number of rows affected — dbGetRowsAffected,DatabaseConnectorResult-method • DatabaseConnector</title>
+<title>Render, translate, execute SQL code — renderTranslateExecuteSql • DatabaseConnector</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,15 +30,9 @@
 
 
 
-<meta property="og:title" content="The number of rows affected — dbGetRowsAffected,DatabaseConnectorResult-method" />
+<meta property="og:title" content="Render, translate, execute SQL code — renderTranslateExecuteSql" />
 
-<meta property="og:description" content="This method returns the number of rows that were added, deleted, or updated
-by a data manipulation statement.
-Methods in other packages" />
-
-<meta property="og:description" content="
-DatabaseConnector::dbGetRowsAffected(&quot;DatabaseConnectorResult&quot;)
-" />
+<meta property="og:description" content="This function renders, translates, and executes SQL consisting of one or more statements." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,76 +114,92 @@ DatabaseConnector::dbGetRowsAffected(&quot;DatabaseConnectorResult&quot;)
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>The number of rows affected</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/DBI.R'><code>R/DBI.R</code></a></small>
-    <div class="hidden name"><code>dbGetRowsAffected-DatabaseConnectorResult-method.Rd</code></div>
+    <h1>Render, translate, execute SQL code</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/Sql.R'><code>R/Sql.R</code></a></small>
+    <div class="hidden name"><code>renderTranslateExecuteSql.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This method returns the number of rows that were added, deleted, or updated
-by a data manipulation statement.</p>
-<p><h3>Methods in other packages</h3>
-
-    <ul>
-<li><p><code>DatabaseConnector::dbGetRowsAffected("DatabaseConnectorResult")</code></p></li>
-</ul></p>
+    <p>This function renders, translates, and executes SQL consisting of one or more statements.</p>
     
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for DatabaseConnectorResult</span>
-<span class='fu'>dbGetRowsAffected</span>(<span class='no'>res</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>renderTranslateExecuteSql</span>(<span class='no'>connection</span>, <span class='no'>sql</span>, <span class='kw'>profile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>reportOverallTime</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>errorReportFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/file.path'>file.path</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/getwd'>getwd</a></span>(), <span class='st'>"errorReport.txt"</span>),
+  <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>res</th>
-      <td><p>An object inheriting from DBIResult.</p></td>
+      <th>connection</th>
+      <td><p>The connection to the database server.</p></td>
+    </tr>
+    <tr>
+      <th>sql</th>
+      <td><p>The SQL to be executed</p></td>
+    </tr>
+    <tr>
+      <th>profile</th>
+      <td><p>When true, each separate statement is written to file prior to sending to
+the server, and the time taken to execute a statement is displayed.</p></td>
+    </tr>
+    <tr>
+      <th>progressBar</th>
+      <td><p>When true, a progress bar is shown based on the statements in the SQL
+code.</p></td>
+    </tr>
+    <tr>
+      <th>reportOverallTime</th>
+      <td><p>When true, the function will display the overall time taken to execute
+all statements.</p></td>
+    </tr>
+    <tr>
+      <th>errorReportFile</th>
+      <td><p>The file where an error report will be written if an error occurs. Defaults to
+'errorReport.txt' in the current working directory.</p></td>
+    </tr>
+    <tr>
+      <th>oracleTempSchema</th>
+      <td><p>A schema that can be used to create temp tables in when using Oracle or Impala.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Other arguments passed on to methods.</p></td>
+      <td><p>Parameters that will be used to render the SQL.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>dbGetRowsAffected()</code> returns a scalar number (integer or numeric),
-the number of rows affected by a data manipulation statement
-issued with <code>dbSendStatement()</code>.
-The value is available directly after the call
-and does not change after calling <code>dbFetch()</code>.
-For queries issued with <code>dbSendQuery()</code>,
-zero is returned before
-and after the call to <code>dbFetch()</code>.
-Attempting to get the rows affected for a result set cleared with
-<code>dbClearResult()</code> gives an error.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other DBIResult generics: <code>DBIResult-class</code>,
-  <code>dbBind</code>, <code>dbClearResult</code>,
-  <code>dbColumnInfo</code>, <code>dbFetch</code>,
-  <code>dbGetInfo</code>, <code>dbGetRowCount</code>,
-  <code>dbGetStatement</code>,
-  <code>dbHasCompleted</code>, <code>dbIsReadOnly</code>,
-  <code>dbIsValid</code>, <code>dbQuoteIdentifier</code>,
-  <code>dbQuoteLiteral</code>,
-  <code>dbQuoteString</code>,
-  <code>dbUnquoteIdentifier</code></p></div>
+    <p>This function calls the <code>render</code> and <code>translate</code> functions in the SqlRender package before 
+calling <code><a href='executeSql.html'>executeSql</a></code>.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>connectionDetails</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='createConnectionDetails.html'>createConnectionDetails</a></span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"postgresql"</span>,
+                                             <span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>,
+                                             <span class='kw'>user</span> <span class='kw'>=</span> <span class='st'>"root"</span>,
+                                             <span class='kw'>password</span> <span class='kw'>=</span> <span class='st'>"blah"</span>,
+                                             <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"cdm_v4"</span>)
+<span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span>(<span class='no'>connectionDetails</span>)
+<span class='fu'>renderTranslateExecuteSql</span>(<span class='no'>connection</span>,
+                          <span class='kw'>sql</span> <span class='kw'>=</span> <span class='st'>"SELECT * INTO #temp FROM @schema.person;"</span>,
+                          <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"cdm_synpuf"</span>)
+<span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-          </ul>
+      <li><a href="#details">Details</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

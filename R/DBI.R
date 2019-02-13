@@ -217,7 +217,7 @@ setMethod("dbSendQuery",
 setMethod("dbSendQuery",
           signature("DatabaseConnectorDbiConnection", "character"),
           function(conn, statement, ...) {
-              return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
+            return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
           })
 
 #' @inherit
@@ -490,10 +490,10 @@ setMethod("dbReadTable",
               name <- paste(database, name, sep = ".")
             }
             sql <- "SELECT * FROM @table;"
-            sql <- SqlRender::renderSql(sql = sql, table = name)$sql
-            sql <- SqlRender::translateSql(sql = sql,
-                                           targetDialect = conn@dbms,
-                                           oracleTempSchema = oracleTempSchema)$sql
+            sql <- SqlRender::render(sql = sql, table = name)
+            sql <- SqlRender::translate(sql = sql,
+                                        targetDialect = conn@dbms,
+                                        oracleTempSchema = oracleTempSchema)
             return(lowLevelQuerySql(conn, sql))
           })
 
@@ -514,10 +514,10 @@ setMethod("dbRemoveTable",
               name <- paste(database, name, sep = ".")
             }
             sql <- "TRUNCATE TABLE @table; DROP TABLE @table;"
-            sql <- SqlRender::renderSql(sql = sql, table = name)$sql
-            sql <- SqlRender::translateSql(sql = sql,
-                                           targetDialect = conn@dbms,
-                                           oracleTempSchema = oracleTempSchema)$sql
+            sql <- SqlRender::render(sql = sql, table = name)
+            sql <- SqlRender::translate(sql = sql,
+                                        targetDialect = conn@dbms,
+                                        oracleTempSchema = oracleTempSchema)
             for (statement in SqlRender::splitSql(sql)) {
               lowLevelExecuteSql(conn, statement)
             }

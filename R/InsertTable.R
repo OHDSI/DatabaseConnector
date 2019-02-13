@@ -279,15 +279,15 @@ insertTable <- function(connection,
 
 #' @export
 insertTable.default <- function(connection,
-                        tableName,
-                        data,
-                        dropTableIfExists = TRUE,
-                        createTable = TRUE,
-                        tempTable = FALSE,
-                        oracleTempSchema = NULL,
-                        useMppBulkLoad = FALSE,
-                        progressBar = FALSE,
-                        camelCaseToSnakeCase = FALSE) {
+                                tableName,
+                                data,
+                                dropTableIfExists = TRUE,
+                                createTable = TRUE,
+                                tempTable = FALSE,
+                                oracleTempSchema = NULL,
+                                useMppBulkLoad = FALSE,
+                                progressBar = FALSE,
+                                camelCaseToSnakeCase = FALSE) {
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -303,7 +303,7 @@ insertTable.default <- function(connection,
   if (tempTable & substr(tableName, 1, 1) != "#")
     tableName <- paste("#", tableName, sep = "")
   
-   
+  
   if (is.vector(data) && !is.list(data))
     data <- data.frame(x = data)
   if (length(data) < 1)
@@ -353,10 +353,10 @@ insertTable.default <- function(connection,
     } else {
       sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
     }
-    sql <- SqlRender::renderSql(sql, tableName = tableName)$sql
-    sql <- SqlRender::translateSql(sql,
-                                   targetDialect = attr(connection, "dbms"),
-                                   oracleTempSchema = oracleTempSchema)$sql
+    sql <- SqlRender::render(sql, tableName = tableName)
+    sql <- SqlRender::translate(sql,
+                                targetDialect = attr(connection, "dbms"),
+                                oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   
@@ -370,7 +370,7 @@ insertTable.default <- function(connection,
     }
     writeLines("Attempting to use MPP bulk loading...")
     sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
-    sql <- SqlRender::translateSql(sql, targetDialect = attr(connection, "dbms"))$sql
+    sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
     
     if (attr(connection, "dbms") == "redshift") {
@@ -384,9 +384,9 @@ insertTable.default <- function(connection,
     } else {
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
-        sql <- SqlRender::translateSql(sql,
-                                       targetDialect = attr(connection, "dbms"),
-                                       oracleTempSchema = oracleTempSchema)$sql
+        sql <- SqlRender::translate(sql,
+                                    targetDialect = attr(connection, "dbms"),
+                                    oracleTempSchema = oracleTempSchema)
         executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
       }
       
@@ -398,9 +398,9 @@ insertTable.default <- function(connection,
                          paste(rep("?", length(fts)), collapse = ","),
                          ")",
                          sep = "")
-      insertSql <- SqlRender::translateSql(insertSql,
-                                           targetDialect = connection@dbms,
-                                           oracleTempSchema = oracleTempSchema)$sql
+      insertSql <- SqlRender::translate(insertSql,
+                                        targetDialect = connection@dbms,
+                                        oracleTempSchema = oracleTempSchema)
       
       batchSize <- 10000
       
@@ -569,7 +569,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   })
   
   sql <- "SELECT COUNT(*) FROM @table"
-  sql <- SqlRender::renderSql(sql, table = qname)$sql
+  sql <- SqlRender::render(sql, table = qname)
   count <- querySql(connection, sql)
   if (count[1, 1] != nrow(data)) {
     stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", count[1, 1], " records")

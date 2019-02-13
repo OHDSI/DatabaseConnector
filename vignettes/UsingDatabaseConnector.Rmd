@@ -38,10 +38,11 @@ Supported database platforms:
 * Apache Impala
 * Google BigQuery
 * IBM Netezza
+* SQLite
 
 # Obtaining drivers for Netezza and Impala
 
-The package already contins most drivers, but because of licensing reasons the drivers for Netezza and Impala are not included but must be obtained by the user. Type
+The package already contins most drivers, but because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. Type
 
 ```{r eval=FALSE}
 ?jdbcDrivers
@@ -98,9 +99,9 @@ conn <- connect(details)
 writeLines("Connecting using PostgreSQL driver")
 ```
 
-## Specifying the driver location for Netezza and Impala
+## Specifying the driver location for BigQuery, Netezza and Impala
 
-For Netezza and Impala the drivers are not included in the `DatabaseConnector` package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the `pathToDriver` argument:
+For BigQuery, Netezza and Impala the drivers are not included in the `DatabaseConnector` package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the `pathToDriver` argument:
 
 ```{r eval=FALSE}
 details <- createConnectionDetails(dbms = "netezza",
@@ -143,6 +144,17 @@ x <- querySql.ffdf(conn, "SELECT * FROM person")
 ```
 
 Where x is now an ffdf object. 
+
+## Querying different platforms using the same SQL
+
+One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the [SqlRender package](https://ohdsi.github.io/SqlRender/) was developed. SqlRender can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the `render` and `translate` functions in `SqlRender`: `renderTranslateExecuteSql`, `renderTranslateQuerySql`, `renderTranslateQuerySql.ffdf`. For example:
+
+```{r eval=FALSE}
+persons <- renderTranslatequerySql(conn, 
+                                   sql = "SELECT TOP 10 * FROM @schema.person",
+                                   schema = "cdm_synpuf")
+```
+Note that the SQL Server-specific 'TOP 10' syntax will be translated to for example 'LIMIT 10' on PostgreSQL, and that the SQL parameter `@schema` will be instantiated with the provided value 'cdm_synpuf'.
 
 # Inserting tables
 
@@ -193,3 +205,19 @@ TRUE
 dbClearResult(res)
 dbDisconnect(res)
 ```
+
+# SQLite support
+
+DatabaseConnector also supports SQLite through the [RSQLite package](https://cran.r-project.org/web/packages/RSQLite/index.html), mainly for testing and demonstration purposes. Provide the path to the SQLite file as the `server` argument when connecting. If no file exists it will be created:
+
+```{r}
+conn <- connect(dbms = "sqlite", server = tempfile())
+
+# Upload cars dataset as table:
+insertTable(conn, "cars", cars)
+
+querySql(conn, "SELECT COUNT(*) FROM cars;")
+
+disconnect(conn)
+```
+

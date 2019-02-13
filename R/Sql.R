@@ -287,7 +287,7 @@ lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "mysql",
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              server = "localhost",
 #'                                              user = "root",
 #'                                              password = "blah",
@@ -389,7 +389,7 @@ convertFields <- function(dbms, result) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "mysql",
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              server = "localhost",
 #'                                              user = "root",
 #'                                              password = "blah",
@@ -445,7 +445,7 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
 #' @examples
 #' \dontrun{
 #' library(ffbase)
-#' connectionDetails <- createConnectionDetails(dbms = "mysql",
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              server = "localhost",
 #'                                              user = "root",
 #'                                              password = "blah",
@@ -475,4 +475,155 @@ querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), 
   }, error = function(err) {
     .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
   })
+}
+
+#' Render, translate, execute SQL code
+#'
+#' @description
+#' This function renders, translates, and executes SQL consisting of one or more statements.
+#'
+#' @param connection          The connection to the database server.
+#' @param sql                 The SQL to be executed
+#' @param profile             When true, each separate statement is written to file prior to sending to
+#'                            the server, and the time taken to execute a statement is displayed.
+#' @param progressBar         When true, a progress bar is shown based on the statements in the SQL
+#'                            code.
+#' @param reportOverallTime   When true, the function will display the overall time taken to execute
+#'                            all statements.
+#' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
+#'                            'errorReport.txt' in the current working directory.
+#' @param oracleTempSchema    A schema that can be used to create temp tables in when using Oracle or Impala.
+#' @param ...                 Parameters that will be used to render the SQL.
+#'
+#' @details
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+#' calling \code{\link{executeSql}}.
+#'
+#' @examples
+#' \dontrun{
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#'                                              server = "localhost",
+#'                                              user = "root",
+#'                                              password = "blah",
+#'                                              schema = "cdm_v4")
+#' conn <- connect(connectionDetails)
+#' renderTranslateExecuteSql(connection, 
+#'                           sql = "SELECT * INTO #temp FROM @@schema.person;",
+#'                           schema = "cdm_synpuf")
+#' disconnect(conn)
+#' }
+#' @export
+renderTranslateExecuteSql <- function(connection,
+                                      sql,
+                                      profile = FALSE,
+                                      progressBar = TRUE,
+                                      reportOverallTime = TRUE, 
+                                      errorReportFile = file.path(getwd(), "errorReport.txt"),
+                                      oracleTempSchema = NULL,
+                                      ...) {
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+  executeSql(connection = connection,
+             sql = sql,
+             profile = profile,
+             progressBar = progressBar,
+             reportOverallTime = reportOverallTime,
+             errorReportFile = errorReportFile)
+}
+
+#' Render, translate, and query to data.frame
+#'
+#' @description
+#' This function renders, and translates SQL, sends it to the server, and returns the results as a data.frame.
+#'
+#' @param connection           The connection to the database server.
+#' @param sql                  The SQL to be send.
+#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
+#'                             'errorReport.txt' in the current working directory.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
+#' @param oracleTempSchema     A schema that can be used to create temp tables in when using Oracle or Impala.
+#' @param ...                  Parameters that will be used to render the SQL.
+#'
+#' @details
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+#' calling \code{\link{querySql}}.
+#'
+#' @return
+#' A data frame.
+#'
+#' @examples
+#' \dontrun{
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#'                                              server = "localhost",
+#'                                              user = "root",
+#'                                              password = "blah",
+#'                                              schema = "cdm_v4")
+#' conn <- connect(connectionDetails)
+#' persons <- renderTranslatequerySql(conn, 
+#'                                    sql = "SELECT TOP 10 * FROM @@schema.person",
+#'                                    schema = "cdm_synpuf")
+#' disconnect(conn)
+#' }
+#' @export
+renderTranslateQuerySql <- function(connection, 
+                                    sql, 
+                                    errorReportFile = file.path(getwd(), "errorReport.txt"), 
+                                    snakeCaseToCamelCase = FALSE,
+                                    oracleTempSchema = NULL,
+                                    ...) {
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+  return(querySql(connection = connection,
+                  sql = sql,
+                  errorReportFile = errorReportFile,
+                  snakeCaseToCamelCase = snakeCaseToCamelCase))
+}
+
+
+#' Render, translate, and query to ffdf
+#'
+#' @description
+#' This function renders, and translates SQL, sends it to the server, and returns the results as an ffdf object
+#'
+#' @param connection           The connection to the database server.
+#' @param sql                  The SQL to be send.
+#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
+#'                             'errorReport.txt' in the current working directory.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
+#' @param oracleTempSchema     A schema that can be used to create temp tables in when using Oracle or Impala.
+#' @param ...                  Parameters that will be used to render the SQL.
+#'
+#' @details
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+#' calling \code{\link{querySql.ffdf}}.
+#'
+#' @return
+#' An ffdf object
+#'
+#' @examples
+#' \dontrun{
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#'                                              server = "localhost",
+#'                                              user = "root",
+#'                                              password = "blah",
+#'                                              schema = "cdm_v4")
+#' conn <- connect(connectionDetails)
+#' persons <- renderTranslatequerySql.ffdf(conn, 
+#'                                         sql = "SELECT * FROM @@schema.person",
+#'                                         schema = "cdm_synpuf")
+#' disconnect(conn)
+#' }
+#' @export
+renderTranslateQuerySql.ffdf <- function(connection, 
+                                         sql, 
+                                         errorReportFile = file.path(getwd(), "errorReport.txt"), 
+                                         snakeCaseToCamelCase = FALSE,
+                                         oracleTempSchema = NULL,
+                                         ...) {
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+  return(querySql.ffdf(connection = connection,
+                       sql = sql,
+                       errorReportFile = errorReportFile,
+                       snakeCaseToCamelCase = snakeCaseToCamelCase))
 }

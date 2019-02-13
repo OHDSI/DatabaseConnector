@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>The number of rows affected — dbGetRowsAffected,DatabaseConnectorResult-method • DatabaseConnector</title>
+<title>Execute a query on a given database connection — dbSendQuery,DatabaseConnectorJdbcConnection,character-method • DatabaseConnector</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,14 +30,19 @@
 
 
 
-<meta property="og:title" content="The number of rows affected — dbGetRowsAffected,DatabaseConnectorResult-method" />
+<meta property="og:title" content="Execute a query on a given database connection — dbSendQuery,DatabaseConnectorJdbcConnection,character-method" />
 
-<meta property="og:description" content="This method returns the number of rows that were added, deleted, or updated
-by a data manipulation statement.
+<meta property="og:description" content="The dbSendQuery() method only submits and synchronously executes the
+SQL query to the database engine.  It does not extract any
+records --- for that you need to use the dbFetch() method, and
+then you must call dbClearResult() when you finish fetching the
+records you need. For interactive use, you should almost always prefer
+dbGetQuery().
 Methods in other packages" />
 
 <meta property="og:description" content="
-DatabaseConnector::dbGetRowsAffected(&quot;DatabaseConnectorResult&quot;)
+DatabaseConnector::dbSendQuery(&quot;DatabaseConnectorDbiConnection&quot;, &quot;character&quot;)
+DatabaseConnector::dbSendQuery(&quot;DatabaseConnectorJdbcConnection&quot;, &quot;character&quot;)
 " />
 <meta name="twitter:card" content="summary" />
 
@@ -120,64 +125,89 @@ DatabaseConnector::dbGetRowsAffected(&quot;DatabaseConnectorResult&quot;)
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>The number of rows affected</h1>
+    <h1>Execute a query on a given database connection</h1>
     <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/DBI.R'><code>R/DBI.R</code></a></small>
-    <div class="hidden name"><code>dbGetRowsAffected-DatabaseConnectorResult-method.Rd</code></div>
+    <div class="hidden name"><code>dbSendQuery-DatabaseConnectorJdbcConnection-character-method.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This method returns the number of rows that were added, deleted, or updated
-by a data manipulation statement.</p>
+    <p>The <code>dbSendQuery()</code> method only submits and synchronously executes the
+SQL query to the database engine.  It does <em>not</em> extract any
+records --- for that you need to use the <code>dbFetch()</code> method, and
+then you must call <code>dbClearResult()</code> when you finish fetching the
+records you need. For interactive use, you should almost always prefer
+<code>dbGetQuery()</code>.</p>
 <p><h3>Methods in other packages</h3>
 
     <ul>
-<li><p><code>DatabaseConnector::dbGetRowsAffected("DatabaseConnectorResult")</code></p></li>
+<li><p><code><a href='dbSendQuery-DatabaseConnectorDbiConnection-character-method.html'>DatabaseConnector::dbSendQuery("DatabaseConnectorDbiConnection", "character")</a></code></p></li>
+<li><p><code>DatabaseConnector::dbSendQuery("DatabaseConnectorJdbcConnection", "character")</code></p></li>
 </ul></p>
     
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for DatabaseConnectorResult</span>
-<span class='fu'>dbGetRowsAffected</span>(<span class='no'>res</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='co'># S4 method for DatabaseConnectorJdbcConnection,character</span>
+<span class='fu'>dbSendQuery</span>(<span class='no'>conn</span>,
+  <span class='no'>statement</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>res</th>
-      <td><p>An object inheriting from DBIResult.</p></td>
+      <th>conn</th>
+      <td><p>A DBIConnection object, as returned by
+<code>dbConnect()</code>.</p></td>
+    </tr>
+    <tr>
+      <th>statement</th>
+      <td><p>a character string containing SQL.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Other arguments passed on to methods.</p></td>
+      <td><p>Other parameters passed on to methods.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>dbGetRowsAffected()</code> returns a scalar number (integer or numeric),
-the number of rows affected by a data manipulation statement
-issued with <code>dbSendStatement()</code>.
-The value is available directly after the call
-and does not change after calling <code>dbFetch()</code>.
-For queries issued with <code>dbSendQuery()</code>,
-zero is returned before
-and after the call to <code>dbFetch()</code>.
-Attempting to get the rows affected for a result set cleared with
-<code>dbClearResult()</code> gives an error.</p>
+    <p><code>dbSendQuery()</code> returns
+an S4 object that inherits from DBIResult.
+The result set can be used with <code>dbFetch()</code> to extract records.
+Once you have finished using a result, make sure to clear it
+with <code>dbClearResult()</code>.
+An error is raised when issuing a query over a closed
+or invalid connection,
+if the syntax of the query is invalid,
+or if the query is not a non-<code>NA</code> string.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This method is for <code>SELECT</code> queries only.  Some backends may
+support data manipulation queries through this method for compatibility
+reasons.  However, callers are strongly encouraged to use
+<code>dbSendStatement()</code> for data manipulation statements.</p>
+<p>The query is submitted to the database server and the DBMS executes it,
+possibly generating vast amounts of data. Where these data live
+is driver-specific: some drivers may choose to leave the output on the server
+and transfer them piecemeal to R, others may transfer all the data to the
+client -- but not necessarily to the memory that R manages. See individual
+drivers' <code>dbSendQuery()</code> documentation for details.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other DBIResult generics: <code>DBIResult-class</code>,
-  <code>dbBind</code>, <code>dbClearResult</code>,
-  <code>dbColumnInfo</code>, <code>dbFetch</code>,
-  <code>dbGetInfo</code>, <code>dbGetRowCount</code>,
-  <code>dbGetStatement</code>,
-  <code>dbHasCompleted</code>, <code>dbIsReadOnly</code>,
-  <code>dbIsValid</code>, <code>dbQuoteIdentifier</code>,
-  <code>dbQuoteLiteral</code>,
-  <code>dbQuoteString</code>,
-  <code>dbUnquoteIdentifier</code></p></div>
+    <div class='dont-index'><p>For updates: <code>dbSendStatement()</code> and <code>dbExecute()</code>.</p>
+<p>Other DBIConnection generics: <code>DBIConnection-class</code>,
+  <code>dbAppendTable</code>, <code>dbCreateTable</code>,
+  <code>dbDataType</code>, <code>dbDisconnect</code>,
+  <code>dbExecute</code>, <code>dbExistsTable</code>,
+  <code>dbGetException</code>, <code>dbGetInfo</code>,
+  <code>dbGetQuery</code>, <code>dbIsReadOnly</code>,
+  <code>dbIsValid</code>, <code>dbListFields</code>,
+  <code>dbListObjects</code>, <code>dbListResults</code>,
+  <code>dbListTables</code>, <code>dbReadTable</code>,
+  <code>dbRemoveTable</code>,
+  <code>dbSendStatement</code>, <code>dbWriteTable</code></p></div>
     
 
   </div>
@@ -187,6 +217,8 @@ Attempting to get the rows affected for a result set cleared with
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
           </ul>

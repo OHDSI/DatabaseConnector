@@ -1,3 +1,17 @@
+DatabaseConnector 2.3.0
+=======================
+
+Changes:
+
+1. Adding support for SQLite through RSQLite (mainly for demonstration and testing)
+
+
+
+Bugfixes:
+
+1. Closing output stream when writing to zip file to avoid orphan file locks
+2. Fixed the problem that Jar file is not detected when setting JDBC driver manually
+
 DatabaseConnector 2.2.1
 =======================
 

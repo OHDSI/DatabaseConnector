@@ -30,7 +30,7 @@ to NA values in R.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "mysql",
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost",
                                              user = "root",
                                              password = "blah",
