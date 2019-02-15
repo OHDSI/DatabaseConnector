@@ -1,0 +1,482 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Using DatabaseConnectorr},
+            pdfauthor={Martijn J. Schuemie},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Using DatabaseConnectorr}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Martijn J. Schuemie}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2019-02-15}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+DatabaseConnector is an R package for connecting to various database
+platforms using Java's JDBC drivers.
+
+Supported database platforms:
+
+\begin{itemize}
+\tightlist
+\item
+  Microsoft SQL Server
+\item
+  Oracle
+\item
+  PostgresSql
+\item
+  Microsoft Parallel Data Warehouse (a.k.a. Analytics Platform System)
+\item
+  Amazon Redshift
+\item
+  Apache Impala
+\item
+  Google BigQuery
+\item
+  IBM Netezza
+\item
+  SQLite
+\end{itemize}
+
+\hypertarget{obtaining-drivers-for-netezza-and-impala}{%
+\section{Obtaining drivers for Netezza and
+Impala}\label{obtaining-drivers-for-netezza-and-impala}}
+
+The package already contins most drivers, but because of licensing
+reasons the drivers for BigQuery, Netezza and Impala are not included
+but must be obtained by the user. Type
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{?jdbcDrivers}
+\end{Highlighting}
+\end{Shaded}
+
+for instructions on how to download these drivers. Once downloaded, you
+can use the \texttt{pathToDriver} argument of the \texttt{connect},
+\texttt{dbConnect}, and \texttt{createConnectionDetails} functions.
+
+\hypertarget{creating-a-connection}{%
+\section{Creating a connection}\label{creating-a-connection}}
+
+To connect to a database a number of details need to be specified, such
+as the database platform, the location of the server, the user name, and
+password. We can call the \texttt{connect} function and specify these
+details directly:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{conn <-}\StringTok{ }\KeywordTok{connect}\NormalTok{(}\DataTypeTok{dbms =} \StringTok{"postgresql"}\NormalTok{,}
+                \DataTypeTok{server =} \StringTok{"localhost/postgres"}\NormalTok{,}
+                \DataTypeTok{user =} \StringTok{"joe"}\NormalTok{,}
+                \DataTypeTok{password =} \StringTok{"secret"}\NormalTok{,}
+                \DataTypeTok{schema =} \StringTok{"cdm"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Connecting using PostgreSQL driver
+\end{verbatim}
+
+See \texttt{?connect} for information on which details are required for
+each platform. Don't forget to close any connection afterwards:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{disconnect}\NormalTok{(conn)}
+\end{Highlighting}
+\end{Shaded}
+
+Note that, instead of providing the server name, it is also possible to
+provide the JDBC connection string if this is more convenient:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{conn <-}\StringTok{ }\KeywordTok{connect}\NormalTok{(}\DataTypeTok{dbms =} \StringTok{"postgresql"}\NormalTok{,}
+                \DataTypeTok{connectionString =} \StringTok{"jdbc:postgresql://localhost:5432/postgres"}\NormalTok{,}
+                \DataTypeTok{user =} \StringTok{"joe"}\NormalTok{,}
+                \DataTypeTok{password =} \StringTok{"secret"}\NormalTok{,}
+                \DataTypeTok{schema =} \StringTok{"cdm"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Connecting using PostgreSQL driver
+\end{verbatim}
+
+Sometimes we may want to first specify the connection details, and defer
+connecting until later. This may be convenient for example when the
+connection is established inside a function, and the details need to be
+passed as an argument. We can use the \texttt{createConnectionDetails}
+function for this purpose:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{details <-}\StringTok{ }\KeywordTok{createConnectionDetails}\NormalTok{(}\DataTypeTok{dbms =} \StringTok{"postgresql"}\NormalTok{,}
+                                   \DataTypeTok{server =} \StringTok{"localhost/postgres"}\NormalTok{,}
+                                   \DataTypeTok{user =} \StringTok{"joe"}\NormalTok{,}
+                                   \DataTypeTok{password =} \StringTok{"secret"}\NormalTok{,}
+                                   \DataTypeTok{schema =} \StringTok{"cdm"}\NormalTok{)}
+\NormalTok{conn <-}\StringTok{ }\KeywordTok{connect}\NormalTok{(details)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Connecting using PostgreSQL driver
+\end{verbatim}
+
+\hypertarget{specifying-the-driver-location-for-bigquery-netezza-and-impala}{%
+\subsection{Specifying the driver location for BigQuery, Netezza and
+Impala}\label{specifying-the-driver-location-for-bigquery-netezza-and-impala}}
+
+For BigQuery, Netezza and Impala the drivers are not included in the
+\texttt{DatabaseConnector} package and need to be downloaded separately,
+as noted earlier. Once downloaded, we can point to the folder containing
+the jar files using the \texttt{pathToDriver} argument:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{details <-}\StringTok{ }\KeywordTok{createConnectionDetails}\NormalTok{(}\DataTypeTok{dbms =} \StringTok{"netezza"}\NormalTok{,}
+                                   \DataTypeTok{server =} \StringTok{"myserver.com/mainDb"}\NormalTok{,}
+                                   \DataTypeTok{user =} \StringTok{"joe"}\NormalTok{,}
+                                   \DataTypeTok{password =} \StringTok{"secret"}\NormalTok{,}
+                                   \DataTypeTok{schema =} \StringTok{"cdm"}\NormalTok{,}
+                                   \DataTypeTok{pathToDriver =} \StringTok{"c:/temp"}\NormalTok{)}
+\NormalTok{conn <-}\StringTok{ }\KeywordTok{connect}\NormalTok{(details)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Connecting using Netezza driver
+\end{verbatim}
+
+\hypertarget{querying}{%
+\section{Querying}\label{querying}}
+
+The main functions for querying database are the \texttt{querySql} and
+\texttt{executeSql} functions. The difference between these functions is
+that \texttt{querySql} expects data to be returned by the database, and
+can handle only one SQL statement at a time. In contrast,
+\texttt{executeSql} does not expect data to be returned, and accepts
+multiple SQL statments in a single SQL string.
+
+Some examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{querySql}\NormalTok{(conn, }\StringTok{"SELECT TOP 3 * FROM person"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH
+#> 1         1              8507          1975
+#> 2         2              8507          1976
+#> 3         3              8507          1977
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{executeSql}\NormalTok{(conn, }\StringTok{"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Both function provide extensive error reporting: When an error is thrown
+by the server, the error message and the offending piece of SQL are
+written to a text file to allow better debugging. The
+\texttt{executeSql} function also by default shows a progress bar,
+indicating the percentage of SQL statements that has been executed. If
+those attributes are not desired, the package also offers the
+\texttt{lowLevelQuerySql} and \texttt{lowLevelExecuteSql} functions.
+
+\hypertarget{querying-using-ffdf-objects}{%
+\subsection{Querying using ffdf
+objects}\label{querying-using-ffdf-objects}}
+
+Sometimes the data to be fetched from the database is too large to fit
+into memory. In this case one can use the \texttt{ff} package to store R
+data objects on file, and use them as if they are available in memory.
+\texttt{DatabaseConnector} can download data directly into ffdf objects:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x <-}\StringTok{ }\KeywordTok{querySql.ffdf}\NormalTok{(conn, }\StringTok{"SELECT * FROM person"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Where x is now an ffdf object.
+
+\hypertarget{querying-different-platforms-using-the-same-sql}{%
+\subsection{Querying different platforms using the same
+SQL}\label{querying-different-platforms-using-the-same-sql}}
+
+One challenge when writing code that is intended to run on multiple
+database platforms is that each platform has its own unique SQL dialect.
+To tackle this problem the
+\href{https://ohdsi.github.io/SqlRender/}{SqlRender package} was
+developed. SqlRender can translate SQL from a single starting dialect
+(SQL Server SQL) into any of the platforms supported by
+DatabaseConnector. The following convenience functions are available
+that first call the \texttt{render} and \texttt{translate} functions in
+\texttt{SqlRender}: \texttt{renderTranslateExecuteSql},
+\texttt{renderTranslateQuerySql}, \texttt{renderTranslateQuerySql.ffdf}.
+For example:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{persons <-}\StringTok{ }\KeywordTok{renderTranslatequerySql}\NormalTok{(conn, }
+                                   \DataTypeTok{sql =} \StringTok{"SELECT TOP 10 * FROM @schema.person"}\NormalTok{,}
+                                   \DataTypeTok{schema =} \StringTok{"cdm_synpuf"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Note that the SQL Server-specific `TOP 10' syntax will be translated to
+for example `LIMIT 10' on PostgreSQL, and that the SQL parameter
+\texttt{@schema} will be instantiated with the provided value
+`cdm\_synpuf'.
+
+\hypertarget{inserting-tables}{%
+\section{Inserting tables}\label{inserting-tables}}
+
+Although it is also possible to insert data in the database by sending
+SQL statements using the \texttt{executeSql} function, it is often
+convenient and faster to use the \texttt{insertTable} function:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{data}\NormalTok{(mtcars)}
+\KeywordTok{insertTable}\NormalTok{(conn, }\StringTok{"mtcars"}\NormalTok{, mtcars, }\DataTypeTok{createTable =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+In this example, we're uploading the mtcars data frame to a table called
+`mtcars' on the server, that will be automatically created.
+
+\hypertarget{dbi-interface}{%
+\section{DBI interface}\label{dbi-interface}}
+
+\texttt{DatabaseConnector} implements the DBI interface for
+compatability with other R packages. One can use the DBI functions
+instead of the ones described before, for example:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{conn <-}\StringTok{ }\KeywordTok{dbConnect}\NormalTok{(}\KeywordTok{DatabaseConnectorDriver}\NormalTok{(), }
+                  \DataTypeTok{dbms =} \StringTok{"postgresql"}\NormalTok{,}
+                  \DataTypeTok{server =} \StringTok{"localhost/postgres"}\NormalTok{,}
+                  \DataTypeTok{user =} \StringTok{"joe"}\NormalTok{,}
+                  \DataTypeTok{password =} \StringTok{"secret"}\NormalTok{,}
+                  \DataTypeTok{schema =} \StringTok{"cdm"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Connecting using PostgreSQL driver
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{dbIsValid}\NormalTok{(conn)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{res <-}\StringTok{ }\KeywordTok{dbSendQuery}\NormalTok{(conn, }\StringTok{"SELECT TOP 3 * FROM person"}\NormalTok{)}
+\KeywordTok{dbFetch}\NormalTok{(res)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH
+#> 1         1              8507          1975
+#> 2         2              8507          1976
+#> 3         3              8507          1977
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{dbHasCompleted}\NormalTok{(res)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{dbClearResult}\NormalTok{(res)}
+\KeywordTok{dbDisconnect}\NormalTok{(res)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{sqlite-support}{%
+\section{SQLite support}\label{sqlite-support}}
+
+DatabaseConnector also supports SQLite through the
+\href{https://cran.r-project.org/web/packages/RSQLite/index.html}{RSQLite
+package}, mainly for testing and demonstration purposes. Provide the
+path to the SQLite file as the \texttt{server} argument when connecting.
+If no file exists it will be created:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{conn <-}\StringTok{ }\KeywordTok{connect}\NormalTok{(}\DataTypeTok{dbms =} \StringTok{"sqlite"}\NormalTok{, }\DataTypeTok{server =} \KeywordTok{tempfile}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Connecting using SQLite driver
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Upload cars dataset as table:}
+\KeywordTok{insertTable}\NormalTok{(conn, }\StringTok{"cars"}\NormalTok{, cars)}
+
+\KeywordTok{querySql}\NormalTok{(conn, }\StringTok{"SELECT COUNT(*) FROM cars;"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>   COUNT(*)
+#> 1       50
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{disconnect}\NormalTok{(conn)}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}

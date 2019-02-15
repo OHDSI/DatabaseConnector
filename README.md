@@ -23,6 +23,7 @@ Features
   - Apache Impala
   - Google BigQuery
   - IBM Netezza
+  - SQLite
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
@@ -35,7 +36,7 @@ Features
 Examples
 ========
 ```r
-connectionDetails <- createConnectionDetails(dbms="mysql", 
+connectionDetails <- createConnectionDetails(dbms="postgresql", 
                                              server="localhost",
                                              user="root",
                                              password="blah",
@@ -99,6 +100,8 @@ install.packages("devtools")
 devtools::install_github("ohdsi/DatabaseConnectorJars")
 devtools::install_github("ohdsi/DatabaseConnector")
 ```
+
+To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see [these instructions](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html).
 
 User Documentation
 ==================

@@ -107,6 +107,7 @@
 <li>Apache Impala</li>
 <li>Google BigQuery</li>
 <li>IBM Netezza</li>
+<li>SQLite</li>
 </ul>
 </li>
 <li>Statements for executing queries with
@@ -125,7 +126,7 @@
 <div id="examples" class="section level1">
 <h1 class="hasAnchor">
 <a href="#examples" class="anchor"></a>Examples</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">connectionDetails &lt;-<span class="st"> </span><span class="kw"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms=</span><span class="st">"mysql"</span>, </a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">connectionDetails &lt;-<span class="st"> </span><span class="kw"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms=</span><span class="st">"postgresql"</span>, </a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">                                             <span class="dt">server=</span><span class="st">"localhost"</span>,</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">                                             <span class="dt">user=</span><span class="st">"root"</span>,</a>
 <a class="sourceLine" id="cb1-4" data-line-number="4">                                             <span class="dt">password=</span><span class="st">"blah"</span>,</a>
@@ -178,6 +179,7 @@
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnectorJars"</span>)</a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnector"</span>)</a></code></pre></div>
+<p>To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html">these instructions</a>.</p>
 </div>
 <div id="user-documentation" class="section level1">
 <h1 class="hasAnchor">

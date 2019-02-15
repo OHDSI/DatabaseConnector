@@ -41,8 +41,8 @@ or \code{"oci"}.}
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
 
-\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for Impala and
-Netezza. See \link{jdbcDrivers} for details on how to get the drivers.}
+\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
+and Netezza. See \link{jdbcDrivers} for details on how to get the drivers.}
 }
 \value{
 An object that extends \code{DBIConnection} in a database-specific manner. This object is used to

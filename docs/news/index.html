@@ -121,12 +121,15 @@
 </h1>
 <p>Changes:</p>
 <ol>
-<li>Adding support for SQLite through RSQLite (mainly for demonstration and testing)</li>
+<li><p>Adding support for SQLite through RSQLite (mainly for demonstration and testing)</p></li>
+<li><p>Adding convenience functions renderTranslateExecuteSql, renderTranslateQuerySql, and renderTranslateQuerySql.ffdf</p></li>
+<li><p>Dropping Starschema BigQuery driver (in favor of newer Simba driver)</p></li>
+<li><p>Added support for inserting BIGINTs (large interegers stored as numeric in R)</p></li>
+<li><p>Applying CTAS hack to improve insertion performance for RedShift (was already used for PDW)</p></li>
 </ol>
 <p>Bugfixes:</p>
 <ol>
-<li>Closing output stream when writing to zip file to avoid orphan file locks</li>
-<li>Fixed the problem that Jar file is not detected when setting JDBC driver manually</li>
+<li>Executing multi-statement SQL where one statement returns results no longer causes error.</li>
 </ol>
 </div>
     <div id="databaseconnector-2-2-1" class="section level1">
@@ -135,7 +138,7 @@
 </h1>
 <p>Changes:</p>
 <ol>
-<li>Now supporting proper insertion and extraction of DATETIME fields.</li>
+<li>Now supporting proper insertion and extraction of DATETIME fields</li>
 </ol>
 <p>Bugfixes:</p>
 <ol>

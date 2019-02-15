@@ -25,8 +25,8 @@
 #'                           \code{extraSettings}, and \code{oracleDriver} fields are ignored. If
 #'                           \code{user} and \code{password} are not specified, they are assumed to
 #'                           already be included in the connection string.
-#' @param pathToDriver       Path to the JDBC driver JAR files. Currently only needed for Impala and
-#'                           Netezza. See \link{jdbcDrivers} for details on how to get the drivers.
+#' @param pathToDriver       Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
+#'                           and Netezza. See \link{jdbcDrivers} for details on how to get the drivers.
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
