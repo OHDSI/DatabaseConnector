@@ -185,12 +185,12 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
 }
 
 is.bigint <- function(x) {
-  num <- 2^63
+  num <- bit64::as.integer64.integer64(2^63)  # range limit
   
   bigint.min <- -num
   bigint.max <- num - 1
   
-  return(!is.na(x) && is.numeric(x) && !is.factor(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
+  return(x >= bigint.min && x <= bigint.max && bit64::is.vector.integer64(x))
 }
 
 #' Insert a table on the server

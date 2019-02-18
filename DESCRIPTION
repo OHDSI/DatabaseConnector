@@ -19,6 +19,7 @@ Imports:
     DatabaseConnectorJars,
     rJava,
     bit,
+    bit64,
     ff,
     ffbase (>= 0.12.1),
     SqlRender,
