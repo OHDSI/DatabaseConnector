@@ -1,5 +1,5 @@
 ---
-title: "Using DatabaseConnectorr"
+title: "Using DatabaseConnector"
 author: "Martijn J. Schuemie"
 date: "`r Sys.Date()`"
 output:
@@ -40,7 +40,7 @@ Supported database platforms:
 * IBM Netezza
 * SQLite
 
-# Obtaining drivers for Netezza and Impala
+# Obtaining drivers for BigQuery, Netezza and Impala
 
 The package already contins most drivers, but because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. Type
 
