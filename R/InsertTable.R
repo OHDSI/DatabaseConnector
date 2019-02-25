@@ -361,7 +361,6 @@ insertTable.default <- function(connection,
   }
   
   if (createTable && !tempTable && useMppBulkLoad) {
-    ensure_installed("aws.s3")
     ensure_installed("uuid")
     ensure_installed("R.utils")
     ensure_installed("urltools")
@@ -374,6 +373,7 @@ insertTable.default <- function(connection,
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
     
     if (attr(connection, "dbms") == "redshift") {
+      ensure_installed("aws.s3")
       .bulkLoadRedshift(connection, qname, data)
     } else if (attr(connection, "dbms") == "pdw") {
       .bulkLoadPdw(connection, qname, data)
