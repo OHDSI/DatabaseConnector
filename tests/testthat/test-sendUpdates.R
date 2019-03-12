@@ -28,6 +28,7 @@ test_that("Send updates", {
   data$value[2] <- NA
   data$id[3] <- NA
   data$big_ints[7] <- NA
+  data$big_ints[8] <- 3.3043e+10
   
   # Postgresql
   details <- createConnectionDetails(dbms = "postgresql",

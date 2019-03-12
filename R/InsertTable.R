@@ -78,6 +78,27 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
   }
 }
 
+toStrings <- function(data, fts) {
+  bigIntIdx <- fts == "BIGINT"
+  if (nrow(data) == 1) {
+    result <- sapply(data, as.character)
+    if (any(bigIntIdx)) {
+      result[bigIntIdx] <- sapply(data[, bigIntIdx], format, scientific = FALSE)
+    }
+    result <- paste("'", gsub("'", "''", result), "'", sep = "")
+    result[is.na(data)] <- "NULL"
+    return(as.data.frame(t(result), stringsAsFactors = FALSE))
+  } else {
+    result <- sapply(data, as.character)
+    if (any(bigIntIdx)) {
+      result[ ,bigIntIdx] <- sapply(data[ ,bigIntIdx], format, scientific = FALSE)
+    }
+    result <- apply(result, FUN = function(x) paste("'", gsub("'", "''", x), "'", sep = ""), MARGIN = 2)
+    result[is.na(data)] <- "NULL"
+    return(result)
+  }
+}
+
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar) {
   batchSize <- 1000
   mergeSize <- 300
@@ -110,11 +131,6 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       location <- ""
     }
   }
-  esc <- function(str) {
-    result <- paste("'", gsub("'", "''", str), "'", sep = "")
-    result[is.na(str)] <- "NULL"
-    return(result)
-  }
   
   # Insert data in batches in temp tables using CTAS:
   if (progressBar) {
@@ -130,19 +146,17 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       mergeTempTables(connection, mergedName, varNames, tempNames, tempLocation, distribution)
       tempNames <- c(mergedName)
     }
+    end <- min(start + batchSize - 1, nrow(data))
+    batch <- toStrings(data[start:end, , drop = FALSE], fts)    
     # First line gets type information
     valueString <- paste(paste("CAST(",
-                               sapply(data[start, , drop = FALSE], esc),
+                               batch[1, , drop = FALSE],
                                " AS ",
                                fts,
                                ")",
                                sep = ""), collapse = ",")
-    end <- min(start + batchSize - 1, nrow(data))
-    if (end == start + 1) {
-      valueString <- paste(c(valueString, paste(sapply(data[start + 1, , drop = FALSE], esc),
-                                                collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
-    } else if (end > start + 1) {
-      valueString <- paste(c(valueString, apply(sapply(data[(start + 1):end, , drop = FALSE], esc),
+    if (end > start) {
+      valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
                                                 FUN = paste,
                                                 collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
