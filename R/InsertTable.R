@@ -190,7 +190,7 @@ is.bigint <- function(x) {
   bigint.min <- -num
   bigint.max <- num - 1
   
-  return(!is.na(x) && is.numeric(x) && !is.factor(x) && x == round(x) &&  x >= bigint.min && x <= bigint.max)
+  return(!all(is.na(x)) && is.numeric(x) && !is.factor(x) && all(x == round(x), na.rm = TRUE) &&  all(x >= bigint.min, na.rm = TRUE) && all(x <= bigint.max, na.rm = TRUE))
 }
 
 #' Insert a table on the server
@@ -342,7 +342,7 @@ insertTable.default <- function(connection,
       }
     }
   }
-  fts <- sapply(data[1, ], def)
+  fts <- sapply(data, def)
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
