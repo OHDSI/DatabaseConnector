@@ -1,9 +1,29 @@
+DatabaseConnector 2.3.0
+=======================
+
+Changes:
+
+1. Adding support for SQLite through RSQLite (mainly for demonstration and testing)
+
+2. Adding convenience functions renderTranslateExecuteSql, renderTranslateQuerySql, and renderTranslateQuerySql.ffdf
+
+3. Dropping Starschema BigQuery driver (in favor of newer Simba driver)
+
+4. Added support for inserting BIGINTs (large interegers stored as numeric in R)
+
+5. Applying CTAS hack to improve insertion performance for RedShift (was already used for PDW)
+
+Bugfixes:
+
+1. Executing multi-statement SQL where one statement returns results no longer causes error.
+
+
 DatabaseConnector 2.2.1
 =======================
 
 Changes:
 
-1. Now supporting proper insertion and extraction of DATETIME fields.
+1. Now supporting proper insertion and extraction of DATETIME fields
 
 Bugfixes:
 

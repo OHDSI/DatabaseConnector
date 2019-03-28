@@ -22,17 +22,6 @@ The package DatabaseConnector includes other software components. The following 
 
    Related JARs: postgresql*.jar
 
-** Google BigQuery JDBC driver
-
-   Copyright © 2015: Starschema Ltd.
-
-   Starchema and the Starschema logo are trademarks of Starschema Ltd.
-
-   Project Website: https://github.com/myounglai/starschema-bigquery-jdbc
-   License Information: https://github.com/myounglai/starschema-bigquery-jdbc/blob/master/LICENSE.txt
-
-   Related JARs: bqjdbc.jar
-   
 ** Oracle JDBC driver
 
    Copyright © 2018: Oracle Inc.

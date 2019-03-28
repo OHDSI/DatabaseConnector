@@ -1,6 +1,6 @@
 # @file Connect.R
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -143,10 +143,6 @@ findPathToJar <- function(name, pathToDriver) {
 #'   \item \code{connect(dbms, connectionString, pathToDriver))}
 #'   \item \code{connect(dbms, connectionString, user, password, pathToDriver)}
 #' }
-#'
-#'
-#'
-#'
 #'
 #' @usage
 #' NULL
@@ -493,8 +489,14 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "bigquery") {
     writeLines("Connecting using BigQuery driver")
-    jarPath <- findPathToJar("^bqjdbc\\.jar$", pathToDriver)
-    driver <- getJbcDriverSingleton("net.starschema.clouddb.jdbc.BQDriver", jarPath)
+    
+    files <- list.files(path = pathToDriver, full.names = TRUE)
+    for (jar in files) {
+      .jaddClassPath(jar)
+    }
+    
+    jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString)) {
       connectionString <- paste0("jdbc:BQDriver:", server)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
@@ -506,6 +508,13 @@ connect <- function(connectionDetails = NULL,
                                          user = user,
                                          password = password,
                                          dbms = dbms)
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
+  if (dbms == "sqlite") {
+    writeLines("Connecting using SQLite driver")
+    ensure_installed("RSQLite")
+    connection <- connectUsingRsqLite(server = server)
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -538,11 +547,25 @@ connectUsingJdbcDriver <- function(jdbcDriver,
     }
   }
   uuid <- paste(sample(c(LETTERS, letters, 0:9), 20, TRUE), collapse = "")
-  connection <- new("DatabaseConnectorConnection",
+  connection <- new("DatabaseConnectorJdbcConnection",
                     jConnection = jConnection,
                     identifierQuote = identifierQuote,
                     stringQuote = stringQuote,
                     dbms = dbms,
+                    uuid = uuid)
+  registerWithRStudio(connection)
+  return(connection)
+}
+
+connectUsingRsqLite <- function(server) {
+  uuid <- paste(sample(c(LETTERS, letters, 0:9), 20, TRUE), collapse = "")
+  dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server)
+  connection <- new("DatabaseConnectorDbiConnection",
+                    server = server,
+                    dbiConnection = dbiConnection,
+                    identifierQuote = "'",
+                    stringQuote = "'",
+                    dbms = "sqlite",
                     uuid = uuid)
   registerWithRStudio(connection)
   return(connection)
@@ -569,12 +592,24 @@ connectUsingJdbcDriver <- function(jdbcDriver,
 #' }
 #' @export
 disconnect <- function(connection) {
+  UseMethod("disconnect", connection) 
+}
+
+#' @export
+disconnect.default <- function(connection) {
   if (rJava::is.jnull(connection@jConnection)) {
     warning("Connection is already closed")
   } else {
     unregisterWithRStudio(connection)
   }
   rJava::.jcall(connection@jConnection, "V", "close")
-  
   invisible(TRUE)
 }
+
+#' @export
+disconnect.DatabaseConnectorDbiConnection <- function(connection) {
+  DBI::dbDisconnect(connection@dbiConnection)
+  unregisterWithRStudio(connection)
+  invisible(TRUE)
+}
+

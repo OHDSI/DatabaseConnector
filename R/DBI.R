@@ -1,6 +1,6 @@
 # @file DBI.R
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -56,14 +56,31 @@ DatabaseConnectorDriver <- function() {
 #' @keywords internal
 #' @export
 #' @import DBI
-#' @import rJava
 setClass("DatabaseConnectorConnection",
          contains = "DBIConnection",
-         slots = list(jConnection = "jobjRef",
-                      identifierQuote = "character",
+         slots = list(identifierQuote = "character",
                       stringQuote = "character",
                       dbms = "character",
                       uuid = "character"))
+
+#' DatabaseConnectorJdbcConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import rJava
+setClass("DatabaseConnectorJdbcConnection",
+         contains = "DatabaseConnectorConnection",
+         slots = list(jConnection = "jobjRef"))
+
+#' DatabaseConnectorDbiConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+setClass("DatabaseConnectorDbiConnection",
+         contains = "DatabaseConnectorConnection",
+         slots = list(dbiConnection = "DBIConnection",
+                      server = "character"))
 
 #' Create a connection to a DBMS
 #'
@@ -117,8 +134,15 @@ setMethod("show", "DatabaseConnectorConnection", function(object) {
 #' @inherit
 #' DBI::dbIsValid title description params details references return seealso
 #' @export
-setMethod("dbIsValid", "DatabaseConnectorConnection", function(dbObj, ...) {
+setMethod("dbIsValid", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
   return(!rJava::is.jnull(dbObj@jConnection))
+})
+
+#' @inherit
+#' DBI::dbIsValid title description params details references return seealso
+#' @export
+setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
+  return(DBI::dbIsValid(dbObj@dbiConnection))
 })
 
 #' @inherit
@@ -173,7 +197,7 @@ setClass("DatabaseConnectorResult",
 #' DBI::dbSendQuery title description params details references return seealso
 #' @export
 setMethod("dbSendQuery",
-          signature("DatabaseConnectorConnection", "character"),
+          signature("DatabaseConnectorJdbcConnection", "character"),
           function(conn, statement, ...) {
             if (rJava::is.jnull(conn@jConnection))
               stop("Connection is closed")
@@ -185,6 +209,15 @@ setMethod("dbSendQuery",
                           type = "batchedQuery",
                           statement = statement)
             return(result)
+          })
+
+#' @inherit
+#' DBI::dbSendQuery title description params details references return seealso
+#' @export
+setMethod("dbSendQuery",
+          signature("DatabaseConnectorDbiConnection", "character"),
+          function(conn, statement, ...) {
+            return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
           })
 
 #' @inherit
@@ -457,10 +490,10 @@ setMethod("dbReadTable",
               name <- paste(database, name, sep = ".")
             }
             sql <- "SELECT * FROM @table;"
-            sql <- SqlRender::renderSql(sql = sql, table = name)$sql
-            sql <- SqlRender::translateSql(sql = sql,
-                                           targetDialect = conn@dbms,
-                                           oracleTempSchema = oracleTempSchema)$sql
+            sql <- SqlRender::render(sql = sql, table = name)
+            sql <- SqlRender::translate(sql = sql,
+                                        targetDialect = conn@dbms,
+                                        oracleTempSchema = oracleTempSchema)
             return(lowLevelQuerySql(conn, sql))
           })
 
@@ -481,10 +514,12 @@ setMethod("dbRemoveTable",
               name <- paste(database, name, sep = ".")
             }
             sql <- "TRUNCATE TABLE @table; DROP TABLE @table;"
-            sql <- SqlRender::renderSql(sql = sql, table = name)$sql
-            sql <- SqlRender::translateSql(sql = sql,
-                                           targetDialect = conn@dbms,
-                                           oracleTempSchema = oracleTempSchema)$sql
-            lowLevelExecuteSql(conn, sql)
+            sql <- SqlRender::render(sql = sql, table = name)
+            sql <- SqlRender::translate(sql = sql,
+                                        targetDialect = conn@dbms,
+                                        oracleTempSchema = oracleTempSchema)
+            for (statement in SqlRender::splitSql(sql)) {
+              lowLevelExecuteSql(conn, statement)
+            }
             return(TRUE)
           })

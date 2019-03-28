@@ -37,7 +37,7 @@ shown to aid in detecting performance issues.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "mysql",
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost",
                                              user = "root",
                                              password = "blah",

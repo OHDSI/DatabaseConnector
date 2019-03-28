@@ -1,6 +1,6 @@
 # @file DatabaseConnector.R
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -31,8 +31,13 @@ NULL
 #' @name jdbcDrivers
 #'
 #' @title
-#' How to download JDBC drivers for the various data platforms.
-#'
+#' How to download and use JDBC drivers for the various data platforms.
+#' 
+#' @description 
+#' Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
+#' use the \code{pathToDriver} argument in the \code{\link{connect}} or \code{\link{createConnectionDetails}}
+#' functions to point to the driver.
+#' 
 #' @section
 #' PostgresSql: Go to \href{https://jdbc.postgresql.org/download.html}{the PostgresSQL JDBC site} and
 #' download the current version. The file is called something like 'postgresql-42.2.2.jar'.
@@ -68,4 +73,29 @@ NULL
 #' Impala: Go to
 #' \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick
 #' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
+#' 
 NULL
+
+# Borrowed from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44
+is_installed <- function(pkg, version = 0) {
+  installed_version <- tryCatch(utils::packageVersion(pkg), 
+                                error = function(e) NA)
+  !is.na(installed_version) && installed_version >= version
+}
+
+# Borrowed and adapted from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
+ensure_installed <- function(pkg) {
+  if (!is_installed(pkg)) {
+    msg <- paste0(sQuote(pkg), " must be installed for this functionality.")
+    if (interactive()) {
+      message(msg, "\nWould you like to install it?")
+      if (menu(c("Yes", "No")) == 1) {
+        install.packages(pkg)
+      } else {
+        stop(msg, call. = FALSE)
+      }
+    } else {
+      stop(msg, call. = FALSE)
+    }
+  }
+}

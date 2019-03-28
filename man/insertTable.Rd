@@ -6,7 +6,8 @@
 \usage{
 insertTable(connection, tableName, data, dropTableIfExists = TRUE,
   createTable = TRUE, tempTable = FALSE, oracleTempSchema = NULL,
-  useMppBulkLoad = FALSE, progressBar = FALSE)
+  useMppBulkLoad = FALSE, progressBar = FALSE,
+  camelCaseToSnakeCase = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -32,6 +33,9 @@ used for permanent tables, and cannot be used to append to an existing
 table.}
 
 \item{progressBar}{Show a progress bar when uploading?}
+
+\item{camelCaseToSnakeCase}{If TRUE, the data frame column names are assumed to use camelCase and
+are converted to snake_case before uploading.}
 }
 \description{
 This function sends the data in a data frame or ffdf to a table on the server. Either a new table
