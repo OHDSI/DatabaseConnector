@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -55,8 +56,12 @@ public class BatchedQuery {
 
 	public BatchedQuery(Connection connection, String query) throws SQLException {
 		this.connection = connection;
-		if (connection.getAutoCommit())
-			connection.setAutoCommit(false);
+		if (connection.getAutoCommit()) {
+			try {
+				connection.setAutoCommit(false);
+			} catch (SQLFeatureNotSupportedException ignored){
+			}
+		}
 		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		statement.setFetchSize(FETCH_SIZE);
 		resultSet = statement.executeQuery(query);
