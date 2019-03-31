@@ -4,6 +4,7 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 public class BatchedInsert {
 	public static int	INTEGER		= 0;
@@ -18,7 +19,6 @@ public class BatchedInsert {
 	private Connection	connection;
 	private int			columnCount;
 	private int			rowCount;
-	private boolean		autoCommit;
 	private String		sql;
 
 	public BatchedInsert(Connection connection, String sql, int columnCount) throws SQLException {
@@ -27,9 +27,13 @@ public class BatchedInsert {
 		this.columnCount = columnCount;
 		columns = new Object[columnCount];
 		columnTypes = new int[columnCount];
-		autoCommit = connection.getAutoCommit();
-		if (autoCommit) {
-			connection.setAutoCommit(false);
+	}
+	
+	private void trySettingAutoCommit(Connection connection, boolean value) throws SQLException {
+		try {
+			connection.setAutoCommit(value);
+		} catch (SQLFeatureNotSupportedException exception) {
+			// Do nothing
 		}
 	}
 
@@ -49,7 +53,7 @@ public class BatchedInsert {
 			}
 		}
 		try {
-			connection.setAutoCommit(false);
+			trySettingAutoCommit(connection, false);
 			PreparedStatement statement = connection.prepareStatement(sql);
 			for (int i = 0; i < rowCount; i++) {
 				for (int j = 0; j < columnCount; j++) {
@@ -97,6 +101,7 @@ public class BatchedInsert {
 			connection.commit();
 			statement.close();
 			connection.clearWarnings();
+			trySettingAutoCommit(connection, true);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			if (e instanceof BatchUpdateException) {

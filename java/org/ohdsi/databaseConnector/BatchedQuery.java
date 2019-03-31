@@ -54,14 +54,18 @@ public class BatchedQuery {
 		rowCount = 0;
 	}
 
+	private void trySettingAutoCommit(Connection connection, boolean value) throws SQLException {
+		try {
+			connection.setAutoCommit(value);
+		} catch (SQLFeatureNotSupportedException exception) {
+			// Do nothing
+		}
+	}
+
 	public BatchedQuery(Connection connection, String query) throws SQLException {
 		this.connection = connection;
-		if (connection.getAutoCommit()) {
-			try {
-				connection.setAutoCommit(false);
-			} catch (SQLFeatureNotSupportedException ignored){
-			}
-		}
+		if (connection.getAutoCommit())
+			trySettingAutoCommit(connection, false);
 		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		statement.setFetchSize(FETCH_SIZE);
 		resultSet = statement.executeQuery(query);
@@ -112,13 +116,13 @@ public class BatchedQuery {
 						((String[]) columns[columnIndex])[rowCount] = null;
 					else
 						((String[]) columns[columnIndex])[rowCount] = DATETIME_FORMAT.format(timestamp);
-					
+
 				}
 			rowCount++;
 		}
 		if (rowCount < batchSize) {
 			done = true;
-			connection.setAutoCommit(true);
+			trySettingAutoCommit(connection, true);
 		}
 		totalRowCount += rowCount;
 	}
