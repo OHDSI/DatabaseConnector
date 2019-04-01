@@ -342,6 +342,69 @@ executeSql <- function(connection,
   }
 }
 
+supportsBatchUpdates <- function(connection) {
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
+    stop("Connection is closed")
+  tryCatch({
+    dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
+    if (!is.jnull(dbmsMeta)) {
+      if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
+        writeLines("JDBC driver supports batch updates")
+        return(TRUE);
+      } else {
+        writeLines("JDBC driver does not support batch updates")
+      }
+    }
+  }, error = function(err) {
+      writeLines(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
+  })  
+  return(FALSE);
+}
+
+#' Execute SQL batch update
+#' 
+#' @param connection
+#' @param sql
+#' @param reportOverallTime
+#' @param errorReportFile
+#'
+#' @export
+batchUpdate <- function(connection, sql, reportOverallTime = TRUE, errorReportFile = file.path(getwd(), "errorReport.txt")) {
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
+    stop("Connection is closed")
+  if (supportsBatchUpdates(connection)) {
+    start <- Sys.time()
+    sqlStatements <- SqlRender::splitSql(sql)
+    writeLines(paste0("Running ",length(sqlStatements)," SQL statements in Batch mode"))
+  
+    statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
+    on.exit(rJava::.jcall(statement, "V", "close"))
+
+    for(query in sqlStatements) {
+      rJava::.jcall(statement, "V", "addBatch", as.character(query), check = FALSE)
+    }
+
+    tryCatch({
+      rowsAffected <- rJava::.jcall(statement, "[I", "executeBatch")
+      invisible(rowsAffected)
+    }, error = function(err) {
+      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+    })
+
+    if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
+      rJava::.jcall(connection@jConnection, "V", "commit")
+    }
+
+    if (reportOverallTime) {
+      delta <- Sys.time() - start
+      writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
+    }
+  } else {
+    writeLines("Calling executeSql")
+   # executeSql(connection, sql)
+  }
+}
+
 convertFields <- function(dbms, result) {
   if (dbms == "impala") {
     for (colname in colnames(result)) {
