@@ -262,6 +262,25 @@ lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
   invisible(rowsAffected)
 }
 
+supportsBatchUpdates <- function(connection) {
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
+  stop("Connection is closed")
+  tryCatch({
+    dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
+    if (!is.jnull(dbmsMeta)) {
+      if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
+        writeLines("JDBC driver supports batch updates")
+        return(TRUE);
+      } else {
+        writeLines("JDBC driver does not support batch updates")
+      }
+    }
+  }, error = function(err) {
+    writeLines(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
+  })
+  return(FALSE);
+}
+
 #' Execute SQL code
 #'
 #' @description
@@ -277,6 +296,9 @@ lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
 #'                            all statements.
 #' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
 #'                            'errorReport.txt' in the current working directory.
+#' @param runAsBatch          When true query executes as batched query instead of executing each statement
+#'                            separately when this parameter is false. If connection does not support batched updates
+#'                            query executes as ordinally.
 #'
 #' @details
 #' This function splits the SQL in separate statements and sends it to the server for execution. If an
@@ -302,15 +324,21 @@ executeSql <- function(connection,
                        profile = FALSE,
                        progressBar = TRUE,
                        reportOverallTime = TRUE, 
-                       errorReportFile = file.path(getwd(), "errorReport.txt")) {
+                       errorReportFile = file.path(getwd(), "errorReport.txt"),
+                       runAsBatch = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
-  if (profile)
+  batched <- runAsBatch && supportsBatchUpdates(connection)
+  if (profile || batched)
     progressBar <- FALSE
   sqlStatements <- SqlRender::splitSql(sql)
   if (progressBar)
     pb <- txtProgressBar(style = 3)
   start <- Sys.time()
+  if (batched) {
+    statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
+    on.exit(rJava::.jcall(statement, "V", "close"))
+  }
   for (i in 1:length(sqlStatements)) {
     sqlStatement <- sqlStatements[i]
     if (profile) {
@@ -318,18 +346,30 @@ executeSql <- function(connection,
       writeChar(sqlStatement, fileConn, eos = NULL)
       close(fileConn)
     }
-    tryCatch({
-      startQuery <- Sys.time()
-      lowLevelExecuteSql(connection, sqlStatement)
-      if (profile) {
-        delta <- Sys.time() - startQuery
-        writeLines(paste("Statement ", i, "took", delta, attr(delta, "units")))
-      }
-    }, error = function(err) {
-      .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
-    })
+    if (batched) {
+      rJava::.jcall(statement, "V", "addBatch", as.character(sqlStatement), check = FALSE)
+    } else {
+      tryCatch({
+        startQuery <- Sys.time()
+        lowLevelExecuteSql(connection, sqlStatement)
+        if (profile) {
+          delta <- Sys.time() - startQuery
+          writeLines(paste("Statement ", i, "took", delta, attr(delta, "units")))
+        }
+      }, error = function(err) {
+        .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
+      })
+    }
     if (progressBar)
       setTxtProgressBar(pb, i/length(sqlStatements))
+  }
+  if (batched) {
+    tryCatch({
+      rowsAffected <- rJava::.jcall(statement, "[I", "executeBatch")
+      invisible(rowsAffected)
+    }, error = function(err) {
+      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+    })
   }
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
@@ -339,69 +379,6 @@ executeSql <- function(connection,
   if (reportOverallTime) {
     delta <- Sys.time() - start
     writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
-  }
-}
-
-supportsBatchUpdates <- function(connection) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
-    stop("Connection is closed")
-  tryCatch({
-    dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
-    if (!is.jnull(dbmsMeta)) {
-      if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
-        writeLines("JDBC driver supports batch updates")
-        return(TRUE);
-      } else {
-        writeLines("JDBC driver does not support batch updates")
-      }
-    }
-  }, error = function(err) {
-      writeLines(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
-  })  
-  return(FALSE);
-}
-
-#' Execute SQL batch update
-#' 
-#' @param connection
-#' @param sql
-#' @param reportOverallTime
-#' @param errorReportFile
-#'
-#' @export
-batchUpdate <- function(connection, sql, reportOverallTime = TRUE, errorReportFile = file.path(getwd(), "errorReport.txt")) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
-    stop("Connection is closed")
-  if (supportsBatchUpdates(connection)) {
-    start <- Sys.time()
-    sqlStatements <- SqlRender::splitSql(sql)
-    writeLines(paste0("Running ",length(sqlStatements)," SQL statements in Batch mode"))
-  
-    statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
-    on.exit(rJava::.jcall(statement, "V", "close"))
-
-    for(query in sqlStatements) {
-      rJava::.jcall(statement, "V", "addBatch", as.character(query), check = FALSE)
-    }
-
-    tryCatch({
-      rowsAffected <- rJava::.jcall(statement, "[I", "executeBatch")
-      invisible(rowsAffected)
-    }, error = function(err) {
-      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
-    })
-
-    if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
-      rJava::.jcall(connection@jConnection, "V", "commit")
-    }
-
-    if (reportOverallTime) {
-      delta <- Sys.time() - start
-      writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
-    }
-  } else {
-    writeLines("Calling executeSql")
-   # executeSql(connection, sql)
   }
 }
 
