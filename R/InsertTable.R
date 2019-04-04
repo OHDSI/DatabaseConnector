@@ -127,6 +127,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     tempLocation <- "TEMP "
     if (tempTable) {
       location <- tempLocation
+      qname <- gsub("^#", "", qname)
     } else {
       location <- ""
     }

@@ -136,10 +136,9 @@ dbDisconnect(conn)
 
 # Test Redshift -----------------------
 connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             server = paste0(Sys.getenv("REDSHIFT_SERVER"),
-                                                             "/jmdc"),
-                                             user = Sys.getenv("REDSHIFT_USER"),
-                                             password = Sys.getenv("REDSHIFT_PW"),
+                                             connectionString = Sys.getenv("jmdcRedShiftConnectionString"),
+                                             user = Sys.getenv("redShiftUser"),
+                                             password = Sys.getenv("redShiftPassword"),
                                              extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
@@ -156,7 +155,7 @@ insertTable(connection = conn,
             dropTableIfExists = TRUE,
             createTable = TRUE,
             tempTable = TRUE)
-d2 <- querySql(conn, "SELECT * FROM test")
+d2 <- querySql(conn, "SELECT * FROM #test")
 str(d2)
 
 options(fftempdir = "s:/fftemp")
