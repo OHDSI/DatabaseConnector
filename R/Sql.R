@@ -263,10 +263,11 @@ lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
 }
 
 supportsBatchUpdates <- function(connection) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
-  stop("Connection is closed")
+  if (!inherits(connection, "DatabaseConnectorJdbcConnection")) {
+    return(FALSE)
+  }
   tryCatch({
-    dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
+    dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
     if (!is.jnull(dbmsMeta)) {
       if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
         writeLines("JDBC driver supports batch updates")
@@ -296,9 +297,11 @@ supportsBatchUpdates <- function(connection) {
 #'                            all statements.
 #' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
 #'                            'errorReport.txt' in the current working directory.
-#' @param runAsBatch          When true query executes as batched query instead of executing each statement
-#'                            separately when this parameter is false. If connection does not support batched updates
-#'                            query executes as ordinally.
+#' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and 
+#'                            executed there. This will be faster if you have many small SQL statements, but
+#'                            there will be no progress bar, and no per-statement error messages. If the 
+#'                            database platform does not support batched updates the query is executed as 
+#'                            ordinally.
 #'
 #' @details
 #' This function splits the SQL in separate statements and sends it to the server for execution. If an
@@ -329,11 +332,13 @@ executeSql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batched <- runAsBatch && supportsBatchUpdates(connection)
-  if (profile || batched)
+  if (profile || batched) {
     progressBar <- FALSE
+  }
   sqlStatements <- SqlRender::splitSql(sql)
-  if (progressBar)
+  if (progressBar) {
     pb <- txtProgressBar(style = 3)
+  }
   start <- Sys.time()
   if (batched) {
     statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
@@ -360,8 +365,9 @@ executeSql <- function(connection,
         .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
       })
     }
-    if (progressBar)
+    if (progressBar) {
       setTxtProgressBar(pb, i/length(sqlStatements))
+    }
   }
   if (batched) {
     tryCatch({
@@ -374,8 +380,9 @@ executeSql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
-  if (progressBar)
+  if (progressBar) {
     close(pb)
+  }
   if (reportOverallTime) {
     delta <- Sys.time() - start
     writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
@@ -532,6 +539,11 @@ querySql.ffdf <- function(connection, sql, errorReportFile = file.path(getwd(), 
 #'                            all statements.
 #' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
 #'                            'errorReport.txt' in the current working directory.
+#' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and 
+#'                            executed there. This will be faster if you have many small SQL statements, but
+#'                            there will be no progress bar, and no per-statement error messages. If the 
+#'                            database platform does not support batched updates the query is executed as 
+#'                            ordinally.
 #' @param oracleTempSchema    A schema that can be used to create temp tables in when using Oracle or Impala.
 #' @param ...                 Parameters that will be used to render the SQL.
 #'
@@ -559,6 +571,7 @@ renderTranslateExecuteSql <- function(connection,
                                       progressBar = TRUE,
                                       reportOverallTime = TRUE, 
                                       errorReportFile = file.path(getwd(), "errorReport.txt"),
+                                      runAsBatch = FALSE,
                                       oracleTempSchema = NULL,
                                       ...) {
   sql <- SqlRender::render(sql, ...)
@@ -568,7 +581,8 @@ renderTranslateExecuteSql <- function(connection,
              profile = profile,
              progressBar = progressBar,
              reportOverallTime = reportOverallTime,
-             errorReportFile = errorReportFile)
+             errorReportFile = errorReportFile,
+             runAsBatch = runAsBatch)
 }
 
 #' Render, translate, and query to data.frame
