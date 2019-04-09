@@ -344,6 +344,14 @@ executeSql <- function(connection,
     statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
     on.exit(rJava::.jcall(statement, "V", "close"))
   }
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && 
+      connection@dbms == "redshift" &&
+      rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
+    # Turn off autocommit for RedShift to avoid this issue:
+    # https://github.com/OHDSI/DatabaseConnector/issues/90
+    rJava::.jcall(connection@jConnection, "V", "setAutoCommit", FALSE)
+    on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE), add = TRUE)
+  }
   for (i in 1:length(sqlStatements)) {
     sqlStatement <- sqlStatements[i]
     if (profile) {

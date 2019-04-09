@@ -135,15 +135,19 @@ dbDisconnect(conn)
 
 
 # Test Redshift -----------------------
-connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             connectionString = Sys.getenv("jmdcRedShiftConnectionString"),
-                                             user = Sys.getenv("redShiftUser"),
-                                             password = Sys.getenv("redShiftPassword"),
-                                             extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
+dbms <- "redshift"
+user <- Sys.getenv("redShiftUser")
+pw <- Sys.getenv("redShiftPassword")
+connectionString <- Sys.getenv("jmdcRedShiftConnectionString")
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
+                                                                connectionString = connectionString,
+                                                                user = user,
+                                                                password = pw)
+
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm")
-executeSql(conn, "CREATE TABLE scratch.test (x INT)")
+renderTranslateExecuteSql(conn, "CREATE TABLE #test (x INT); INSERT INTO #test (x) SELECT 1; TRUNCATE TABLE #test; DROP TABLE #test;")
 
 person <- querySql.ffdf(conn, "SELECT * FROM person")
 data <- data.frame(id = c(1, 2, 3),
