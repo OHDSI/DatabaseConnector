@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
       </span>
     </div>
 
@@ -115,9 +115,25 @@
       <small>Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="databaseconnector-2-4-0" class="section level1">
+<h1 class="page-header">
+<a href="#databaseconnector-2-4-0" class="anchor"></a>DatabaseConnector 2.4.0<small> Unreleased </small>
+</h1>
+<p>Changes:</p>
+<ol>
+<li>Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).</li>
+</ol>
+<p>Bugfixes:</p>
+<ol>
+<li><p>Not adding ‘#’ prefix when performing insert into RedShift.</p></li>
+<li><p>Disabling autocommit when sending updates to RedShift to prevent errors with new JDBC driver.</p></li>
+<li><p>Preventing ‘FeatureNotSupportedError’ from terminating query on platforms that do no support autocommit.</p></li>
+<li><p>Fixing some errors related to insertTable when determining correct field type for columns.</p></li>
+</ol>
+</div>
     <div id="databaseconnector-2-3-0" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-3-0" class="anchor"></a>DatabaseConnector 2.3.0<small> Unreleased </small>
+<a href="#databaseconnector-2-3-0" class="anchor"></a>DatabaseConnector 2.3.0<small> 2019-02-21 </small>
 </h1>
 <p>Changes:</p>
 <ol>
@@ -191,6 +207,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#databaseconnector-2-4-0">2.4.0</a></li>
         <li><a href="#databaseconnector-2-3-0">2.3.0</a></li>
         <li><a href="#databaseconnector-2-2-1">2.2.1</a></li>
         <li><a href="#databaseconnector-2-2-0">2.2.0</a></li>

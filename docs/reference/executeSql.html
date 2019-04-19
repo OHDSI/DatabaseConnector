@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
       </span>
     </div>
 
@@ -127,7 +127,7 @@
 
     <pre class="usage"><span class='fu'>executeSql</span>(<span class='no'>connection</span>, <span class='no'>sql</span>, <span class='kw'>profile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>reportOverallTime</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>errorReportFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/file.path'>file.path</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/getwd'>getwd</a></span>(),
-  <span class='st'>"errorReport.txt"</span>))</pre>
+  <span class='st'>"errorReport.txt"</span>), <span class='kw'>runAsBatch</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,6 +159,14 @@ all statements.</p></td>
       <th>errorReportFile</th>
       <td><p>The file where an error report will be written if an error occurs. Defaults to
 'errorReport.txt' in the current working directory.</p></td>
+    </tr>
+    <tr>
+      <th>runAsBatch</th>
+      <td><p>When true the SQL statements are sent to the server as a single batch, and 
+executed there. This will be faster if you have many small SQL statements, but
+there will be no progress bar, and no per-statement error messages. If the 
+database platform does not support batched updates the query is executed as 
+ordinally.</p></td>
     </tr>
     </table>
     

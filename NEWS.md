@@ -1,3 +1,21 @@
+DatabaseConnector 2.4.0
+=======================
+
+Changes:
+
+1. Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).
+
+
+Bugfixes:
+
+1. Not adding '#' prefix when performing insert into RedShift.
+
+2. Disabling autocommit when sending updates to RedShift to prevent errors with new JDBC driver.
+
+3. Preventing 'FeatureNotSupportedError' from terminating query on platforms that do no support autocommit.
+
+4. Fixing some errors related to insertTable when determining correct field type for columns.
+
 DatabaseConnector 2.3.0
 =======================
 

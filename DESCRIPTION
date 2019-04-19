@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 2.3.0
-Date: 2019-02-21
+Version: 2.4.0
+Date: 2019-04-18
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
