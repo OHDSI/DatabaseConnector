@@ -613,3 +613,15 @@ disconnect.DatabaseConnectorDbiConnection <- function(connection) {
   invisible(TRUE)
 }
 
+
+#' Set the path to the authentication DLL
+#' 
+#' @details 
+#' Set the path to the authentication DLL
+#'
+#' @param path   The absolute path where the DLL can be found.
+#'
+#' @export
+setPathToDll <- function(path = getwd()) {
+  rJava::J("org.ohdsi.databaseConnector.Authentication")$addPathToJavaLibrary(path)
+}
