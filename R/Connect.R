@@ -219,6 +219,8 @@ connect <- function(connectionDetails = NULL,
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
       writeLines("Connecting using SQL Server driver using Windows integrated security")
+      setPathToDll()
+      
       if (missing(connectionString) || is.null(connectionString)) {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port))
@@ -256,6 +258,8 @@ connect <- function(connectionDetails = NULL,
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
+      setPathToDll()
+      
       if (missing(connectionString) || is.null(connectionString)) {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port))
@@ -613,15 +617,10 @@ disconnect.DatabaseConnectorDbiConnection <- function(connection) {
   invisible(TRUE)
 }
 
-
-#' Set the path to the authentication DLL
-#' 
-#' @details 
-#' Set the path to the authentication DLL
-#'
-#' @param path   The absolute path where the DLL can be found.
-#'
-#' @export
-setPathToDll <- function(path = getwd()) {
-  rJava::J("org.ohdsi.databaseConnector.Authentication")$addPathToJavaLibrary(path)
+setPathToDll <- function() {
+  pathToDll <- Sys.getenv("PATH_TO_AUTH_DLL") 
+  if (pathToDll != "") {
+    writeLines(paste("Looking for authentication DLL in path specified in PATH_TO_AUTH_DLL:", pathToDll))
+    rJava::J("org.ohdsi.databaseConnector.Authentication")$addPathToJavaLibrary(pathToDll)
+  }
 }

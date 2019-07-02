@@ -1,3 +1,10 @@
+DatabaseConnector 2.4.1
+=======================
+
+Changes:
+
+1. Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.
+
 DatabaseConnector 2.4.0
 =======================
 

@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 2.4.0
-Date: 2019-04-18
+Version: 2.4.1
+Date: 2019-06-02
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -41,3 +41,4 @@ URL: https://ohdsi.github.io/DatabaseConnector, https://github.com/OHDSI/Databas
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
 RoxygenNote: 6.1.1
+Encoding: UTF-8
