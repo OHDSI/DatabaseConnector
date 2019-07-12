@@ -5,6 +5,10 @@ Changes:
 
 1. Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.
 
+Bugfixes:
+
+1. No longer dropping '#' prefix for temp table names when inserting data for RedShift.
+
 DatabaseConnector 2.4.0
 =======================
 

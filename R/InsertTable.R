@@ -127,7 +127,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     tempLocation <- "TEMP "
     if (tempTable) {
       location <- tempLocation
-      qname <- gsub("^#", "", qname)
+      # qname <- gsub("^#", "", qname)
     } else {
       location <- ""
     }
@@ -315,7 +315,7 @@ insertTable.default <- function(connection,
   }
   if (dropTableIfExists)
     createTable <- TRUE
-  if (tempTable & substr(tableName, 1, 1) != "#")
+  if (tempTable & substr(tableName, 1, 1) != "#" & attr(connection, "dbms") != "redshift")
     tableName <- paste("#", tableName, sep = "")
   
   

@@ -183,11 +183,9 @@ data <- data.frame(start_date = dayseq,
                    id = makeRandomStrings(length(dayseq)))
 str(data)
 tableName <- "#temp"
-connectionDetails <- createConnectionDetails(dbms = "sql server",
-                                             server = "RNDUSRDHIT06.jnj.com",
-                                             schema = "cdm_hcup")
+data <- data[1:10, ]
 connection <- connect(connectionDetails)
-dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE)
+insertTable(connection, tableName, data, dropTableIfExists = TRUE)
 
 d <- querySql(connection, "SELECT * FROM #temp")
 d <- querySql.ffdf(connection, "SELECT * FROM #temp")
@@ -195,7 +193,7 @@ d <- querySql.ffdf(connection, "SELECT * FROM #temp")
 library(ffbase)
 data <- as.ffdf(data)
 
-dbDisconnect(connection)
+disconnect(connection)
 
 # Test RDS -----------------------
 connectionDetails <- createConnectionDetails(dbms = "sql server",
