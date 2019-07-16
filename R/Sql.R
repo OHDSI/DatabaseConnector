@@ -300,8 +300,8 @@ supportsBatchUpdates <- function(connection) {
 #' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and 
 #'                            executed there. This will be faster if you have many small SQL statements, but
 #'                            there will be no progress bar, and no per-statement error messages. If the 
-#'                            database platform does not support batched updates the query is executed as 
-#'                            ordinally.
+#'                            database platform does not support batched updates the query is executed without
+#'                            batching.
 #'
 #' @details
 #' This function splits the SQL in separate statements and sends it to the server for execution. If an

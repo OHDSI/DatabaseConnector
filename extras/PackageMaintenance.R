@@ -34,6 +34,8 @@ rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
 pkgdown::build_site()
 
 # Release package:
+devtools::spell_check()
+
 devtools::check_win_devel()
 
 devtools::check_rhub()

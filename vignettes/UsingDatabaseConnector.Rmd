@@ -42,7 +42,7 @@ Supported database platforms:
 
 # Obtaining drivers for BigQuery, Netezza and Impala
 
-The package already contins most drivers, but because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. Type
+The package already contains most drivers, but because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. Type
 
 ```{r eval=FALSE}
 ?jdbcDrivers
@@ -118,7 +118,7 @@ writeLines("Connecting using Netezza driver")
 
 # Querying
 
-The main functions for querying database are the `querySql` and `executeSql` functions. The difference between these functions is that `querySql` expects data to be returned by the database, and can handle only one SQL statement at a time. In contrast, `executeSql` does not expect data to be returned, and accepts multiple SQL statments in a single SQL string. 
+The main functions for querying database are the `querySql` and `executeSql` functions. The difference between these functions is that `querySql` expects data to be returned by the database, and can handle only one SQL statement at a time. In contrast, `executeSql` does not expect data to be returned, and accepts multiple SQL statements in a single SQL string. 
 
 Some examples:
 
@@ -169,7 +169,7 @@ In this example, we're uploading the mtcars data frame to a table called 'mtcars
 
 # DBI interface
 
-`DatabaseConnector` implements the DBI interface for compatability with other R packages. One can use the DBI functions instead of the ones described before, for example:
+`DatabaseConnector` implements the DBI interface for compatibility with other R packages. One can use the DBI functions instead of the ones described before, for example:
 
 ```{r eval=FALSE}
 conn <- dbConnect(DatabaseConnectorDriver(), 

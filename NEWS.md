@@ -16,7 +16,6 @@ Changes:
 
 1. Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).
 
-
 Bugfixes:
 
 1. Not adding '#' prefix when performing insert into RedShift.
@@ -38,7 +37,7 @@ Changes:
 
 3. Dropping Starschema BigQuery driver (in favor of newer Simba driver)
 
-4. Added support for inserting BIGINTs (large interegers stored as numeric in R)
+4. Added support for inserting BIGINTs (large integers stored as numeric in R)
 
 5. Applying CTAS hack to improve insertion performance for RedShift (was already used for PDW)
 

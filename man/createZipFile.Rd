@@ -2,7 +2,7 @@
 % Please edit documentation in R/Compression.R
 \name{createZipFile}
 \alias{createZipFile}
-\title{Compress files and/or foldes into a single zip file}
+\title{Compress files and/or folders into a single zip file}
 \usage{
 createZipFile(zipFile, files, rootFolder = getwd(),
   compressionLevel = 9)
@@ -17,7 +17,7 @@ createZipFile(zipFile, files, rootFolder = getwd(),
 \item{compressionLevel}{A number between 1 and 9. 9 compresses best, but it also takes the longest.}
 }
 \description{
-Compress files and/or foldes into a single zip file
+Compress files and/or folders into a single zip file
 }
 \details{
 Uses Java's compression library to create a zip file. It is similar to \code{utils::zip}, except

@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.1</span>
       </span>
     </div>
 
@@ -115,9 +115,22 @@
       <small>Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="databaseconnector-2-4-0" class="section level1">
+    <div id="databaseconnector-241" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-4-0" class="anchor"></a>DatabaseConnector 2.4.0<small> Unreleased </small>
+<a href="#databaseconnector-241" class="anchor"></a>DatabaseConnector 2.4.1<small> Unreleased </small>
+</h1>
+<p>Changes:</p>
+<ol>
+<li>Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.</li>
+</ol>
+<p>Bugfixes:</p>
+<ol>
+<li>No longer dropping ‘#’ prefix for temp table names when inserting data for RedShift.</li>
+</ol>
+</div>
+    <div id="databaseconnector-240" class="section level1">
+<h1 class="page-header">
+<a href="#databaseconnector-240" class="anchor"></a>DatabaseConnector 2.4.0<small> Unreleased </small>
 </h1>
 <p>Changes:</p>
 <ol>
@@ -131,16 +144,16 @@
 <li><p>Fixing some errors related to insertTable when determining correct field type for columns.</p></li>
 </ol>
 </div>
-    <div id="databaseconnector-2-3-0" class="section level1">
+    <div id="databaseconnector-230" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-3-0" class="anchor"></a>DatabaseConnector 2.3.0<small> 2019-02-21 </small>
+<a href="#databaseconnector-230" class="anchor"></a>DatabaseConnector 2.3.0<small> 2019-02-21 </small>
 </h1>
 <p>Changes:</p>
 <ol>
 <li><p>Adding support for SQLite through RSQLite (mainly for demonstration and testing)</p></li>
 <li><p>Adding convenience functions renderTranslateExecuteSql, renderTranslateQuerySql, and renderTranslateQuerySql.ffdf</p></li>
 <li><p>Dropping Starschema BigQuery driver (in favor of newer Simba driver)</p></li>
-<li><p>Added support for inserting BIGINTs (large interegers stored as numeric in R)</p></li>
+<li><p>Added support for inserting BIGINTs (large integers stored as numeric in R)</p></li>
 <li><p>Applying CTAS hack to improve insertion performance for RedShift (was already used for PDW)</p></li>
 </ol>
 <p>Bugfixes:</p>
@@ -148,9 +161,9 @@
 <li>Executing multi-statement SQL where one statement returns results no longer causes error.</li>
 </ol>
 </div>
-    <div id="databaseconnector-2-2-1" class="section level1">
+    <div id="databaseconnector-221" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-2-1" class="anchor"></a>DatabaseConnector 2.2.1<small> 2018-11-25 </small>
+<a href="#databaseconnector-221" class="anchor"></a>DatabaseConnector 2.2.1<small> 2018-11-25 </small>
 </h1>
 <p>Changes:</p>
 <ol>
@@ -162,9 +175,9 @@
 <li>Fixed the problem that Jar file is not detected when setting JDBC driver manually</li>
 </ol>
 </div>
-    <div id="databaseconnector-2-2-0" class="section level1">
+    <div id="databaseconnector-220" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-2-0" class="anchor"></a>DatabaseConnector 2.2.0<small> 2018-10-01 </small>
+<a href="#databaseconnector-220" class="anchor"></a>DatabaseConnector 2.2.0<small> 2018-10-01 </small>
 </h1>
 <p>Changes:</p>
 <ol>
@@ -172,18 +185,18 @@
 <li>Added convenience function for cross-platform zipping of files and folders</li>
 </ol>
 </div>
-    <div id="databaseconnector-2-1-4" class="section level1">
+    <div id="databaseconnector-214" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-1-4" class="anchor"></a>DatabaseConnector 2.1.4<small> 2018-08-21 </small>
+<a href="#databaseconnector-214" class="anchor"></a>DatabaseConnector 2.1.4<small> 2018-08-21 </small>
 </h1>
 <p>Changes:</p>
 <ol>
 <li>Faster inserts by building batches in Java instead of R</li>
 </ol>
 </div>
-    <div id="databaseconnector-2-1-3" class="section level1">
+    <div id="databaseconnector-213" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-1-3" class="anchor"></a>DatabaseConnector 2.1.3<small> 2018-06-28 </small>
+<a href="#databaseconnector-213" class="anchor"></a>DatabaseConnector 2.1.3<small> 2018-06-28 </small>
 </h1>
 <p>Changes:</p>
 <ol>
@@ -195,9 +208,9 @@
 <li>Now generating unique display names for RStudio’s Connections tab to prevent problems when opening two connections to the same server.</li>
 </ol>
 </div>
-    <div id="databaseconnector-2-1-2" class="section level1">
+    <div id="databaseconnector-212" class="section level1">
 <h1 class="page-header">
-<a href="#databaseconnector-2-1-2" class="anchor"></a>DatabaseConnector 2.1.2<small> 2018-05-24 </small>
+<a href="#databaseconnector-212" class="anchor"></a>DatabaseConnector 2.1.2<small> 2018-05-24 </small>
 </h1>
 <p>Changes: initial submission to CRAN</p>
 </div>
@@ -207,13 +220,14 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#databaseconnector-2-4-0">2.4.0</a></li>
-        <li><a href="#databaseconnector-2-3-0">2.3.0</a></li>
-        <li><a href="#databaseconnector-2-2-1">2.2.1</a></li>
-        <li><a href="#databaseconnector-2-2-0">2.2.0</a></li>
-        <li><a href="#databaseconnector-2-1-4">2.1.4</a></li>
-        <li><a href="#databaseconnector-2-1-3">2.1.3</a></li>
-        <li><a href="#databaseconnector-2-1-2">2.1.2</a></li>
+        <li><a href="#databaseconnector-241">2.4.1</a></li>
+        <li><a href="#databaseconnector-240">2.4.0</a></li>
+        <li><a href="#databaseconnector-230">2.3.0</a></li>
+        <li><a href="#databaseconnector-221">2.2.1</a></li>
+        <li><a href="#databaseconnector-220">2.2.0</a></li>
+        <li><a href="#databaseconnector-214">2.1.4</a></li>
+        <li><a href="#databaseconnector-213">2.1.3</a></li>
+        <li><a href="#databaseconnector-212">2.1.2</a></li>
       </ul>
     </div>
   </div>

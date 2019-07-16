@@ -395,7 +395,7 @@ setMethod("dbExistsTable",
 #' @param overwrite          Overwrite an existing table (if exists)?
 #' @param append             Append to existing table?
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #
 #' @export

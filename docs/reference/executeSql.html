@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.1</span>
       </span>
     </div>
 
@@ -165,8 +165,8 @@ all statements.</p></td>
       <td><p>When true the SQL statements are sent to the server as a single batch, and 
 executed there. This will be faster if you have many small SQL statements, but
 there will be no progress bar, and no per-statement error messages. If the 
-database platform does not support batched updates the query is executed as 
-ordinally.</p></td>
+database platform does not support batched updates the query is executed without
+batching.</p></td>
     </tr>
     </table>
     

@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.1</span>
       </span>
     </div>
 
@@ -126,31 +126,31 @@
 <div id="examples" class="section level1">
 <h1 class="hasAnchor">
 <a href="#examples" class="anchor"></a>Examples</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">connectionDetails &lt;-<span class="st"> </span><span class="kw"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms=</span><span class="st">"postgresql"</span>, </a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">                                             <span class="dt">server=</span><span class="st">"localhost"</span>,</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">                                             <span class="dt">user=</span><span class="st">"root"</span>,</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">                                             <span class="dt">password=</span><span class="st">"blah"</span>,</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">                                             <span class="dt">schema=</span><span class="st">"cdm_v4"</span>)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">conn &lt;-<span class="st"> </span><span class="kw"><a href="reference/connect.html">connect</a></span>(connectionDetails)</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw"><a href="reference/querySql.html">querySql</a></span>(conn,<span class="st">"SELECT COUNT(*) FROM person"</span>)</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="reference/disconnect.html">disconnect</a></span>(conn)</a></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">## regular data insert</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/insertTable.html">insertTable</a></span>(<span class="dt">connection =</span> connection, </a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">            <span class="dt">tableName =</span> <span class="st">"scratch.somedata"</span>, </a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">            <span class="dt">data =</span> data, </a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">            <span class="dt">dropTableIfExists =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">            <span class="dt">createTable =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">            <span class="dt">tempTable =</span> <span class="ot">FALSE</span>, </a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">            <span class="dt">useMppBulkLoad =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">            </a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">## bulk data insert with Redshift or PDW</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="kw"><a href="reference/insertTable.html">insertTable</a></span>(<span class="dt">connection =</span> connection, </a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">            <span class="dt">tableName =</span> <span class="st">"scratch.somedata"</span>, </a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">            <span class="dt">data =</span> data, </a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">            <span class="dt">dropTableIfExists =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">            <span class="dt">createTable =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">            <span class="dt">tempTable =</span> <span class="ot">FALSE</span>, </a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">            <span class="dt">useMppBulkLoad =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>connectionDetails &lt;-<span class="st"> </span><span class="kw"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms=</span><span class="st">"postgresql"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2"></a>                                             <span class="dt">server=</span><span class="st">"localhost"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                                             <span class="dt">user=</span><span class="st">"root"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>                                             <span class="dt">password=</span><span class="st">"blah"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>                                             <span class="dt">schema=</span><span class="st">"cdm_v4"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6"></a>conn &lt;-<span class="st"> </span><span class="kw"><a href="reference/connect.html">connect</a></span>(connectionDetails)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="kw"><a href="reference/querySql.html">querySql</a></span>(conn,<span class="st">"SELECT COUNT(*) FROM person"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw"><a href="reference/disconnect.html">disconnect</a></span>(conn)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">## regular data insert</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw"><a href="reference/insertTable.html">insertTable</a></span>(<span class="dt">connection =</span> connection, </span>
+<span id="cb2-3"><a href="#cb2-3"></a>            <span class="dt">tableName =</span> <span class="st">"scratch.somedata"</span>, </span>
+<span id="cb2-4"><a href="#cb2-4"></a>            <span class="dt">data =</span> data, </span>
+<span id="cb2-5"><a href="#cb2-5"></a>            <span class="dt">dropTableIfExists =</span> <span class="ot">TRUE</span>, </span>
+<span id="cb2-6"><a href="#cb2-6"></a>            <span class="dt">createTable =</span> <span class="ot">TRUE</span>, </span>
+<span id="cb2-7"><a href="#cb2-7"></a>            <span class="dt">tempTable =</span> <span class="ot">FALSE</span>, </span>
+<span id="cb2-8"><a href="#cb2-8"></a>            <span class="dt">useMppBulkLoad =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a>            </span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co">## bulk data insert with Redshift or PDW</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="kw"><a href="reference/insertTable.html">insertTable</a></span>(<span class="dt">connection =</span> connection, </span>
+<span id="cb2-12"><a href="#cb2-12"></a>            <span class="dt">tableName =</span> <span class="st">"scratch.somedata"</span>, </span>
+<span id="cb2-13"><a href="#cb2-13"></a>            <span class="dt">data =</span> data, </span>
+<span id="cb2-14"><a href="#cb2-14"></a>            <span class="dt">dropTableIfExists =</span> <span class="ot">TRUE</span>, </span>
+<span id="cb2-15"><a href="#cb2-15"></a>            <span class="dt">createTable =</span> <span class="ot">TRUE</span>, </span>
+<span id="cb2-16"><a href="#cb2-16"></a>            <span class="dt">tempTable =</span> <span class="ot">FALSE</span>, </span>
+<span id="cb2-17"><a href="#cb2-17"></a>            <span class="dt">useMppBulkLoad =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 </div>
 <div id="technology" class="section level1">
 <h1 class="hasAnchor">
@@ -165,20 +165,20 @@
 <div id="dependencies" class="section level1">
 <h1 class="hasAnchor">
 <a href="#dependencies" class="anchor"></a>Dependencies</h1>
-<p>Please note that this package requires Java to be installed. If you don’t have Java already intalled on your computed (on most computers it already is installed), go to <a href="http://java.com">java.com</a> to get the latest version.</p>
-<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from <a href="http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774">Microsoft</a> and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32.</p>
+<p>Please note that this package requires Java to be installed. If you don’t have Java already installed on your computed (on most computers it already is installed), go to <a href="http://java.com">java.com</a> to get the latest version.</p>
+<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from <a href="http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774">Microsoft</a> and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code><a href="https://www.rdocumentation.org/packages/base/topics/Sys.setenv">Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</a></code>.</p>
 <p>DatabaseConnector also depends on the OHDSI DatabaseConnectorJars and SqlRender packages.</p>
-<p>For Redshift Bulk Mpp inserts, the cloudyR aws S3 pacakge is required.</p>
+<p>For Redshift Bulk Mpp inserts, the cloudyR aws S3 package is required.</p>
 </div>
 <div id="getting-started" class="section level1">
 <h1 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting Started</h1>
 <p>To install the latest stable version, install from CRAN:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"DatabaseConnector"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"DatabaseConnector"</span>)</span></code></pre></div>
 <p>To install the latest development version, install from GitHub:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnectorJars"</span>)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnector"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnectorJars"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnector"</span>)</span></code></pre></div>
 <p>To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html">these instructions</a>.</p>
 </div>
 <div id="user-documentation" class="section level1">

@@ -51,7 +51,7 @@ NULL
 #' @section
 #' SQL Server and PDW: Go to \href{https://www.microsoft.com/en-us/download/details.aspx?id=11774}{the
 #' Microsoft SQL Server JDBC site}, click 'Download' and select the tar.gz file. Click 'Next' to start
-#' the download. Decompress the file and find a file called seomthing like 'sqljdbc41.jar' in the a
+#' the download. Decompress the file and find a file called something like 'sqljdbc41.jar' in the a
 #' folder named something like 'sqljdbc_6.0/enu/jre7'.
 #'
 #' @section
