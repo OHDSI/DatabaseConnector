@@ -491,6 +491,26 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "hive") {
+      writeLines("Connecting using Hive driver")
+      jarPath <- findPathToJar("^hive-jdbc-standalone\\.jar$", pathToDriver)
+      driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
+  
+      if (missing(connectionString) || is.null(connectionString)) {
+          connectionString <- paste0("jdbc:hive2://", server, ":", port, "/", schema)
+          if (!missing(extraSettings) && !is.null(extraSettings)) {
+              connectionString <- paste0(connectionString, ";", extraSettings)
+          }
+      }
+      connection <- connectUsingJdbcDriver(driver,
+      connectionString,
+      user = user,
+      password = password,
+      dbms = dbms)
+  
+      attr(connection, "dbms") <- dbms
+      return(connection)
+  }
   if (dbms == "bigquery") {
     writeLines("Connecting using BigQuery driver")
     jarPath <- findPathToJar("^bqjdbc\\.jar$", pathToDriver)

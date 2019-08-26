@@ -23,6 +23,7 @@ Features
   - Apache Impala
   - Google BigQuery
   - IBM Netezza
+  - Apache Hive
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
