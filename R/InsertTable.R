@@ -394,7 +394,7 @@ insertTable.default <- function(connection,
       .bulkLoadPdw(connection, qname, data)
     }
   } else {
-    if ((attr(connection, "dbms") == "pdw" | attr(connection, "dbms") == "redshift") && createTable && nrow(data) > 0) {
+    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery") && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar)
     } else {
       if (createTable) {
