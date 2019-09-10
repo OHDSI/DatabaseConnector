@@ -37,7 +37,7 @@
   paste(quote, s, quote, sep = "")
 }
 
-mergeTempTables <- function(connection, tableName, varNames, sourceNames, location, distribution) {
+mergeTempTables <- function(connection, tableName, varNames, sourceNames, location, distribution, oracleTempSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", varNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
   if (attr(connection, "dbms") == "pdw") {
@@ -55,25 +55,26 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
                  valueString,
                  sep = "")
   } else {
-    sql <- paste("CREATE ",
-                 location,
-                 "TABLE ",
+    sql <- paste("CREATE TABLE ",
                  tableName,
                  " (",
                  varNames,
                  " ) ",
                  distribution,
-                 " AS SELECT ",
+                 " AS (SELECT ",
                  varNames,
                  " FROM ",
                  valueString,
+                 ")",
                  sep = "")
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
   }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
@@ -99,7 +100,7 @@ toStrings <- function(data, fts) {
   }
 }
 
-ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar) {
+ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema) {
   batchSize <- 1000
   mergeSize <- 300
   if (attr(connection, "dbms") == "pdw") {
@@ -124,13 +125,8 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     } else {
       distribution <- ""
     }
-    tempLocation <- "TEMP "
-    if (tempTable) {
-      location <- tempLocation
-      # qname <- gsub("^#", "", qname)
-    } else {
-      location <- ""
-    }
+    tempLocation <- ""
+    location <- tempLocation
   }
   
   # Insert data in batches in temp tables using CTAS:
@@ -144,7 +140,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, varNames, tempNames, tempLocation, distribution)
+      mergeTempTables(connection, mergedName, varNames, tempNames, tempLocation, distribution, oracleTempSchema)
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
@@ -177,18 +173,17 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
                    valueString,
                    sep = "")
     } else {
-      sql <- paste("CREATE ",
-                   tempLocation,
-                   "TABLE ",
+      sql <- paste("CREATE TABLE ",
                    tempName,
                    " (",
                    varNames,
                    " ) ",
                    distribution,
-                   " AS SELECT ",
+                   " AS (SELECT ",
                    valueString,
+                   ")",
                    sep = "")
-      
+      sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     }
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
@@ -196,7 +191,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     setTxtProgressBar(pb, 1)
     close(pb)
   }
-  mergeTempTables(connection, qname, varNames, tempNames, location, distribution)
+  mergeTempTables(connection, qname, varNames, tempNames, location, distribution, oracleTempSchema)
 }
 
 is.bigint <- function(x) {
@@ -394,8 +389,8 @@ insertTable.default <- function(connection,
       .bulkLoadPdw(connection, qname, data)
     }
   } else {
-    if ((attr(connection, "dbms") == "pdw" | attr(connection, "dbms") == "redshift") && createTable && nrow(data) > 0) {
-      ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar)
+    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery") && createTable && nrow(data) > 0) {
+      ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema)
     } else {
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
