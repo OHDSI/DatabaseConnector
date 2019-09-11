@@ -54,25 +54,44 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
                  " FROM ",
                  valueString,
                  sep = "")
-  } else {
-  sql <- paste(distribution,
-               "\n",
-               "SELECT ",
-               varNames,
-               " INTO ",
-               tableName,
-               " FROM ",
-               valueString,
-               ";",
-               sep = "")
+  } else if (attr(connection, "dbms") == "redshift") {
+    sql <- paste("CREATE ",
+                 location,
+                 "TABLE ",
+                 tableName,
+                 " (",
+                 varNames,
+                 " ) ",
+                 distribution,
+                 " AS SELECT ",
+                 varNames,
+                 " FROM ",
+                 valueString,
+                 sep = "")
+  } else if (attr(connection, "dbms") == "bigquery") {
+    sql <- paste(distribution,
+                 "\n",
+                 "SELECT ",
+                 varNames,
+                 " INTO ",
+                 tableName,
+                 " FROM ",
+                 valueString,
+                 ";",
+                 sep = "")
     sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+  } else {
+    # Should not happen
+    stop("Illegal operation")
   }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+    if (attr(connection, "dbms") == "bigquery") {
+      sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+    }
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
@@ -115,7 +134,22 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     } else {
       location <- ""
     }
-  } else {
+  } else if (attr(connection, "dbms") == "redshift") {
+    if (any(tolower(names(data)) == "subject_id")) {
+      distribution <- "DISTKEY(SUBJECT_ID)"
+    } else if (any(tolower(names(data)) == "person_id")) {
+      distribution <- "DISTKEY(PERSON_ID)"
+    } else {
+      distribution <- ""
+    }
+    tempLocation <- "TEMP "
+    if (tempTable) {
+      location <- tempLocation
+      # qname <- gsub("^#", "", qname)
+    } else {
+      location <- ""
+    }
+  } else if (attr(connection, "dbms") == "bigquery") {
     if (any(tolower(names(data)) == "subject_id")) {
       distribution <- "--HINT DISTRIBUTE_ON_KEY(SUBJECT_ID)"
     } else if (any(tolower(names(data)) == "person_id")) {
@@ -125,6 +159,9 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     }
     tempLocation <- ""
     location <- tempLocation
+  } else {
+    # Should not happen
+    stop("Illegal operation")
   }
   
   # Insert data in batches in temp tables using CTAS:
@@ -170,7 +207,19 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
                    ") AS SELECT ",
                    valueString,
                    sep = "")
-    } else {
+    } else if (attr(connection, "dbms") == "redshift") {
+      sql <- paste("CREATE ",
+                   tempLocation,
+                   "TABLE ",
+                   tempName,
+                   " (",
+                   varNames,
+                   " ) ",
+                   distribution,
+                   " AS SELECT ",
+                   valueString,
+                   sep = "")
+    } else if (attr(connection, "dbms") == "bigquery") {
       sql <- paste(distribution,
                    "\n",
                    "WITH data (",
@@ -184,6 +233,9 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
                    " FROM data;",
                    sep = "")
       sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+    } else {
+      # Should not happen
+      stop("Illegal operation")
     }
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }

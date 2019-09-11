@@ -145,7 +145,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 password = pw)
 
 conn <- connect(connectionDetails)
-querySql(conn, "SELECT COUNT(*) FROM person")
+# querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm")
 renderTranslateExecuteSql(conn, "CREATE TABLE #test (x INT); INSERT INTO #test (x) SELECT 1; TRUNCATE TABLE #test; DROP TABLE #test;")
 
@@ -153,13 +153,15 @@ person <- querySql.ffdf(conn, "SELECT * FROM person")
 data <- data.frame(id = c(1, 2, 3),
                    date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
                    text = c("asdf", "asdf", "asdf"))
+system.time(
 insertTable(connection = conn,
-            tableName = "test",
+            tableName = "#test",
             data = data,
             dropTableIfExists = TRUE,
             createTable = TRUE,
             tempTable = TRUE)
-d2 <- querySql(conn, "SELECT * FROM #test")
+)
+d2 <- querySql(conn, "SELECT * FROM #test;")
 str(d2)
 
 options(fftempdir = "s:/fftemp")
