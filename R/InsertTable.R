@@ -181,16 +181,19 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     end <- min(start + batchSize - 1, nrow(data))
     batch <- toStrings(data[start:end, , drop = FALSE], fts)    
     # First line gets type information
-    valueString <- paste(paste("CAST(",
-                               batch[1, , drop = FALSE],
-                               " AS ",
-                               fts,
-                               ")",
-                               sep = ""), collapse = ",")
+    castVals <- function (vals) {
+      paste("CAST(",
+            vals,
+            " AS ",
+            fts,
+            ")",
+            sep = "")
+    }
+    valueString <- paste(castVals(batch[1, , drop = FALSE]), collapse = ",")
     if (end > start) {
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
-                                                FUN = paste,
+                                                FUN = if (attr(connection, "dbms") == "bigquery") function(r, collapse) { paste(castVals(r), collapse = collapse) } else paste,
                                                 collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
     }
     tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
