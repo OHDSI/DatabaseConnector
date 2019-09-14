@@ -68,6 +68,7 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
                  " FROM ",
                  valueString,
                  sep = "")
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
   } else if (attr(connection, "dbms") == "bigquery") {
     sql <- paste(distribution,
                  "\n",
@@ -222,6 +223,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
                    " AS SELECT ",
                    valueString,
                    sep = "")
+      sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     } else if (attr(connection, "dbms") == "bigquery") {
       sql <- paste(distribution,
                    "\n",
