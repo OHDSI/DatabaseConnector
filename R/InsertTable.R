@@ -37,61 +37,26 @@
   paste(quote, s, quote, sep = "")
 }
 
-mergeTempTables <- function(connection, tableName, varNames, sourceNames, location, distribution, oracleTempSchema) {
+mergeTempTables <- function(connection, tableName, varNames, sourceNames, distribution, oracleTempSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", varNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
-  if (attr(connection, "dbms") == "pdw") {
-    sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
-                 tableName,
-                 " (",
-                 varNames,
-                 " ) WITH (",
-                 location,
-                 "DISTRIBUTION=",
-                 distribution,
-                 ") AS SELECT ",
-                 varNames,
-                 " FROM ",
-                 valueString,
-                 sep = "")
-  } else if (attr(connection, "dbms") == "redshift") {
-    sql <- paste("CREATE ",
-                 location,
-                 "TABLE ",
-                 tableName,
-                 " (",
-                 varNames,
-                 " ) ",
-                 distribution,
-                 " AS SELECT ",
-                 varNames,
-                 " FROM ",
-                 valueString,
-                 sep = "")
-  } else if (attr(connection, "dbms") == "bigquery") {
-    sql <- paste(distribution,
-                 "\n",
-                 "SELECT ",
-                 varNames,
-                 " INTO ",
-                 tableName,
-                 " FROM ",
-                 valueString,
-                 ";",
-                 sep = "")
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
-  } else {
-    # Should not happen
-    stop("Illegal operation")
-  }
+  sql <- paste(distribution,
+               "\n",
+               "SELECT ",
+               varNames,
+               " INTO ",
+               tableName,
+               " FROM ",
+               valueString,
+               ";",
+               sep = "")
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
-    if (attr(connection, "dbms") == "bigquery") {
-      sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
-    }
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
@@ -117,53 +82,34 @@ toStrings <- function(data, fts) {
   }
 }
 
+castValues <- function(values, fts) {
+  paste("CAST(",
+        values,
+        " AS ",
+        fts,
+        ")",
+        sep = "")
+}
+
+formatRow <- function(data, castValues, fts) {
+  if (castValues) {
+    data <- castValues(data, fts)
+  }
+  return(paste(data, collapse = ","))
+}
+
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema) {
   batchSize <- 1000
   mergeSize <- 300
-  if (attr(connection, "dbms") == "pdw") {
-    if (any(tolower(names(data)) == "subject_id")) {
-      distribution <- "HASH(SUBJECT_ID)"
-    } else if (any(tolower(names(data)) == "person_id")) {
-      distribution <- "HASH(PERSON_ID)"
-    } else {
-      distribution <- "REPLICATE"
-    }
-    tempLocation <- "LOCATION = USER_DB, "
-    if (tempTable) {
-      location <- tempLocation
-    } else {
-      location <- ""
-    }
-  } else if (attr(connection, "dbms") == "redshift") {
-    if (any(tolower(names(data)) == "subject_id")) {
-      distribution <- "DISTKEY(SUBJECT_ID)"
-    } else if (any(tolower(names(data)) == "person_id")) {
-      distribution <- "DISTKEY(PERSON_ID)"
-    } else {
-      distribution <- ""
-    }
-    tempLocation <- "TEMP "
-    if (tempTable) {
-      location <- tempLocation
-      # qname <- gsub("^#", "", qname)
-    } else {
-      location <- ""
-    }
-  } else if (attr(connection, "dbms") == "bigquery") {
-    if (any(tolower(names(data)) == "subject_id")) {
-      distribution <- "--HINT DISTRIBUTE_ON_KEY(SUBJECT_ID)"
-    } else if (any(tolower(names(data)) == "person_id")) {
-      distribution <- "--HINT DISTRIBUTE_ON_KEY(PERSON_ID)"
-    } else {
-      distribution <- ""
-    }
-    tempLocation <- ""
-    location <- tempLocation
-  } else {
-    # Should not happen
-    stop("Illegal operation")
-  }
   
+  if (any(tolower(names(data)) == "subject_id")) {
+    distribution <- "--HINT DISTRIBUTE_ON_KEY(SUBJECT_ID)\n"
+  } else if (any(tolower(names(data)) == "person_id")) {
+    distribution <- "--HINT DISTRIBUTE_ON_KEY(PERSON_ID)\n"
+  } else {
+    distribution <- ""
+  }
+
   # Insert data in batches in temp tables using CTAS:
   if (progressBar) {
     pb <- txtProgressBar(style = 3)
@@ -174,79 +120,45 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       setTxtProgressBar(pb, start/nrow(data))
     }
     if (length(tempNames) == mergeSize) {
-      mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, varNames, tempNames, tempLocation, distribution, oracleTempSchema)
+      mergedName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
+      mergeTempTables(connection, mergedName, varNames, tempNames, distribution, oracleTempSchema)
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
     batch <- toStrings(data[start:end, , drop = FALSE], fts)    
-    # First line gets type information
-    castVals <- function (vals) {
-      paste("CAST(",
-            vals,
-            " AS ",
-            fts,
-            ")",
-            sep = "")
-    }
-    valueString <- paste(castVals(batch[1, , drop = FALSE]), collapse = ",")
+
+    # First line gets type information:
+    valueString <- formatRow(batch[1, , drop = FALSE], castValues = TRUE, fts = fts)
     if (end > start) {
+      # Other lines only get type information if BigQuery:
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
-                                                FUN = if (attr(connection, "dbms") == "bigquery") function(r, collapse) { paste(castVals(r), collapse = collapse) } else paste,
-                                                collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
+                                                FUN = formatRow,
+                                                castValues = attr(connection, "dbms") == "bigquery",
+                                                fts = fts)), 
+                           collapse = "\nUNION ALL\nSELECT ")
     }
-    tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
+    tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
-    if (attr(connection, "dbms") == "pdw") {
-      sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
-                   tempName,
-                   " (",
-                   varNames,
-                   " ) WITH (",
-                   tempLocation,
-                   "DISTRIBUTION=",
-                   distribution,
-                   ") AS SELECT ",
-                   valueString,
-                   sep = "")
-    } else if (attr(connection, "dbms") == "redshift") {
-      sql <- paste("CREATE ",
-                   tempLocation,
-                   "TABLE ",
-                   tempName,
-                   " (",
-                   varNames,
-                   " ) ",
-                   distribution,
-                   " AS SELECT ",
-                   valueString,
-                   sep = "")
-    } else if (attr(connection, "dbms") == "bigquery") {
-      sql <- paste(distribution,
-                   "\n",
-                   "WITH data (",
-                   varNames,
-                   ") AS (SELECT ",
-                   valueString,
-                   " ) SELECT ",
-                   varNames,
-                   " INTO ",
-                   tempName,
-                   " FROM data;",
-                   sep = "")
-      sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
-    } else {
-      # Should not happen
-      stop("Illegal operation")
-    }
+    sql <- paste(distribution,
+                 "WITH data (",
+                 varNames,
+                 ") AS (SELECT ",
+                 valueString,
+                 " ) SELECT ",
+                 varNames,
+                 " INTO ",
+                 tempName,
+                 " FROM data;",
+                 sep = "")
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   if (progressBar) {
     setTxtProgressBar(pb, 1)
     close(pb)
   }
-  mergeTempTables(connection, qname, varNames, tempNames, location, distribution, oracleTempSchema)
+  mergeTempTables(connection, qname, varNames, tempNames, distribution, oracleTempSchema)
 }
 
 is.bigint <- function(x) {

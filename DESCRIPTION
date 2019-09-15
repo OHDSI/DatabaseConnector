@@ -21,7 +21,7 @@ Imports:
     bit,
     ff,
     ffbase (>= 0.12.1),
-    SqlRender (>= 1.6.0),
+    SqlRender (>= 1.6.4),
     methods,
     utils,
     DBI (>= 1.0.0),
