@@ -134,7 +134,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
                                                 FUN = formatRow,
-                                                castValues = attr(connection, "dbms") == "bigquery",
+                                                castValues = attr(connection, "dbms") %in% c("bigquery", "redshift"),
                                                 fts = fts)), 
                            collapse = "\nUNION ALL\nSELECT ")
     }
