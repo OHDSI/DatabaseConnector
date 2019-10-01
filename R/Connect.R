@@ -502,13 +502,6 @@ connect <- function(connectionDetails = NULL,
               connectionString <- paste0(connectionString, ";", extraSettings)
           }
       }
-      writeLines("Connection details are:")
-writeLines(dbms)
-writeLines(user)
-writeLines(password)
-writeLines(connectionString)
-writeLines(pathToDriver)
-writeLines(jarPath)    
       connection <- connectUsingJdbcDriver(driver,
       connectionString,
       user = user,
