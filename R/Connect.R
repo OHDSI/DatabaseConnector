@@ -493,7 +493,7 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "hive") {
       writeLines("Connecting using Hive driver")
-      jarPath <- findPathToJar("^hive-jdbc-standalone\\.jar$", pathToDriver)
+      jarPath <- findPathToJar("^hive-jdbc\\.jar$", pathToDriver)
       driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
   
       if (missing(connectionString) || is.null(connectionString)) {
