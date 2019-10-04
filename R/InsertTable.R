@@ -353,7 +353,7 @@ insertTable.default <- function(connection,
       ensure_installed("aws.s3")
       .bulkLoadRedshift(connection, qname, data)
     } else if (attr(connection, "dbms") == "pdw") {
-      .bulkLoadPdw(connection, qname, data)
+      .bulkLoadPdw(connection, qname, fts, data)
     }
   } else {
     if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery") && createTable && nrow(data) > 0) {
@@ -489,8 +489,14 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   }
 }
 
-.bulkLoadPdw <- function(connection, qname, data) {
+.bulkLoadPdw <- function(connection, qname, fts, data) {
   start <- Sys.time()
+  # Format integer fields to prevent scientific notation:
+  for (i in 1:ncol(data)) {
+    if (fts[i] %in% c("INTEGER", "BIGINT")) {
+      data[, i] <- format(data[, i], scientific = FALSE)
+    }
+  }
   eol <- "\r\n"
   fileName <- file.path(tempdir(), sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
   write.table(x = data,
