@@ -392,10 +392,11 @@ insertTable <- function(connection,
         if (progressBar) {
           pb <- txtProgressBar(style = 3)
         }
-        batchedInsert <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedInsert",
+        databaseInsert <- rJava::.jnew("org.ohdsi.databaseConnector.DatabaseInsert",
                                       connection@jConnection,
                                       insertSql,
-                                      ncol(data))
+                                      ncol(data),
+                                      attr(connection, "dbms"))
         for (start in seq(1, nrow(data), by = batchSize)) {
           if (progressBar) {
             setTxtProgressBar(pb, start/nrow(data))
@@ -404,22 +405,22 @@ insertTable <- function(connection,
           setColumn <- function(i, start, end) {
             column <- data[start:end, i]
             if (is.integer(column)) {
-              rJava::.jcall(batchedInsert, "V", "setInteger", i, column)
+              rJava::.jcall(databaseInsert, "V", "setInteger", i, column)
             } else if (is.numeric(column)) {
-              rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
+              rJava::.jcall(databaseInsert, "V", "setNumeric", i, column)
             } else if (identical(class(column), c("POSIXct", "POSIXt"))) {
-              rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
+              rJava::.jcall(databaseInsert, "V", "setDateTime", i, as.character(column))
             } else if (class(column) == "Date") {
-              rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
+              rJava::.jcall(databaseInsert, "V", "setDate", i, as.character(column))
             } else if (is.bigint(column)) {
-              rJava::.jcall(batchedInsert, "V", "setBigint", i, as.numeric(column))
+              rJava::.jcall(databaseInsert, "V", "setBigint", i, as.numeric(column))
             } else {
-              rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
+              rJava::.jcall(databaseInsert, "V", "setString", i, as.character(column))
             }
             return(NULL)
           }
           lapply(1:ncol(data), setColumn, start = start, end = end)
-          rJava::.jcall(batchedInsert, "V", "executeBatch")
+          rJava::.jcall(databaseInsert, "V", "execute")
         }
         if (progressBar) {
           setTxtProgressBar(pb, 1)

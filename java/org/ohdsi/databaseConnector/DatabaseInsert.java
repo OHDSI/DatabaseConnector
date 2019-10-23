@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class BatchedInsert {
+public class DatabaseInsert {
 	public static int	INTEGER		= 0;
 	public static int	NUMERIC		= 1;
 	public static int	STRING		= 2;
@@ -20,11 +20,13 @@ public class BatchedInsert {
 	private int			rowCount;
 	private boolean		autoCommit;
 	private String		sql;
+	private String      dbmsType;
 
-	public BatchedInsert(Connection connection, String sql, int columnCount) throws SQLException {
+	public DatabaseInsert(Connection connection, String sql, int columnCount, String dbmsType) throws SQLException {
 		this.connection = connection;
 		this.sql = sql;
 		this.columnCount = columnCount;
+		this.dbmsType = dbmsType;
 		columns = new Object[columnCount];
 		columnTypes = new int[columnCount];
 		autoCommit = connection.getAutoCommit();
@@ -33,7 +35,7 @@ public class BatchedInsert {
 		}
 	}
 
-	public void executeBatch() {
+	public void execute() {
 		for (int i = 0; i < columnCount; i++) {
 			if (columns[i] == null)
 				throw new RuntimeException("Column " + (i + 1) + " not set");
@@ -90,11 +92,17 @@ public class BatchedInsert {
 						else
 							statement.setString(j + 1, value);
 					}
-				}
-				statement.addBatch();
+				}				
+				if ("hive".equalsIgnoreCase(dbmsType)){
+                    statement.execute();
+                } else {
+                    statement.addBatch();
+                }				
 			}
-			statement.executeBatch();
-			connection.commit();
+            if (!"hive".equalsIgnoreCase(dbmsType)){
+                statement.executeBatch();
+			    connection.commit();
+            }
 			statement.close();
 			connection.clearWarnings();
 		} catch (SQLException e) {
