@@ -7,12 +7,10 @@
 #'                             \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
 #'                             \item {"netezza" for IBM Netezza}
 #'                             \item {"bigquery" for Google BigQuery}
+#'                             \item {"sqlite" for SQLite}
 #'                           }
 #'
-#'
-#'
-#'
-#'
+
 #' @param user               The user name used to access the server.
 #' @param password           The password for that user.
 #' @param server             The name of the server.
@@ -27,12 +25,14 @@
 #'                           \code{extraSettings}, and \code{oracleDriver} fields are ignored. If
 #'                           \code{user} and \code{password} are not specified, they are assumed to
 #'                           already be included in the connection string.
-#' @param pathToDriver       Path to the JDBC driver JAR files. Currently only needed for Impala and
-#'                           Netezza. See \link{jdbcDrivers} for details on how to get the drivers.
+#' @param pathToDriver       Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
+#'                           and Netezza. See \link{jdbcDrivers} for details on how to get the drivers.
 #'
 #' @section
 #' DBMS parameter details: Depending on the DBMS, the function arguments have slightly different
-#' interpretations: Oracle:
+#' interpretations: 
+#' 
+#' Oracle:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
 #'   \item \code{password}. The password for that user
@@ -116,6 +116,10 @@
 #'         as "SSLKeyStorePwd=*****")
 #'   \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
 #' }
+#' SQLite:
+#' \itemize{
+#'   \item \code{server}. The path to the SQLIte file
+#' }
 #'
 #' To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 #' driver. Download the .exe from
@@ -123,4 +127,7 @@
 #' run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
 #' sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll
 #' (32-bits), which needs to be moved to location on the system path, for example to
-#' c:/windows/system32.
+#' c:/windows/system32. If you not have write access to any folder in the system path, you can also 
+#' specify the path to the folder containing the dll by setting the environmental variable 
+#' PATH_TO_AUTH_DLL, so for example \code{Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")} Note that the 
+#' environmental variable needs to be set before calling \code{connect} for the first time.

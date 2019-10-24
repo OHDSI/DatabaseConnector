@@ -2,9 +2,11 @@
 % Please edit documentation in R/DatabaseConnector.R
 \name{jdbcDrivers}
 \alias{jdbcDrivers}
-\title{How to download JDBC drivers for the various data platforms.}
+\title{How to download and use JDBC drivers for the various data platforms.}
 \description{
-How to download JDBC drivers for the various data platforms.
+Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
+use the \code{pathToDriver} argument in the \code{\link{connect}} or \code{\link{createConnectionDetails}}
+functions to point to the driver.
 }
 \section{PostgresSql}{
  Go to \href{https://jdbc.postgresql.org/download.html}{the PostgresSQL JDBC site} and
@@ -21,7 +23,7 @@ something like 'ojdbc7.jar'.
 \section{SQL Server and PDW}{
  Go to \href{https://www.microsoft.com/en-us/download/details.aspx?id=11774}{the
 Microsoft SQL Server JDBC site}, click 'Download' and select the tar.gz file. Click 'Next' to start
-the download. Decompress the file and find a file called seomthing like 'sqljdbc41.jar' in the a
+the download. Decompress the file and find a file called something like 'sqljdbc41.jar' in the a
 folder named something like 'sqljdbc_6.0/enu/jre7'.
 }
 

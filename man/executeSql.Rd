@@ -6,7 +6,7 @@
 \usage{
 executeSql(connection, sql, profile = FALSE, progressBar = TRUE,
   reportOverallTime = TRUE, errorReportFile = file.path(getwd(),
-  "errorReport.txt"))
+  "errorReport.txt"), runAsBatch = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
@@ -24,6 +24,12 @@ all statements.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
 'errorReport.txt' in the current working directory.}
+
+\item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and 
+executed there. This will be faster if you have many small SQL statements, but
+there will be no progress bar, and no per-statement error messages. If the 
+database platform does not support batched updates the query is executed without
+batching.}
 }
 \description{
 This function executes SQL consisting of one or more statements.
@@ -37,7 +43,7 @@ shown to aid in detecting performance issues.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "mysql",
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost",
                                              user = "root",
                                              password = "blah",

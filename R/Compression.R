@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Compress files and/or foldes into a single zip file
+#' Compress files and/or folders into a single zip file
 #' 
 #' @details 
 #' Uses Java's compression library to create a zip file. It is similar to \code{utils::zip}, except

@@ -135,16 +135,19 @@ dbDisconnect(conn)
 
 
 # Test Redshift -----------------------
-connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             server = paste0(Sys.getenv("REDSHIFT_SERVER"),
-                                                             "/jmdc"),
-                                             user = Sys.getenv("REDSHIFT_USER"),
-                                             password = Sys.getenv("REDSHIFT_PW"),
-                                             extraSettings = "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
+dbms <- "redshift"
+user <- Sys.getenv("redShiftUser")
+pw <- Sys.getenv("redShiftPassword")
+connectionString <- Sys.getenv("jmdcRedShiftConnectionString")
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
+                                                                connectionString = connectionString,
+                                                                user = user,
+                                                                password = pw)
+
 conn <- connect(connectionDetails)
 querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm")
-executeSql(conn, "CREATE TABLE scratch.test (x INT)")
+renderTranslateExecuteSql(conn, "CREATE TABLE #test (x INT); INSERT INTO #test (x) SELECT 1; TRUNCATE TABLE #test; DROP TABLE #test;")
 
 person <- querySql.ffdf(conn, "SELECT * FROM person")
 data <- data.frame(id = c(1, 2, 3),
@@ -156,7 +159,7 @@ insertTable(connection = conn,
             dropTableIfExists = TRUE,
             createTable = TRUE,
             tempTable = TRUE)
-d2 <- querySql(conn, "SELECT * FROM test")
+d2 <- querySql(conn, "SELECT * FROM #test")
 str(d2)
 
 options(fftempdir = "s:/fftemp")
@@ -180,11 +183,9 @@ data <- data.frame(start_date = dayseq,
                    id = makeRandomStrings(length(dayseq)))
 str(data)
 tableName <- "#temp"
-connectionDetails <- createConnectionDetails(dbms = "sql server",
-                                             server = "RNDUSRDHIT06.jnj.com",
-                                             schema = "cdm_hcup")
+data <- data[1:10, ]
 connection <- connect(connectionDetails)
-dbInsertTable(connection, tableName, data, dropTableIfExists = TRUE)
+insertTable(connection, tableName, data, dropTableIfExists = TRUE)
 
 d <- querySql(connection, "SELECT * FROM #temp")
 d <- querySql.ffdf(connection, "SELECT * FROM #temp")
@@ -192,7 +193,7 @@ d <- querySql.ffdf(connection, "SELECT * FROM #temp")
 library(ffbase)
 data <- as.ffdf(data)
 
-dbDisconnect(connection)
+disconnect(connection)
 
 # Test RDS -----------------------
 connectionDetails <- createConnectionDetails(dbms = "sql server",

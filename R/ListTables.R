@@ -1,6 +1,6 @@
 # @file ListTables.R
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -37,6 +37,11 @@
 #'
 #' @export
 getTableNames <- function(connection, databaseSchema) {
+  if (connection@dbms == 'sqlite') {
+    tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
+    return(toupper(tables))
+  }
+  
   if (is.null(databaseSchema)) {
     database <- rJava::.jnull("java/lang/String")
     schema <- rJava::.jnull("java/lang/String")

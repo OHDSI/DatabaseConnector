@@ -9,9 +9,13 @@ test_that("Fetch results", {
   # Fetch data.frame:
   count <- querySql(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 58)
+  count <- renderTranslateQuerySql(connection, "SELECT COUNT(*) FROM vocabulary")
+  expect_equal(count[1, 1], 58)
 
   # Fetch ffdf:
   count <- querySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
+  expect_equal(count[1, 1], 58)
+  count <- renderTranslateQuerySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 58)
 
   disconnect(connection)
@@ -24,9 +28,13 @@ test_that("Fetch results", {
   # Fetch data.frame:
   count <- querySql(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 71)
-
+  count <- renderTranslateQuerySql(connection, "SELECT COUNT(*) FROM vocabulary")
+  expect_equal(count[1, 1], 71)
+  
   # Fetch ffdf:
   count <- querySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
+  expect_equal(count[1, 1], 71)
+  count <- renderTranslateQuerySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 71)
 
   disconnect(connection)
@@ -39,9 +47,13 @@ test_that("Fetch results", {
   # Fetch data.frame:
   count <- querySql(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 71)
-
+  count <- renderTranslateQuerySql(connection, "SELECT COUNT(*) FROM vocabulary")
+  expect_equal(count[1, 1], 71)
+  
   # Fetch ffdf:
   count <- querySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
+  expect_equal(count[1, 1], 71)
+  count <- renderTranslateQuerySql.ffdf(connection, "SELECT COUNT(*) FROM vocabulary")
   expect_equal(count[1, 1], 71)
 
   disconnect(connection)

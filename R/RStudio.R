@@ -1,6 +1,6 @@
 # @file RStudio.R
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -79,6 +79,14 @@ listDatabaseConnectorColumns <- function(connection,
                                          schema = NULL,
                                          table = NULL,
                                          ...) {
+  UseMethod("listDatabaseConnectorColumns", connection) 
+}
+
+listDatabaseConnectorColumns.default <- function(connection,
+                                                 catalog = NULL,
+                                                 schema = NULL,
+                                                 table = NULL,
+                                                 ...) {
   if (connection@dbms == "oracle") {
     table <- toupper(table)
     if (!is.null(catalog)) {
@@ -87,7 +95,6 @@ listDatabaseConnectorColumns <- function(connection,
     if (!is.null(schema)) {
       schema <- toupper(schema)
     }
-    
   } else {
     table <- tolower(table)
     if (!is.null(catalog)) {
@@ -120,7 +127,18 @@ listDatabaseConnectorColumns <- function(connection,
   return(data.frame(name = fields, type = types, stringsAsFactors = FALSE))
 }
 
-
+listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connection,
+                                                                        catalog = NULL,
+                                                                        schema = NULL,
+                                                                        table = NULL,
+                                                                        ...) {
+  res <- DBI::dbSendQuery(connection@dbiConnection, sprintf("SELECT * FROM %s LIMIT 0;", table))
+  info <- dbColumnInfo(res) 
+  dbClearResult(res)
+  info$type[grepl("DATE$", info$name)] <- "date"
+  info$type[grepl("DATETIME$", info$name)] <- "datetime"
+  return(info)
+}
 
 listDatabaseConnectorObjects <- function(connection, catalog = NULL, schema = NULL, ...) {
   if (is.null(catalog) && hasCatalogs(connection)) {
@@ -135,15 +153,15 @@ listDatabaseConnectorObjects <- function(connection, catalog = NULL, schema = NU
                       type = rep("schema", times = length(schemas)),
                       stringsAsFactors = FALSE))
   }
-  if (!hasCatalogs(connection) || connection@dbms %in% c("postgresql", "redshift")) {
+  if (!hasCatalogs(connection) || connection@dbms %in% c("postgresql", "redshift", "sqlite")) {
     databaseSchema <- schema
   } else {
     databaseSchema <- paste(catalog, schema, sep = ".")
   }
   tables <- getTableNames(connection, databaseSchema)
-  return(data.frame(name = tables, type = rep("table",
-                                              times = length(tables)), stringsAsFactors = FALSE))
-  
+  return(data.frame(name = tables, 
+                    type = rep("table", times = length(tables)), 
+                    stringsAsFactors = FALSE))
 }
 
 listDatabaseConnectorObjectTypes <- function(connection) {
@@ -162,8 +180,8 @@ previewObject <- function(connection, rowLimit, catalog = NULL, table = NULL, sc
     databaseSchema <- paste(catalog, schema, sep = ".")
   }
   sql <- "SELECT TOP 1000 * FROM @databaseSchema.@table;"
-  sql <- SqlRender::renderSql(sql = sql, databaseSchema = databaseSchema, table = table)$sql
-  sql <- SqlRender::translateSql(sql = sql, targetDialect = connection@dbms)$sql
+  sql <- SqlRender::render(sql = sql, databaseSchema = databaseSchema, table = table)
+  sql <- SqlRender::translate(sql = sql, targetDialect = connection@dbms)
   querySql(connection, sql)
 }
 
@@ -174,6 +192,10 @@ connectionActions <- function(connection) {
 }
 
 getServer <- function(connection) {
+  UseMethod("getServer", connection)
+}
+
+getServer.default <- function(connection) {
   databaseMetaData <- rJava::.jcall(connection@jConnection,
                                     "Ljava/sql/DatabaseMetaData;",
                                     "getMetaData")
@@ -182,20 +204,38 @@ getServer <- function(connection) {
   return(server)
 }
 
+getServer.DatabaseConnectorDbiConnection <- function(connection) {
+  return(connection@server)
+}
+
 compileReconnectCode <- function(connection) {
+  UseMethod("compileReconnectCode", connection)
+}
+
+compileReconnectCode.default <- function(connection) {
   databaseMetaData <- rJava::.jcall(connection@jConnection,
                                     "Ljava/sql/DatabaseMetaData;",
                                     "getMetaData")
   url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
   user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
-  code <- sprintf("con <- library(DatabaseConnector)\nconnect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
+  code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
                   connection@dbms,
                   url,
                   user)
   return(code)
 }
 
+compileReconnectCode.DatabaseConnectorDbiConnection <- function(connection) {
+  code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"sqlite\", server = \"%s\")", 
+                  connection@server)
+  return(code)
+}
+
 getSchemaNames <- function(conn, catalog = NULL) {
+  UseMethod("getSchemaNames", conn)
+}
+
+getSchemaNames.default <- function(conn, catalog = NULL) {
   if (is.null(catalog))
     catalog <- rJava::.jnull("java/lang/String")
   metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
@@ -213,6 +253,10 @@ getSchemaNames <- function(conn, catalog = NULL) {
     }
   }
   return(schemas)
+}
+
+getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) {
+  return("main")
 }
 
 getCatalogs <- function(conn) {

@@ -1,6 +1,6 @@
 # @file PackageMaintenance
 #
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -34,6 +34,8 @@ rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
 pkgdown::build_site()
 
 # Release package:
+devtools::spell_check()
+
 devtools::check_win_devel()
 
 devtools::check_rhub()
