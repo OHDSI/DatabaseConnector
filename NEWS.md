@@ -1,3 +1,11 @@
+DatabaseConnector 2.4.2
+=======================
+
+Changes:
+
+1. BigQuery insertTable now also uses CTAS hack for improved speed.
+
+
 DatabaseConnector 2.4.1
 =======================
 

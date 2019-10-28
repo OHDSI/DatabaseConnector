@@ -145,20 +145,23 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 password = pw)
 
 conn <- connect(connectionDetails)
-querySql(conn, "SELECT COUNT(*) FROM person")
+# querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm")
 renderTranslateExecuteSql(conn, "CREATE TABLE #test (x INT); INSERT INTO #test (x) SELECT 1; TRUNCATE TABLE #test; DROP TABLE #test;")
 
 person <- querySql.ffdf(conn, "SELECT * FROM person")
-data <- data.frame(id = c(1, 2, 3),
-                   date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
-                   text = c("asdf", "asdf", "asdf"))
+data <- data.frame(person_id = c(1, 2, 3),
+                   start_date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
+                   some_text = c("asdf", "asdf", "asdf"))
+system.time(
 insertTable(connection = conn,
-            tableName = "test",
+            tableName = "#test",
             data = data,
             dropTableIfExists = TRUE,
             createTable = TRUE,
-            tempTable = TRUE)
+            tempTable = TRUE,
+            useMppBulkLoad = F)
+)
 d2 <- querySql(conn, "SELECT * FROM #test")
 str(d2)
 
@@ -369,12 +372,13 @@ data <- data[1:10000, ]
 
 system.time(
   insertTable(connection = conn,
-              tableName = "scratch_mschuemi.insert_test",
+              tableName = "scratch.dbo.insert_test",
               data = data,
               dropTableIfExists = TRUE,
               createTable = TRUE,
               tempTable = FALSE,
-              progressBar = TRUE)
+              progressBar = TRUE,
+              useMppBulkLoad = FALSE)
 )
 
 # 100 rows:
@@ -400,5 +404,12 @@ system.time(
 # 4.72    0.36 1703.59 
 
 data2 <- querySql(conn, "SELECT * FROM scratch_mschuemi.insert_test;")
+
+disconnect(conn)
+
+# Eunomia -----------------------------------------------------
+
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+conn <- connect(connectionDetails)
 
 disconnect(conn)
