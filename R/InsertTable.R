@@ -91,11 +91,11 @@ castValues <- function(values, fts) {
         sep = "")
 }
 
-formatRow <- function(data, castValues, fts) {
+formatRow <- function(data, aliases = c(), castValues, fts) {
   if (castValues) {
     data <- castValues(data, fts)
   }
-  return(paste(data, collapse = ","))
+  return(paste(data, aliases, collapse = ","))
 }
 
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema) {
@@ -125,16 +125,18 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
-    batch <- toStrings(data[start:end, , drop = FALSE], fts)    
+    batch <- toStrings(data[start:end, , drop = FALSE], fts)
 
+    varAliases <- strsplit(varNames, ",")[[1]]
     # First line gets type information:
-    valueString <- formatRow(batch[1, , drop = FALSE], castValues = TRUE, fts = fts)
+    valueString <- formatRow(batch[1, , drop = FALSE], varAliases, castValues = TRUE, fts = fts)
     if (end > start) {
       # Other lines only get type information if BigQuery:
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
                                                 FUN = formatRow,
-                                                castValues = attr(connection, "dbms") == "bigquery",
+                                                aliases = varAliases,
+                                                castValues = attr(connection, "dbms") %in% c("bigquery", "hive"),
                                                 fts = fts)), 
                            collapse = "\nUNION ALL\nSELECT ")
     }
@@ -323,7 +325,7 @@ insertTable.default <- function(connection,
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
-  
+
   if (dropTableIfExists) {
     if (tempTable) {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -354,9 +356,11 @@ insertTable.default <- function(connection,
       .bulkLoadRedshift(connection, qname, data)
     } else if (attr(connection, "dbms") == "pdw") {
       .bulkLoadPdw(connection, qname, fts, data)
+    } else if (attr(connection, "dbms") == "hive") {
+      .bulkLoadHive(connection, qname, data)
     }
   } else {
-    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery") && createTable && nrow(data) > 0) {
+    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema)
     } else {
       if (createTable) {
@@ -484,6 +488,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       warning("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
+  } else if (attr(connection, "dbms") == "hive") {
+    return(TRUE)
   } else {
     return(FALSE)
   }
@@ -595,6 +601,23 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
     try(aws.s3::delete_object(object = sprintf("%s.gz", fileName),
                               bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
+  })
+}
+
+.bulkLoadHive <- function(connection, qname, data) {
+  start <- Sys.time()
+  fileName <- file.path(tempdir(), sprintf("hive_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
+  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE)
+  sql <- SqlRender::render("LOAD DATA LOCAL INPATH '@filename' OVERWRITE INTO TABLE @table;", filename = fileName,
+    table = qname)
+  tryCatch({
+    DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
+    delta <- Sys.time() - start
+    writeLines(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
+  }, error = function(e) {
+    stop("Error in Hive bulk upload.")
+  }, finally = {
+    try(file.remove(fileName, silent = TRUE))
   })
 }
 
