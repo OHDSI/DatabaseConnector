@@ -3,7 +3,13 @@ DatabaseConnector 2.4.2
 
 Changes:
 
-1. BigQuery insertTable now also uses CTAS hack for improved speed.
+1. BigQuery insertTable now also uses CTAS hack for improved speed and avoiding insert size limitations.
+
+Bugfixes:
+
+1. Preventing scientific notation when bulk uploading to PDW to avoid error.
+
+2. Fixing null error when calling getSchemaNames for BigQuery.
 
 
 DatabaseConnector 2.4.1

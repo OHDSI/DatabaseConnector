@@ -30,7 +30,7 @@ all statements.}
 executed there. This will be faster if you have many small SQL statements, but
 there will be no progress bar, and no per-statement error messages. If the 
 database platform does not support batched updates the query is executed as 
-ordinally.}
+ordinarily.}
 
 \item{oracleTempSchema}{A schema that can be used to create temp tables in when using Oracle or Impala.}
 

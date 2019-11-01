@@ -20,6 +20,7 @@
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
+devtools::spell_check()
 
 # Create manual:
 shell("rm extras/DatabaseConnector.pdf")
@@ -34,8 +35,6 @@ rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
 pkgdown::build_site()
 
 # Release package:
-devtools::spell_check()
-
 devtools::check_win_devel()
 
 devtools::check_rhub()
