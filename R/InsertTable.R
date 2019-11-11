@@ -339,7 +339,7 @@ insertTable.default <- function(connection,
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   
-  if (createTable && !tempTable && useMppBulkLoad) {
+  if (createTable && (!tempTable || attr(connection, "dbms") == "hive") && useMppBulkLoad) {
     ensure_installed("uuid")
     ensure_installed("R.utils")
     ensure_installed("urltools")
@@ -664,6 +664,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     fdef <- paste(sapply(varNames, def), collapse = ", ")
     sql <- SqlRender::render("CREATE EXTERNAL TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
       filename = hadoopDir, table = qname, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
+    sql <- SqlRender::translate(sql, targetDialect = "hive", oracleTempSchema = NULL)
   
     tryCatch({
       DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
