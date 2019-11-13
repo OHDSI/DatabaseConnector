@@ -662,7 +662,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       return(paste(name, "STRING"))
     }
     fdef <- paste(sapply(varNames, def), collapse = ", ")
-    sql <- SqlRender::render("CREATE EXTERNAL TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
+    sql <- SqlRender::render("CREATE TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
       filename = hadoopDir, table = qname, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
     sql <- SqlRender::translate(sql, targetDialect = "hive", oracleTempSchema = NULL)
   
