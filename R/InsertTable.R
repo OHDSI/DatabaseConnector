@@ -274,7 +274,7 @@ insertTable.default <- function(connection,
     tempTable <- TRUE
     warning("Temp table name detected, setting tempTable parameter to TRUE")
   }
-  if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
+  if (toupper(Sys.getenv("USE_MPP_BULK_LOAD")) == "TRUE") {
     useMppBulkLoad <- TRUE
   }
   if (dropTableIfExists)
@@ -674,7 +674,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       writeLines(paste("Error:", e))
       stop("Error in Hive bulk upload.")
     }, finally = {
-      try(file.remove(filePath, silent = TRUE))
+      try(invisible(file.remove(filePath)))
     })
   }, finally = {
     ssh_disconnect(session)
