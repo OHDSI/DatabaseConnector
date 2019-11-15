@@ -39,10 +39,11 @@ Supported database platforms:
 * Google BigQuery
 * IBM Netezza
 * SQLite
+* Spark
 
-# Obtaining drivers for BigQuery, Netezza and Impala
+# Obtaining drivers for BigQuery, Netezza, Impala, and Spark
 
-The package already contains most drivers, but because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. Type
+The package already contains most drivers, but because of licensing reasons the drivers for BigQuery, Netezza, Impala, and Spark are not included but must be obtained by the user. Type
 
 ```{r eval=FALSE}
 ?jdbcDrivers
@@ -99,9 +100,9 @@ conn <- connect(details)
 writeLines("Connecting using PostgreSQL driver")
 ```
 
-## Specifying the driver location for BigQuery, Netezza and Impala
+## Specifying the driver location for BigQuery, Netezza, Impala, and Spark
 
-For BigQuery, Netezza and Impala the drivers are not included in the `DatabaseConnector` package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the `pathToDriver` argument:
+For BigQuery, Netezza, Impala,and Spark the drivers are not included in the `DatabaseConnector` package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the `pathToDriver` argument:
 
 ```{r eval=FALSE}
 details <- createConnectionDetails(dbms = "netezza",

@@ -165,6 +165,7 @@ function:</p><ul>
 <li><p>"netezza" for IBM Netezza</p></li>
 <li><p>"bigquery" for Google BigQuery</p></li>
 <li><p>"sqlite" for SQLite</p></li>
+<li><p>"spark" for Spark</p></li>
 </ul></td>
     </tr>
     <tr>
@@ -207,8 +208,8 @@ already be included in the connection string.</p></td>
     </tr>
     <tr>
       <th>pathToDriver</th>
-      <td><p>Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
-and Netezza. See <a href='jdbcDrivers.html'>jdbcDrivers</a> for details on how to get the drivers.</p></td>
+      <td><p>Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala, 
+Netezza, and Spark. See <a href='jdbcDrivers.html'>jdbcDrivers</a> for details on how to get the drivers.</p></td>
     </tr>
     </table>
 
@@ -297,6 +298,16 @@ interpretations:</p>
 <li><p><code>server</code>. The path to the SQLIte file</p></li>
 </ul>
 
+<p>Spark:</p><ul>
+<li><p><code>user</code>. The user name used to access the server. If using a token, then simply use "token"</p></li>
+<li><p><code>password</code>. The password for that user</p></li>
+<li><p><code>server</code>. The host name of the server</p></li>
+<li><p><code>port</code>. Specifies the port on the server (default = 443)</p></li>
+<li><p><code>schema</code>. The database containing the tables</p></li>
+<li><p><code>extraSettings</code> The configuration settings for the connection (i.e. transportMode, ssl, httpPath, AuthMech")</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the Spark JDBC driver JAR files.</p></li>
+</ul>
+
 <p>To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 driver. Download the .exe from
 <a href='http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774'>Microsoft</a> and
@@ -318,7 +329,7 @@ environmental variable needs to be set before calling <code>connect</code> for t
 <span class='fu'>dbGetQuery</span>(<span class='no'>conn</span>, <span class='st'>"SELECT COUNT(*) FROM person"</span>)
 <span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
 
-<span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'>connect</span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"sql server"</span>, <span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"RNDUSRDHIT06.jnj.com"</span>, <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"Vocabulary"</span>)
+<span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'>connect</span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"sql server"</span>, <span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"sqlServerHost"</span>, <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"Vocabulary"</span>)
 <span class='fu'>dbGetQuery</span>(<span class='no'>conn</span>, <span class='st'>"SELECT COUNT(*) FROM concept"</span>)
 <span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
 
@@ -332,7 +343,7 @@ environmental variable needs to be set before calling <code>connect</code> for t
 <span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
 
 <span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'>connect</span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"postgresql"</span>,
-                <span class='kw'>connectionString</span> <span class='kw'>=</span> <span class='st'>"jdbc:postgresql://127.0.0.1:5432/cmd_database"</span>)
+                <span class='kw'>connectionString</span> <span class='kw'>=</span> <span class='st'>"jdbc:postgresql://127.0.0.1:5432/cdm_database"</span>)
 <span class='fu'>dbGetQuery</span>(<span class='no'>conn</span>, <span class='st'>"SELECT COUNT(*) FROM person"</span>)
 <span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
 

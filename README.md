@@ -24,6 +24,7 @@ Features
   - Google BigQuery
   - IBM Netezza
   - SQLite
+  - Spark
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
@@ -101,7 +102,7 @@ devtools::install_github("ohdsi/DatabaseConnectorJars")
 devtools::install_github("ohdsi/DatabaseConnector")
 ```
 
-To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see [these instructions](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html).
+To download and use the JDBC drivers for BigQuery, Impala, Netezza, or Spark, see [these instructions](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html).
 
 User Documentation
 ==================

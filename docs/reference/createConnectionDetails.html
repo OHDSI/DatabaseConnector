@@ -158,6 +158,7 @@ database. There are three ways to call this function:</p><ul>
 <li><p>"netezza" for IBM Netezza</p></li>
 <li><p>"bigquery" for Google BigQuery</p></li>
 <li><p>"sqlite" for SQLite</p></li>
+<li><p>"spark" for Spark</p></li>
 </ul></td>
     </tr>
     <tr>
@@ -200,8 +201,8 @@ already be included in the connection string.</p></td>
     </tr>
     <tr>
       <th>pathToDriver</th>
-      <td><p>Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
-and Netezza. See <a href='jdbcDrivers.html'>jdbcDrivers</a> for details on how to get the drivers.</p></td>
+      <td><p>Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala, 
+Netezza, and Spark. See <a href='jdbcDrivers.html'>jdbcDrivers</a> for details on how to get the drivers.</p></td>
     </tr>
     </table>
 
@@ -288,6 +289,16 @@ interpretations:</p>
 <li><p><code>pathToDriver</code> The path to the folder containing the Impala JDBC driver JAR files.</p></li>
 </ul><p>SQLite:</p><ul>
 <li><p><code>server</code>. The path to the SQLIte file</p></li>
+</ul>
+
+<p>Spark:</p><ul>
+<li><p><code>user</code>. The user name used to access the server. If using a token, then simply use "token"</p></li>
+<li><p><code>password</code>. The password for that user</p></li>
+<li><p><code>server</code>. The host name of the server</p></li>
+<li><p><code>port</code>. Specifies the port on the server (default = 443)</p></li>
+<li><p><code>schema</code>. The database containing the tables</p></li>
+<li><p><code>extraSettings</code> The configuration settings for the connection (i.e. transportMode, ssl, httpPath, AuthMech")</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the Spark JDBC driver JAR files.</p></li>
 </ul>
 
 <p>To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC

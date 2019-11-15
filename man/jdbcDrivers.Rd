@@ -51,3 +51,8 @@ download the latest JDBC driver. Unzip the file, and locate the appropriate jar 
 your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 }
 
+\section{Spark}{
+ Go to \href{https://www.simba.com/drivers/spark-jdbc-odbc/}{Simba Spark site} and 
+download the latest JDBC driver (license may be required).
+}
+

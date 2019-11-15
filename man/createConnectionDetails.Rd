@@ -14,6 +14,7 @@
   \item {"netezza" for IBM Netezza}
   \item {"bigquery" for Google BigQuery}
   \item {"sqlite" for SQLite}
+  \item {"spark" for Spark}
 }}
 
 \item{user}{The user name used to access the server.}
@@ -38,8 +39,8 @@ or \code{"oci"}.}
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
 
-\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
-and Netezza. See \link{jdbcDrivers} for details on how to get the drivers.}
+\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala, 
+Netezza, and Spark. See \link{jdbcDrivers} for details on how to get the drivers.}
 }
 \value{
 A list with all the details needed to connect to a database.
@@ -149,6 +150,18 @@ Impala:
 SQLite:
 \itemize{
   \item \code{server}. The path to the SQLIte file
+}
+
+Spark:
+\itemize{
+  \item \code{user}. The user name used to access the server. If using a token, then simply use "token"
+  \item \code{password}. The password for that user
+  \item \code{server}. The host name of the server
+  \item \code{port}. Specifies the port on the server (default = 443)
+  \item \code{schema}. The database containing the tables
+  \item \code{extraSettings} The configuration settings for the connection (i.e. transportMode, ssl, httpPath, AuthMech")
+  \item \code{pathToDriver} The path to the folder containing the Spark JDBC driver JAR files.
+
 }
 
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC

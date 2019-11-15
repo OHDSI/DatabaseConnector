@@ -95,6 +95,7 @@ loadJdbcDriver <- function(driverClass, classPath) {
 # Singleton pattern to ensure driver is instantiated only once
 getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
   key <- paste(driverClass, classPath)
+  
   if (key %in% ls(jdbcDrivers)) {
     driver <- get(key, jdbcDrivers)
     if (rJava::is.jnull(driver)) {
@@ -168,7 +169,7 @@ findPathToJar <- function(name, pathToDriver) {
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #'
-#' conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com", schema = "Vocabulary")
+#' conn <- connect(dbms = "sql server", server = "sqlServerHost", schema = "Vocabulary")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
 #' disconnect(conn)
 #'
@@ -182,7 +183,7 @@ findPathToJar <- function(name, pathToDriver) {
 #' disconnect(conn)
 #'
 #' conn <- connect(dbms = "postgresql",
-#'                 connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
+#'                 connectionString = "jdbc:postgresql://127.0.0.1:5432/cdm_database")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #'
@@ -522,6 +523,41 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "spark") {
+    writeLines("Connecting using Spark driver")
+    jarPath <- findPathToJar("^SparkJDBC.*\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.simba.spark.jdbc41.Driver", jarPath)
+    
+    if (missing(connectionString) || is.null(connectionString)) {
+      
+      if (!grepl("/", server))
+        stop("Error: database name not included in server string but is required for Spark. Please specify server as <host>/<database>")
+      parts <- unlist(strsplit(server, "/"))
+      host <- parts[1]
+      database <- parts[2]
+      if (missing(port) || is.null(port)) {
+        port <- "443"
+      }
+      connectionString <- paste("jdbc:spark://", host, ":", port, "/", database, sep = "")
+      
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
+        connectionString <- sprintf("%s;%s", connectionString,
+                                    paste(names(extraSettings), extraSettings, sep = "=", collapse=";"))
+      }
+      
+      connectionString <- sprintf("%s;UID=%s;PWD=%s", connectionString, user, password)
+    }
+    
+    connection <- connectUsingJdbcDriver(driver,
+                                         connectionString,
+                                         dbms = dbms)
+    
+    if (!missing(schema) && !is.null(schema)) {
+      lowLevelExecuteSql(connection, paste("USE", schema))
+    }
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
 }
 
 connectUsingJdbcDriver <- function(jdbcDriver,
@@ -557,7 +593,9 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
-  registerWithRStudio(connection)
+  if (dbms != "spark") {
+    registerWithRStudio(connection)  
+  }
   return(connection)
 }
 
@@ -604,7 +642,8 @@ disconnect.default <- function(connection) {
   if (rJava::is.jnull(connection@jConnection)) {
     warning("Connection is already closed")
   } else {
-    unregisterWithRStudio(connection)
+    tryCatch(unregisterWithRStudio(connection), 
+             error = function(e) warning("Cannot unregister connection from RStudio"))
   }
   rJava::.jcall(connection@jConnection, "V", "close")
   invisible(TRUE)

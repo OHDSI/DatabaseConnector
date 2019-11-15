@@ -85,7 +85,7 @@
       <h1>Using DatabaseConnector</h1>
                         <h4 class="author">Martijn J. Schuemie</h4>
             
-            <h4 class="date">2019-11-01</h4>
+            <h4 class="date">2019-11-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/master/vignettes/UsingDatabaseConnector.Rmd"><code>vignettes/UsingDatabaseConnector.Rmd</code></a></small>
       <div class="hidden name"><code>UsingDatabaseConnector.Rmd</code></div>
@@ -109,53 +109,54 @@
 <li>Google BigQuery</li>
 <li>IBM Netezza</li>
 <li>SQLite</li>
+<li>Spark</li>
 </ul>
 </div>
-<div id="obtaining-drivers-for-bigquery-netezza-and-impala" class="section level1">
+<div id="obtaining-drivers-for-bigquery-netezza-impala-and-spark" class="section level1">
 <h1 class="hasAnchor">
-<a href="#obtaining-drivers-for-bigquery-netezza-and-impala" class="anchor"></a>Obtaining drivers for BigQuery, Netezza and Impala</h1>
-<p>The package already contains most drivers, but because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. Type</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>?jdbcDrivers</span></code></pre></div>
+<a href="#obtaining-drivers-for-bigquery-netezza-impala-and-spark" class="anchor"></a>Obtaining drivers for BigQuery, Netezza, Impala, and Spark</h1>
+<p>The package already contains most drivers, but because of licensing reasons the drivers for BigQuery, Netezza, Impala, and Spark are not included but must be obtained by the user. Type</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">?jdbcDrivers</a></code></pre></div>
 <p>for instructions on how to download these drivers. Once downloaded, you can use the <code>pathToDriver</code> argument of the <code>connect</code>, <code>dbConnect</code>, and <code>createConnectionDetails</code> functions.</p>
 </div>
 <div id="creating-a-connection" class="section level1">
 <h1 class="hasAnchor">
 <a href="#creating-a-connection" class="anchor"></a>Creating a connection</h1>
 <p>To connect to a database a number of details need to be specified, such as the database platform, the location of the server, the user name, and password. We can call the <code>connect</code> function and specify these details directly:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(<span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</span>
-<span id="cb2-2"><a href="#cb2-2"></a>                <span class="dt">server =</span> <span class="st">"localhost/postgres"</span>,</span>
-<span id="cb2-3"><a href="#cb2-3"></a>                <span class="dt">user =</span> <span class="st">"joe"</span>,</span>
-<span id="cb2-4"><a href="#cb2-4"></a>                <span class="dt">password =</span> <span class="st">"secret"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5"></a>                <span class="dt">schema =</span> <span class="st">"cdm"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(<span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</a>
+<a class="sourceLine" id="cb2-2" title="2">                <span class="dt">server =</span> <span class="st">"localhost/postgres"</span>,</a>
+<a class="sourceLine" id="cb2-3" title="3">                <span class="dt">user =</span> <span class="st">"joe"</span>,</a>
+<a class="sourceLine" id="cb2-4" title="4">                <span class="dt">password =</span> <span class="st">"secret"</span>,</a>
+<a class="sourceLine" id="cb2-5" title="5">                <span class="dt">schema =</span> <span class="st">"cdm"</span>)</a></code></pre></div>
 <pre><code>#&gt; Connecting using PostgreSQL driver</code></pre>
 <p>See <code><a href="../reference/connect.html">?connect</a></code> for information on which details are required for each platform. Don’t forget to close any connection afterwards:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="../reference/disconnect.html">disconnect</a></span>(conn)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw"><a href="../reference/disconnect.html">disconnect</a></span>(conn)</a></code></pre></div>
 <p>Note that, instead of providing the server name, it is also possible to provide the JDBC connection string if this is more convenient:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(<span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</span>
-<span id="cb5-2"><a href="#cb5-2"></a>                <span class="dt">connectionString =</span> <span class="st">"jdbc:postgresql://localhost:5432/postgres"</span>,</span>
-<span id="cb5-3"><a href="#cb5-3"></a>                <span class="dt">user =</span> <span class="st">"joe"</span>,</span>
-<span id="cb5-4"><a href="#cb5-4"></a>                <span class="dt">password =</span> <span class="st">"secret"</span>,</span>
-<span id="cb5-5"><a href="#cb5-5"></a>                <span class="dt">schema =</span> <span class="st">"cdm"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(<span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</a>
+<a class="sourceLine" id="cb5-2" title="2">                <span class="dt">connectionString =</span> <span class="st">"jdbc:postgresql://localhost:5432/postgres"</span>,</a>
+<a class="sourceLine" id="cb5-3" title="3">                <span class="dt">user =</span> <span class="st">"joe"</span>,</a>
+<a class="sourceLine" id="cb5-4" title="4">                <span class="dt">password =</span> <span class="st">"secret"</span>,</a>
+<a class="sourceLine" id="cb5-5" title="5">                <span class="dt">schema =</span> <span class="st">"cdm"</span>)</a></code></pre></div>
 <pre><code>#&gt; Connecting using PostgreSQL driver</code></pre>
 <p>Sometimes we may want to first specify the connection details, and defer connecting until later. This may be convenient for example when the connection is established inside a function, and the details need to be passed as an argument. We can use the <code>createConnectionDetails</code> function for this purpose:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>details &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</span>
-<span id="cb7-2"><a href="#cb7-2"></a>                                   <span class="dt">server =</span> <span class="st">"localhost/postgres"</span>,</span>
-<span id="cb7-3"><a href="#cb7-3"></a>                                   <span class="dt">user =</span> <span class="st">"joe"</span>,</span>
-<span id="cb7-4"><a href="#cb7-4"></a>                                   <span class="dt">password =</span> <span class="st">"secret"</span>,</span>
-<span id="cb7-5"><a href="#cb7-5"></a>                                   <span class="dt">schema =</span> <span class="st">"cdm"</span>)</span>
-<span id="cb7-6"><a href="#cb7-6"></a>conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(details)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">details &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</a>
+<a class="sourceLine" id="cb7-2" title="2">                                   <span class="dt">server =</span> <span class="st">"localhost/postgres"</span>,</a>
+<a class="sourceLine" id="cb7-3" title="3">                                   <span class="dt">user =</span> <span class="st">"joe"</span>,</a>
+<a class="sourceLine" id="cb7-4" title="4">                                   <span class="dt">password =</span> <span class="st">"secret"</span>,</a>
+<a class="sourceLine" id="cb7-5" title="5">                                   <span class="dt">schema =</span> <span class="st">"cdm"</span>)</a>
+<a class="sourceLine" id="cb7-6" title="6">conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(details)</a></code></pre></div>
 <pre><code>#&gt; Connecting using PostgreSQL driver</code></pre>
-<div id="specifying-the-driver-location-for-bigquery-netezza-and-impala" class="section level2">
+<div id="specifying-the-driver-location-for-bigquery-netezza-impala-and-spark" class="section level2">
 <h2 class="hasAnchor">
-<a href="#specifying-the-driver-location-for-bigquery-netezza-and-impala" class="anchor"></a>Specifying the driver location for BigQuery, Netezza and Impala</h2>
-<p>For BigQuery, Netezza and Impala the drivers are not included in the <code>DatabaseConnector</code> package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the <code>pathToDriver</code> argument:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>details &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms =</span> <span class="st">"netezza"</span>,</span>
-<span id="cb9-2"><a href="#cb9-2"></a>                                   <span class="dt">server =</span> <span class="st">"myserver.com/mainDb"</span>,</span>
-<span id="cb9-3"><a href="#cb9-3"></a>                                   <span class="dt">user =</span> <span class="st">"joe"</span>,</span>
-<span id="cb9-4"><a href="#cb9-4"></a>                                   <span class="dt">password =</span> <span class="st">"secret"</span>,</span>
-<span id="cb9-5"><a href="#cb9-5"></a>                                   <span class="dt">schema =</span> <span class="st">"cdm"</span>,</span>
-<span id="cb9-6"><a href="#cb9-6"></a>                                   <span class="dt">pathToDriver =</span> <span class="st">"c:/temp"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7"></a>conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(details)</span></code></pre></div>
+<a href="#specifying-the-driver-location-for-bigquery-netezza-impala-and-spark" class="anchor"></a>Specifying the driver location for BigQuery, Netezza, Impala, and Spark</h2>
+<p>For BigQuery, Netezza, Impala,and Spark the drivers are not included in the <code>DatabaseConnector</code> package and need to be downloaded separately, as noted earlier. Once downloaded, we can point to the folder containing the jar files using the <code>pathToDriver</code> argument:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">details &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="dt">dbms =</span> <span class="st">"netezza"</span>,</a>
+<a class="sourceLine" id="cb9-2" title="2">                                   <span class="dt">server =</span> <span class="st">"myserver.com/mainDb"</span>,</a>
+<a class="sourceLine" id="cb9-3" title="3">                                   <span class="dt">user =</span> <span class="st">"joe"</span>,</a>
+<a class="sourceLine" id="cb9-4" title="4">                                   <span class="dt">password =</span> <span class="st">"secret"</span>,</a>
+<a class="sourceLine" id="cb9-5" title="5">                                   <span class="dt">schema =</span> <span class="st">"cdm"</span>,</a>
+<a class="sourceLine" id="cb9-6" title="6">                                   <span class="dt">pathToDriver =</span> <span class="st">"c:/temp"</span>)</a>
+<a class="sourceLine" id="cb9-7" title="7">conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(details)</a></code></pre></div>
 <pre><code>#&gt; Connecting using Netezza driver</code></pre>
 </div>
 </div>
@@ -164,27 +165,27 @@
 <a href="#querying" class="anchor"></a>Querying</h1>
 <p>The main functions for querying database are the <code>querySql</code> and <code>executeSql</code> functions. The difference between these functions is that <code>querySql</code> expects data to be returned by the database, and can handle only one SQL statement at a time. In contrast, <code>executeSql</code> does not expect data to be returned, and accepts multiple SQL statements in a single SQL string.</p>
 <p>Some examples:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw"><a href="../reference/querySql.html">querySql</a></span>(conn, <span class="st">"SELECT TOP 3 * FROM person"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw"><a href="../reference/querySql.html">querySql</a></span>(conn, <span class="st">"SELECT TOP 3 * FROM person"</span>)</a></code></pre></div>
 <pre><code>#&gt;   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH
 #&gt; 1         1              8507          1975
 #&gt; 2         2              8507          1976
 #&gt; 3         3              8507          1977</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw"><a href="../reference/executeSql.html">executeSql</a></span>(conn, <span class="st">"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw"><a href="../reference/executeSql.html">executeSql</a></span>(conn, <span class="st">"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"</span>)</a></code></pre></div>
 <p>Both function provide extensive error reporting: When an error is thrown by the server, the error message and the offending piece of SQL are written to a text file to allow better debugging. The <code>executeSql</code> function also by default shows a progress bar, indicating the percentage of SQL statements that has been executed. If those attributes are not desired, the package also offers the <code>lowLevelQuerySql</code> and <code>lowLevelExecuteSql</code> functions.</p>
 <div id="querying-using-ffdf-objects" class="section level2">
 <h2 class="hasAnchor">
 <a href="#querying-using-ffdf-objects" class="anchor"></a>Querying using ffdf objects</h2>
 <p>Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the <code>ff</code> package to store R data objects on file, and use them as if they are available in memory. <code>DatabaseConnector</code> can download data directly into ffdf objects:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>x &lt;-<span class="st"> </span><span class="kw"><a href="../reference/querySql.ffdf.html">querySql.ffdf</a></span>(conn, <span class="st">"SELECT * FROM person"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">x &lt;-<span class="st"> </span><span class="kw"><a href="../reference/querySql.ffdf.html">querySql.ffdf</a></span>(conn, <span class="st">"SELECT * FROM person"</span>)</a></code></pre></div>
 <p>Where x is now an ffdf object.</p>
 </div>
 <div id="querying-different-platforms-using-the-same-sql" class="section level2">
 <h2 class="hasAnchor">
 <a href="#querying-different-platforms-using-the-same-sql" class="anchor"></a>Querying different platforms using the same SQL</h2>
 <p>One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the <a href="https://ohdsi.github.io/SqlRender/">SqlRender package</a> was developed. SqlRender can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the <code>render</code> and <code>translate</code> functions in <code>SqlRender</code>: <code>renderTranslateExecuteSql</code>, <code>renderTranslateQuerySql</code>, <code>renderTranslateQuerySql.ffdf</code>. For example:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>persons &lt;-<span class="st"> </span><span class="kw">renderTranslatequerySql</span>(conn, </span>
-<span id="cb15-2"><a href="#cb15-2"></a>                                   <span class="dt">sql =</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,</span>
-<span id="cb15-3"><a href="#cb15-3"></a>                                   <span class="dt">schema =</span> <span class="st">"cdm_synpuf"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">persons &lt;-<span class="st"> </span><span class="kw">renderTranslatequerySql</span>(conn, </a>
+<a class="sourceLine" id="cb15-2" title="2">                                   <span class="dt">sql =</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,</a>
+<a class="sourceLine" id="cb15-3" title="3">                                   <span class="dt">schema =</span> <span class="st">"cdm_synpuf"</span>)</a></code></pre></div>
 <p>Note that the SQL Server-specific ‘TOP 10’ syntax will be translated to for example ‘LIMIT 10’ on PostgreSQL, and that the SQL parameter <code>@schema</code> will be instantiated with the provided value ‘cdm_synpuf’.</p>
 </div>
 </div>
@@ -192,47 +193,47 @@
 <h1 class="hasAnchor">
 <a href="#inserting-tables" class="anchor"></a>Inserting tables</h1>
 <p>Although it is also possible to insert data in the database by sending SQL statements using the <code>executeSql</code> function, it is often convenient and faster to use the <code>insertTable</code> function:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(mtcars)</span>
-<span id="cb16-2"><a href="#cb16-2"></a><span class="kw"><a href="../reference/insertTable.html">insertTable</a></span>(conn, <span class="st">"mtcars"</span>, mtcars, <span class="dt">createTable =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(mtcars)</a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="kw"><a href="../reference/insertTable.html">insertTable</a></span>(conn, <span class="st">"mtcars"</span>, mtcars, <span class="dt">createTable =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <p>In this example, we’re uploading the mtcars data frame to a table called ‘mtcars’ on the server, that will be automatically created.</p>
 </div>
 <div id="dbi-interface" class="section level1">
 <h1 class="hasAnchor">
 <a href="#dbi-interface" class="anchor"></a>DBI interface</h1>
 <p><code>DatabaseConnector</code> implements the DBI interface for compatibility with other R packages. One can use the DBI functions instead of the ones described before, for example:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>conn &lt;-<span class="st"> </span><span class="kw">dbConnect</span>(<span class="kw"><a href="../reference/DatabaseConnectorDriver.html">DatabaseConnectorDriver</a></span>(), </span>
-<span id="cb17-2"><a href="#cb17-2"></a>                  <span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</span>
-<span id="cb17-3"><a href="#cb17-3"></a>                  <span class="dt">server =</span> <span class="st">"localhost/postgres"</span>,</span>
-<span id="cb17-4"><a href="#cb17-4"></a>                  <span class="dt">user =</span> <span class="st">"joe"</span>,</span>
-<span id="cb17-5"><a href="#cb17-5"></a>                  <span class="dt">password =</span> <span class="st">"secret"</span>,</span>
-<span id="cb17-6"><a href="#cb17-6"></a>                  <span class="dt">schema =</span> <span class="st">"cdm"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">conn &lt;-<span class="st"> </span><span class="kw">dbConnect</span>(<span class="kw"><a href="../reference/DatabaseConnectorDriver.html">DatabaseConnectorDriver</a></span>(), </a>
+<a class="sourceLine" id="cb17-2" title="2">                  <span class="dt">dbms =</span> <span class="st">"postgresql"</span>,</a>
+<a class="sourceLine" id="cb17-3" title="3">                  <span class="dt">server =</span> <span class="st">"localhost/postgres"</span>,</a>
+<a class="sourceLine" id="cb17-4" title="4">                  <span class="dt">user =</span> <span class="st">"joe"</span>,</a>
+<a class="sourceLine" id="cb17-5" title="5">                  <span class="dt">password =</span> <span class="st">"secret"</span>,</a>
+<a class="sourceLine" id="cb17-6" title="6">                  <span class="dt">schema =</span> <span class="st">"cdm"</span>)</a></code></pre></div>
 <pre><code>#&gt; Connecting using PostgreSQL driver</code></pre>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">dbIsValid</span>(conn)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">dbIsValid</span>(conn)</a></code></pre></div>
 <pre><code>#&gt; [1] TRUE</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>res &lt;-<span class="st"> </span><span class="kw">dbSendQuery</span>(conn, <span class="st">"SELECT TOP 3 * FROM person"</span>)</span>
-<span id="cb21-2"><a href="#cb21-2"></a><span class="kw">dbFetch</span>(res)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">res &lt;-<span class="st"> </span><span class="kw">dbSendQuery</span>(conn, <span class="st">"SELECT TOP 3 * FROM person"</span>)</a>
+<a class="sourceLine" id="cb21-2" title="2"><span class="kw">dbFetch</span>(res)</a></code></pre></div>
 <pre><code>#&gt;   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH
 #&gt; 1         1              8507          1975
 #&gt; 2         2              8507          1976
 #&gt; 3         3              8507          1977</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">dbHasCompleted</span>(res)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">dbHasCompleted</span>(res)</a></code></pre></div>
 <pre><code>#&gt; [1] TRUE</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">dbClearResult</span>(res)</span>
-<span id="cb25-2"><a href="#cb25-2"></a><span class="kw">dbDisconnect</span>(res)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">dbClearResult</span>(res)</a>
+<a class="sourceLine" id="cb25-2" title="2"><span class="kw">dbDisconnect</span>(res)</a></code></pre></div>
 </div>
 <div id="sqlite-support" class="section level1">
 <h1 class="hasAnchor">
 <a href="#sqlite-support" class="anchor"></a>SQLite support</h1>
 <p>DatabaseConnector also supports SQLite through the <a href="https://cran.r-project.org/web/packages/RSQLite/index.html">RSQLite package</a>, mainly for testing and demonstration purposes. Provide the path to the SQLite file as the <code>server</code> argument when connecting. If no file exists it will be created:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(<span class="dt">dbms =</span> <span class="st">"sqlite"</span>, <span class="dt">server =</span> <span class="kw"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span>())</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">conn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/connect.html">connect</a></span>(<span class="dt">dbms =</span> <span class="st">"sqlite"</span>, <span class="dt">server =</span> <span class="kw"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span>())</a></code></pre></div>
 <pre><code>#&gt; Connecting using SQLite driver</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># Upload cars dataset as table:</span></span>
-<span id="cb28-2"><a href="#cb28-2"></a><span class="kw"><a href="../reference/insertTable.html">insertTable</a></span>(conn, <span class="st">"cars"</span>, cars)</span>
-<span id="cb28-3"><a href="#cb28-3"></a></span>
-<span id="cb28-4"><a href="#cb28-4"></a><span class="kw"><a href="../reference/querySql.html">querySql</a></span>(conn, <span class="st">"SELECT COUNT(*) FROM cars;"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="co"># Upload cars dataset as table:</span></a>
+<a class="sourceLine" id="cb28-2" title="2"><span class="kw"><a href="../reference/insertTable.html">insertTable</a></span>(conn, <span class="st">"cars"</span>, cars)</a>
+<a class="sourceLine" id="cb28-3" title="3"></a>
+<a class="sourceLine" id="cb28-4" title="4"><span class="kw"><a href="../reference/querySql.html">querySql</a></span>(conn, <span class="st">"SELECT COUNT(*) FROM cars;"</span>)</a></code></pre></div>
 <pre><code>#&gt;   COUNT(*)
 #&gt; 1       50</code></pre>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw"><a href="../reference/disconnect.html">disconnect</a></span>(conn)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw"><a href="../reference/disconnect.html">disconnect</a></span>(conn)</a></code></pre></div>
 </div>
   </div>
 
@@ -243,10 +244,10 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#introduction">Introduction</a></li>
-      <li><a href="#obtaining-drivers-for-bigquery-netezza-and-impala">Obtaining drivers for BigQuery, Netezza and Impala</a></li>
+      <li><a href="#obtaining-drivers-for-bigquery-netezza-impala-and-spark">Obtaining drivers for BigQuery, Netezza, Impala, and Spark</a></li>
       <li>
 <a href="#creating-a-connection">Creating a connection</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#specifying-the-driver-location-for-bigquery-netezza-and-impala">Specifying the driver location for BigQuery, Netezza and Impala</a></li>
+<li><a href="#specifying-the-driver-location-for-bigquery-netezza-impala-and-spark">Specifying the driver location for BigQuery, Netezza, Impala, and Spark</a></li>
       </ul>
 </li>
       <li>
