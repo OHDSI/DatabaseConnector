@@ -676,7 +676,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }, finally = {
       try(invisible(file.remove(filePath)))
     })
-  }
+  })
 }
 
 # Borrowed from devtools:
