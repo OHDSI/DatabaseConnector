@@ -647,16 +647,16 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   hiveKeyFile <- (function(keyfile) if (keyfile == "") NULL else keyfile)(Sys.getenv("HIVE_KEYFILE"))
   hadoopUser <- (function(hadoopUser) if (hadoopUser == "") "hive" else hadoopUser)(Sys.getenv("HADOOP_USER_NAME"))
 
-  session <- ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
-
   tryCatch({
     remoteFile <- paste0("/tmp/", fileName)
-    scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
+    scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, filePath, hiveHost, remoteFile)
+    system(scp_command)
     hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
     hadoopFile <- paste0(hadoopDir, "/", fileName)
-    ssh_exec_wait(session, sprintf("HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hadoopUser, hadoopDir))
-    command <- sprintf("HADOOP_USER_NAME=%s hadoop fs -put %s %s", hadoopUser, remoteFile, hadoopFile)
-    ssh_exec_wait(session, command = command)
+    hdp_mk_dir_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hivePasswd, hiveHost, sshPort, hadoopUser, hadoopDir)
+    system(hdp_mk_dir_command)
+    hdp_put_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -put %s %s", hivePasswd, hiveHost, sshPort, hadoopUser, remoteFile, hadoopFile)
+    system(hdp_put_command)
 
     def <- function(name) {
       return(paste(name, "STRING"))
@@ -676,9 +676,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }, finally = {
       try(invisible(file.remove(filePath)))
     })
-  }, finally = {
-    ssh_disconnect(session)
-  })
+  }
 }
 
 # Borrowed from devtools:
