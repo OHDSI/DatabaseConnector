@@ -361,7 +361,7 @@ insertTable.default <- function(connection,
     } else if (dbms == "pdw") {
       .bulkLoadPdw(connection, qname, fts, data)
     } else if (dbms == "hive") {
-      if (Sys.info()['sysname'] == 'Windows') {
+      if (tolower(Sys.info()["sysname"]) == "windows") {
           ensure_installed("ssh")
       }            
       .bulkLoadHive(connection, qname, strsplit(varNames, ",")[[1]], data)
@@ -496,7 +496,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }
     return(envSet & bucket)
   } else if (attr(connection, "dbms") == "hive") {
-    if (!require("ssh")) {
+    if (tolower(Sys.info()["sysname"]) == "windows" && !require("ssh")) {
       writeLines("Please install ssh package, it's required")
       return(FALSE)
     }
@@ -650,7 +650,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   hadoopUser <- (function(hadoopUser) if (hadoopUser == "") "hive" else hadoopUser)(Sys.getenv("HADOOP_USER_NAME"))
 
     tryCatch({
-    if (Sys.info()['sysname'] == 'Windows') {
+    if (tolower(Sys.info()["sysname"]) == "windows") {
         session <- ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
         remoteFile <- paste0("/tmp/", fileName)
         scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
@@ -689,7 +689,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       try(invisible(file.remove(filePath)))
     })
   }, finally = {
-    if (Sys.info()['sysname'] == 'Windows')
+    if (tolower(Sys.info()["sysname"]) == "windows")
         ssh_disconnect(session)
     })
 }
