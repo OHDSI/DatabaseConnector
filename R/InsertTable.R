@@ -361,7 +361,8 @@ insertTable.default <- function(connection,
     } else if (dbms == "pdw") {
       .bulkLoadPdw(connection, qname, fts, data)
     } else if (dbms == "hive") {
-      ensure_installed("ssh")
+      if (Sys.info()['sysname'] == 'Windows')
+            ensure_installed("ssh")
       .bulkLoadHive(connection, qname, strsplit(varNames, ",")[[1]], data)
     }
   } else {
