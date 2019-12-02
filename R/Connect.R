@@ -593,9 +593,8 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
-  if (dbms != "spark") {
-    registerWithRStudio(connection)  
-  }
+  
+  registerWithRStudio(connection)  
   return(connection)
 }
 
@@ -642,8 +641,7 @@ disconnect.default <- function(connection) {
   if (rJava::is.jnull(connection@jConnection)) {
     warning("Connection is already closed")
   } else {
-    tryCatch(unregisterWithRStudio(connection), 
-             error = function(e) warning("Cannot unregister connection from RStudio"))
+    unregisterWithRStudio(connection)
   }
   rJava::.jcall(connection@jConnection, "V", "close")
   invisible(TRUE)

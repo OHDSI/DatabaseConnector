@@ -71,7 +71,7 @@ unregisterWithRStudio <- function(connection) {
 }
 
 hasCatalogs <- function(connection) {
-  return(connection@dbms %in% c("pdw", "sql server", "postgresql", "redshift"))
+  return(connection@dbms %in% c("pdw", "sql server", "postgresql", "redshift", "spark"))
 }
 
 listDatabaseConnectorColumns <- function(connection,
