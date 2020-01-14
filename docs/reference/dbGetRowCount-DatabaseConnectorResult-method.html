@@ -130,7 +130,7 @@ DatabaseConnector::dbGetRowCount(&quot;DatabaseConnectorResult&quot;)
     </div>
 
     <div class="ref-description">
-    <p>Returns the total number of rows actually fetched with calls to <code>dbFetch()</code>
+    <p>Returns the total number of rows actually fetched with calls to <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code>
 for this result set.</p>
 <p><h3>Methods in other packages</h3><ul>
 <li><p><code>DatabaseConnector::dbGetRowCount("DatabaseConnectorResult")</code></p></li>
@@ -157,9 +157,9 @@ for this result set.</p>
 
     <p><code>dbGetRowCount()</code> returns a scalar number (integer or numeric),
 the number of rows fetched so far.
-After calling <code>dbSendQuery()</code>,
+After calling <code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>,
 the row count is initially zero.
-After a call to <code>dbFetch()</code> without limit,
+After a call to <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code> without limit,
 the row count matches the total number of rows returned.
 Fetching a limited number of rows
 increases the number of rows by the number of rows returned,
@@ -168,23 +168,29 @@ For queries with an empty result set,
 zero is returned
 even after fetching.
 For data manipulation statements issued with
-<code>dbSendStatement()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>,
 zero is returned before
 and after calling <code>dbFetch()</code>.
 Attempting to get the row count for a result set cleared with
-<code>dbClearResult()</code> gives an error.</p>
+<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> gives an error.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other DBIResult generics: <code>DBIResult-class</code>,
-  <code>dbBind</code>, <code>dbClearResult</code>,
-  <code>dbColumnInfo</code>, <code>dbFetch</code>,
-  <code>dbGetInfo</code>, <code>dbGetRowsAffected</code>,
-  <code>dbGetStatement</code>,
-  <code>dbHasCompleted</code>, <code>dbIsReadOnly</code>,
-  <code>dbIsValid</code>, <code>dbQuoteIdentifier</code>,
-  <code>dbQuoteLiteral</code>,
-  <code>dbQuoteString</code>,
-  <code>dbUnquoteIdentifier</code></p></div>
+    <div class='dont-index'><p>Other DBIResult generics: 
+<code><a href='https://dbi.r-dbi.org/reference/DBIResult-class.html'>DBIResult-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbBind.html'>dbBind</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetRowsAffected.html'>dbGetRowsAffected</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetStatement.html'>dbGetStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteString.html'>dbQuoteString</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

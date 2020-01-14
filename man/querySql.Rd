@@ -4,8 +4,12 @@
 \alias{querySql}
 \title{Retrieve data to a data.frame}
 \usage{
-querySql(connection, sql, errorReportFile = file.path(getwd(),
-  "errorReport.txt"), snakeCaseToCamelCase = FALSE)
+querySql(
+  connection,
+  sql,
+  errorReportFile = file.path(getwd(), "errorReport.txt"),
+  snakeCaseToCamelCase = FALSE
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

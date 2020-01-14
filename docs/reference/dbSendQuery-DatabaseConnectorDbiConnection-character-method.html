@@ -137,10 +137,10 @@ DatabaseConnector::dbSendQuery(&quot;DatabaseConnectorJdbcConnection&quot;, &quo
     <div class="ref-description">
     <p>The <code>dbSendQuery()</code> method only submits and synchronously executes the
 SQL query to the database engine.  It does <em>not</em> extract any
-records --- for that you need to use the <code>dbFetch()</code> method, and
-then you must call <code>dbClearResult()</code> when you finish fetching the
+records --- for that you need to use the <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code> method, and
+then you must call <code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> when you finish fetching the
 records you need. For interactive use, you should almost always prefer
-<code>dbGetQuery()</code>.</p>
+<code><a href='https://dbi.r-dbi.org/reference/dbGetQuery.html'>dbGetQuery()</a></code>.</p>
 <p><h3>Methods in other packages</h3><ul>
 <li><p><code>DatabaseConnector::dbSendQuery("DatabaseConnectorDbiConnection", "character")</code></p></li>
 <li><p><code><a href='dbSendQuery-DatabaseConnectorJdbcConnection-character-method.html'>DatabaseConnector::dbSendQuery("DatabaseConnectorJdbcConnection", "character")</a></code></p></li>
@@ -148,8 +148,7 @@ records you need. For interactive use, you should almost always prefer
     </div>
 
     <pre class="usage"><span class='co'># S4 method for DatabaseConnectorDbiConnection,character</span>
-<span class='fu'>dbSendQuery</span>(<span class='no'>conn</span>,
-  <span class='no'>statement</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>dbSendQuery</span>(<span class='no'>conn</span>, <span class='no'>statement</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,7 +156,7 @@ records you need. For interactive use, you should almost always prefer
     <tr>
       <th>conn</th>
       <td><p>A DBIConnection object, as returned by
-<code>dbConnect()</code>.</p></td>
+<code><a href='https://dbi.r-dbi.org/reference/dbConnect.html'>dbConnect()</a></code>.</p></td>
     </tr>
     <tr>
       <th>statement</th>
@@ -173,19 +172,21 @@ records you need. For interactive use, you should almost always prefer
 
     <p><code>dbSendQuery()</code> returns
 an S4 object that inherits from DBIResult.
-The result set can be used with <code>dbFetch()</code> to extract records.
+The result set can be used with <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code> to extract records.
 Once you have finished using a result, make sure to clear it
-with <code>dbClearResult()</code>.
+with <code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code>.
 An error is raised when issuing a query over a closed
 or invalid connection,
-if the syntax of the query is invalid,
-or if the query is not a non-<code>NA</code> string.</p>
+or if the query is not a non-<code>NA</code> string.
+An error is also raised if the syntax of the query is invalid
+and all query parameters are given (by passing the <code>params</code> argument)
+or the <code>immediate</code> argument is set to <code>TRUE</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This method is for <code>SELECT</code> queries only.  Some backends may
 support data manipulation queries through this method for compatibility
 reasons.  However, callers are strongly encouraged to use
-<code>dbSendStatement()</code> for data manipulation statements.</p>
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code> for data manipulation statements.</p>
 <p>The query is submitted to the database server and the DBMS executes it,
 possibly generating vast amounts of data. Where these data live
 is driver-specific: some drivers may choose to leave the output on the server
@@ -194,18 +195,28 @@ client -- but not necessarily to the memory that R manages. See individual
 drivers' <code>dbSendQuery()</code> documentation for details.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>For updates: <code>dbSendStatement()</code> and <code>dbExecute()</code>.</p>
-<p>Other DBIConnection generics: <code>DBIConnection-class</code>,
-  <code>dbAppendTable</code>, <code>dbCreateTable</code>,
-  <code>dbDataType</code>, <code>dbDisconnect</code>,
-  <code>dbExecute</code>, <code>dbExistsTable</code>,
-  <code>dbGetException</code>, <code>dbGetInfo</code>,
-  <code>dbGetQuery</code>, <code>dbIsReadOnly</code>,
-  <code>dbIsValid</code>, <code>dbListFields</code>,
-  <code>dbListObjects</code>, <code>dbListResults</code>,
-  <code>dbListTables</code>, <code>dbReadTable</code>,
-  <code>dbRemoveTable</code>,
-  <code>dbSendStatement</code>, <code>dbWriteTable</code></p></div>
+    <div class='dont-index'><p>For updates: <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code> and <code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute()</a></code>.</p>
+<p>Other DBIConnection generics: 
+<code><a href='https://dbi.r-dbi.org/reference/DBIConnection-class.html'>DBIConnection-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbAppendTable.html'>dbAppendTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDataType.html'>dbDataType</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDisconnect.html'>dbDisconnect</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExistsTable.html'>dbExistsTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetException.html'>dbGetException</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetQuery.html'>dbGetQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListFields.html'>dbListFields</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListObjects.html'>dbListObjects</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListResults.html'>dbListResults</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListTables.html'>dbListTables</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbReadTable.html'>dbReadTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -135,20 +135,26 @@ ways to create tables) need to override the dbAppendTable() method." />
 
     <div class="ref-description">
     <p>The <code>dbAppendTable()</code> method assumes that the table has been created
-beforehand, e.g. with <code>dbCreateTable()</code>.
-The default implementation calls <code>sqlAppendTableTemplate()</code> and then
-<code>dbExecute()</code> with the <code>param</code> argument. Backends compliant to
+beforehand, e.g. with <code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable()</a></code>.
+The default implementation calls <code><a href='https://dbi.r-dbi.org/reference/sqlAppendTable.html'>sqlAppendTableTemplate()</a></code> and then
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute()</a></code> with the <code>param</code> argument. Backends compliant to
 ANSI SQL 99 which use <code>?</code> as a placeholder for prepard queries don't need
 to override it. Backends with a different SQL syntax which use <code>?</code>
-as a placeholder for prepared queries can override <code>sqlAppendTable()</code>.
+as a placeholder for prepared queries can override <code><a href='https://dbi.r-dbi.org/reference/sqlAppendTable.html'>sqlAppendTable()</a></code>.
 Other backends (with different placeholders or with entirely different
 ways to create tables) need to override the <code>dbAppendTable()</code> method.</p>
     </div>
 
     <pre class="usage"><span class='co'># S4 method for DatabaseConnectorConnection,character,data.frame</span>
-<span class='fu'>dbAppendTable</span>(<span class='no'>conn</span>,
-  <span class='no'>name</span>, <span class='no'>value</span>, <span class='kw'>temporary</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>,
-  <span class='kw'>row.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+<span class='fu'>dbAppendTable</span>(
+  <span class='no'>conn</span>,
+  <span class='no'>name</span>,
+  <span class='no'>value</span>,
+  <span class='kw'>temporary</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>,
+  <span class='kw'>row.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,11 +162,11 @@ ways to create tables) need to override the <code>dbAppendTable()</code> method.
     <tr>
       <th>conn</th>
       <td><p>A DBIConnection object, as returned by
-<code>dbConnect()</code>.</p></td>
+<code><a href='https://dbi.r-dbi.org/reference/dbConnect.html'>dbConnect()</a></code>.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>Name of the table, escaped with <code>dbQuoteIdentifier()</code>.</p></td>
+      <td><p>Name of the table, escaped with <code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>.</p></td>
     </tr>
     <tr>
       <th>value</th>
@@ -189,20 +195,30 @@ can be created.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The <code>row.names</code> argument is not supported by this method.
-Process the values with <code>sqlRownamesToColumn()</code> before calling this method.</p>
+Process the values with <code><a href='https://dbi.r-dbi.org/reference/rownames.html'>sqlRownamesToColumn()</a></code> before calling this method.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other DBIConnection generics: <code>DBIConnection-class</code>,
-  <code>dbCreateTable</code>, <code>dbDataType</code>,
-  <code>dbDisconnect</code>, <code>dbExecute</code>,
-  <code>dbExistsTable</code>,
-  <code>dbGetException</code>, <code>dbGetInfo</code>,
-  <code>dbGetQuery</code>, <code>dbIsReadOnly</code>,
-  <code>dbIsValid</code>, <code>dbListFields</code>,
-  <code>dbListObjects</code>, <code>dbListResults</code>,
-  <code>dbListTables</code>, <code>dbReadTable</code>,
-  <code>dbRemoveTable</code>, <code>dbSendQuery</code>,
-  <code>dbSendStatement</code>, <code>dbWriteTable</code></p></div>
+    <div class='dont-index'><p>Other DBIConnection generics: 
+<code><a href='https://dbi.r-dbi.org/reference/DBIConnection-class.html'>DBIConnection-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDataType.html'>dbDataType</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDisconnect.html'>dbDisconnect</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExistsTable.html'>dbExistsTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetException.html'>dbGetException</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetQuery.html'>dbGetQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListFields.html'>dbListFields</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListObjects.html'>dbListObjects</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListResults.html'>dbListResults</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListTables.html'>dbListTables</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbReadTable.html'>dbReadTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

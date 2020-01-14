@@ -129,8 +129,12 @@
     <p>This function sends SQL to the server, and returns the results in an ffdf object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>querySql.ffdf</span>(<span class='no'>connection</span>, <span class='no'>sql</span>, <span class='kw'>errorReportFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
-  <span class='st'>"errorReport.txt"</span>), <span class='kw'>snakeCaseToCamelCase</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>querySql.ffdf</span>(
+  <span class='no'>connection</span>,
+  <span class='no'>sql</span>,
+  <span class='kw'>errorReportFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), <span class='st'>"errorReport.txt"</span>),
+  <span class='kw'>snakeCaseToCamelCase</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

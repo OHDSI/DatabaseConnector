@@ -3,8 +3,8 @@ Since v2.4.1 there is one change, two bugfixes (see NEWS.md).
 ---
 
 ## Test environments
-* Ubuntu 14.04.5 LTS (Travis), R 3.6.1
-* Windows 7, R 3.6.0
+* Ubuntu 14.04.5 LTS (Travis), R 3.6.2
+* Windows 7, R 3.6.1
 
 ## R CMD check results
 

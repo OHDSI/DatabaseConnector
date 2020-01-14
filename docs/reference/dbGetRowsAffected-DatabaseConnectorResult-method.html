@@ -157,26 +157,32 @@ by a data manipulation statement.</p>
 
     <p><code>dbGetRowsAffected()</code> returns a scalar number (integer or numeric),
 the number of rows affected by a data manipulation statement
-issued with <code>dbSendStatement()</code>.
+issued with <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>.
 The value is available directly after the call
-and does not change after calling <code>dbFetch()</code>.
-For queries issued with <code>dbSendQuery()</code>,
+and does not change after calling <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code>.
+For queries issued with <code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>,
 zero is returned before
 and after the call to <code>dbFetch()</code>.
 Attempting to get the rows affected for a result set cleared with
-<code>dbClearResult()</code> gives an error.</p>
+<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> gives an error.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other DBIResult generics: <code>DBIResult-class</code>,
-  <code>dbBind</code>, <code>dbClearResult</code>,
-  <code>dbColumnInfo</code>, <code>dbFetch</code>,
-  <code>dbGetInfo</code>, <code>dbGetRowCount</code>,
-  <code>dbGetStatement</code>,
-  <code>dbHasCompleted</code>, <code>dbIsReadOnly</code>,
-  <code>dbIsValid</code>, <code>dbQuoteIdentifier</code>,
-  <code>dbQuoteLiteral</code>,
-  <code>dbQuoteString</code>,
-  <code>dbUnquoteIdentifier</code></p></div>
+    <div class='dont-index'><p>Other DBIResult generics: 
+<code><a href='https://dbi.r-dbi.org/reference/DBIResult-class.html'>DBIResult-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbBind.html'>dbBind</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetRowCount.html'>dbGetRowCount</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetStatement.html'>dbGetStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteString.html'>dbQuoteString</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

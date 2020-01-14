@@ -4,9 +4,14 @@
 \alias{renderTranslateQuerySql.ffdf}
 \title{Render, translate, and query to ffdf}
 \usage{
-renderTranslateQuerySql.ffdf(connection, sql,
+renderTranslateQuerySql.ffdf(
+  connection,
+  sql,
   errorReportFile = file.path(getwd(), "errorReport.txt"),
-  snakeCaseToCamelCase = FALSE, oracleTempSchema = NULL, ...)
+  snakeCaseToCamelCase = FALSE,
+  oracleTempSchema = NULL,
+  ...
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

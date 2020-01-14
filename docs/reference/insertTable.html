@@ -131,10 +131,18 @@ is created, or the data is appended to an existing table." />
 is created, or the data is appended to an existing table.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>insertTable</span>(<span class='no'>connection</span>, <span class='no'>tableName</span>, <span class='no'>data</span>, <span class='kw'>dropTableIfExists</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>createTable</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>tempTable</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>useMppBulkLoad</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>camelCaseToSnakeCase</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>insertTable</span>(
+  <span class='no'>connection</span>,
+  <span class='no'>tableName</span>,
+  <span class='no'>data</span>,
+  <span class='kw'>dropTableIfExists</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>createTable</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>tempTable</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>useMppBulkLoad</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>camelCaseToSnakeCase</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
