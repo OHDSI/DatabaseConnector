@@ -34,7 +34,8 @@ Suggests:
     DBItest,
     knitr,
     rmarkdown,
-    RSQLite
+    RSQLite,
+    ssh
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector, https://github.com/OHDSI/DatabaseConnector

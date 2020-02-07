@@ -113,7 +113,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
   } else {
     distribution <- ""
   }
-
+  
   # Insert data in batches in temp tables using CTAS:
   if (progressBar) {
     pb <- txtProgressBar(style = 3)
@@ -130,7 +130,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     }
     end <- min(start + batchSize - 1, nrow(data))
     batch <- toStrings(data[start:end, , drop = FALSE], fts)
-
+    
     varAliases <- strsplit(varNames, ",")[[1]]
     # First line gets type information:
     valueString <- formatRow(batch[1, , drop = FALSE], varAliases, castValues = TRUE, fts = fts)
@@ -329,7 +329,7 @@ insertTable.default <- function(connection,
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
-
+  
   if (dropTableIfExists) {
     if (tempTable) {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -352,7 +352,7 @@ insertTable.default <- function(connection,
     }
     writeLines("Attempting to use MPP bulk loading...")
     dbms <- attr(connection, "dbms")
-
+    
     if (dbms != "hive") {
       sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
       sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
@@ -366,7 +366,7 @@ insertTable.default <- function(connection,
       .bulkLoadPdw(connection, qname, fts, data)
     } else if (dbms == "hive") {
       if (tolower(Sys.info()["sysname"]) == "windows") {
-          ensure_installed("ssh")
+        ensure_installed("ssh")
       }            
       .bulkLoadHive(connection, qname, strsplit(varNames, ",")[[1]], data)
     }
@@ -500,7 +500,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }
     return(envSet & bucket)
   } else if (attr(connection, "dbms") == "hive") {
-    if (tolower(Sys.info()["sysname"]) == "windows" && !require("ssh")) {
+    if (tolower(Sys.info()["sysname"]) == "windows" && !is_installed("ssh")) {
       writeLines("Please install ssh package, it's required")
       return(FALSE)
     }
@@ -518,7 +518,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     if (Sys.getenv("HIVE_KEYFILE") == "") {
       warning("Using ssh password authentication, it's recommended to use keyfile instead")
     }
-
+    
     return(TRUE)
   } else {
     return(FALSE)
@@ -527,7 +527,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
 
 .getHiveSshUser <- function() {
   sshUser <- Sys.getenv("HIVE_SSH_USER")
-  return (if (sshUser == "") "root" else sshUser)
+  return(if (sshUser == "") "root" else sshUser)
 }
 
 .bulkLoadPdw <- function(connection, qname, fts, data) {
@@ -644,7 +644,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   fileName <- sprintf("hive_insert_%s.csv", uuid::UUIDgenerate(use.time = TRUE))
   filePath <- file.path(tempdir(), fileName)
   write.csv(x = data, na = "", file = filePath, row.names = FALSE, quote = TRUE)
-
+  
   hiveUser <- .getHiveSshUser()
   hivePasswd <- Sys.getenv("HIVE_SSH_PASSWORD")
   hiveHost <- Sys.getenv("HIVE_NODE_HOST")
@@ -652,36 +652,36 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   nodePort <- (function(port) if (port == "") "8020" else port)(Sys.getenv("HIVE_NODE_PORT"))
   hiveKeyFile <- (function(keyfile) if (keyfile == "") NULL else keyfile)(Sys.getenv("HIVE_KEYFILE"))
   hadoopUser <- (function(hadoopUser) if (hadoopUser == "") "hive" else hadoopUser)(Sys.getenv("HADOOP_USER_NAME"))
-
-    tryCatch({
+  
+  tryCatch({
     if (tolower(Sys.info()["sysname"]) == "windows") {
-        session <- ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
-        remoteFile <- paste0("/tmp/", fileName)
-        scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
-        hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
-        hadoopFile <- paste0(hadoopDir, "/", fileName)
-        ssh_exec_wait(session, sprintf("HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hadoopUser, hadoopDir))
-        command <- sprintf("HADOOP_USER_NAME=%s hadoop fs -put %s %s", hadoopUser, remoteFile, hadoopFile)
-        ssh_exec_wait(session, command = command)
+      session <- ssh::ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
+      remoteFile <- paste0("/tmp/", fileName)
+      ssh::scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
+      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
+      hadoopFile <- paste0(hadoopDir, "/", fileName)
+      ssh::ssh_exec_wait(session, sprintf("HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hadoopUser, hadoopDir))
+      command <- sprintf("HADOOP_USER_NAME=%s hadoop fs -put %s %s", hadoopUser, remoteFile, hadoopFile)
+      ssh::ssh_exec_wait(session, command = command)
     } else {
-        remoteFile <- paste0("/tmp/", fileName)
-        scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, filePath, hiveHost, remoteFile)
-        system(scp_command)
-        hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
-        hadoopFile <- paste0(hadoopDir, "/", fileName)
-        hdp_mk_dir_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hivePasswd, hiveHost, sshPort, hadoopUser, hadoopDir)
-        system(hdp_mk_dir_command)
-        hdp_put_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -put %s %s", hivePasswd, hiveHost, sshPort, hadoopUser, remoteFile, hadoopFile)
-        system(hdp_put_command)
+      remoteFile <- paste0("/tmp/", fileName)
+      scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, filePath, hiveHost, remoteFile)
+      system(scp_command)
+      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
+      hadoopFile <- paste0(hadoopDir, "/", fileName)
+      hdp_mk_dir_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hivePasswd, hiveHost, sshPort, hadoopUser, hadoopDir)
+      system(hdp_mk_dir_command)
+      hdp_put_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -put %s %s", hivePasswd, hiveHost, sshPort, hadoopUser, remoteFile, hadoopFile)
+      system(hdp_put_command)
     }
     def <- function(name) {
       return(paste(name, "STRING"))
     }
     fdef <- paste(sapply(varNames, def), collapse = ", ")
     sql <- SqlRender::render("CREATE TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
-      filename = hadoopDir, table = qname, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
+                             filename = hadoopDir, table = qname, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
     sql <- SqlRender::translate(sql, targetDialect = "hive", oracleTempSchema = NULL)
-  
+    
     tryCatch({
       DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
       delta <- Sys.time() - start
@@ -694,8 +694,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     })
   }, finally = {
     if (tolower(Sys.info()["sysname"]) == "windows")
-        ssh_disconnect(session)
-    })
+      ssh::ssh_disconnect(session)
+  })
 }
 
 # Borrowed from devtools:
