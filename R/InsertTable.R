@@ -91,15 +91,19 @@ castValues <- function(values, fts) {
         sep = "")
 }
 
-formatRow <- function(data, castValues, fts) {
+formatRow <- function(data, aliases = c(), castValues, fts) {
   if (castValues) {
     data <- castValues(data, fts)
   }
-  return(paste(data, collapse = ","))
+  return(paste(data, aliases, collapse = ","))
 }
 
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema) {
-  batchSize <- 1000
+  if (attr(connection, "dbms") == "hive") {
+    batchSize <- 750
+  } else {
+    batchSize <- 1000
+  }
   mergeSize <- 300
   
   if (any(tolower(names(data)) == "subject_id")) {
@@ -125,16 +129,18 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
-    batch <- toStrings(data[start:end, , drop = FALSE], fts)    
+    batch <- toStrings(data[start:end, , drop = FALSE], fts)
 
+    varAliases <- strsplit(varNames, ",")[[1]]
     # First line gets type information:
-    valueString <- formatRow(batch[1, , drop = FALSE], castValues = TRUE, fts = fts)
+    valueString <- formatRow(batch[1, , drop = FALSE], varAliases, castValues = TRUE, fts = fts)
     if (end > start) {
       # Other lines only get type information if BigQuery:
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
                                                 FUN = formatRow,
-                                                castValues = attr(connection, "dbms") == "bigquery",
+                                                aliases = varAliases,
+                                                castValues = attr(connection, "dbms") %in% c("bigquery", "hive"),
                                                 fts = fts)), 
                            collapse = "\nUNION ALL\nSELECT ")
     }
@@ -272,7 +278,7 @@ insertTable.default <- function(connection,
     tempTable <- TRUE
     warning("Temp table name detected, setting tempTable parameter to TRUE")
   }
-  if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
+  if (toupper(Sys.getenv("USE_MPP_BULK_LOAD")) == "TRUE") {
     useMppBulkLoad <- TRUE
   }
   if (dropTableIfExists)
@@ -323,7 +329,7 @@ insertTable.default <- function(connection,
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
-  
+
   if (dropTableIfExists) {
     if (tempTable) {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -337,7 +343,7 @@ insertTable.default <- function(connection,
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   
-  if (createTable && !tempTable && useMppBulkLoad) {
+  if (createTable && (!tempTable || attr(connection, "dbms") == "hive") && useMppBulkLoad) {
     ensure_installed("uuid")
     ensure_installed("R.utils")
     ensure_installed("urltools")
@@ -345,18 +351,27 @@ insertTable.default <- function(connection,
       stop("MPP credentials could not be confirmed. Please review them or set 'useMppBulkLoad' to FALSE")
     }
     writeLines("Attempting to use MPP bulk loading...")
-    sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
-    sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
-    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    dbms <- attr(connection, "dbms")
+
+    if (dbms != "hive") {
+      sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
+      sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
+      executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    }
     
-    if (attr(connection, "dbms") == "redshift") {
+    if (dbms == "redshift") {
       ensure_installed("aws.s3")
       .bulkLoadRedshift(connection, qname, data)
-    } else if (attr(connection, "dbms") == "pdw") {
+    } else if (dbms == "pdw") {
       .bulkLoadPdw(connection, qname, fts, data)
+    } else if (dbms == "hive") {
+      if (tolower(Sys.info()["sysname"]) == "windows") {
+          ensure_installed("ssh")
+      }            
+      .bulkLoadHive(connection, qname, strsplit(varNames, ",")[[1]], data)
     }
   } else {
-    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery") && createTable && nrow(data) > 0) {
+    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema)
     } else {
       if (createTable) {
@@ -484,9 +499,35 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       warning("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
+  } else if (attr(connection, "dbms") == "hive") {
+    if (tolower(Sys.info()["sysname"]) == "windows" && !require("ssh")) {
+      writeLines("Please install ssh package, it's required")
+      return(FALSE)
+    }
+    if (Sys.getenv("HIVE_NODE_HOST") == "") {
+      writeLines("Please set environment variable HIVE_NODE_HOST to the Hive Node's host:port")
+      return(FALSE)
+    }
+    if (Sys.getenv("HIVE_SSH_USER") == "") {
+      warning(paste("HIVE_SSH_USER is not set, using default", .getHiveSshUser()))
+    }
+    if (Sys.getenv("HIVE_SSH_PASSWORD") == "" && Sys.getenv("HIVE_KEYFILE") == "") {
+      writeLines("At least one of the following environment variables: HIVE_PASSWORD and/or HIVE_KEYFILE should be set")
+      return(FALSE)
+    }
+    if (Sys.getenv("HIVE_KEYFILE") == "") {
+      warning("Using ssh password authentication, it's recommended to use keyfile instead")
+    }
+
+    return(TRUE)
   } else {
     return(FALSE)
   }
+}
+
+.getHiveSshUser <- function() {
+  sshUser <- Sys.getenv("HIVE_SSH_USER")
+  return (if (sshUser == "") "root" else sshUser)
 }
 
 .bulkLoadPdw <- function(connection, qname, fts, data) {
@@ -596,6 +637,65 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     try(aws.s3::delete_object(object = sprintf("%s.gz", fileName),
                               bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
   })
+}
+
+.bulkLoadHive <- function(connection, qname, varNames, data) {
+  start <- Sys.time()
+  fileName <- sprintf("hive_insert_%s.csv", uuid::UUIDgenerate(use.time = TRUE))
+  filePath <- file.path(tempdir(), fileName)
+  write.csv(x = data, na = "", file = filePath, row.names = FALSE, quote = TRUE)
+
+  hiveUser <- .getHiveSshUser()
+  hivePasswd <- Sys.getenv("HIVE_SSH_PASSWORD")
+  hiveHost <- Sys.getenv("HIVE_NODE_HOST")
+  sshPort <- (function(port) if (port == "") "2222" else port)(Sys.getenv("HIVE_SSH_PORT"))
+  nodePort <- (function(port) if (port == "") "8020" else port)(Sys.getenv("HIVE_NODE_PORT"))
+  hiveKeyFile <- (function(keyfile) if (keyfile == "") NULL else keyfile)(Sys.getenv("HIVE_KEYFILE"))
+  hadoopUser <- (function(hadoopUser) if (hadoopUser == "") "hive" else hadoopUser)(Sys.getenv("HADOOP_USER_NAME"))
+
+    tryCatch({
+    if (tolower(Sys.info()["sysname"]) == "windows") {
+        session <- ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
+        remoteFile <- paste0("/tmp/", fileName)
+        scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
+        hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
+        hadoopFile <- paste0(hadoopDir, "/", fileName)
+        ssh_exec_wait(session, sprintf("HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hadoopUser, hadoopDir))
+        command <- sprintf("HADOOP_USER_NAME=%s hadoop fs -put %s %s", hadoopUser, remoteFile, hadoopFile)
+        ssh_exec_wait(session, command = command)
+    } else {
+        remoteFile <- paste0("/tmp/", fileName)
+        scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, filePath, hiveHost, remoteFile)
+        system(scp_command)
+        hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
+        hadoopFile <- paste0(hadoopDir, "/", fileName)
+        hdp_mk_dir_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hivePasswd, hiveHost, sshPort, hadoopUser, hadoopDir)
+        system(hdp_mk_dir_command)
+        hdp_put_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -put %s %s", hivePasswd, hiveHost, sshPort, hadoopUser, remoteFile, hadoopFile)
+        system(hdp_put_command)
+    }
+    def <- function(name) {
+      return(paste(name, "STRING"))
+    }
+    fdef <- paste(sapply(varNames, def), collapse = ", ")
+    sql <- SqlRender::render("CREATE TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
+      filename = hadoopDir, table = qname, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
+    sql <- SqlRender::translate(sql, targetDialect = "hive", oracleTempSchema = NULL)
+  
+    tryCatch({
+      DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
+      delta <- Sys.time() - start
+      writeLines(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
+    }, error = function(e) {
+      writeLines(paste("Error:", e))
+      stop("Error in Hive bulk upload.")
+    }, finally = {
+      try(invisible(file.remove(filePath)))
+    })
+  }, finally = {
+    if (tolower(Sys.info()["sysname"]) == "windows")
+        ssh_disconnect(session)
+    })
 }
 
 # Borrowed from devtools:
