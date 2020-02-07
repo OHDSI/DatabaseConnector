@@ -99,7 +99,11 @@ formatRow <- function(data, aliases = c(), castValues, fts) {
 }
 
 ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema) {
-  batchSize <- (function(dbms) if (dbms %in% c("hive")) 750 else 1000)( attr(connection, "dbms") )
+  if (attr(connection, "dbms") == "hive") {
+    batchSize <- 750
+  } else {
+    batchSize <- 1000
+  }
   mergeSize <- 300
   
   if (any(tolower(names(data)) == "subject_id")) {
