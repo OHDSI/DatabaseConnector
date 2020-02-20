@@ -3,3 +3,4 @@
 .RData
 R/LocalEnvironment.R
 /bin/
+.DS_Store

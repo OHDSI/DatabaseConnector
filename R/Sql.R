@@ -331,6 +331,11 @@ executeSql <- function(connection,
                        runAsBatch = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
+  
+  if (connection@dbms == "spark") {
+    sql <- SqlRender::sparkHandleInsert(connection = connection, sql = sql)
+  }
+  
   batched <- runAsBatch && supportsBatchUpdates(connection)
   if (profile || batched) {
     progressBar <- FALSE
