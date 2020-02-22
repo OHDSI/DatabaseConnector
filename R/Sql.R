@@ -689,3 +689,26 @@ renderTranslateQuerySql.ffdf <- function(connection,
                        errorReportFile = errorReportFile,
                        snakeCaseToCamelCase = snakeCaseToCamelCase))
 }
+
+#' Test a character vector of SQL names for SQL reserved words
+#' 
+#' This function checks a character vector against the sqlReservedWords package data.
+#'
+#' @param sqlNames A character vector containing table or field names to check
+#' @param warn (logical) Should a warning be thrown if invalid SQL names are found
+#'
+#' @return A logical vector with length equal to sqlNames that is TRUE for each name that is reserved and FALSE otherwise
+#' @import stringr::str_remove_all
+isSqlReservedWord <- function(sqlNames, warn = F){
+  stopifnot(is.character(sqlNames))
+  sqlNames <- gsub("^#", "", sqlNames)
+  nameIsReserved <- toupper(sqlNames) %in% sqlReservedWords
+  badSqlNames <- sqlNames[nameIsReserved]
+  if(length(badSqlNames == 1) & warn) {
+    warning(paste(badSqlNames, "is a reserved keyword in SQL and should not be used as a table or field name."))
+  } else if(length(badSqlNames) > 1 & warn){
+    warning(paste(paste(badSqlNames, collapse = ","), "are reserved keywords in SQL and should not be used as table or field names."))
+  } 
+  nameIsReserved
+}
+  
