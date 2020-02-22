@@ -556,6 +556,10 @@ connect <- function(connectionDetails = NULL,
       lowLevelExecuteSql(connection, paste("USE", schema))
     }
     attr(connection, "dbms") <- dbms
+    
+    sql <- "set spark.sql.crossJoin.enabled = true;"
+    executeSql(connection = connection, sql = sql)
+    
     return(connection)
   }
 }
