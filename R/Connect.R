@@ -66,16 +66,9 @@ createConnectionDetails <- function(dbms,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
                                     pathToDriver = getOption("pathToDriver")) {
-  # First: get default values:
   result <- list()
   for (name in names(formals(createConnectionDetails))) {
     result[[name]] <- get(name)
-  }
-  # Second: overwrite defaults with actual values:
-  values <- lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3)))
-  for (name in names(values)) {
-    if (name %in% names(result))
-      result[[name]] <- values[[name]]
   }
   class(result) <- "connectionDetails"
   return(result)
