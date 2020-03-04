@@ -198,8 +198,9 @@ connect <- function(connectionDetails = NULL,
                     pathToDriver = getOption("pathToDriver")) {
   
   if (!missing(schema) && !is.null(schema)) {
-    warning("The schema argument is deprecated. /n
-            Please use a fully specified SQL statement with @databaseSchema.")
+    warning(
+      "The schema argument is deprecated. Please use a fully specified SQL statement with @databaseSchema."
+    )
   }
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
