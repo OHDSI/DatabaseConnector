@@ -4,8 +4,7 @@
 \alias{createZipFile}
 \title{Compress files and/or folders into a single zip file}
 \usage{
-createZipFile(zipFile, files, rootFolder = getwd(),
-  compressionLevel = 9)
+createZipFile(zipFile, files, rootFolder = getwd(), compressionLevel = 9)
 }
 \arguments{
 \item{zipFile}{The path to the zip file to be created.}

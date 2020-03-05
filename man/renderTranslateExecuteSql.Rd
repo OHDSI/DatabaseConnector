@@ -4,10 +4,17 @@
 \alias{renderTranslateExecuteSql}
 \title{Render, translate, execute SQL code}
 \usage{
-renderTranslateExecuteSql(connection, sql, profile = FALSE,
-  progressBar = TRUE, reportOverallTime = TRUE,
+renderTranslateExecuteSql(
+  connection,
+  sql,
+  profile = FALSE,
+  progressBar = TRUE,
+  reportOverallTime = TRUE,
   errorReportFile = file.path(getwd(), "errorReport.txt"),
-  runAsBatch = FALSE, oracleTempSchema = NULL, ...)
+  runAsBatch = FALSE,
+  oracleTempSchema = NULL,
+  ...
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

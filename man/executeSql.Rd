@@ -4,9 +4,15 @@
 \alias{executeSql}
 \title{Execute SQL code}
 \usage{
-executeSql(connection, sql, profile = FALSE, progressBar = TRUE,
-  reportOverallTime = TRUE, errorReportFile = file.path(getwd(),
-  "errorReport.txt"), runAsBatch = FALSE)
+executeSql(
+  connection,
+  sql,
+  profile = FALSE,
+  progressBar = TRUE,
+  reportOverallTime = TRUE,
+  errorReportFile = file.path(getwd(), "errorReport.txt"),
+  runAsBatch = FALSE
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

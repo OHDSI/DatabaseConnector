@@ -4,8 +4,12 @@
 \alias{querySql.ffdf}
 \title{Retrieves data to an ffdf object}
 \usage{
-querySql.ffdf(connection, sql, errorReportFile = file.path(getwd(),
-  "errorReport.txt"), snakeCaseToCamelCase = FALSE)
+querySql.ffdf(
+  connection,
+  sql,
+  errorReportFile = file.path(getwd(), "errorReport.txt"),
+  snakeCaseToCamelCase = FALSE
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
