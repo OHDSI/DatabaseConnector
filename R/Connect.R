@@ -542,6 +542,7 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                                    identifierQuote = "'",
                                    stringQuote = "'",
                                    dbms = "Unknown",
+                                   user = "",
                                    ...) {
   properties <- list(...)
   p <- rJava::.jnew("java/util/Properties")
@@ -570,6 +571,10 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
+  if (dbms == "hive") {
+    attr(connection, "url") <- url
+    attr(connection, "user") <- user
+  }
   registerWithRStudio(connection)
   return(connection)
 }
