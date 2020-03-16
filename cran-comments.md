@@ -1,4 +1,4 @@
-Since v2.4.1 there is one change, two bugfixes (see NEWS.md).
+Since v2.4.2 there is one change, one bugfix (see NEWS.md).
 
 ---
 

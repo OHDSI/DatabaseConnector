@@ -1,3 +1,15 @@
+DatabaseConnector 2.4.3
+=======================
+
+Changes:
+
+1. Adding bulk upload for Hive.
+
+Bugfixes:
+
+2. Reducing batch size when performing CTAS hack on Hive to avoid error.
+
+
 DatabaseConnector 2.4.2
 =======================
 
