@@ -199,7 +199,7 @@ connect <- function(connectionDetails = NULL,
   
   if (!missing(schema) && !is.null(schema)) {
     warning(
-      "The schema argument is deprecated. Please use a fully specified SQL statement with @databaseSchema."
+      "The schema argument is deprecated. Please use fully specified table names in your SQL statement, for example 'SELECT * FROM my_schema.my_table;'"
     )
   }
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {

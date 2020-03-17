@@ -29,8 +29,9 @@
 
 \item{schema}{(DEPRECATED. optional) The name of the schema to connect to. 
 DatabaseConnector attempts to set the schema using USE statement, but
-not all DBMS support USE statements. Instead use @databaseSchema in
-sql statements.}
+not all DBMS support USE statements. In DBMS that don't support USE
+statements this strategy will fail. Instead use a fully specified table 
+names in your SQL statement, for example 'SELECT * FROM my_schema.my_table;'}
 
 \item{extraSettings}{(optional) Additional configuration settings specific to the database
 provider to configure things as security for SSL. These must follow the
