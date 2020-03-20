@@ -1,3 +1,13 @@
+DatabaseConnector 2.4.4
+=======================
+
+Changes:
+
+1. Deprecating schema argument in connect and createConnectionDetails functions.
+
+2. Checking table and column names for SQL reserved words when inserting a table.
+
+
 DatabaseConnector 2.4.3
 =======================
 
