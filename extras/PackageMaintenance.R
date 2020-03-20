@@ -22,11 +22,6 @@ OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
-# Create the package data containing SQL reserved words
-sqlReservedWords <- readr::read_csv("extras/sql_reserved_words.csv")
-sqlReservedWords <- unique(sqlReservedWords$reserved_words)
-usethis::use_data(sqlReservedWords, overwrite = T)
-
 # Create manual:
 unlink("extras/DatabaseConnector.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")

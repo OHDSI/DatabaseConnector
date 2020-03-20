@@ -20,7 +20,7 @@
 #'
 #' @docType package
 #' @name DatabaseConnector
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table read.csv
 #' install.packages menu
 NULL
 
