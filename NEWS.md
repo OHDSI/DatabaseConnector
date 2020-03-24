@@ -7,6 +7,10 @@ Changes:
 
 2. Checking table and column names for SQL reserved words when inserting a table.
 
+Bugfixes:
+
+1. Setting append = TRUE when not creating table in insertTable for RSQLite.
+
 
 DatabaseConnector 2.4.3
 =======================

@@ -475,7 +475,12 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
     }
   }
-  DBI::dbWriteTable(connection@dbiConnection, tableName, data, overwrite = dropTableIfExists, temporary = tempTable)
+  DBI::dbWriteTable(conn = connection@dbiConnection, 
+                    name = tableName, 
+                    value = data, 
+                    overwrite = dropTableIfExists, 
+                    append = !createTable,
+                    temporary = tempTable)
   invisible(NULL)
 }
 
