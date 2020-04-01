@@ -70,7 +70,7 @@ mergeTempTables <- function(connection, tableName, varNames, sourceNames, locati
                  sep = "")
   }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-  
+
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
@@ -132,7 +132,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       location <- ""
     }
   }
-  
+
   # Insert data in batches in temp tables using CTAS:
   if (progressBar) {
     pb <- txtProgressBar(style = 3)
@@ -201,10 +201,10 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
 
 is.bigint <- function(x) {
   num <- 2^63
-  
+
   bigint.min <- -num
   bigint.max <- num - 1
-  
+
   return(!all(is.na(x)) && is.numeric(x) && !is.factor(x) && all(x == round(x), na.rm = TRUE) &&  all(x >= bigint.min, na.rm = TRUE) && all(x <= bigint.max, na.rm = TRUE))
 }
 
@@ -317,8 +317,8 @@ insertTable.default <- function(connection,
     createTable <- TRUE
   if (tempTable & substr(tableName, 1, 1) != "#" & attr(connection, "dbms") != "redshift")
     tableName <- paste("#", tableName, sep = "")
-  
-  
+
+
   if (is.vector(data) && !is.list(data))
     data <- data.frame(x = data)
   if (length(data) < 1)
@@ -332,7 +332,7 @@ insertTable.default <- function(connection,
     if (!is.data.frame(data))
       data <- as.data.frame(data)
   }
-  
+
   def <- function(obj) {
     if (is.integer(obj)) {
       return("INTEGER")
@@ -361,7 +361,7 @@ insertTable.default <- function(connection,
   fdef <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), fts, collapse = ",")
   qname <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
   varNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
-  
+
   if (dropTableIfExists) {
     if (tempTable) {
       sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
@@ -374,7 +374,7 @@ insertTable.default <- function(connection,
                                 oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-  
+
   if (createTable && !tempTable && useMppBulkLoad) {
     ensure_installed("uuid")
     ensure_installed("R.utils")
@@ -404,7 +404,7 @@ insertTable.default <- function(connection,
                                     oracleTempSchema = oracleTempSchema)
         executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
       }
-      
+
       insertSql <- paste("INSERT INTO ",
                          qname,
                          " (",
@@ -416,13 +416,13 @@ insertTable.default <- function(connection,
       insertSql <- SqlRender::translate(insertSql,
                                         targetDialect = connection@dbms,
                                         oracleTempSchema = oracleTempSchema)
-      
+
       batchSize <- 10000
-      
+
       autoCommit <- rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")
       if (autoCommit) {
-        rJava::.jcall(connection@jConnection, "V", "setAutoCommit", FALSE)
-        on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE))
+        trySettingAutoCommit(connection, FALSE)
+        on.exit(trySettingAutoCommit(connection, TRUE))
       }
       if (nrow(data) > 0) {
         if (progressBar) {
@@ -464,6 +464,14 @@ insertTable.default <- function(connection,
       }
     }
   }
+}
+
+trySettingAutoCommit <- function(connection, value) {
+    tryCatch({
+        rJava::.jcall(connection@jConnection, "V", "setAutoCommit", value)
+    }, error = function(cond) {
+        # do nothing
+    })
 }
 
 #' @export
@@ -508,16 +516,16 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   } else if (attr(connection, "dbms") == "redshift") {
     envSet <- FALSE
     bucket <- FALSE
-    
+
     if (Sys.getenv("AWS_ACCESS_KEY_ID") != "" && Sys.getenv("AWS_SECRET_ACCESS_KEY") != "" && Sys.getenv("AWS_BUCKET_NAME") !=
         "" && Sys.getenv("AWS_DEFAULT_REGION") != "") {
       envSet <- TRUE
     }
-    
+
     if (aws.s3::bucket_exists(bucket = Sys.getenv("AWS_BUCKET_NAME"))) {
       bucket <- TRUE
     }
-    
+
     if (Sys.getenv("AWS_SSE_TYPE") == "") {
       warning("Not using Server Side Encryption for AWS S3")
     }
@@ -540,22 +548,22 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
               sep = "~*~")
   R.utils::gzip(filename = sprintf("%s.csv",
                                    fileName), destname = sprintf("%s.gz", fileName), remove = TRUE)
-  
+
   auth <- sprintf("-U %1s -P %2s", attr(connection, "user"), attr(connection, "password"))
   if (is.null(attr(connection, "user")) && is.null(attr(connection, "password"))) {
     auth <- "-W"
   }
-  
+
   databaseMetaData <- rJava::.jcall(connection@jConnection,
                                     "Ljava/sql/DatabaseMetaData;",
                                     "getMetaData")
   url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
   pdwServer <- urltools::url_parse(url)$domain
-  
+
   if (pdwServer == "" | is.null(pdwServer)) {
     stop("PDW Server name cannot be parsed from JDBC URL string")
   }
-  
+
   command <- sprintf("%1s -M append -e UTF8 -i %2s -T %3s -R dwloader.txt -fh 1 -t %4s -r %5s -D ymd -E -se -rv 1 -S %6s %7s",
                      shQuote(Sys.getenv("DWLOADER_PATH")),
                      shQuote(sprintf("%s.gz", fileName)),
@@ -564,7 +572,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
                      shQuote(eol),
                      pdwServer,
                      auth)
-  
+
   tryCatch({
     system(command,
            intern = FALSE,
@@ -582,7 +590,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   }, finally = {
     try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
   })
-  
+
   sql <- "SELECT COUNT(*) FROM @table"
   sql <- SqlRender::render(sql, table = qname)
   count <- querySql(connection, sql)
@@ -597,13 +605,13 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE)
   R.utils::gzip(filename = sprintf("%s.csv",
                                    fileName), destname = sprintf("%s.gz", fileName), remove = TRUE)
-  
+
   s3Put <- aws.s3::put_object(file = sprintf("%s.gz", fileName),
                               check_region = FALSE,
                               headers = list(`x-amz-server-side-encryption` = Sys.getenv("AWS_SSE_TYPE")),
                               object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"),
                               bucket = Sys.getenv("AWS_BUCKET_NAME"))
-  
+
   if (!s3Put) {
     stop("Failed to upload data to AWS S3. Please check your credentials and access.")
   }
@@ -616,7 +624,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
                                            pathToFiles = Sys.getenv("AWS_OBJECT_KEY"),
                                            awsAccessKey = Sys.getenv("AWS_ACCESS_KEY_ID"),
                                            awsSecretAccessKey = Sys.getenv("AWS_SECRET_ACCESS_KEY"))
-  
+
   tryCatch({
     DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
     delta <- Sys.time() - start

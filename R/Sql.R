@@ -349,8 +349,8 @@ executeSql <- function(connection,
       rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
     # https://github.com/OHDSI/DatabaseConnector/issues/90
-    rJava::.jcall(connection@jConnection, "V", "setAutoCommit", FALSE)
-    on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE), add = TRUE)
+    trySettingAutoCommit(connection, FALSE)
+    on.exit(trySettingAutoCommit(connection, TRUE), add = TRUE)
   }
   for (i in 1:length(sqlStatements)) {
     sqlStatement <- sqlStatements[i]
@@ -421,6 +421,14 @@ convertFields <- function(dbms, result) {
     }
   } 
   return(result)
+}
+
+trySettingAutoCommit <- function(connection, value) {
+    tryCatch({
+        rJava::.jcall(connection@jConnection, "V", "setAutoCommit", value)
+    }, error = function(cond) {
+        # do nothing
+    })
 }
 
 #' Retrieve data to a data.frame
