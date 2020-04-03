@@ -26,6 +26,21 @@ NULL
 
 .onLoad <- function(libname, pkgname) {
   rJava::.jpackage(pkgname, jars = "DatabaseConnector.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "api-common-1.8.1.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "DatabaseConnector.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "gax-1.49.1.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "gax-httpjson-0.66.1.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-auth-library-credentials-0.18.0.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-auth-library-oauth2-http-0.18.0.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-auth-library-oauth2-http-0.20.0.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-cloud-bigquery-1.107.0.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-cloud-core-1.93.0.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-cloud-core-http-1.91.3.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-http-client-1.24.1.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "google-http-client-appengine-1.34.2.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "guava-28.2-jre.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "jsqlparser-3.1.jar", lib.loc = libname)
+  rJava::.jpackage(pkgname, jars = "threetenbp-1.4.1.jar", lib.loc = libname)
 }
 
 #' @name jdbcDrivers
