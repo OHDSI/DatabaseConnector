@@ -4,10 +4,18 @@
 \alias{insertTable}
 \title{Insert a table on the server}
 \usage{
-insertTable(connection, tableName, data, dropTableIfExists = TRUE,
-  createTable = TRUE, tempTable = FALSE, oracleTempSchema = NULL,
-  useMppBulkLoad = FALSE, progressBar = FALSE,
-  camelCaseToSnakeCase = FALSE)
+insertTable(
+  connection,
+  tableName,
+  data,
+  dropTableIfExists = TRUE,
+  createTable = TRUE,
+  tempTable = FALSE,
+  oracleTempSchema = NULL,
+  useMppBulkLoad = FALSE,
+  progressBar = FALSE,
+  camelCaseToSnakeCase = FALSE
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

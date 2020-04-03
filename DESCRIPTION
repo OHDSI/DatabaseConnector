@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 2.4.1
-Date: 2019-07-16
+Version: 2.4.3
+Date: 2020-03-16
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -21,7 +21,7 @@ Imports:
     bit,
     ff,
     ffbase (>= 0.12.1),
-    SqlRender (>= 1.6.0),
+    SqlRender (>= 1.6.3),
     methods,
     utils,
     DBI (>= 1.0.0),
@@ -34,11 +34,12 @@ Suggests:
     DBItest,
     knitr,
     rmarkdown,
-    RSQLite
+    RSQLite,
+    ssh
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector, https://github.com/OHDSI/DatabaseConnector
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Encoding: UTF-8

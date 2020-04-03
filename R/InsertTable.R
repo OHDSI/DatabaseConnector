@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -37,43 +37,26 @@
   paste(quote, s, quote, sep = "")
 }
 
-mergeTempTables <- function(connection, tableName, varNames, sourceNames, location, distribution) {
+mergeTempTables <- function(connection, tableName, varNames, sourceNames, distribution, oracleTempSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", varNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
-  if (attr(connection, "dbms") == "pdw") {
-    sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
-                 tableName,
-                 " (",
-                 varNames,
-                 " ) WITH (",
-                 location,
-                 "DISTRIBUTION=",
-                 distribution,
-                 ") AS SELECT ",
-                 varNames,
-                 " FROM ",
-                 valueString,
-                 sep = "")
-  } else {
-    sql <- paste("CREATE ",
-                 location,
-                 "TABLE ",
-                 tableName,
-                 " (",
-                 varNames,
-                 " ) ",
-                 distribution,
-                 " AS SELECT ",
-                 varNames,
-                 " FROM ",
-                 valueString,
-                 sep = "")
-  }
+  sql <- paste(distribution,
+               "\n",
+               "SELECT ",
+               varNames,
+               " INTO ",
+               tableName,
+               " FROM ",
+               valueString,
+               ";",
+               sep = "")
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
 
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
@@ -99,38 +82,36 @@ toStrings <- function(data, fts) {
   }
 }
 
-ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar) {
-  batchSize <- 1000
-  mergeSize <- 300
-  if (attr(connection, "dbms") == "pdw") {
-    if (any(tolower(names(data)) == "subject_id")) {
-      distribution <- "HASH(SUBJECT_ID)"
-    } else if (any(tolower(names(data)) == "person_id")) {
-      distribution <- "HASH(PERSON_ID)"
-    } else {
-      distribution <- "REPLICATE"
-    }
-    tempLocation <- "LOCATION = USER_DB, "
-    if (tempTable) {
-      location <- tempLocation
-    } else {
-      location <- ""
-    }
+castValues <- function(values, fts) {
+  paste("CAST(",
+        values,
+        " AS ",
+        fts,
+        ")",
+        sep = "")
+}
+
+formatRow <- function(data, aliases = c(), castValues, fts) {
+  if (castValues) {
+    data <- castValues(data, fts)
+  }
+  return(paste(data, aliases, collapse = ","))
+}
+
+ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema) {
+  if (attr(connection, "dbms") == "hive") {
+    batchSize <- 750
   } else {
-    if (any(tolower(names(data)) == "subject_id")) {
-      distribution <- "DISTKEY(SUBJECT_ID)"
-    } else if (any(tolower(names(data)) == "person_id")) {
-      distribution <- "DISTKEY(PERSON_ID)"
-    } else {
-      distribution <- ""
-    }
-    tempLocation <- "TEMP "
-    if (tempTable) {
-      location <- tempLocation
-      # qname <- gsub("^#", "", qname)
-    } else {
-      location <- ""
-    }
+    batchSize <- 1000
+  }
+  mergeSize <- 300
+  
+  if (any(tolower(names(data)) == "subject_id")) {
+    distribution <- "--HINT DISTRIBUTE_ON_KEY(SUBJECT_ID)\n"
+  } else if (any(tolower(names(data)) == "person_id")) {
+    distribution <- "--HINT DISTRIBUTE_ON_KEY(PERSON_ID)\n"
+  } else {
+    distribution <- ""
   }
 
   # Insert data in batches in temp tables using CTAS:
@@ -143,60 +124,47 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       setTxtProgressBar(pb, start/nrow(data))
     }
     if (length(tempNames) == mergeSize) {
-      mergedName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, varNames, tempNames, tempLocation, distribution)
+      mergedName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
+      mergeTempTables(connection, mergedName, varNames, tempNames, distribution, oracleTempSchema)
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
-    batch <- toStrings(data[start:end, , drop = FALSE], fts)    
-    # First line gets type information
-    valueString <- paste(paste("CAST(",
-                               batch[1, , drop = FALSE],
-                               " AS ",
-                               fts,
-                               ")",
-                               sep = ""), collapse = ",")
+    batch <- toStrings(data[start:end, , drop = FALSE], fts)
+    
+    varAliases <- strsplit(varNames, ",")[[1]]
+    # First line gets type information:
+    valueString <- formatRow(batch[1, , drop = FALSE], varAliases, castValues = TRUE, fts = fts)
     if (end > start) {
+      # Other lines only get type information if BigQuery:
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
                                                 MARGIN = 1,
-                                                FUN = paste,
-                                                collapse = ",")), collapse = "\nUNION ALL\nSELECT ")
+                                                FUN = formatRow,
+                                                aliases = varAliases,
+                                                castValues = attr(connection, "dbms") %in% c("bigquery", "hive"),
+                                                fts = fts)), 
+                           collapse = "\nUNION ALL\nSELECT ")
     }
-    tempName <- paste("#", paste(sample(letters, 24, replace = TRUE), collapse = ""), sep = "")
+    tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
-    if (attr(connection, "dbms") == "pdw") {
-      sql <- paste("IF XACT_STATE() = 1 COMMIT; CREATE TABLE ",
-                   tempName,
-                   " (",
-                   varNames,
-                   " ) WITH (",
-                   tempLocation,
-                   "DISTRIBUTION=",
-                   distribution,
-                   ") AS SELECT ",
-                   valueString,
-                   sep = "")
-    } else {
-      sql <- paste("CREATE ",
-                   tempLocation,
-                   "TABLE ",
-                   tempName,
-                   " (",
-                   varNames,
-                   " ) ",
-                   distribution,
-                   " AS SELECT ",
-                   valueString,
-                   sep = "")
-      
-    }
+    sql <- paste(distribution,
+                 "WITH data (",
+                 varNames,
+                 ") AS (SELECT ",
+                 valueString,
+                 " ) SELECT ",
+                 varNames,
+                 " INTO ",
+                 tempName,
+                 " FROM data;",
+                 sep = "")
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   if (progressBar) {
     setTxtProgressBar(pb, 1)
     close(pb)
   }
-  mergeTempTables(connection, qname, varNames, tempNames, location, distribution)
+  mergeTempTables(connection, qname, varNames, tempNames, distribution, oracleTempSchema)
 }
 
 is.bigint <- function(x) {
@@ -310,7 +278,7 @@ insertTable.default <- function(connection,
     tempTable <- TRUE
     warning("Temp table name detected, setting tempTable parameter to TRUE")
   }
-  if (Sys.getenv("USE_MPP_BULK_LOAD") == "TRUE") {
+  if (toupper(Sys.getenv("USE_MPP_BULK_LOAD")) == "TRUE") {
     useMppBulkLoad <- TRUE
   }
   if (dropTableIfExists)
@@ -374,8 +342,8 @@ insertTable.default <- function(connection,
                                 oracleTempSchema = oracleTempSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
-
-  if (createTable && !tempTable && useMppBulkLoad) {
+  
+  if (createTable && (!tempTable || attr(connection, "dbms") == "hive") && useMppBulkLoad) {
     ensure_installed("uuid")
     ensure_installed("R.utils")
     ensure_installed("urltools")
@@ -383,19 +351,28 @@ insertTable.default <- function(connection,
       stop("MPP credentials could not be confirmed. Please review them or set 'useMppBulkLoad' to FALSE")
     }
     writeLines("Attempting to use MPP bulk loading...")
-    sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
-    sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
-    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    dbms <- attr(connection, "dbms")
     
-    if (attr(connection, "dbms") == "redshift") {
+    if (dbms != "hive") {
+      sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
+      sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
+      executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    }
+    
+    if (dbms == "redshift") {
       ensure_installed("aws.s3")
       .bulkLoadRedshift(connection, qname, data)
-    } else if (attr(connection, "dbms") == "pdw") {
-      .bulkLoadPdw(connection, qname, data)
+    } else if (dbms == "pdw") {
+      .bulkLoadPdw(connection, qname, fts, data)
+    } else if (dbms == "hive") {
+      if (tolower(Sys.info()["sysname"]) == "windows") {
+        ensure_installed("ssh")
+      }            
+      .bulkLoadHive(connection, qname, strsplit(varNames, ",")[[1]], data)
     }
   } else {
-    if ((attr(connection, "dbms") == "pdw" | attr(connection, "dbms") == "redshift") && createTable && nrow(data) > 0) {
-      ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar)
+    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0) {
+      ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema)
     } else {
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
@@ -530,13 +507,45 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       warning("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
+  } else if (attr(connection, "dbms") == "hive") {
+    if (tolower(Sys.info()["sysname"]) == "windows" && !is_installed("ssh")) {
+      writeLines("Please install ssh package, it's required")
+      return(FALSE)
+    }
+    if (Sys.getenv("HIVE_NODE_HOST") == "") {
+      writeLines("Please set environment variable HIVE_NODE_HOST to the Hive Node's host:port")
+      return(FALSE)
+    }
+    if (Sys.getenv("HIVE_SSH_USER") == "") {
+      warning(paste("HIVE_SSH_USER is not set, using default", .getHiveSshUser()))
+    }
+    if (Sys.getenv("HIVE_SSH_PASSWORD") == "" && Sys.getenv("HIVE_KEYFILE") == "") {
+      writeLines("At least one of the following environment variables: HIVE_PASSWORD and/or HIVE_KEYFILE should be set")
+      return(FALSE)
+    }
+    if (Sys.getenv("HIVE_KEYFILE") == "") {
+      warning("Using ssh password authentication, it's recommended to use keyfile instead")
+    }
+    
+    return(TRUE)
   } else {
     return(FALSE)
   }
 }
 
-.bulkLoadPdw <- function(connection, qname, data) {
+.getHiveSshUser <- function() {
+  sshUser <- Sys.getenv("HIVE_SSH_USER")
+  return(if (sshUser == "") "root" else sshUser)
+}
+
+.bulkLoadPdw <- function(connection, qname, fts, data) {
   start <- Sys.time()
+  # Format integer fields to prevent scientific notation:
+  for (i in 1:ncol(data)) {
+    if (fts[i] %in% c("INTEGER", "BIGINT")) {
+      data[, i] <- format(data[, i], scientific = FALSE)
+    }
+  }
   eol <- "\r\n"
   fileName <- file.path(tempdir(), sprintf("pdw_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
   write.table(x = data,
@@ -635,6 +644,65 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
     try(aws.s3::delete_object(object = sprintf("%s.gz", fileName),
                               bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
+  })
+}
+
+.bulkLoadHive <- function(connection, qname, varNames, data) {
+  start <- Sys.time()
+  fileName <- sprintf("hive_insert_%s.csv", uuid::UUIDgenerate(use.time = TRUE))
+  filePath <- file.path(tempdir(), fileName)
+  write.csv(x = data, na = "", file = filePath, row.names = FALSE, quote = TRUE)
+  
+  hiveUser <- .getHiveSshUser()
+  hivePasswd <- Sys.getenv("HIVE_SSH_PASSWORD")
+  hiveHost <- Sys.getenv("HIVE_NODE_HOST")
+  sshPort <- (function(port) if (port == "") "2222" else port)(Sys.getenv("HIVE_SSH_PORT"))
+  nodePort <- (function(port) if (port == "") "8020" else port)(Sys.getenv("HIVE_NODE_PORT"))
+  hiveKeyFile <- (function(keyfile) if (keyfile == "") NULL else keyfile)(Sys.getenv("HIVE_KEYFILE"))
+  hadoopUser <- (function(hadoopUser) if (hadoopUser == "") "hive" else hadoopUser)(Sys.getenv("HADOOP_USER_NAME"))
+  
+  tryCatch({
+    if (tolower(Sys.info()["sysname"]) == "windows") {
+      session <- ssh::ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
+      remoteFile <- paste0("/tmp/", fileName)
+      ssh::scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
+      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
+      hadoopFile <- paste0(hadoopDir, "/", fileName)
+      ssh::ssh_exec_wait(session, sprintf("HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hadoopUser, hadoopDir))
+      command <- sprintf("HADOOP_USER_NAME=%s hadoop fs -put %s %s", hadoopUser, remoteFile, hadoopFile)
+      ssh::ssh_exec_wait(session, command = command)
+    } else {
+      remoteFile <- paste0("/tmp/", fileName)
+      scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, filePath, hiveHost, remoteFile)
+      system(scp_command)
+      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
+      hadoopFile <- paste0(hadoopDir, "/", fileName)
+      hdp_mk_dir_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hivePasswd, hiveHost, sshPort, hadoopUser, hadoopDir)
+      system(hdp_mk_dir_command)
+      hdp_put_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -put %s %s", hivePasswd, hiveHost, sshPort, hadoopUser, remoteFile, hadoopFile)
+      system(hdp_put_command)
+    }
+    def <- function(name) {
+      return(paste(name, "STRING"))
+    }
+    fdef <- paste(sapply(varNames, def), collapse = ", ")
+    sql <- SqlRender::render("CREATE TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
+                             filename = hadoopDir, table = qname, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
+    sql <- SqlRender::translate(sql, targetDialect = "hive", oracleTempSchema = NULL)
+    
+    tryCatch({
+      DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
+      delta <- Sys.time() - start
+      writeLines(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
+    }, error = function(e) {
+      writeLines(paste("Error:", e))
+      stop("Error in Hive bulk upload.")
+    }, finally = {
+      try(invisible(file.remove(filePath)))
+    })
+  }, finally = {
+    if (tolower(Sys.info()["sysname"]) == "windows")
+      ssh::ssh_disconnect(session)
   })
 }
 

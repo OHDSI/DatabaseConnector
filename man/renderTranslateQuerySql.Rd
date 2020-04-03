@@ -4,9 +4,14 @@
 \alias{renderTranslateQuerySql}
 \title{Render, translate, and query to data.frame}
 \usage{
-renderTranslateQuerySql(connection, sql,
+renderTranslateQuerySql(
+  connection,
+  sql,
   errorReportFile = file.path(getwd(), "errorReport.txt"),
-  snakeCaseToCamelCase = FALSE, oracleTempSchema = NULL, ...)
+  snakeCaseToCamelCase = FALSE,
+  oracleTempSchema = NULL,
+  ...
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

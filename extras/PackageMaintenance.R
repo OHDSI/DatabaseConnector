@@ -1,6 +1,6 @@
 # @file PackageMaintenance
 #
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -20,9 +20,10 @@
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
+devtools::spell_check()
 
 # Create manual:
-shell("rm extras/DatabaseConnector.pdf")
+unlink("extras/DatabaseConnector.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
 rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
@@ -34,8 +35,6 @@ rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
 pkgdown::build_site()
 
 # Release package:
-devtools::spell_check()
-
 devtools::check_win_devel()
 
 devtools::check_rhub()

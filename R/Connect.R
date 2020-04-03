@@ -1,6 +1,6 @@
 # @file Connect.R
 #
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -66,16 +66,9 @@ createConnectionDetails <- function(dbms,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
                                     pathToDriver = getOption("pathToDriver")) {
-  # First: get default values:
   result <- list()
   for (name in names(formals(createConnectionDetails))) {
     result[[name]] <- get(name)
-  }
-  # Second: overwrite defaults with actual values:
-  values <- lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3)))
-  for (name in names(values)) {
-    if (name %in% names(result))
-      result[[name]] <- values[[name]]
   }
   class(result) <- "connectionDetails"
   return(result)
@@ -491,6 +484,26 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "hive") {
+      writeLines("Connecting using Hive driver")
+      jarPath <- findPathToJar("^hive-jdbc-standalone\\.jar$", pathToDriver)
+      driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
+  
+      if (missing(connectionString) || is.null(connectionString)) {
+          connectionString <- paste0("jdbc:hive2://", server, ":", port, "/", schema)
+          if (!missing(extraSettings) && !is.null(extraSettings)) {
+              connectionString <- paste0(connectionString, ";", extraSettings)
+          }
+      }
+      connection <- connectUsingJdbcDriver(driver,
+      connectionString,
+      user = user,
+      password = password,
+      dbms = dbms)
+  
+      attr(connection, "dbms") <- dbms
+      return(connection)
+  }
   if (dbms == "bigquery") {
     writeLines("Connecting using BigQuery driver")
     
@@ -557,6 +570,10 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
+  if (dbms == "hive") {
+    attr(connection, "url") <- url
+    attr(connection, "user") <- properties$user
+  }
   registerWithRStudio(connection)
   return(connection)
 }

@@ -1,10 +1,10 @@
-Since v2.3.0 there are two changes, five bugfixes (see NEWS.md).
+Since v2.4.2 there is one change, one bugfix (see NEWS.md).
 
 ---
 
 ## Test environments
-* Ubuntu 14.04.5 LTS (Travis), R 3.6.1
-* Windows 7, R 3.6.0
+* Ubuntu 14.04.5 LTS (Travis), R 3.6.2
+* Windows 7, R 3.6.1
 
 ## R CMD check results
 
