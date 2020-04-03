@@ -11,6 +11,8 @@ Bugfixes:
 
 1. Setting append = TRUE when not creating table in insertTable for RSQLite.
 
+2. On RedShift, converting schema name to lowercase before getting table names to fix empty results.
+
 
 DatabaseConnector 2.4.3
 =======================
