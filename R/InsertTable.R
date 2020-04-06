@@ -301,6 +301,8 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
   }
 
+  isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
+
   def <- function(obj) {
     if (is.integer(obj)) {
       return("INTEGER")
@@ -469,6 +471,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     tempTable <- TRUE
     warning("Temp table name detected, setting tempTable parameter to TRUE")
   }
+  isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
+
   tableName <- gsub("^#", "", tableName)
   # Convert dates and datetime to UNIX timestamp:
   for (i in 1:ncol(data)) {
@@ -479,7 +483,12 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
     }
   }
-  DBI::dbWriteTable(connection@dbiConnection, tableName, data, overwrite = dropTableIfExists, temporary = tempTable)
+  DBI::dbWriteTable(conn = connection@dbiConnection,
+                    name = tableName,
+                    value = data,
+                    overwrite = dropTableIfExists,
+                    append = !createTable,
+                    temporary = tempTable)
   invisible(NULL)
 }
 

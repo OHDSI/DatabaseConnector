@@ -16,11 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' DatabaseConnector
-#'
-#' @docType package
-#' @name DatabaseConnector
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table
+#' @keywords internal
+"_PACKAGE"
+
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table read.csv
 #' install.packages menu
 NULL
 
