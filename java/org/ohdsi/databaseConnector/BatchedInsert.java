@@ -2,9 +2,10 @@ package org.ohdsi.databaseConnector;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BatchedInsert {
 	public static int	INTEGER		= 0;
@@ -29,14 +30,6 @@ public class BatchedInsert {
 		columnTypes = new int[columnCount];
 	}
 	
-	private void trySettingAutoCommit(Connection connection, boolean value) throws SQLException {
-		try {
-			connection.setAutoCommit(value);
-		} catch (SQLFeatureNotSupportedException exception) {
-			// Do nothing
-		}
-	}
-
 	public void executeBatch() {
 		for (int i = 0; i < columnCount; i++) {
 			if (columns[i] == null)
@@ -53,53 +46,16 @@ public class BatchedInsert {
 			}
 		}
 		try {
+
 			trySettingAutoCommit(connection, false);
-			PreparedStatement statement = connection.prepareStatement(sql);
-			for (int i = 0; i < rowCount; i++) {
-				for (int j = 0; j < columnCount; j++) {
-					if (columnTypes[j] == INTEGER) {
-						int value = ((int[]) columns[j])[i];
-						if (value == Integer.MIN_VALUE)
-							statement.setObject(j + 1, null);
-						else
-							statement.setInt(j + 1, value);
-					} else if (columnTypes[j] == NUMERIC) {
-						double value = ((double[]) columns[j])[i];
-						if (Double.isNaN(value))
-							statement.setObject(j + 1, null);
-						else
-							statement.setDouble(j + 1, value);
-					} else if (columnTypes[j] == DATE) {
-						String value = ((String[]) columns[j])[i];
-						if (value == null)
-							statement.setObject(j + 1, null);
-						else
-							statement.setDate(j + 1, java.sql.Date.valueOf(value));
-					} else if (columnTypes[j] == DATETIME) {
-						String value = ((String[]) columns[j])[i];
-						if (value == null)
-							statement.setObject(j + 1, null);
-						else
-							statement.setTimestamp(j + 1, java.sql.Timestamp.valueOf(value));
-					} else if(columnTypes[j] == BIGINT) {
-						long value = ((long[]) columns[j])[i];
-						if (value == Long.MIN_VALUE)
-							statement.setObject(j + 1, null);
-						else
-							statement.setLong(j + 1, value);
-					} else {
-						String value = ((String[]) columns[j])[i];
-						if (value == null)
-							statement.setObject(j + 1, null);
-						else
-							statement.setString(j + 1, value);
-					}
-				}
-				statement.addBatch();
-			}
-			statement.executeBatch();
-			connection.commit();
-			statement.close();
+
+
+			List<List<Object>> rows = getListOfRows();
+			System.out.println("----------------sql: ");
+			System.out.println(sql);
+			DataLoader dataLoader = new DataLoader(columnCount, connection);
+			dataLoader.load(sql, rows);
+
 			connection.clearWarnings();
 			trySettingAutoCommit(connection, true);
 		} catch (SQLException e) {
@@ -112,6 +68,56 @@ public class BatchedInsert {
 				columns[i] = null;
 			}
 			rowCount = 0;
+		}
+	}
+
+
+
+
+	private void trySettingAutoCommit(Connection connection, boolean value) throws SQLException {
+		try {
+			connection.setAutoCommit(value);
+		} catch (SQLFeatureNotSupportedException exception) {
+			// Do nothing
+		}
+	}
+
+	private List<List<Object>> getListOfRows() {
+
+		List<List<Object>> data = new ArrayList<>();
+		for (int i = 0; i < rowCount; i++) {
+			List<Object> row = new ArrayList<>();
+			data.add(row);
+			for (int j = 0; j < columnCount; j++) {
+				row.add(getValue( i, j));
+			}
+		}
+		return data;
+	}
+
+	private Object getValue(int rowIndex, int columnIndex) {
+
+		if (columnTypes[columnIndex] == INTEGER) {
+			int value = ((int[]) columns[columnIndex])[rowIndex];
+			if (value == Integer.MIN_VALUE) return null;
+			return value;
+		} else if (columnTypes[columnIndex] == NUMERIC) {
+			double value = ((double[]) columns[columnIndex])[rowIndex];
+			if (Double.isNaN(value)) return null;
+			return value;
+		} else if (columnTypes[columnIndex] == DATE) {
+			String value = ((String[]) columns[columnIndex])[rowIndex];
+			return java.sql.Date.valueOf(value);
+		} else if (columnTypes[columnIndex] == DATETIME) {
+			String value = ((String[]) columns[columnIndex])[rowIndex];
+			return java.sql.Timestamp.valueOf(value);
+		} else if(columnTypes[columnIndex] == BIGINT) {
+			long value = ((long[]) columns[columnIndex])[rowIndex];
+			if (value == Long.MIN_VALUE) return null;
+			return value;
+		} else {
+			String value = ((String[]) columns[columnIndex])[rowIndex];
+			return value;
 		}
 	}
 
