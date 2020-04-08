@@ -1,8 +1,11 @@
 package org.ohdsi.databaseConnector;
 
-import static org.ohdsi.databaseConnector.BatchColumnType.*;
+import static org.ohdsi.databaseConnector.BatchColumnType.BIGINT;
+import static org.ohdsi.databaseConnector.BatchColumnType.DATE;
+import static org.ohdsi.databaseConnector.BatchColumnType.DATETIME;
+import static org.ohdsi.databaseConnector.BatchColumnType.INTEGER;
+import static org.ohdsi.databaseConnector.BatchColumnType.NUMERIC;
 
-import com.google.api.client.repackaged.com.google.common.base.Strings;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,9 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataLoader {
-
-    private int ROW_LIMIT_PER_SAVE_FOR_BATCH = 1000;
-    private int ROW_LIMIT_PER_SAVE_FOR_INSERT = 6;
 
     private static List<String> BIGQUARY_JDBC_DRIVER_CLASSES = Stream.of(
             "com.simba.googlebigquery.jdbc.jdbc42.S42ConnectionHandle",
@@ -41,25 +41,17 @@ public class DataLoader {
     public void load(String sql) throws SQLException {
 
         if (isBatchAvailable()) {
-            BatchIterator batchIterator = new BatchIterator(ROW_LIMIT_PER_SAVE_FOR_BATCH, rowCount);
-            while (batchIterator.hasNext()) {
-                BatchIterator.BatchData batchData = batchIterator.getNext();
-                batchLoad(sql, batchData);
-            }
-
+            batchLoad(sql);
         } else {
-            BatchIterator batchIterator = new BatchIterator(ROW_LIMIT_PER_SAVE_FOR_INSERT, rowCount);
-            while (batchIterator.hasNext()) {
-                BatchIterator.BatchData batchData = batchIterator.getNext();
-                multiValueLoad(sql, batchData);
-            }
+            multiValueLoad(sql);
         }
     }
 
-    private void batchLoad(String sql, BatchIterator.BatchData batchData) throws SQLException {
+
+    private void batchLoad(String sql) throws SQLException {
 
         PreparedStatement statement = connection.prepareStatement(sql);
-        for (int i = batchData.getFirstElementIndex(); i <= batchData.getLastElementIndex(); i++) {
+        for (int i = 0; i <= rowCount; i++) {
             for (int j = 0; j < columnCount; j++) {
                 Object value = getValue(i, j);
                 statement.setObject(j + 1, value);
@@ -75,20 +67,19 @@ public class DataLoader {
      * Not all drivers support batch operations, for example GoogleBigQueryJDBC42.jar.
      * In order to save data most  efficiently, we implement saving through an insert with multiple values.
      *
-     * @param sql  sql
-     * @param batchData batchData
+     * @param sql       sql
      * @throws SQLException
      */
-    private void multiValueLoad(String sql, BatchIterator.BatchData batchData) throws SQLException {
+    private void multiValueLoad(String sql) throws SQLException {
 
         //create insert query by adding multiply values like insert values (?,?),(?,?),(?,?)
         String params = String.join(",", Collections.nCopies(columnCount, "?"));
-        String sqlWithValues = sql + Strings.repeat(String.format(", (%s)", params), batchData.getSize() - 1);
+        String sqlWithValues = sql + Collections.nCopies(rowCount - 1, String.format(", (%s)", params)).stream().collect(Collectors.joining());
 
         PreparedStatement statement = connection.prepareStatement(sqlWithValues);
-        for (int i = batchData.getFirstElementIndex(); i <= batchData.getLastElementIndex(); i++) {
+        for (int i = 0; i <= rowCount; i++) {
             for (int j = 0; j < columnCount; j++) {
-                int base = columnCount * (i - batchData.getFirstElementIndex());
+                int base = columnCount * i;
                 int position = base + j + 1;
                 Object value = getValue(i, j);
                 statement.setObject(position, value);
