@@ -1,3 +1,31 @@
+DatabaseConnector 2.4.4
+=======================
+
+Changes:
+
+1. Deprecating schema argument in connect and createConnectionDetails functions.
+
+2. Checking table and column names for SQL reserved words when inserting a table.
+
+Bugfixes:
+
+1. Setting append = TRUE when not creating table in insertTable for RSQLite.
+
+2. On RedShift, converting schema name to lowercase before getting table names to fix empty results.
+
+
+DatabaseConnector 2.4.3
+=======================
+
+Changes:
+
+1. Adding bulk upload for Hive.
+
+Bugfixes:
+
+2. Reducing batch size when performing CTAS hack on Hive to avoid error.
+
+
 DatabaseConnector 2.4.2
 =======================
 

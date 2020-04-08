@@ -49,8 +49,7 @@
 #' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              server = "localhost/postgres",
 #'                                              user = "root",
-#'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#'                                              password = "blah")
 #' conn <- connect(connectionDetails)
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
@@ -156,12 +155,11 @@ findPathToJar <- function(name, pathToDriver) {
 #' conn <- connect(dbms = "postgresql",
 #'                 server = "localhost/postgres",
 #'                 user = "root",
-#'                 password = "xxx",
-#'                 schema = "cdm_v4")
+#'                 password = "xxx")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #'
-#' conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com", schema = "Vocabulary")
+#' conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
 #' disconnect(conn)
 #'
@@ -169,7 +167,6 @@ findPathToJar <- function(name, pathToDriver) {
 #'                 server = "127.0.0.1/xe",
 #'                 user = "system",
 #'                 password = "xxx",
-#'                 schema = "test",
 #'                 pathToDriver = "c:/temp")
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 #' disconnect(conn)
@@ -192,6 +189,12 @@ connect <- function(connectionDetails = NULL,
                     oracleDriver = "thin",
                     connectionString = NULL,
                     pathToDriver = getOption("pathToDriver")) {
+  
+  if (!missing(schema) && !is.null(schema)) {
+    warning(
+      "The schema argument is deprecated. Please use fully specified table names in your SQL statement, for example 'SELECT * FROM my_schema.my_table;'"
+    )
+  }
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
@@ -570,6 +573,10 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
+  if (dbms == "hive") {
+    attr(connection, "url") <- url
+    attr(connection, "user") <- properties$user
+  }
   registerWithRStudio(connection)
   return(connection)
 }

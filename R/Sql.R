@@ -349,8 +349,8 @@ executeSql <- function(connection,
       rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
     # https://github.com/OHDSI/DatabaseConnector/issues/90
-    rJava::.jcall(connection@jConnection, "V", "setAutoCommit", FALSE)
-    on.exit(rJava::.jcall(connection@jConnection, "V", "setAutoCommit", TRUE), add = TRUE)
+    trySettingAutoCommit(connection, FALSE)
+    on.exit(trySettingAutoCommit(connection, TRUE), add = TRUE)
   }
   for (i in 1:length(sqlStatements)) {
     sqlStatement <- sqlStatements[i]
@@ -421,6 +421,14 @@ convertFields <- function(dbms, result) {
     }
   } 
   return(result)
+}
+
+trySettingAutoCommit <- function(connection, value) {
+    tryCatch({
+        rJava::.jcall(connection@jConnection, "V", "setAutoCommit", value)
+    }, error = function(cond) {
+        # do nothing
+    })
 }
 
 #' Retrieve data to a data.frame
@@ -689,3 +697,28 @@ renderTranslateQuerySql.ffdf <- function(connection,
                        errorReportFile = errorReportFile,
                        snakeCaseToCamelCase = snakeCaseToCamelCase))
 }
+
+#' Test a character vector of SQL names for SQL reserved words
+#' 
+#' This function checks a character vector against a predefined list of reserved SQL words.
+#'
+#' @param sqlNames A character vector containing table or field names to check.
+#' @param warn (logical) Should a warning be thrown if invalid SQL names are found?
+#'
+#' @return A logical vector with length equal to sqlNames that is TRUE for each name that is reserved and FALSE otherwise
+#' 
+#' @export
+isSqlReservedWord <- function(sqlNames, warn = FALSE){
+  stopifnot(is.character(sqlNames))
+  sqlNames <- gsub("^#", "", sqlNames)
+  sqlReservedWords <- read.csv(system.file("csv", "sqlReservedWords.csv", package = "DatabaseConnector"), stringsAsFactors = FALSE)
+  nameIsReserved <- toupper(sqlNames) %in% sqlReservedWords$reservedWords
+  badSqlNames <- sqlNames[nameIsReserved]
+  if (length(badSqlNames == 1) & warn) {
+    warning(paste(badSqlNames, "is a reserved keyword in SQL and should not be used as a table or field name."))
+  } else if (length(badSqlNames) > 1 & warn) {
+    warning(paste(paste(badSqlNames, collapse = ","), "are reserved keywords in SQL and should not be used as table or field names."))
+  } 
+  return(nameIsReserved)
+}
+  
