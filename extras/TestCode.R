@@ -4,8 +4,7 @@ options(fftempdir = "s:/fftemp")
 # Test PDW with integrated security ----------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              server = Sys.getenv("PDW_SERVER"),
-                                             port = Sys.getenv("PDW_PORT"),
-                                             schema = "CDM_Truven_MDCR_V415")
+                                             port = Sys.getenv("PDW_PORT"))
 conn <- connect(connectionDetails)
 conn2 <- connect(connectionDetails)
 disconnect(conn)
@@ -154,13 +153,13 @@ data <- data.frame(person_id = c(1, 2, 3),
                    start_date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
                    some_text = c("asdf", "asdf", "asdf"))
 system.time(
-insertTable(connection = conn,
-            tableName = "#test",
-            data = data,
-            dropTableIfExists = TRUE,
-            createTable = TRUE,
-            tempTable = TRUE,
-            useMppBulkLoad = F)
+  insertTable(connection = conn,
+              tableName = "#test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = TRUE,
+              useMppBulkLoad = F)
 )
 d2 <- querySql(conn, "SELECT * FROM #test")
 str(d2)
@@ -413,3 +412,34 @@ connectionDetails <- Eunomia::getEunomiaConnectionDetails()
 conn <- connect(connectionDetails)
 
 disconnect(conn)
+
+# Andromeda -----------------------------------------------------
+connectionDetails <- createConnectionDetails(dbms = "pdw",
+                                             server = Sys.getenv("PDW_SERVER"),
+                                             port = Sys.getenv("PDW_PORT"))
+connection <- connect(connectionDetails)
+
+query <- "SELECT TOP 100000 * FROM CDM_Truven_MDCR_V415.dbo.observation_period;"
+sqliteConnection <- Andromeda::Andromeda()
+sqliteTableName <- "test"
+querySql.sqlite(connection = connection,
+                sql = query,
+                sqliteConnection = sqliteConnection,
+                sqliteTableName = sqliteTableName,
+                snakeCaseToCamelCase = TRUE)
+
+disconnect(connection)
+DBI::dbGetQuery(sqliteConnection, "SELECT COUNT(*) FROM test;")
+
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+connection <- connect(connectionDetails)
+query <- "SELECT * FROM main.person;"
+sqliteConnection <- Andromeda::Andromeda()
+sqliteTableName <- "test"
+querySql.sqlite(connection = connection,
+                sql = query,
+                sqliteConnection = sqliteConnection,
+                sqliteTableName = sqliteTableName)
+
+disconnect(connection)
+DBI::dbGetQuery(sqliteConnection, "SELECT COUNT(*) FROM test;")

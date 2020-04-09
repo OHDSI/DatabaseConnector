@@ -4,7 +4,7 @@
 \alias{lowLevelQuerySql.ffdf}
 \title{Low level function for retrieving data to an ffdf object}
 \usage{
-lowLevelQuerySql.ffdf(connection, query = "", datesAsString = FALSE)
+lowLevelQuerySql.ffdf(connection, query, datesAsString = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

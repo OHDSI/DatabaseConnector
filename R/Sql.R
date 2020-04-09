@@ -76,12 +76,12 @@ as.POSIXct.ff_vector <- function(x, ...) {
 #' (ffdf cannot have 0 rows)
 #'
 #' @export
-lowLevelQuerySql.ffdf <- function(connection, query = "", datesAsString = FALSE) {
+lowLevelQuerySql.ffdf <- function(connection, query, datesAsString = FALSE) {
   UseMethod("lowLevelQuerySql.ffdf", connection)
 }
 
 #' @export
-lowLevelQuerySql.ffdf.default <- function(connection, query = "", datesAsString = FALSE) {
+lowLevelQuerySql.ffdf.default <- function(connection, query, datesAsString = FALSE) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -143,7 +143,7 @@ lowLevelQuerySql.ffdf.default <- function(connection, query = "", datesAsString 
 }
 
 #' @export
-lowLevelQuerySql.ffdf.DatabaseConnectorDbiConnection <- function(connection, query = "", datesAsString = FALSE) {
+lowLevelQuerySql.ffdf.DatabaseConnectorDbiConnection <- function(connection, query, datesAsString = FALSE) {
   results <- lowLevelQuerySql(connection, query)
   for (i in 1:ncol(results)) {
     if (class(results[, i]) == "character") {
@@ -176,7 +176,7 @@ lowLevelQuerySql.ffdf.DatabaseConnectorDbiConnection <- function(connection, que
 #' A data frame containing the data retrieved from the server
 #'
 #' @export
-lowLevelQuerySql <- function(connection, query = "", datesAsString = FALSE) {
+lowLevelQuerySql <- function(connection, query, datesAsString = FALSE) {
   # Not using UseMethod pattern to avoid note about lowLevelQuerySql.ffdf being a method:
   if (inherits(connection, "DatabaseConnectorDbiConnection")) {
     results <- DBI::dbGetQuery(connection@dbiConnection, query)
