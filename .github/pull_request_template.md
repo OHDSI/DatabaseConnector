@@ -6,7 +6,7 @@ Additional requirements for pull requests:
 
 - If possible, add unit tests for new functionality you add.
 
-- Restrict your pull-request to solving the issue at hand. Do not try to 'improve' parts of the code that are not related to the issue. If you feel other parts of the code need better organization, create a separate issue for that.
+- Restrict your pull request to solving the issue at hand. Do not try to 'improve' parts of the code that are not related to the issue. If you feel other parts of the code need better organization, create a separate issue for that.
 
 - Make sure you pass R check without errors and warnings before submitting.
 
