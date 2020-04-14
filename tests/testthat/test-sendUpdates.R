@@ -10,8 +10,7 @@ test_that("Send updates to server", {
   details <- createConnectionDetails(dbms = "postgresql",
                                      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
-                                     server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-                                     schema = Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
+                                     server = Sys.getenv("CDM5_POSTGRESQL_SERVER"))
   connection <- connect(details)
   
   expect_null(renderTranslateExecuteSql(connection, sql))
@@ -24,8 +23,7 @@ test_that("Send updates to server", {
   details <- createConnectionDetails(dbms = "sql server",
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
-                                     server = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
-                                     schema = Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
+                                     server = Sys.getenv("CDM5_SQL_SERVER_SERVER"))
   connection <- connect(details)
   
   expect_null(renderTranslateExecuteSql(connection, sql))
@@ -38,8 +36,7 @@ test_that("Send updates to server", {
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
-                                     server = Sys.getenv("CDM5_ORACLE_SERVER"),
-                                     schema = Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"))
+                                     server = Sys.getenv("CDM5_ORACLE_SERVER"))
   connection <- connect(details)
   
   expect_null(renderTranslateExecuteSql(connection, sql))

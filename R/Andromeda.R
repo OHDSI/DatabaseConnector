@@ -117,7 +117,7 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
 #' @param andromeda An open connection to a Andromeda database, for example as created using \code{\link[Andromeda]{andromeda}}.
 #' @param andromedaTableName  The name of the table in the local Andromeda database where the results of the query will be stored.
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
-#'                             'errorReport.txt' in the current working directory.
+#'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
 #'
 #' @details
@@ -152,7 +152,7 @@ querySqlToAndromeda <- function(connection,
                                 sql, 
                                 andromeda, 
                                 andromedaTableName, 
-                                errorReportFile = file.path(getwd(), "errorReport.txt"), 
+                                errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                 snakeCaseToCamelCase = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
@@ -196,7 +196,7 @@ querySqlToAndromeda <- function(connection,
 #' @param andromeda An open connection to a Andromeda database, for example as created using \code{\link[Andromeda]{andromeda}}.
 #' @param andromedaTableName  The name of the table in the local Andromeda database where the results of the query will be stored.
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
-#'                             'errorReport.txt' in the current working directory.
+#'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
 #' @param oracleTempSchema     A schema that can be used to create temp tables in when using Oracle or Impala.
 #' @param ...                  Parameters that will be used to render the SQL.
@@ -230,7 +230,7 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                sql, 
                                                andromeda,
                                                andromedaTableName,
-                                               errorReportFile = file.path(getwd(), "errorReport.txt"), 
+                                               errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                                snakeCaseToCamelCase = FALSE,
                                                oracleTempSchema = NULL,
                                                ...) {

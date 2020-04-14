@@ -1,0 +1,26 @@
+DBMS:
+sqlite
+
+Error:
+attempt to set 'colnames' on an object with less than two dimensions
+
+SQL:
+SELECT COUNT(*) FROM cars;
+
+R version:
+R version 3.6.1 (2019-07-05)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- DatabaseConnector (3.0.0)

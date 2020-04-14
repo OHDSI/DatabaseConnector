@@ -1,0 +1,27 @@
+DBMS:
+postgresql
+
+Error:
+java.lang.ClassNotFoundException
+
+SQL:
+SELECT COUNT(*) AS row_count FROM cdmv5.vocabulary
+
+R version:
+R version 3.6.1 (2019-07-05)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- DatabaseConnector (3.0.0)
+- testthat (2.3.2)

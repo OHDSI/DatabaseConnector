@@ -22,7 +22,7 @@ insertTable(
 
 \item{tableName}{The name of the table where the data should be inserted.}
 
-\item{data}{The data frame or ffdf containing the data to be inserted.}
+\item{data}{The data frame containing the data to be inserted.}
 
 \item{dropTableIfExists}{Drop the table if the table already exists before writing?}
 
@@ -46,7 +46,7 @@ table.}
 are converted to snake_case before uploading.}
 }
 \description{
-This function sends the data in a data frame or ffdf to a table on the server. Either a new table
+This function sends the data in a data frame to a table on the server. Either a new table
 is created, or the data is appended to an existing table.
 }
 \details{

@@ -10,7 +10,7 @@ renderTranslateExecuteSql(
   profile = FALSE,
   progressBar = TRUE,
   reportOverallTime = TRUE,
-  errorReportFile = file.path(getwd(), "errorReport.txt"),
+  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   runAsBatch = FALSE,
   oracleTempSchema = NULL,
   ...
@@ -31,7 +31,7 @@ code.}
 all statements.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReport.txt' in the current working directory.}
+'errorReportSql.txt' in the current working directory.}
 
 \item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and 
 executed there. This will be faster if you have many small SQL statements, but

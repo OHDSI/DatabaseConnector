@@ -7,7 +7,7 @@
 renderTranslateQuerySql(
   connection,
   sql,
-  errorReportFile = file.path(getwd(), "errorReport.txt"),
+  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
   oracleTempSchema = NULL,
   ...
@@ -19,7 +19,7 @@ renderTranslateQuerySql(
 \item{sql}{The SQL to be send.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReport.txt' in the current working directory.}
+'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 

@@ -1,3 +1,15 @@
+DatabaseConnector 3.0.0
+=======================
+
+Changes:
+
+- Dropping support for orphaned ff package
+
+- Adding support for Andromeda package to replace ff.
+
+- Error report file name now defaults to errorReportSql.txt to avoid confusion with other error reports.
+
+
 DatabaseConnector 2.4.4
 =======================
 
