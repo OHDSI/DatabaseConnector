@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Collections;
 
 public class BatchedInsert {
 	public static int	INTEGER		= 0;
@@ -13,6 +14,8 @@ public class BatchedInsert {
 	public static int	DATE		= 3;
 	public static int	DATETIME	= 4;
 	public static int	BIGINT		= 5;
+
+	public static final int BIG_DATA_BATCH_INSERT_LIMIT = 1000;
 
 	private Object[]	columns;
 	private int[]		columnTypes;
@@ -102,6 +105,106 @@ public class BatchedInsert {
 			statement.close();
 			connection.clearWarnings();
 			trySettingAutoCommit(connection, true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			if (e instanceof BatchUpdateException) {
+				System.err.println(((BatchUpdateException) e).getNextException().getMessage());
+			}
+		} finally {
+			for (int i = 0; i < columnCount; i++) {
+				columns[i] = null;
+			}
+			rowCount = 0;
+		}
+	}
+
+	/**
+	 * Not all drivers support batch operations, for example GoogleBigQueryJDBC42.jar.
+	 * In order to save data most efficiently, we implement saving through an insert with multiple values.
+	 */
+	public void executeBigQueryBatch() {
+		for (int i = 0; i < columnCount; i++) {
+			if (columns[i] == null)
+				throw new RuntimeException("Column " + (i + 1) + " not set");
+			if (columnTypes[i] == INTEGER) {
+				if (((int[]) columns[i]).length != rowCount)
+					throw new RuntimeException("Column " + (i) + " data not of correct length");
+			} else if (columnTypes[i] == NUMERIC) {
+				if (((double[]) columns[i]).length != rowCount)
+					throw new RuntimeException("Column " + (i) + " data not of correct length");
+			} else {
+				if (((String[]) columns[i]).length != rowCount)
+					throw new RuntimeException("Column " + (i) + " data not of correct length");
+			}
+		}
+		try {
+			trySettingAutoCommit(connection, false);
+
+			int offset = 0;
+			while (offset < rowCount ) {
+
+				int size = Math.min(rowCount - offset, BIG_DATA_BATCH_INSERT_LIMIT);
+				//create insert query by adding multiply values like insert values (?,?),(?,?),(?,?)
+				String params = String.join(
+						",",
+						Collections.nCopies(columnCount, "?")
+				);
+				String sqlWithValues = sql + "," + String.join(
+						",",
+						Collections.nCopies(size - 1, String.format("(%s)", params))
+				);
+				PreparedStatement statement = connection.prepareStatement(sqlWithValues);
+
+				for (int i = 0; i < size; i++) {
+					for (int j = 0; j < columnCount; j++) {
+						int statementIndex = columnCount * i + j + 1;
+						int rowIndex  = offset + i;
+
+						if (columnTypes[j] == INTEGER) {
+							int value = ((int[]) columns[j])[rowIndex];
+							if (value == Integer.MIN_VALUE)
+								statement.setObject(statementIndex, null);
+							else
+								statement.setInt(statementIndex, value);
+						} else if (columnTypes[j] == NUMERIC) {
+							double value = ((double[]) columns[j])[rowIndex];
+							if (Double.isNaN(value))
+								statement.setObject(statementIndex, null);
+							else
+								statement.setDouble(statementIndex, value);
+						} else if (columnTypes[j] == DATE) {
+							String value = ((String[]) columns[j])[rowIndex];
+							if (value == null)
+								statement.setObject(statementIndex, null);
+							else
+								statement.setDate(statementIndex, java.sql.Date.valueOf(value));
+						} else if (columnTypes[j] == DATETIME) {
+							String value = ((String[]) columns[j])[rowIndex];
+							if (value == null)
+								statement.setObject(statementIndex, null);
+							else
+								statement.setTimestamp(statementIndex, java.sql.Timestamp.valueOf(value));
+						} else if (columnTypes[j] == BIGINT) {
+							long value = ((long[]) columns[j])[rowIndex];
+							if (value == Long.MIN_VALUE)
+								statement.setObject(statementIndex, null);
+							else
+								statement.setLong(statementIndex, value);
+						} else {
+							String value = ((String[]) columns[j])[rowIndex];
+							if (value == null)
+								statement.setObject(statementIndex, null);
+							else
+								statement.setString(statementIndex, value);
+						}
+					}
+				}
+				statement.executeUpdate();
+				statement.close();
+				connection.clearWarnings();
+				trySettingAutoCommit(connection, true);
+				offset += BIG_DATA_BATCH_INSERT_LIMIT;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			if (e instanceof BatchUpdateException) {
