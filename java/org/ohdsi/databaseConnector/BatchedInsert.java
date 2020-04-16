@@ -39,8 +39,8 @@ public class BatchedInsert {
 			// Do nothing
 		}
 	}
-
-	public void executeBatch() {
+	
+	private void checkColumns() {
 		for (int i = 0; i < columnCount; i++) {
 			if (columns[i] == null)
 				throw new RuntimeException("Column " + (i + 1) + " not set");
@@ -55,6 +55,10 @@ public class BatchedInsert {
 					throw new RuntimeException("Column " + (i) + " data not of correct length");
 			}
 		}
+	}
+
+	public void executeBatch() {
+		checkColumns();
 		try {
 			trySettingAutoCommit(connection, false);
 			PreparedStatement statement = connection.prepareStatement(sql);
@@ -123,20 +127,7 @@ public class BatchedInsert {
 	 * In order to save data most efficiently, we implement saving through an insert with multiple values.
 	 */
 	public void executeBigQueryBatch() {
-		for (int i = 0; i < columnCount; i++) {
-			if (columns[i] == null)
-				throw new RuntimeException("Column " + (i + 1) + " not set");
-			if (columnTypes[i] == INTEGER) {
-				if (((int[]) columns[i]).length != rowCount)
-					throw new RuntimeException("Column " + (i) + " data not of correct length");
-			} else if (columnTypes[i] == NUMERIC) {
-				if (((double[]) columns[i]).length != rowCount)
-					throw new RuntimeException("Column " + (i) + " data not of correct length");
-			} else {
-				if (((String[]) columns[i]).length != rowCount)
-					throw new RuntimeException("Column " + (i) + " data not of correct length");
-			}
-		}
+		checkColumns();
 		try {
 			trySettingAutoCommit(connection, false);
 

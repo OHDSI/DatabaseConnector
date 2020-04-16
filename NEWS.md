@@ -7,11 +7,17 @@ Changes:
 
 2. Checking table and column names for SQL reserved words when inserting a table.
 
+3. Switching to Java 1.8 as minimum requirement.
+
 Bugfixes:
 
 1. Setting append = TRUE when not creating table in insertTable for RSQLite.
 
 2. On RedShift, converting schema name to lowercase before getting table names to fix empty results.
+
+3. Fixed insertTable on BigQuery.
+
+4. Fixing autocommit not supported error on BigQuery.
 
 
 DatabaseConnector 2.4.3
