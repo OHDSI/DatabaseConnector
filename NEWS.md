@@ -9,6 +9,8 @@ Changes:
 
 3. Switching to Java 1.8 as minimum requirement.
 
+4. Requiring DatabaseConnector v1.2.0, which has JDBC v4.2 drivers.
+
 Bugfixes:
 
 1. Setting append = TRUE when not creating table in insertTable for RSQLite.

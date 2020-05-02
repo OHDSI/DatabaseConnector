@@ -18,7 +18,7 @@ Description: An R 'DataBase Interface' ('DBI') compatible interface to various d
 Depends:
     R (>= 2.10)
 Imports:
-    DatabaseConnectorJars,
+    DatabaseConnectorJars (>= 1.2.0),
     rJava,
     bit,
     ff,
