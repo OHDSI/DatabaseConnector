@@ -26,11 +26,13 @@ devtools::spell_check()
 unlink("extras/DatabaseConnector.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
+dir.create("inst/doc")
 rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
                   output_file = "../inst/doc/UsingDatabaseConnector.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/UsingDatabaseConnector.tex")
 
 pkgdown::build_site()
 

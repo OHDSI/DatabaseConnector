@@ -9,7 +9,7 @@ Changes:
 
 3. Switching to Java 1.8 as minimum requirement.
 
-4. Requiring DatabaseConnector v1.2.0, which has JDBC v4.2 drivers.
+4. Preparing for DatabaseConnectorJars v1.2.0, which will have JDBC v4.2 drivers (instead of JDBC v4).
 
 Bugfixes:
 
