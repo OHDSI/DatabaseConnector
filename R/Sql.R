@@ -244,11 +244,69 @@ lowLevelExecuteSql <- function(connection, sql) {
   UseMethod("lowLevelExecuteSql", connection)
 }
 
+
+#' Makes a delay
+#'
+#' @description
+#' This function makes a delay between sql queries for the same table
+#' if it is less than "threshold" seconds between them
+#'
+#' @param sql                 The SQL that was executed
+#' @param regex               The regex to get tableName
+#' @param executionTimeList   The list with table/execution-time
+#' @param threshold           The minimum time that must pass between queries of one table
+#'
+delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
+  regexGroups <- str_match(sql, regex(regex, ignore_case = TRUE))
+  tableName <- regexGroups[3]
+  if (! is.na(tableName) && ! is.null(tableName)) {
+    currentTime <- Sys.time();
+    lastExecutedTime <- executionTimeList[[tableName]]
+    if (! is.na(lastExecutedTime) && ! is.null(lastExecutedTime)) {
+      delta <- currentTime - lastExecutedTime
+      if (delta < threshold) {
+        Sys.sleep(threshold - delta)
+      }
+    }
+
+    executionTimeList[[tableName]] = currentTime
+  }
+  return(executionTimeList)
+}
+
+delayIfNecessaryForDdl <- function(sql) {
+  ddlList <- getOption("ddlList")
+  if (is.null(ddlList)) {
+    ddlList <- list()
+  }
+
+  regexForDdl = "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
+  updateList <- delayIfNecessary(sql, regexForDdl, ddlList, 2);
+  options(ddlList = updateList)
+}
+
+delayIfNecessaryForInsert <- function(sql) {
+  insetList <- getOption("insetList")
+  if (is.null(insetList)) {
+    insetList <- list()
+  }
+
+  regexForInsert = "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
+  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 2);
+  options(insetList = updatedList)
+}
+
 #' @export
 lowLevelExecuteSql.default <- function(connection, sql) {
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
   hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+
+  if (connection@dbms == "bigquery") {
+    delayIfNecessaryForDdl(sql)
+    delayIfNecessaryForInsert(sql)
+  }
+
   rowsAffected <- 0
   if (!hasResultSet) {
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
