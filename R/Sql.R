@@ -257,7 +257,7 @@ lowLevelExecuteSql <- function(connection, sql) {
 #' @param threshold           The minimum time that must pass between queries of one table
 #'
 delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
-  regexGroups <- str_match(sql, regex(regex, ignore_case = TRUE))
+  regexGroups <- stringr::str_match(sql, stringr::regex(regex, ignore_case = TRUE))
   tableName <- regexGroups[3]
   if (! is.na(tableName) && ! is.null(tableName)) {
     currentTime <- Sys.time();
