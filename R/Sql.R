@@ -292,7 +292,7 @@ delayIfNecessaryForInsert <- function(sql) {
   }
 
   regexForInsert = "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 2);
+  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5);
   options(insetList = updatedList)
 }
 
