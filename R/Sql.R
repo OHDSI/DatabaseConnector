@@ -281,8 +281,8 @@ delayIfNecessaryForDdl <- function(sql) {
   }
 
   regexForDdl = "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updateList <- delayIfNecessary(sql, regexForDdl, ddlList, 2);
-  options(ddlList = updateList)
+  updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5);
+  options(ddlList = updatedList)
 }
 
 delayIfNecessaryForInsert <- function(sql) {
