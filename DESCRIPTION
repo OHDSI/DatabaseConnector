@@ -25,6 +25,7 @@ Imports:
     ffbase (>= 0.12.1),
     SqlRender (>= 1.6.3),
     methods,
+    stringr,
     utils,
     DBI (>= 1.0.0),
     urltools
