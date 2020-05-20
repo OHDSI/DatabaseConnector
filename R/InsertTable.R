@@ -434,7 +434,12 @@ insertTable.default <- function(connection,
             return(NULL)
           }
           lapply(1:ncol(data), setColumn, start = start, end = end)
-          rJava::.jcall(batchedInsert, "V", "executeBatch")
+          if (attr(connection, "dbms") == "bigquery"){
+              rJava::.jcall(batchedInsert, "V", "executeBigQueryBatch")
+          }  else {
+              rJava::.jcall(batchedInsert, "V", "executeBatch")
+          }
+
         }
         if (progressBar) {
           setTxtProgressBar(pb, 1)

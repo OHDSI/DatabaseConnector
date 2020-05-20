@@ -394,7 +394,11 @@ connect <- function(connectionDetails = NULL,
   if (dbms == "redshift") {
     writeLines("Connecting using Redshift driver")
     jarPath <- findPathToJar("^RedshiftJDBC.*\\.jar$", pathToDriver)
-    driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
+    if (grepl("RedshiftJDBC42", jarPath)) {
+      driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc42.Driver", jarPath)
+    } else {
+      driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
+    }
     if (missing(connectionString) || is.null(connectionString)) {
       if (!grepl("/", server))
         stop("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")

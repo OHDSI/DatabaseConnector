@@ -13,3 +13,4 @@ compare_versions
 ^cran-comments.md$
 _pkgdown.yml
 docs
+.github

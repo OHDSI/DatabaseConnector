@@ -84,8 +84,8 @@ DatabaseConnector also depends on the OHDSI DatabaseConnectorJars and SqlRender 
 
 For Redshift Bulk Mpp inserts, the cloudyR aws S3 package is required.
 
-Getting Started
-===============
+Installation
+============
 To install the latest stable version, install from CRAN:
 
 ```r
@@ -105,6 +105,9 @@ To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see [thes
 
 User Documentation
 ==================
+Documentation can be found on the [package website](https://ohdsi.github.io/DatabaseConnector).
+
+PDF versions of the documentation are also available:
 * Vignette: [Using DatabaseConnector](https://github.com/OHDSI/DatabaseConnector/raw/master/inst/doc/UsingDatabaseConnector.pdf)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf) 
 
@@ -112,6 +115,10 @@ Support
 =======
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
 * We use the <a href="https://github.com/OHDSI/DatabaseConnector/issues">GitHub issue tracker</a> for all bugs/issues/enhancements
+
+Contributing
+============
+Read [here](https://ohdsi.github.io/MethodsLibrary/contribute.html) how you can contribute to this package.
 
 License
 =======

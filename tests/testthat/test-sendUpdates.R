@@ -18,7 +18,7 @@ test_that("Send updates to server", {
   expect_null(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE))
   
   disconnect(connection)
-
+  
   # SQL Server
   details <- createConnectionDetails(dbms = "sql server",
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
@@ -31,7 +31,7 @@ test_that("Send updates to server", {
   expect_null(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE))
   
   disconnect(connection)
-
+  
   # Oracle
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
@@ -44,7 +44,7 @@ test_that("Send updates to server", {
   expect_null(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE))
   
   disconnect(connection)
-
+  
   # # RedShift details <- createConnectionDetails(dbms = 'redshift', user =
   # Sys.getenv('CDM5_REDSHIFT_USER'), password = URLdecode(Sys.getenv('CDM5_REDSHIFT_PASSWORD')),
   # server = Sys.getenv('CDM5_REDSHIFT_SERVER'), schema = Sys.getenv('CDM5_REDSHIFT_CDM_SCHEMA'))
