@@ -558,6 +558,7 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     
     sql <- "set spark.sql.crossJoin.enabled = true;"
+            #set spark.sql.autoBroadcastJoinThreshold = -1;"
     executeSql(connection = connection, sql = sql)
     
     return(connection)

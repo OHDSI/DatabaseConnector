@@ -356,7 +356,7 @@ insertTable.default <- function(connection,
       .bulkLoadPdw(connection, qname, fts, data)
     }
   } else {
-    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery") && createTable && nrow(data) > 0) {
+    if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery", "spark") && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema)
     } else {
       if (createTable) {

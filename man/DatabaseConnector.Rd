@@ -4,6 +4,3 @@
 \name{DatabaseConnector}
 \alias{DatabaseConnector}
 \title{DatabaseConnector}
-\description{
-DatabaseConnector
-}
