@@ -165,21 +165,18 @@
 <div id="system-requirements" class="section level1">
 <h1 class="hasAnchor">
 <a href="#system-requirements" class="anchor"></a>System Requirements</h1>
-<p>This package requires Java to be installed. If you don’t have Java already installed on your computed (on most computers it already is installed), go to <a href="http://java.com">java.com</a> to get the latest version. Make sure to install Java 1.8 or higher (Oracle Java is recommended. <a href="https://github.com/OHDSI/DatabaseConnector/issues/8">Issues</a> have been reported when using GCJ.)</p>
-<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from <a href="http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774">Microsoft</a> and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</a></code>.</p>
-<p>DatabaseConnector also depends on the OHDSI DatabaseConnectorJars and SqlRender packages.</p>
-<p>For Redshift Bulk Mpp inserts, the cloudyR aws S3 package is required.</p>
+<p>Running the package requires R with the package rJava installed. Also requires Java 1.8 or higher.</p>
 </div>
 <div id="installation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h1>
-<p>To install the latest stable version, install from CRAN:</p>
+<ol>
+<li><p>See the instructions <a href="https://ohdsi.github.io/Hades/rSetup.html">here</a> for configuring your R environment, including Java.</p></li>
+<li><p>To install the latest stable version, install from CRAN:</p></li>
+</ol>
 <div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"DatabaseConnector"</span>)</pre></div>
-<p>To install the latest development version, install from GitHub:</p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)
-<span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnectorJars"</span>)
-<span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"ohdsi/DatabaseConnector"</span>)</pre></div>
 <p>To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html">these instructions</a>.</p>
+<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from <a href="http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774">Microsoft</a> and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</a></code>.</p>
 </div>
 <div id="user-documentation" class="section level1">
 <h1 class="hasAnchor">
