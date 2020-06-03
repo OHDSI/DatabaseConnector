@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Test a character vector of SQL names for SQL reserved words — isSqlReservedWord • DatabaseConnector</title>
+<title>Render, translate, and query to local Andromeda — renderTranslateQuerySqlToAndromeda • DatabaseConnector</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Test a character vector of SQL names for SQL reserved words — isSqlReservedWord" />
-<meta property="og:description" content="This function checks a character vector against a predefined list of reserved SQL words." />
+<meta property="og:title" content="Render, translate, and query to local Andromeda — renderTranslateQuerySqlToAndromeda" />
+<meta property="og:description" content="This function renders, and translates SQL, sends it to the server, and returns the results as an ffdf object" />
 
 
 
@@ -126,34 +126,89 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Test a character vector of SQL names for SQL reserved words</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/Sql.R'><code>R/Sql.R</code></a></small>
-    <div class="hidden name"><code>isSqlReservedWord.Rd</code></div>
+    <h1>Render, translate, and query to local Andromeda</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/Andromeda.R'><code>R/Andromeda.R</code></a></small>
+    <div class="hidden name"><code>renderTranslateQuerySqlToAndromeda.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function checks a character vector against a predefined list of reserved SQL words.</p>
+    <p>This function renders, and translates SQL, sends it to the server, and returns the results as an ffdf object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>isSqlReservedWord</span>(<span class='no'>sqlNames</span>, <span class='kw'>warn</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>renderTranslateQuerySqlToAndromeda</span>(
+  <span class='no'>connection</span>,
+  <span class='no'>sql</span>,
+  <span class='no'>andromeda</span>,
+  <span class='no'>andromedaTableName</span>,
+  <span class='kw'>errorReportFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), <span class='st'>"errorReportSql.txt"</span>),
+  <span class='kw'>snakeCaseToCamelCase</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>sqlNames</th>
-      <td><p>A character vector containing table or field names to check.</p></td>
+      <th>connection</th>
+      <td><p>The connection to the database server.</p></td>
     </tr>
     <tr>
-      <th>warn</th>
-      <td><p>(logical) Should a warning be thrown if invalid SQL names are found?</p></td>
+      <th>sql</th>
+      <td><p>The SQL to be send.</p></td>
+    </tr>
+    <tr>
+      <th>andromeda</th>
+      <td><p>An open connection to a Andromeda database, for example as created using <code><a href='https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html'>andromeda</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>andromedaTableName</th>
+      <td><p>The name of the table in the local Andromeda database where the results of the query will be stored.</p></td>
+    </tr>
+    <tr>
+      <th>errorReportFile</th>
+      <td><p>The file where an error report will be written if an error occurs. Defaults to
+'errorReportSql.txt' in the current working directory.</p></td>
+    </tr>
+    <tr>
+      <th>snakeCaseToCamelCase</th>
+      <td><p>If true, field names are assumed to use snake_case, and are converted to camelCase.</p></td>
+    </tr>
+    <tr>
+      <th>oracleTempSchema</th>
+      <td><p>A schema that can be used to create temp tables in when using Oracle or Impala.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Parameters that will be used to render the SQL.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A logical vector with length equal to sqlNames that is TRUE for each name that is reserved and FALSE otherwise</p>
+    <p>Invisibly returns the andromeda. The Andromeda database will have a table added with the query results.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
+    <p>This function calls the <code>render</code> and <code>translate</code> functions in the SqlRender package before 
+calling <code><a href='querySqlToAndromeda.html'>querySqlToAndromeda</a></code>.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='no'>connectionDetails</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='createConnectionDetails.html'>createConnectionDetails</a></span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"postgresql"</span>,
+                                             <span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>,
+                                             <span class='kw'>user</span> <span class='kw'>=</span> <span class='st'>"root"</span>,
+                                             <span class='kw'>password</span> <span class='kw'>=</span> <span class='st'>"blah"</span>,
+                                             <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"cdm_v4"</span>)
+<span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span>(<span class='no'>connectionDetails</span>)
+<span class='fu'>renderTranslatequerySqlToAndromeda</span>(<span class='no'>conn</span>,
+                                   <span class='kw'>sql</span> <span class='kw'>=</span> <span class='st'>"SELECT * FROM @schema.person"</span>,
+                                   <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"cdm_synpuf"</span>,
+                                   <span class='kw'>andromeda</span> <span class='kw'>=</span> <span class='no'>andromeda</span>,
+                                   <span class='kw'>andromedaTableName</span> <span class='kw'>=</span> <span class='st'>"foo"</span>)
+<span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
+
+<span class='no'>andromeda</span>$<span class='no'>foo</span>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

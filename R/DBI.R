@@ -424,7 +424,7 @@ setMethod("dbWriteTable",
 #' @inherit
 #' DBI::dbAppendTable title description params details references return seealso
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #
 #' @export
@@ -450,7 +450,7 @@ setMethod("dbAppendTable",
 #' @inherit
 #' DBI::dbCreateTable title description params details references return seealso
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #
 #' @export
@@ -477,7 +477,7 @@ setMethod("dbCreateTable",
 #' DBI::dbReadTable title description params details references return seealso
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #' @export
 setMethod("dbReadTable",
@@ -501,7 +501,7 @@ setMethod("dbReadTable",
 #' DBI::dbRemoveTable title description params details references return seealso
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #' @export
 setMethod("dbRemoveTable",

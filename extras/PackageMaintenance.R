@@ -35,6 +35,7 @@ rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
 unlink("inst/doc/UsingDatabaseConnector.tex")
 
 pkgdown::build_site()
+OhdsiRTools::fixHadesLogo()
 
 # Release package:
 devtools::check_win_devel()

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
       </span>
     </div>
 
@@ -64,7 +64,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://ohdsi.github.io/MethodsLibrary">Methods Library</a>
+  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
@@ -88,7 +88,7 @@
       <h1 data-toc-skip>Using DatabaseConnector</h1>
                         <h4 class="author">Martijn J. Schuemie</h4>
             
-            <h4 class="date">2020-05-04</h4>
+            <h4 class="date">2020-06-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/master/vignettes/UsingDatabaseConnector.Rmd"><code>vignettes/UsingDatabaseConnector.Rmd</code></a></small>
       <div class="hidden name"><code>UsingDatabaseConnector.Rmd</code></div>
@@ -174,17 +174,19 @@
 #&gt; 3         3              8507          1977</code></pre>
 <div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="../reference/executeSql.html">executeSql</a></span>(<span class="no">conn</span>, <span class="st">"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"</span>)</pre></body></html></div>
 <p>Both function provide extensive error reporting: When an error is thrown by the server, the error message and the offending piece of SQL are written to a text file to allow better debugging. The <code>executeSql</code> function also by default shows a progress bar, indicating the percentage of SQL statements that has been executed. If those attributes are not desired, the package also offers the <code>lowLevelQuerySql</code> and <code>lowLevelExecuteSql</code> functions.</p>
-<div id="querying-using-ffdf-objects" class="section level2">
+<div id="querying-using-andromeda-objects" class="section level2">
 <h2 class="hasAnchor">
-<a href="#querying-using-ffdf-objects" class="anchor"></a>Querying using ffdf objects</h2>
-<p>Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the <code>ff</code> package to store R data objects on file, and use them as if they are available in memory. <code>DatabaseConnector</code> can download data directly into ffdf objects:</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">x</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/querySql.ffdf.html">querySql.ffdf</a></span>(<span class="no">conn</span>, <span class="st">"SELECT * FROM person"</span>)</pre></body></html></div>
-<p>Where x is now an ffdf object.</p>
+<a href="#querying-using-andromeda-objects" class="anchor"></a>Querying using Andromeda objects</h2>
+<p>Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the <code>Andromeda</code> package to store R data objects on file, and use them as if they are available in memory. <code>DatabaseConnector</code> can download data directly into ffdf objects:</p>
+<div class="sourceCode" id="cb14"><html><body><pre class="r">library(Andromeda)
+x &lt;- andromeda()
+querySqlToAndromeda(conn, "SELECT * FROM person", andromeda = x, andromedaTableName = "person)</pre></body></html></div>
+<p>Where <code>x</code> is now an <code>Andromeda</code> object with table <code>person</code>.</p>
 </div>
 <div id="querying-different-platforms-using-the-same-sql" class="section level2">
 <h2 class="hasAnchor">
 <a href="#querying-different-platforms-using-the-same-sql" class="anchor"></a>Querying different platforms using the same SQL</h2>
-<p>One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the <a href="https://ohdsi.github.io/SqlRender/">SqlRender package</a> was developed. SqlRender can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the <code>render</code> and <code>translate</code> functions in <code>SqlRender</code>: <code>renderTranslateExecuteSql</code>, <code>renderTranslateQuerySql</code>, <code>renderTranslateQuerySql.ffdf</code>. For example:</p>
+<p>One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the <a href="https://ohdsi.github.io/SqlRender/">SqlRender package</a> was developed. SqlRender can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the <code>render</code> and <code>translate</code> functions in <code>SqlRender</code>: <code>renderTranslateExecuteSql</code>, <code>renderTranslateQuerySql</code>, <code>renderTranslateQuerySqlToAndromeda</code>. For example:</p>
 <div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">persons</span> <span class="kw">&lt;-</span> <span class="fu">renderTranslatequerySql</span>(<span class="no">conn</span>,
                                    <span class="kw">sql</span> <span class="kw">=</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,
                                    <span class="kw">schema</span> <span class="kw">=</span> <span class="st">"cdm_synpuf"</span>)</pre></body></html></div>

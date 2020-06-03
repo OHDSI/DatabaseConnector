@@ -30,7 +30,7 @@ insertTable(
 
 \item{tempTable}{Should the table created as a temp table?}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
 can be created.}
 
 \item{useMppBulkLoad}{If using Redshift or PDW, use more performant bulk loading techniques.

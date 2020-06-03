@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Insert a table on the server — insertTable" />
-<meta property="og:description" content="This function sends the data in a data frame or ffdf to a table on the server. Either a new table
+<meta property="og:description" content="This function sends the data in a data frame to a table on the server. Either a new table
 is created, or the data is appended to an existing table." />
 
 
@@ -73,7 +73,7 @@ is created, or the data is appended to an existing table." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@ is created, or the data is appended to an existing table." />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://ohdsi.github.io/MethodsLibrary">Methods Library</a>
+  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
@@ -133,7 +133,7 @@ is created, or the data is appended to an existing table." />
     </div>
 
     <div class="ref-description">
-    <p>This function sends the data in a data frame or ffdf to a table on the server. Either a new table
+    <p>This function sends the data in a data frame to a table on the server. Either a new table
 is created, or the data is appended to an existing table.</p>
     </div>
 
@@ -163,7 +163,7 @@ is created, or the data is appended to an existing table.</p>
     </tr>
     <tr>
       <th>data</th>
-      <td><p>The data frame or ffdf containing the data to be inserted.</p></td>
+      <td><p>The data frame containing the data to be inserted.</p></td>
     </tr>
     <tr>
       <th>dropTableIfExists</th>
@@ -179,7 +179,7 @@ is created, or the data is appended to an existing table.</p>
     </tr>
     <tr>
       <th>oracleTempSchema</th>
-      <td><p>Specifically for Oracle, a schema with write priviliges where temp tables
+      <td><p>Specifically for Oracle, a schema with write privileges where temp tables
 can be created.</p></td>
     </tr>
     <tr>

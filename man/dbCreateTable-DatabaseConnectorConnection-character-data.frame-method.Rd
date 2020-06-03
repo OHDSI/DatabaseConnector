@@ -29,7 +29,7 @@ Field types are unescaped.
 A data frame: field types are generated using
 \code{\link[DBI:dbDataType]{dbDataType()}}.}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Other arguments used by individual methods.}

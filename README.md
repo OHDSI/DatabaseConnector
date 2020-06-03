@@ -6,7 +6,7 @@ DatabaseConnector
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
 [![CRAN_Status_Badge](http://cranlogs.r-pkg.org/badges/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
 
-DatabaseConnector is part of the [OHDSI Methods Library](https://ohdsi.github.io/MethodsLibrary).
+DatabaseConnector is part of [HADES](https://ohdsi.github.io/Hades).
 
 Introduction
 ============
@@ -72,11 +72,7 @@ DatabaseConnector is an R package using Java's JDBC drivers.
 
 System Requirements
 ===================
-Requires R. Also requires Java 1.6 or higher (Oracle Java is recommended. [Issues](https://github.com/OHDSI/DatabaseConnector/issues/8) have been reported when using GCJ.) 
-
-Dependencies
-============
-Please note that this package requires Java to be installed. If you don't have Java already installed on your computed (on most computers it already is installed), go to [java.com](http://java.com) to get the latest version.
+This package requires Java to be installed. If you don't have Java already installed on your computed (on most computers it already is installed), go to [java.com](http://java.com) to get the latest version. Make sure to install  Java 1.8 or higher (Oracle Java is recommended. [Issues](https://github.com/OHDSI/DatabaseConnector/issues/8) have been reported when using GCJ.)
 
 To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from [Microsoft](http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774) and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable `PATH_TO_AUTH_DLL`, so for example `Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")`.
 
@@ -118,7 +114,7 @@ Support
 
 Contributing
 ============
-Read [here](https://ohdsi.github.io/MethodsLibrary/contribute.html) how you can contribute to this package.
+Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribute to this package.
 
 License
 =======
@@ -131,7 +127,6 @@ DatabaseConnector is being developed in R Studio.
 ### Development status
 
 Stable. The code is actively being used in several projects.
-
 
 # Acknowledgements
 - This project is supported in part through the National Science Foundation grant IIS 1251151.

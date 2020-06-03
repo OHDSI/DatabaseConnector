@@ -24,7 +24,7 @@ or the result of a call to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier(
 
 \item{schema}{Name of the schema.}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Other parameters passed on to methods.}

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
       </span>
     </div>
 
@@ -66,7 +66,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://ohdsi.github.io/MethodsLibrary">Methods Library</a>
+  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
@@ -91,7 +91,7 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#databaseconnector" class="anchor"></a>DatabaseConnector</h1></div>
 
-<p>DatabaseConnector is part of the <a href="https://ohdsi.github.io/MethodsLibrary">OHDSI Methods Library</a>.</p>
+<p>DatabaseConnector is part of <a href="https://ohdsi.github.io/Hades">HADES</a>.</p>
 </div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
@@ -165,12 +165,7 @@
 <div id="system-requirements" class="section level1">
 <h1 class="hasAnchor">
 <a href="#system-requirements" class="anchor"></a>System Requirements</h1>
-<p>Requires R. Also requires Java 1.6 or higher (Oracle Java is recommended. <a href="https://github.com/OHDSI/DatabaseConnector/issues/8">Issues</a> have been reported when using GCJ.)</p>
-</div>
-<div id="dependencies" class="section level1">
-<h1 class="hasAnchor">
-<a href="#dependencies" class="anchor"></a>Dependencies</h1>
-<p>Please note that this package requires Java to be installed. If you don’t have Java already installed on your computed (on most computers it already is installed), go to <a href="http://java.com">java.com</a> to get the latest version.</p>
+<p>This package requires Java to be installed. If you don’t have Java already installed on your computed (on most computers it already is installed), go to <a href="http://java.com">java.com</a> to get the latest version. Make sure to install Java 1.8 or higher (Oracle Java is recommended. <a href="https://github.com/OHDSI/DatabaseConnector/issues/8">Issues</a> have been reported when using GCJ.)</p>
 <p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from <a href="http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774">Microsoft</a> and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</a></code>.</p>
 <p>DatabaseConnector also depends on the OHDSI DatabaseConnectorJars and SqlRender packages.</p>
 <p>For Redshift Bulk Mpp inserts, the cloudyR aws S3 package is required.</p>
@@ -210,7 +205,7 @@
 <div id="contributing" class="section level1">
 <h1 class="hasAnchor">
 <a href="#contributing" class="anchor"></a>Contributing</h1>
-<p>Read <a href="https://ohdsi.github.io/MethodsLibrary/contribute.html">here</a> how you can contribute to this package.</p>
+<p>Read <a href="https://ohdsi.github.io/Hades/contribute.html">here</a> how you can contribute to this package.</p>
 </div>
 <div id="license" class="section level1">
 <h1 class="hasAnchor">

@@ -25,7 +25,7 @@ with those in the target table in the database.}
 
 \item{temporary}{Should the table created as a temp table?}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Other arguments used by individual methods.}

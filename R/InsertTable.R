@@ -188,7 +188,7 @@ is.bigint <- function(x) {
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param createTable         Create a new table? If false, will append to existing table.
 #' @param tempTable           Should the table created as a temp table?
-#' @param oracleTempSchema    Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema    Specifically for Oracle, a schema with write privileges where temp tables
 #'                            can be created.
 #' @param useMppBulkLoad      If using Redshift or PDW, use more performant bulk loading techniques.
 #'                            Setting the system environment variable "USE_MPP_BULK_LOAD" to TRUE is
