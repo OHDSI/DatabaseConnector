@@ -210,7 +210,7 @@ connect <- function(connectionDetails = NULL,
     return(connection)
   }
   if (dbms == "sql server") {
-    jarPath <- findPathToJar("^sqljdbc.*\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^mssql-jdbc.*.jar$|^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
@@ -250,7 +250,7 @@ connect <- function(connectionDetails = NULL,
   }
   if (dbms == "pdw") {
     writeLines("Connecting using SQL Server driver")
-    jarPath <- findPathToJar("^sqljdbc.*\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^mssql-jdbc.*.jar$|^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security

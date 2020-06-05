@@ -1,5 +1,4 @@
 library(DatabaseConnector)
-options(fftempdir = "s:/fftemp")
 
 # Test PDW with integrated security ----------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "pdw",
