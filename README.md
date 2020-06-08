@@ -28,7 +28,7 @@ Features
   - Error reporting to file
   - Progress reporting
   - Multiple statements per query
-- Support for fetching data to ffdf objects
+- Support for fetching data to Andromeda objects
 - Insert data frame to a database table
 - Supports the DBI interface
 - Integrates with RStudio's Connections tab
