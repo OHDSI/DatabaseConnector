@@ -127,31 +127,26 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     end <- min(start + batchSize - 1, nrow(data))
     batch <- toStrings(data[start:end, , drop = FALSE], fts)    
 
-    # First line gets type information:
-    valueString <- formatRow(batch[1, , drop = FALSE], castValues = TRUE, fts = fts)
-    if (end > start) {
-      # Other lines only get type information if BigQuery:
-      valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
-                                                MARGIN = 1,
-                                                FUN = formatRow,
-                                                castValues = attr(connection, "dbms") %in% c("spark", "bigquery"),
-                                                fts = fts)), 
-                           collapse = "\nUNION ALL\nSELECT ")
-    }
     tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
-    sql <- paste(distribution,
-                 "WITH data (",
-                 varNames,
-                 ") AS (SELECT ",
-                 valueString,
-                 " ) SELECT ",
-                 varNames,
-                 " INTO ",
-                 tempName,
-                 " FROM data;",
-                 sep = "")
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+
+    
+    selectSqls <- apply(batch, 1, function(b) {
+      columns <- lapply(colnames(batch), function(c) {
+        sprintf("%s as %s", b[[c]][[1]], c)
+      })
+      
+      sprintf("select %s", paste(columns, collapse = ","))
+    })
+    
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "ctasHack.sql",
+                                             dbms = connection@dbms,
+                                             packageName = "DatabaseConnector",
+                                             distribution = distribution,
+                                             oracleTempSchema = oracleTempSchema,
+                                             tempName = tempName,
+                                             selectSqls = paste(selectSqls, collapse = "\n union all \n"))
+    
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   if (progressBar) {
