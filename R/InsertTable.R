@@ -124,16 +124,13 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       mergeTempTables(connection, mergedName, varNames, tempNames, distribution, oracleTempSchema)
       tempNames <- c(mergedName)
     }
-    end <- min(start + batchSize - 1, nrow(data))
-    batch <- toStrings(data[start:end, , drop = FALSE], fts)    
 
     tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
 
-    
-    selectSqls <- apply(batch, 1, function(b) {
-      columns <- lapply(colnames(batch), function(c) {
-        sprintf("%s as %s", b[[c]][[1]], c)
+    selectSqls <- apply(data, 1, function(b) {
+      columns <- lapply(colnames(data), function(c) {
+        sprintf("cast('%s' as %s) as %s", b[[c]][[1]], fts[c], c)
       })
       
       sprintf("select %s", paste(columns, collapse = ","))
@@ -145,7 +142,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
                                              distribution = distribution,
                                              oracleTempSchema = oracleTempSchema,
                                              tempName = tempName,
-                                             varNames = paste(colnames(batch), collapse = ","),
+                                             varNames = paste(colnames(data), collapse = ","),
                                              selectSqls = paste(selectSqls, collapse = "\n union all \n"))
     
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
