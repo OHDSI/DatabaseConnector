@@ -145,6 +145,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
                                              distribution = distribution,
                                              oracleTempSchema = oracleTempSchema,
                                              tempName = tempName,
+                                             varNames = paste(colnames(batch), collapse = ","),
                                              selectSqls = paste(selectSqls, collapse = "\n union all \n"))
     
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)

@@ -1,5 +1,5 @@
 @distribution
-select *
+select @varNames
 into @tempName
 from
 (
