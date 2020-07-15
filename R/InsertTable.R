@@ -124,25 +124,39 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       mergeTempTables(connection, mergedName, varNames, tempNames, distribution, oracleTempSchema)
       tempNames <- c(mergedName)
     }
+    
+    end <- min(start + batchSize - 1, nrow(data))
+    batch <- data[start:end,]
 
     tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
-
-    selectSqls <- apply(data, 1, function(b) {
-      columns <- lapply(colnames(data), function(c) {
+    
+    selectSqls <- apply(batch[1,], 1, function(b) {
+      columns <- lapply(colnames(batch), function(c) {
         sprintf("cast('%s' as %s) as %s", b[[c]][[1]], fts[c], c)
       })
       
       sprintf("select %s", paste(columns, collapse = ","))
     })
     
+    if (nrow(batch) > 1) {
+      selectSqls <- c(selectSqls, apply(batch[2:nrow(batch),], 1, function(b) {
+        columns <- lapply(colnames(batch), function(c) {
+          sprintf("'%s'", b[[c]][[1]])
+        })
+        
+        sprintf("select %s", paste(columns, collapse = ","))
+      }))
+      
+    } 
+
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "ctasHack.sql",
                                              dbms = connection@dbms,
                                              packageName = "DatabaseConnector",
                                              distribution = distribution,
                                              oracleTempSchema = oracleTempSchema,
                                              tempName = tempName,
-                                             varNames = paste(colnames(data), collapse = ","),
+                                             varNames = paste(colnames(batch), collapse = ","),
                                              selectSqls = paste(selectSqls, collapse = "\n union all \n"))
     
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
