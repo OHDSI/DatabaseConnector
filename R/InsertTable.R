@@ -131,7 +131,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
     
-    selectSqls <- apply(batch[1,], 1, function(b) {
+    selectSqls <- apply(batch, 1, function(b) {
       columns <- lapply(colnames(batch), function(c) {
         sprintf("cast('%s' as %s) as %s", b[[c]][[1]], fts[c], c)
       })
@@ -139,16 +139,16 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
       sprintf("select %s", paste(columns, collapse = ","))
     })
     
-    if (nrow(batch) > 1) {
-      selectSqls <- c(selectSqls, apply(batch[2:nrow(batch),], 1, function(b) {
-        columns <- lapply(colnames(batch), function(c) {
-          sprintf("'%s'", b[[c]][[1]])
-        })
-        
-        sprintf("select %s", paste(columns, collapse = ","))
-      }))
-      
-    } 
+    # if (nrow(batch) > 1) {
+    #   selectSqls <- c(selectSqls, apply(batch[2:nrow(batch),], 1, function(b) {
+    #     columns <- lapply(colnames(batch), function(c) {
+    #       sprintf("'%s'", b[[c]][[1]])
+    #     })
+    #     
+    #     sprintf("select %s", paste(columns, collapse = ","))
+    #   }))
+    #   
+    # } 
 
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "ctasHack.sql",
                                              dbms = connection@dbms,
