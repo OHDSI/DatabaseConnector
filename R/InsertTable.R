@@ -133,7 +133,7 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
     
     selectSqls <- apply(batch, 1, function(b) {
       columns <- lapply(colnames(batch), function(c) {
-        sprintf("cast('%s' as %s) as %s", b[[c]][[1]], fts[c], c)
+        sprintf("cast('%s' as %s) as %s", trimws(b[[c]][[1]]), fts[c], c)
       })
       
       sprintf("select %s", paste(columns, collapse = ","))
