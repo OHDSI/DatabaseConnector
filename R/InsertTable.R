@@ -352,15 +352,20 @@ insertTable.default <- function(connection,
       stop("MPP credentials could not be confirmed. Please review them or set 'useMppBulkLoad' to FALSE")
     }
     writeLines("Attempting to use MPP bulk loading...")
-    sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
-    sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
-    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    
+    if (attr(connection, "dbms") != "spark") {
+      sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
+      sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
+      executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    }
     
     if (attr(connection, "dbms") == "redshift") {
       ensure_installed("aws.s3")
       .bulkLoadRedshift(connection, qname, data)
     } else if (attr(connection, "dbms") == "pdw") {
       .bulkLoadPdw(connection, qname, fts, data)
+    } else if (attr(connection, "dbms") == "spark") {
+      .bulkLoadDatabricks(connection, qname, fts, data, fdef)
     }
   } else {
     if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery", "spark") && createTable && nrow(data) > 0) {
@@ -491,9 +496,74 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       warning("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
+  } else if (attr(connection, "dbms") == "spark") {
+    if (Sys.getenv("DATABRICKS_ROOT_FOLDER") == "" |
+        Sys.getenv("DATABRICKS_STAGING_SCHEMA") == "") {
+      writeLines("Please set environment variables for Databricks Bulk Loading.")
+      return(FALSE)
+    }
+    
+    return(TRUE)
   } else {
     return(FALSE)
   }
+}
+
+.bulkLoadDatabricks <- function(connection, qname, fts, data, fdef) {
+  start <- Sys.time()
+  tableName <- (strsplit(x = qname, split = ".", fixed = TRUE))[[1]][[2]]
+  
+  fileName <- file.path(tempdir(), sprintf("databricks_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
+  write.table(x = data, file = sprintf("%s.txt", fileName), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
+  .uploadToDbfs(rootFolder = Sys.getenv("DATABRICKS_ROOT_FOLDER"),
+                fileName = fileName)
+  
+  sql1 <- SqlRender::loadRenderTranslateSql(sqlFilename = "databricksLoad.sql",
+                                           packageName = "DatabaseConnector",
+                                           dbms = "sql server",
+                                           tableDdl = SqlRender::translate(fdef, "spark"),
+                                           stagingDatabaseSchema = Sys.getenv("DATABRICKS_STAGING_SCHEMA"),
+                                           tableName = tableName,
+                                           rootFolder = Sys.getenv("DATABRICKS_ROOT_FOLDER"),
+                                           fileName = basename(fileName))
+  
+  sql2 <- SqlRender::loadRenderTranslateSql(sqlFilename = "databricksFinalTable.sql",
+                                            packageName = "DatabaseConnector",
+                                            dbms = "spark",
+                                            qname = qname,
+                                            stagingDatabaseSchema = Sys.getenv("DATABRICKS_STAGING_SCHEMA"),
+                                            tableName = tableName)
+  tryCatch({
+    DatabaseConnector::executeSql(connection = connection, sql = sql1, reportOverallTime = FALSE)
+    DatabaseConnector::executeSql(connection = connection, sql = sql2, reportOverallTime = FALSE)
+    delta <- Sys.time() - start
+    writeLines(paste("Bulk load to Databricks took", signif(delta, 3), attr(delta, "units")))
+  }, error = function(e) {
+    stop("Error in Databricks bulk upload.")
+  }, finally = {
+    try(file.remove(sprintf("%s.txt", fileName)), silent = TRUE)
+  })
+}
+
+.uploadToDbfs <- function(rootFolder,
+                          fileName) {
+  command <- sprintf("dbfs cp %s.txt dbfs:/%s/%s.txt", fileName, rootFolder, basename(fileName))
+  print(command)
+  tryCatch({
+    system(command,
+           intern = FALSE,
+           ignore.stdout = FALSE,
+           ignore.stderr = FALSE,
+           wait = TRUE,
+           input = NULL)
+    # delta <- Sys.time() - start
+    # writeLines(sprintf("DBFS Upload of %s took %s",
+    #                    basename(fileName),
+    #                    signif(delta, 3), attr(delta, "units")))
+  }, error = function(e) {
+    writeLines(sprintf("DBFS Upload ERROR: %s",
+                       basename(fileName)))
+  })
 }
 
 .bulkLoadPdw <- function(connection, qname, fts, data) {
