@@ -497,7 +497,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }
     return(envSet & bucket)
   } else if (attr(connection, "dbms") == "spark") {
-    if (Sys.getenv("DATABRICKS_ROOT_FOLDER") == "" |
+    if (Sys.getenv("DATABRICKS_DBFS_PATH") == "" |
+        Sys.getenv("DATABRICKS_ROOT_FOLDER") == "" |
         Sys.getenv("DATABRICKS_STAGING_SCHEMA") == "") {
       writeLines("Please set environment variables for Databricks Bulk Loading.")
       return(FALSE)
@@ -547,7 +548,9 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
 
 .uploadToDbfs <- function(rootFolder,
                           fileName) {
-  command <- sprintf("dbfs cp %s.txt dbfs:/%s/%s.txt", fileName, rootFolder, basename(fileName))
+  command <- sprintf("%s cp %s.txt dbfs:/%s/%s.txt", 
+                     Sys.getenv("DATABRICKS_DBFS_PATH"),
+                     fileName, rootFolder, basename(fileName))
   print(command)
   tryCatch({
     system(command,
