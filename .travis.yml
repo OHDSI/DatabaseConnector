@@ -16,9 +16,11 @@ r_packages:
 r_github_packages:
   - OHDSI/DatabaseConnectorJars
   - OHDSI/SqlRender
-
-before_script:
+  
+before_install:
   - R CMD javareconf
+  
+before_script:
   - export PKG_NAME=$(Rscript -e 'cat(paste0(devtools::as.package(".")$package))')
   - export PKG_TARBALL=$(Rscript -e 'pkg <- devtools::as.package("."); cat(paste0(pkg$package,"_",pkg$version,".tar.gz"))')
 
