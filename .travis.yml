@@ -18,7 +18,7 @@ r_github_packages:
   - OHDSI/SqlRender
   
 before_install:
-  - R CMD javareconf
+  - sudo R CMD javareconf
   
 before_script:
   - export PKG_NAME=$(Rscript -e 'cat(paste0(devtools::as.package(".")$package))')
