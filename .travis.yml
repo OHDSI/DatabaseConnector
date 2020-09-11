@@ -18,6 +18,7 @@ r_github_packages:
   - OHDSI/SqlRender
 
 before_script:
+  - R CMD javareconf
   - export PKG_NAME=$(Rscript -e 'cat(paste0(devtools::as.package(".")$package))')
   - export PKG_TARBALL=$(Rscript -e 'pkg <- devtools::as.package("."); cat(paste0(pkg$package,"_",pkg$version,".tar.gz"))')
 
