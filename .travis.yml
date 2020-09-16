@@ -3,6 +3,10 @@ cache: packages
 
 apt_packages:
   - libssh-dev
+  - r-cran-rjava
+
+before_install:
+  - sudo $(which R) CMD javareconf
 
 branches:
   except:
