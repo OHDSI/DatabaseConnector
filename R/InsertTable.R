@@ -317,6 +317,8 @@ insertTable.default <- function(connection,
     } else {
       if (is.factor(obj)) {
         maxLength <- max(nchar(levels(obj)), na.rm = TRUE)
+      } else if (all(is.na(obj))) {
+        maxLength <- NA
       } else {
         maxLength <- max(nchar(as.character(obj)), na.rm = TRUE)
       }
