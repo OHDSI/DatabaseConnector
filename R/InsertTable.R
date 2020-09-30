@@ -419,7 +419,7 @@ insertTable.default <- function(connection,
           }
           end <- min(start + batchSize - 1, nrow(data))
           setColumn <- function(i, start, end) {
-            column <- data[start:end, i]
+            column <- unlist(data[start:end, i], use.names = FALSE)
             if (is.integer(column)) {
               rJava::.jcall(batchedInsert, "V", "setInteger", i, column)
             } else if (is.numeric(column)) {
@@ -436,7 +436,7 @@ insertTable.default <- function(connection,
             return(NULL)
           }
           lapply(1:ncol(data), setColumn, start = start, end = end)
-          if (attr(connection, "dbms") == "bigquery"){
+          if (attr(connection, "dbms") == "bigquery") {
               rJava::.jcall(batchedInsert, "V", "executeBigQueryBatch")
           }  else {
               rJava::.jcall(batchedInsert, "V", "executeBatch")
