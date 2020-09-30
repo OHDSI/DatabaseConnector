@@ -65,10 +65,27 @@ createConnectionDetails <- function(dbms,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
                                     pathToDriver = getOption("pathToDriver")) {
-  result <- list()
-  for (name in names(formals(createConnectionDetails))) {
-    result[[name]] <- get(name)
-  }
+  result <- list(dbms = dbms,
+                 schema = schema,
+                 extraSettings = extraSettings,
+                 oracleDriver = "thin",
+                 pathToDriver = pathToDriver)
+  
+  userExpression <- rlang::enquo(user)
+  result$user <- function() rlang::eval_tidy(userExpression)
+  
+  passWordExpression <- rlang::enquo(password)
+  result$password <- function() rlang::eval_tidy(passWordExpression)
+  
+  serverExpression <- rlang::enquo(server)
+  result$server <- function() rlang::eval_tidy(serverExpression)
+  
+  portExpression <- rlang::enquo(port)
+  result$port <- function() rlang::eval_tidy(portExpression)
+  
+  csExpression <- rlang::enquo(connectionString)
+  result$connectionString <- function() rlang::eval_tidy(csExpression)
+  
   class(result) <- "connectionDetails"
   return(result)
 }
@@ -197,14 +214,14 @@ connect <- function(connectionDetails = NULL,
   }
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
-                          user = connectionDetails$user,
-                          password = connectionDetails$password,
-                          server = connectionDetails$server,
-                          port = connectionDetails$port,
+                          user = connectionDetails$user(),
+                          password = connectionDetails$password(),
+                          server = connectionDetails$server(),
+                          port = connectionDetails$port(),
                           schema = connectionDetails$schema,
                           extraSettings = connectionDetails$extraSettings,
                           oracleDriver = connectionDetails$oracleDriver,
-                          connectionString = connectionDetails$connectionString,
+                          connectionString = connectionDetails$connectionString(),
                           pathToDriver = connectionDetails$pathToDriver)
     
     return(connection)
