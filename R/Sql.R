@@ -298,12 +298,15 @@ executeSql <- function(connection,
         rJava::.jcall(statement, "V", "addBatch", as.character(sqlStatement), check = FALSE)
       }
       if (profile) {
-        SqlRender::writeSql(batchSql, sprintf("statements_%s_%s.sql", start, end))
+        SqlRender::writeSql(paste(batchSql, collapse = "\n\n"), sprintf("statements_%s_%s.sql", start, end))
       }
       tryCatch({
+        startQuery <- Sys.time()
         rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+        delta <- Sys.time() - startQuery
+        writeLines(paste("Statements", start, "through", end,  "took", delta, attr(delta, "units")))
       }, error = function(err) {
-        .createErrorReport(connection@dbms, err$message, batchSql, errorReportFile)
+        .createErrorReport(connection@dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
       }, finally = {rJava::.jcall(statement, "V", "close")})
     }
   } else {

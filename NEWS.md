@@ -16,6 +16,8 @@ Bugfixes:
 
 2. Fixed error when trying to insert data from a tibble.
 
+3. Error report now includes all SQL in a batch when failing in batch mode.
+
 
 DatabaseConnector 3.0.0
 =======================
