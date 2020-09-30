@@ -5,3 +5,4 @@ R/LocalEnvironment.R
 /bin/
 /DatabaseConnector.iml
 .idea/
+errorReportSql.txt

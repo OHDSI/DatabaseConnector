@@ -149,7 +149,7 @@ delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
         Sys.sleep(threshold - delta)
       }
     }
-
+    
     executionTimeList[[tableName]] = currentTime
   }
   return(executionTimeList)
@@ -160,7 +160,7 @@ delayIfNecessaryForDdl <- function(sql) {
   if (is.null(ddlList)) {
     ddlList <- list()
   }
-
+  
   regexForDdl = "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
   updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5);
   options(ddlList = updatedList)
@@ -171,7 +171,7 @@ delayIfNecessaryForInsert <- function(sql) {
   if (is.null(insetList)) {
     insetList <- list()
   }
-
+  
   regexForInsert = "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
   updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5);
   options(insetList = updatedList)
@@ -182,12 +182,12 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
   hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
-
+  
   if (connection@dbms == "bigquery") {
     delayIfNecessaryForDdl(sql)
     delayIfNecessaryForInsert(sql)
   }
-
+  
   rowsAffected <- 0
   if (!hasResultSet) {
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
@@ -209,10 +209,10 @@ supportsBatchUpdates <- function(connection) {
     dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
     if (!is.jnull(dbmsMeta)) {
       if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
-        writeLines("JDBC driver supports batch updates")
+        # writeLines("JDBC driver supports batch updates")
         return(TRUE);
       } else {
-        writeLines("JDBC driver does not support batch updates")
+        writeLines("JDBC driver does not support batch updates. Sending updates one at a time.")
       }
     }
   }, error = function(err) {
@@ -270,37 +270,54 @@ executeSql <- function(connection,
                        runAsBatch = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
-  batched <- runAsBatch && supportsBatchUpdates(connection)
-  if (profile || batched) {
-    progressBar <- FALSE
-  }
-  sqlStatements <- SqlRender::splitSql(sql)
-  if (progressBar) {
-    pb <- txtProgressBar(style = 3)
-  }
-  start <- Sys.time()
-  if (batched) {
-    statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
-    on.exit(rJava::.jcall(statement, "V", "close"))
-  }
+  
+  startTime <- Sys.time()
+  
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && 
       connection@dbms == "redshift" &&
       rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
     # https://github.com/OHDSI/DatabaseConnector/issues/90
     trySettingAutoCommit(connection, FALSE)
-    on.exit(trySettingAutoCommit(connection, TRUE), add = TRUE)
+    on.exit(trySettingAutoCommit(connection, TRUE))
   }
-  for (i in 1:length(sqlStatements)) {
-    sqlStatement <- sqlStatements[i]
-    if (profile) {
-      fileConn <- file(paste("statement_", i, ".sql", sep = ""))
-      writeChar(sqlStatement, fileConn, eos = NULL)
-      close(fileConn)
+  
+  batched <- runAsBatch && supportsBatchUpdates(connection)
+  sqlStatements <- SqlRender::splitSql(sql)
+  if (batched) {
+    batchSize <- 1000
+    rowsAffected <- 0
+    for (start in seq(1, length(sqlStatements), by = batchSize)) {
+      end <- min(start + batchSize - 1, length(sqlStatements))
+      
+      statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
+      batchSql <- c()
+      for (i in start:end) {
+        sqlStatement <- sqlStatements[i]
+        batchSql <- c(batchSql, sqlStatement)
+        rJava::.jcall(statement, "V", "addBatch", as.character(sqlStatement), check = FALSE)
+      }
+      if (profile) {
+        SqlRender::writeSql(batchSql, sprintf("statements_%s_%s.sql", start, end))
+      }
+      tryCatch({
+        rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+      }, error = function(err) {
+        .createErrorReport(connection@dbms, err$message, batchSql, errorReportFile)
+      }, finally = {rJava::.jcall(statement, "V", "close")})
     }
-    if (batched) {
-      rJava::.jcall(statement, "V", "addBatch", as.character(sqlStatement), check = FALSE)
-    } else {
+  } else {
+    if (progressBar) {
+      pb <- txtProgressBar(style = 3)
+    }
+    
+    for (i in 1:length(sqlStatements)) {
+      sqlStatement <- sqlStatements[i]
+      if (profile) {
+        fileConn <- file(paste("statement_", i, ".sql", sep = ""))
+        writeChar(sqlStatement, fileConn, eos = NULL)
+        close(fileConn)
+      }
       tryCatch({
         startQuery <- Sys.time()
         lowLevelExecuteSql(connection, sqlStatement)
@@ -311,28 +328,25 @@ executeSql <- function(connection,
       }, error = function(err) {
         .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
       })
+      if (progressBar) {
+        setTxtProgressBar(pb, i/length(sqlStatements))
+      }
     }
     if (progressBar) {
-      setTxtProgressBar(pb, i/length(sqlStatements))
+      close(pb)
     }
   }
-  if (batched) {
-    tryCatch({
-      rowsAffected <- rJava::.jcall(statement, "[I", "executeBatch")
-      invisible(rowsAffected)
-    }, error = function(err) {
-      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
-    })
-  }
+  
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
-  if (progressBar) {
-    close(pb)
-  }
+
   if (reportOverallTime) {
-    delta <- Sys.time() - start
+    delta <- Sys.time() - startTime
     writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
+  }
+  if (batched) {
+    invisible(rowsAffected)
   }
 }
 

@@ -1,15 +1,34 @@
+DatabaseConnector 3.0.1
+=======================
+
+Changes:
+
+1. Removed message that 'JDBC driver supports batch updates' when running executeSql in batch mode.
+
+2. Batch mode in executeSql divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
+
+3. ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.
+
+
+Bugfixes:
+
+1. Fixed 'Warning: no non-missing arguments to max; returning -Inf' when a column only has NA values, or no values at all.
+
+2. Fixed error when trying to insert data from a tibble.
+
+
 DatabaseConnector 3.0.0
 =======================
 
 Changes:
 
-- Dropping support for orphaned ff package.
+1. Dropping support for orphaned ff package.
 
-- Adding support for Andromeda package to replace ff.
+2. Adding support for Andromeda package to replace ff.
 
-- Error report file name now defaults to errorReportSql.txt to avoid confusion with other error reports.
+3. Error report file name now defaults to errorReportSql.txt to avoid confusion with other error reports.
 
-- Enforcing delay if about to exceed query quota on BigQuery.
+4. Enforcing delay if about to exceed query quota on BigQuery.
 
 
 DatabaseConnector 2.4.4

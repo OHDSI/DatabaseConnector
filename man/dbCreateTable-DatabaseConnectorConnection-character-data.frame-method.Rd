@@ -48,7 +48,7 @@ override this method.
 }
 \details{
 The \code{row.names} argument is not supported by this method.
-Process the values with \code{\link[DBI:sqlRownamesToColumn]{sqlRownamesToColumn()}} before calling this method.
+Process the values with \code{\link[DBI:rownames]{sqlRownamesToColumn()}} before calling this method.
 
 The argument order is different from the \code{sqlCreateTable()} method, the
 latter will be adapted in a later release of DBI.

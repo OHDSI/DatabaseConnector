@@ -15,7 +15,7 @@ test_that("Send updates to server", {
   
   expect_null(renderTranslateExecuteSql(connection, sql))
   
-  expect_null(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE))
+  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
   
   disconnect(connection)
   
@@ -28,7 +28,7 @@ test_that("Send updates to server", {
   
   expect_null(renderTranslateExecuteSql(connection, sql))
   
-  expect_null(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE))
+  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
   
   disconnect(connection)
   
@@ -41,7 +41,7 @@ test_that("Send updates to server", {
   
   expect_null(renderTranslateExecuteSql(connection, sql))
   
-  expect_null(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE))
+  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
   
   disconnect(connection)
   

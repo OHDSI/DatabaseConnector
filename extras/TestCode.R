@@ -184,12 +184,12 @@ data <- data.frame(start_date = dayseq,
                    id = makeRandomStrings(length(dayseq)))
 str(data)
 tableName <- "#temp"
-data <- data[1:10, ]
+data <- tibble::as_tibble(data[1:100, ])
 connection <- connect(connectionDetails)
 insertTable(connection, tableName, data, dropTableIfExists = TRUE)
 
 d <- querySql(connection, "SELECT * FROM #temp")
-d <- querySql.ffdf(connection, "SELECT * FROM #temp")
+
 
 library(ffbase)
 data <- as.ffdf(data)
