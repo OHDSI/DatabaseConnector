@@ -19,8 +19,8 @@
 #' @keywords internal
 "_PACKAGE"
 
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table read.csv
-#' install.packages menu
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table read.csv install.packages menu
+#' @importFrom bit64 integer64
 NULL
 
 .onLoad <- function(libname, pkgname) {

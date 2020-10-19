@@ -72,6 +72,14 @@ lowLevelQuerySql <- function(connection, query, datesAsString = FALSE) {
 lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
+  
+  # Validate that communication of 64-bit integers with Java is correct:
+  array <- rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$validateInteger64()
+  oldClass(array) <- "integer64"
+  if (!all.equal(array, bit64::as.integer64(c(1, -1, 2^33, -2^33)))) {
+    stop("Error converting 64-bit integers between R and Java")
+  }
+  
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
                                query)
@@ -91,6 +99,17 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
         # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
         column[is.nan(column)] <- NA
         columns[[i]] <- c(columns[[i]], column)
+      } else if (columnTypes[i] == 5) {
+        columns[[i]] <- rJava::.jcall(batchedQuery,
+                                "[D",
+                                "getInteger64",
+                                as.integer(i)) 
+        oldClass(columns[[i]]) <- "integer64"
+      } else if (columnTypes[i] == 6) {
+        columns[[i]] <- rJava::.jcall(batchedQuery,
+                                "[I",
+                                "getInteger",
+                                as.integer(i))
       } else {
         columns[[i]] <- c(columns[[i]],
                           rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
