@@ -1,5 +1,5 @@
 # Tests for platforms not available to Travis
-
+library(DatabaseConnector)
 library(testthat)
 
 # Open and close connection -----------------------------------------------
