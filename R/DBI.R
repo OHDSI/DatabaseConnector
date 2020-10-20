@@ -203,7 +203,8 @@ setMethod("dbSendQuery",
               stop("Connection is closed")
             batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                          conn@jConnection,
-                                         statement)
+                                         statement,
+                                         conn@dbms)
             result <- new("DatabaseConnectorResult",
                           content = batchedQuery,
                           type = "batchedQuery",

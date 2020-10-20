@@ -86,7 +86,7 @@ public class BatchedQuery {
 		}
 	}
 	
-	public BatchedQuery(Connection connection, String query) throws SQLException {
+	public BatchedQuery(Connection connection, String query, String dbms) throws SQLException {
 		this.connection = connection;
 		if (connection.getAutoCommit())
 			trySettingAutoCommit(connection, false);
@@ -100,10 +100,11 @@ public class BatchedQuery {
 		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
 			columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
 			int type = metaData.getColumnType(columnIndex + 1);
-			if (type == Types.BIGINT)
-				columnTypes[columnIndex] = INTEGER64;
-			else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT)
+			String className = metaData.getColumnClassName(columnIndex + 1);;
+			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT)
 				columnTypes[columnIndex] = INTEGER;
+			else if (type == Types.BIGINT || (dbms.equals("oracle") && className.equals("java.math.BigDecimal")))
+				columnTypes[columnIndex] = INTEGER64;
 			else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
 				columnTypes[columnIndex] = NUMERIC;
 			else if (type == Types.DATE)

@@ -86,7 +86,8 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
   
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
-                               query)
+                               query,
+                               connection@dbms)
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
   
@@ -391,6 +392,20 @@ convertFields <- function(dbms, result) {
       
     }
   } 
+  if (dbms %in% c("bigquery", "oracle")) {
+    # BigQuery and Oracle don't have INT fields, only INT64. For more consistent behavior with other
+    # platforms, if it fits in an integer, convert it to an integer:
+    if (ncol(result) > 0) {
+      for (i in 1:ncol(result)) {
+        if (bit64::is.integer64(result[[i]]) && 
+            (all(is.na(result[[i]])) || (
+              min(result[[i]], na.rm = TRUE) > -.Machine$integer.max && 
+              max(result[[i]], na.rm = TRUE) < .Machine$integer.max))) {
+          result[[i]] <- as.integer(result[[i]])
+        }
+      }
+    }
+  }
   return(result)
 }
 

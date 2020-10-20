@@ -15,6 +15,8 @@ Changes:
 
 6. Removing deprecated `schema` argument from `createConnectionDetails` and `connect`.
 
+7. Deprecating `useMppBulkLoad` argument of `insertTable()` function in favor of `bulkLoad` argument.
+
 
 Bugfixes:
 

@@ -286,6 +286,10 @@ connect <- function(connectionDetails = NULL,
                                            dbms = dbms)
     }
     attr(connection, "dbms") <- dbms
+    userExpression <- rlang::enquo(user)
+    attr(connection, "user") <- function() rlang::eval_tidy(userExpression)
+    passwordExpression <- rlang::enquo(password)
+    attr(connection, "password") <- function() rlang::eval_tidy(passwordExpression)
     return(connection)
   }
   if (dbms == "oracle") {
@@ -560,10 +564,6 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     stringQuote = stringQuote,
                     dbms = dbms,
                     uuid = uuid)
-  if (dbms == "hive") {
-    attr(connection, "url") <- url
-    attr(connection, "user") <- properties$user
-  }
   registerWithRStudio(connection)
   return(connection)
 }

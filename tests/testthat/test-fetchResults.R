@@ -1,6 +1,7 @@
 library(testthat)
 
 test_that("Fetch results", {
+  # Postgres ----------------------------------------------------------
   connection <- connect(dbms = "postgresql",
                         user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                         password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
@@ -49,6 +50,7 @@ test_that("Fetch results", {
 
   disconnect(connection)
   
+  # Oracle ---------------------------------------
   connection <- connect(dbms = "oracle",
                         user = Sys.getenv("CDM5_ORACLE_USER"),
                         password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
