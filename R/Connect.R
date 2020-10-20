@@ -23,7 +23,7 @@
 #' \code{createConnectionDetails} creates a list containing all details needed to connect to a
 #' database. There are three ways to call this function:
 #' \itemize{
-#'   \item \code{createConnectionDetails(dbms, user, password, server, port, schema, extraSettings,
+#'   \item \code{createConnectionDetails(dbms, user, password, server, port, extraSettings,
 #'         oracleDriver, pathToDriver)}
 #'   \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
 #'   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
@@ -60,13 +60,11 @@ createConnectionDetails <- function(dbms,
                                     password = NULL,
                                     server = NULL,
                                     port = NULL,
-                                    schema = NULL,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
                                     pathToDriver = getOption("pathToDriver")) {
   result <- list(dbms = dbms,
-                 schema = schema,
                  extraSettings = extraSettings,
                  oracleDriver = "thin",
                  pathToDriver = pathToDriver)
@@ -146,7 +144,7 @@ findPathToJar <- function(name, pathToDriver) {
 #' \code{connect} creates a connection to a database server .There are four ways to call this
 #' function:
 #' \itemize{
-#'   \item \code{connect(dbms, user, password, server, port, schema, extraSettings, oracleDriver,
+#'   \item \code{connect(dbms, user, password, server, port, extraSettings, oracleDriver,
 #'         pathToDriver)}
 #'   \item \code{connect(connectionDetails)}
 #'   \item \code{connect(dbms, connectionString, pathToDriver))}
@@ -201,24 +199,17 @@ connect <- function(connectionDetails = NULL,
                     password = NULL,
                     server = NULL,
                     port = NULL,
-                    schema = NULL,
                     extraSettings = NULL,
                     oracleDriver = "thin",
                     connectionString = NULL,
                     pathToDriver = getOption("pathToDriver")) {
   
-  if (!missing(schema) && !is.null(schema)) {
-    warning(
-      "The schema argument is deprecated. Please use fully specified table names in your SQL statement, for example 'SELECT * FROM my_schema.my_table;'"
-    )
-  }
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user(),
                           password = connectionDetails$password(),
                           server = connectionDetails$server(),
                           port = connectionDetails$port(),
-                          schema = connectionDetails$schema,
                           extraSettings = connectionDetails$extraSettings,
                           oracleDriver = connectionDetails$oracleDriver,
                           connectionString = connectionDetails$connectionString(),
@@ -258,10 +249,6 @@ connect <- function(connectionDetails = NULL,
                                            password = password,
                                            dbms = dbms)
     }
-    if (!missing(schema) && !is.null(schema)) {
-      database <- strsplit(schema, "\\.")[[1]][1]
-      lowLevelExecuteSql(connection, paste("USE", database))
-    }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -297,10 +284,6 @@ connect <- function(connectionDetails = NULL,
                                            user = user,
                                            password = password,
                                            dbms = dbms)
-    }
-    if (!missing(schema) && !is.null(schema)) {
-      database <- strsplit(schema, "\\.")[[1]][1]
-      lowLevelExecuteSql(connection, paste("USE", database))
     }
     attr(connection, "dbms") <- dbms
     return(connection)
@@ -370,9 +353,6 @@ connect <- function(connectionDetails = NULL,
                                              dbms = dbms)
       }
     }
-    if (!missing(schema) && !is.null(schema)) {
-      lowLevelExecuteSql(connection, paste("ALTER SESSION SET current_schema = ", schema))
-    }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -403,8 +383,6 @@ connect <- function(connectionDetails = NULL,
                                            password = password,
                                            dbms = dbms)
     }
-    if (!missing(schema) && !is.null(schema))
-      lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -439,8 +417,6 @@ connect <- function(connectionDetails = NULL,
                                            password = password,
                                            dbms = dbms)
     }
-    if (!missing(schema) && !is.null(schema))
-      lowLevelExecuteSql(connection, paste("SET search_path TO ", schema))
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -470,9 +446,6 @@ connect <- function(connectionDetails = NULL,
                                            password = password,
                                            dbms = dbms)
     }
-    if (!missing(schema) && !is.null(schema)) {
-      lowLevelExecuteSql(connection, paste("SET schema TO ", schema))
-    }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -484,11 +457,7 @@ connect <- function(connectionDetails = NULL,
       if (missing(port) || is.null(port)) {
         port <- "21050"
       }
-      if (missing(schema) || is.null(schema)) {
-        connectionString <- paste0("jdbc:impala://", server, ":", port)
-      } else {
-        connectionString <- paste0("jdbc:impala://", server, ":", port, "/", schema)
-      }
+      connectionString <- paste0("jdbc:impala://", server, ":", port)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, ";", extraSettings)
       }
@@ -502,9 +471,6 @@ connect <- function(connectionDetails = NULL,
                                            password = password,
                                            dbms = dbms)
     }
-    if (!missing(schema) && !is.null(schema)) {
-      lowLevelExecuteSql(connection, paste("USE", schema))
-    }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -514,7 +480,7 @@ connect <- function(connectionDetails = NULL,
       driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
   
       if (missing(connectionString) || is.null(connectionString)) {
-          connectionString <- paste0("jdbc:hive2://", server, ":", port, "/", schema)
+          connectionString <- paste0("jdbc:hive2://", server, ":", port)
           if (!missing(extraSettings) && !is.null(extraSettings)) {
               connectionString <- paste0(connectionString, ";", extraSettings)
           }
@@ -533,7 +499,7 @@ connect <- function(connectionDetails = NULL,
     
     files <- list.files(path = pathToDriver, full.names = TRUE)
     for (jar in files) {
-      .jaddClassPath(jar)
+      rJava::.jaddClassPath(jar)
     }
     
     jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", pathToDriver)
@@ -619,20 +585,18 @@ connectUsingRsqLite <- function(server) {
 #' Disconnect from the server
 #'
 #' @description
-#' This function sends SQL to the server, and returns the results in an ffdf object.
+#' Close the connection to the server.
 #'
 #' @param connection   The connection to the database server.
 #'
 #' @examples
 #' \dontrun{
-#' library(ffbase)
 #' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              server = "localhost",
 #'                                              user = "root",
-#'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#'                                              password = "blah")
 #' conn <- connect(connectionDetails)
-#' count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
+#' count <- querySql(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #' }
 #' @export

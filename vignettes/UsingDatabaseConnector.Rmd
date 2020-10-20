@@ -58,8 +58,7 @@ To connect to a database a number of details need to be specified, such as the d
 conn <- connect(dbms = "postgresql",
                 server = "localhost/postgres",
                 user = "joe",
-                password = "secret",
-                schema = "cdm")
+                password = "secret")
 ```
 ```{r echo=FALSE}
 writeLines("Connecting using PostgreSQL driver")
@@ -77,8 +76,7 @@ Note that, instead of providing the server name, it is also possible to provide 
 conn <- connect(dbms = "postgresql",
                 connectionString = "jdbc:postgresql://localhost:5432/postgres",
                 user = "joe",
-                password = "secret",
-                schema = "cdm")
+                password = "secret")
 ```
 ```{r echo=FALSE}
 writeLines("Connecting using PostgreSQL driver")
@@ -91,8 +89,7 @@ Sometimes we may want to first specify the connection details, and defer connect
 details <- createConnectionDetails(dbms = "postgresql",
                                    server = "localhost/postgres",
                                    user = "joe",
-                                   password = "secret",
-                                   schema = "cdm")
+                                   password = "secret")
 conn <- connect(details)
 ```
 ```{r echo=FALSE}
@@ -108,7 +105,6 @@ details <- createConnectionDetails(dbms = "netezza",
                                    server = "myserver.com/mainDb",
                                    user = "joe",
                                    password = "secret",
-                                   schema = "cdm",
                                    pathToDriver = "c:/temp")
 conn <- connect(details)
 ```
@@ -178,8 +174,7 @@ conn <- dbConnect(DatabaseConnectorDriver(),
                   dbms = "postgresql",
                   server = "localhost/postgres",
                   user = "joe",
-                  password = "secret",
-                  schema = "cdm")
+                  password = "secret")
 ```
 ```{r echo=FALSE}
 writeLines("Connecting using PostgreSQL driver")

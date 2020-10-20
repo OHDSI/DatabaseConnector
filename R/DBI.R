@@ -102,7 +102,7 @@ setClass("DatabaseConnectorDbiConnection",
 #'                   server = "localhost/ohdsi",
 #'                   user = "joe",
 #'                   password = "secret")
-#' querySql(conn, "SELECT * FROM cdm_synpuf.person")
+#' querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 #' dbDisconnet(conn)
 #' }
 #'
@@ -329,7 +329,7 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
   if (res@type != "rowsAffected") {
     stop("Object not result of dbSendStatement")
   }
-  return(.jsimplify(res@content))
+  return(rJava::.jsimplify(res@content))
 })
 
 #' @inherit

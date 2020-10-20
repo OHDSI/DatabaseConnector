@@ -27,12 +27,6 @@
 
 \item{port}{(optional) The port on the server to connect to.}
 
-\item{schema}{(DEPRECATED. optional) The name of the schema to connect to. 
-DatabaseConnector attempts to set the schema using USE statement, but
-not all DBMS support USE statements. In DBMS that don't support USE
-statements this strategy will fail. Instead use a fully specified table 
-names in your SQL statement, for example 'SELECT * FROM my_schema.my_table;'}
-
 \item{extraSettings}{(optional) Additional configuration settings specific to the database
 provider to configure things as security for SSL. These must follow the
 format for the JDBC connection for the RDBMS specified in dbms.}
@@ -56,7 +50,7 @@ direct commands to the database engine.
 \code{connect} creates a connection to a database server .There are four ways to call this
 function:
 \itemize{
-  \item \code{connect(dbms, user, password, server, port, schema, extraSettings, oracleDriver,
+  \item \code{connect(dbms, user, password, server, port, extraSettings, oracleDriver,
         pathToDriver)}
   \item \code{connect(connectionDetails)}
   \item \code{connect(dbms, connectionString, pathToDriver))}
@@ -77,8 +71,6 @@ Oracle:
   \item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName:
         '<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'
   \item \code{port}. Specifies the port on the server (default = 1521)
-  \item \code{schema}. DEPRECATED: This field contains the schema (i.e. 'user' in Oracle terms) containing the
-        tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "(PROTOCOL=tcps)")
   \item \code{oracleDriver} The driver to be used. Choose between "thin" or "oci".
@@ -91,8 +83,6 @@ Microsoft SQL Server:
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server
   \item \code{port}. Not used for SQL Server
-  \item \code{schema}. DEPRECATED: The database containing the tables. If both database and schema are specified
-        (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
@@ -104,7 +94,6 @@ Microsoft PDW:
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server
   \item \code{port}. Not used for SQL Server
-  \item \code{schema}. DEPRECATED: The database containing the tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
@@ -115,7 +104,6 @@ PostgreSQL:
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
   \item \code{port}. Specifies the port on the server (default = 5432)
-  \item \code{schema}. DEPRECATED: The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")
 }
@@ -126,7 +114,6 @@ Redshift:
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
   \item \code{port}. Specifies the port on the server (default = 5439)
-  \item \code{schema}. DEPRECATED: The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 }
@@ -137,7 +124,6 @@ Netezza:
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
   \item \code{port}. Specifies the port on the server (default = 5480)
-  \item \code{schema}. DEPRECATED: The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")
   \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file
@@ -149,7 +135,6 @@ Impala:
   \item \code{password}. The password for that user
   \item \code{server}. The host name of the server
   \item \code{port}. Specifies the port on the server (default = 21050)
-  \item \code{schema}. DEPRECATED: The database containing the tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "SSLKeyStorePwd=*****")
   \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
