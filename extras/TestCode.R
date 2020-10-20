@@ -75,9 +75,21 @@ disconnect(conn)
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/ohdsi",
                                              user = "postgres",
-                                             password = Sys.getenv("pwPostgres"),
-                                             schema = "cdm_synpuf")
+                                             password = Sys.getenv("pwPostgres"))
 conn <- connect(connectionDetails)
+data <- data.frame(x = as.integer(1:5),
+                   y = bit64::as.integer64(1:5))
+data$x[2] <- NA
+data$y[3] <- NA
+insertTable(connection = conn,
+            data = data,
+            tableName = "scratch.test",
+            dropTableIfExists = TRUE,
+            createTable = TRUE,
+            tempTable = FALSE)
+
+querySql(conn, "SELECT * FROM scratch.test")
+
 querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm_synpuf")
 disconnect(conn)

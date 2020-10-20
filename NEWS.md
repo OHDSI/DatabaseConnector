@@ -1,13 +1,17 @@
-DatabaseConnector 3.0.1
+DatabaseConnector 4.0.0
 =======================
 
 Changes:
 
-1. Removed message that 'JDBC driver supports batch updates' when running executeSql in batch mode.
+1. Support for 64-bit integers using BIGINT and bit64's integer64.
 
-2. Batch mode in executeSql divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
+2. INT fields are now translated to R integers and back.
 
-3. ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.
+3. Removed message that 'JDBC driver supports batch updates' when running executeSql in batch mode.
+
+4. Batch mode in executeSql divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
+
+5. ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.
 
 
 Bugfixes:

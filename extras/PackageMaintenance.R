@@ -16,6 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Manually delete package from library. Avoids "Already in use" message when rebuilding
+unloadNamespace("DatabaseConnector")
+.rs.restartR()
+folder <- system.file(package = "DatabaseConnector")
+folder
+unlink(folder, recursive = TRUE, force = TRUE)
+file.exists(folder)
+
 # Format and check code:
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")

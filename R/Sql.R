@@ -45,6 +45,16 @@
              sep = "\n"), call. = FALSE)
 }
 
+validateInt64Query <- function() {
+  # Validate that communication of 64-bit integers with Java is correct:
+  array <- rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$validateInteger64()
+  oldClass(array) <- "integer64"
+  if (!all.equal(array, bit64::as.integer64(c(1, -1, 8589934592, -8589934592)))) {
+    stop("Error converting 64-bit integers between R and Java")
+  }
+}
+
+
 #' Low level function for retrieving data to a data frame
 #'
 #' @description
@@ -73,12 +83,6 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   
-  # Validate that communication of 64-bit integers with Java is correct:
-  array <- rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$validateInteger64()
-  oldClass(array) <- "integer64"
-  if (!all.equal(array, bit64::as.integer64(c(1, -1, 2^33, -2^33)))) {
-    stop("Error converting 64-bit integers between R and Java")
-  }
   
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
@@ -87,6 +91,9 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
   
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
+  if (any(columnTypes == 5)) {
+    validateInt64Query()
+  }
   columns <- vector("list", length(columnTypes))
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
@@ -133,14 +140,7 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
 
 #' @export
 lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection, query, datesAsString = FALSE) {
-  results <- DBI::dbGetQuery(connection@dbiConnection, query)
-  # For compatibility with JDBC:
-  for (i in 1:ncol(results)) {
-    if (class(results[, i]) == "integer64") {
-      results[, i] <- as.numeric(results[, i])
-    }
-  }
-  return(results)
+  return(DBI::dbGetQuery(connection@dbiConnection, query))
 }
 
 #' Execute SQL code

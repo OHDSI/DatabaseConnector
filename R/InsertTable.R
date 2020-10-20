@@ -167,15 +167,6 @@ ctasHack <- function(connection, qname, tempTable, varNames, fts, data, progress
   mergeTempTables(connection, qname, varNames, tempNames, distribution, oracleTempSchema)
 }
 
-is.bigint <- function(x) {
-  num <- 2^63
-
-  bigint.min <- -num
-  bigint.max <- num - 1
-
-  return(!all(is.na(x)) && is.numeric(x) && !is.factor(x) && all(x == round(x), na.rm = TRUE) &&  all(x >= bigint.min, na.rm = TRUE) && all(x <= bigint.max, na.rm = TRUE))
-}
-
 #' Insert a table on the server
 #'
 #' @description
@@ -286,7 +277,6 @@ insertTable.default <- function(connection,
   if (tempTable & substr(tableName, 1, 1) != "#" & attr(connection, "dbms") != "redshift")
     tableName <- paste("#", tableName, sep = "")
 
-
   if (is.vector(data) && !is.list(data))
     data <- data.frame(x = data)
   if (length(data) < 1)
@@ -310,7 +300,7 @@ insertTable.default <- function(connection,
       return("DATETIME2")
     } else if (class(obj) == "Date") {
       return("DATE")
-    } else if (is.bigint(obj)) {
+    } else if (bit64::is.integer64(obj)) {
       return("BIGINT")
     } else if (is.numeric(obj)) {
       return("FLOAT")
@@ -378,6 +368,10 @@ insertTable.default <- function(connection,
     if (attr(connection, "dbms") %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0) {
       ctasHack(connection, qname, tempTable, varNames, fts, data, progressBar, oracleTempSchema)
     } else {
+      if (any(fts == "BIGINT")) {
+        validateInt64Insert()
+      }
+      
       if (createTable) {
         sql <- paste("CREATE TABLE ", qname, " (", fdef, ");", sep = "")
         sql <- SqlRender::translate(sql,
@@ -422,14 +416,15 @@ insertTable.default <- function(connection,
             column <- unlist(data[start:end, i], use.names = FALSE)
             if (is.integer(column)) {
               rJava::.jcall(batchedInsert, "V", "setInteger", i, column)
+            } else if (bit64::is.integer64(column)) {
+              class(column) <- "numeric"
+              rJava::.jcall(batchedInsert, "V", "setBigint", i, column)
             } else if (is.numeric(column)) {
               rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
             } else if (identical(class(column), c("POSIXct", "POSIXt"))) {
               rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
             } else if (class(column) == "Date") {
               rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
-            } else if (is.bigint(column)) {
-              rJava::.jcall(batchedInsert, "V", "setBigint", i, as.numeric(column))
             } else {
               rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
             }
@@ -451,6 +446,17 @@ insertTable.default <- function(connection,
     }
   }
 }
+
+validateInt64Insert <- function() {
+  # Validate that communication of 64-bit integers with Java is correct:
+  values <- bit64::as.integer64(c(1, -1, 8589934592, -8589934592))
+  class(values) <- "double"                              
+  success <- rJava::J("org.ohdsi.databaseConnector.BatchedInsert")$validateInteger64(values)
+  if (!success) {
+    stop("Error converting 64-bit integers between R and Java")
+  }
+}
+
 
 trySettingAutoCommit <- function(connection, value) {
     tryCatch({

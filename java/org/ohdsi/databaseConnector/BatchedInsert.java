@@ -1,5 +1,6 @@
 package org.ohdsi.databaseConnector;
 
+import java.nio.ByteBuffer;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -46,13 +47,16 @@ public class BatchedInsert {
 				throw new RuntimeException("Column " + (i + 1) + " not set");
 			if (columnTypes[i] == INTEGER) {
 				if (((int[]) columns[i]).length != rowCount)
-					throw new RuntimeException("Column " + (i) + " data not of correct length");
+					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
 			} else if (columnTypes[i] == NUMERIC) {
 				if (((double[]) columns[i]).length != rowCount)
-					throw new RuntimeException("Column " + (i) + " data not of correct length");
+					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
+			} else if (columnTypes[i] == BIGINT) {
+				if (((long[]) columns[i]).length != rowCount)
+					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
 			} else {
 				if (((String[]) columns[i]).length != rowCount)
-					throw new RuntimeException("Column " + (i) + " data not of correct length");
+					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
 			}
 		}
 	}
@@ -169,6 +173,23 @@ public class BatchedInsert {
 		}
 	}
 	
+	private static long[] convertFromInteger64ToLong(double[] value) {
+		long[] result = new long[value.length];
+		ByteBuffer byteBuffer = ByteBuffer.allocate(8 * value.length);
+		for (int i = 0; i < value.length; i++)
+			byteBuffer.putDouble(value[i]);
+		byteBuffer.flip();
+		for (int i = 0; i < value.length; i++)
+			result[i] = byteBuffer.getLong();
+		return result;
+	}
+	
+	public static boolean validateInteger64(double[] value) {
+		long[] integers = convertFromInteger64ToLong(value);
+		boolean result = (integers[0] == 1 & integers[1] == -1 & integers[2] == (long) Math.pow(2, 33) & integers[3] == (long) Math.pow(-2, 33));
+		return result;
+	}
+	
 	public void setInteger(int columnIndex, int[] column) {
 		columns[columnIndex - 1] = column;
 		columnTypes[columnIndex - 1] = INTEGER;
@@ -193,8 +214,8 @@ public class BatchedInsert {
 		rowCount = column.length;
 	}
 	
-	public void setBigint(int columnIndex, long[] column) {
-		columns[columnIndex - 1] = column;
+	public void setBigint(int columnIndex, double[] column) {
+		columns[columnIndex - 1] = convertFromInteger64ToLong(column);
 		columnTypes[columnIndex - 1] = BIGINT;
 		rowCount = column.length;
 	}
@@ -206,38 +227,26 @@ public class BatchedInsert {
 	}
 	
 	public void setInteger(int columnIndex, int column) {
-		columns[columnIndex - 1] = new int[] { column };
-		columnTypes[columnIndex - 1] = INTEGER;
-		rowCount = 1;
+		setInteger(columnIndex, new int[] { column });
 	}
 	
 	public void setNumeric(int columnIndex, double column) {
-		columns[columnIndex - 1] = new double[] { column };
-		columnTypes[columnIndex - 1] = NUMERIC;
-		rowCount = 1;
+		setNumeric(columnIndex, new double[] { column });
 	}
 	
 	public void setDate(int columnIndex, String column) {
-		columns[columnIndex - 1] = new String[] { column };
-		columnTypes[columnIndex - 1] = DATE;
-		rowCount = 1;
+		setDate(columnIndex, new String[] { column });
 	}
 	
 	public void setDateTime(int columnIndex, String column) {
-		columns[columnIndex - 1] = new String[] { column };
-		columnTypes[columnIndex - 1] = DATETIME;
-		rowCount = 1;
+		setDateTime(columnIndex, new String[] { column });
 	}
 	
 	public void setString(int columnIndex, String column) {
-		columns[columnIndex - 1] = new String[] { column };
-		columnTypes[columnIndex - 1] = STRING;
-		rowCount = 1;
+		setString(columnIndex, new String[] { column });
 	}
 	
-	public void setBigint(int columnIndex, long column) {
-		columns[columnIndex - 1] = new long[] { column };
-		columnTypes[columnIndex - 1] = BIGINT;
-		rowCount = 1;
+	public void setBigint(int columnIndex, double column) {
+		setBigint(columnIndex, new double[] { column });
 	}
 }

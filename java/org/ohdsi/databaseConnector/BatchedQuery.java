@@ -18,11 +18,11 @@ public class BatchedQuery {
 	public static int				DATE			= 3;
 	public static int				DATETIME		= 4;
 	public static int				INTEGER64		= 5;
-	public static int				INTEGER  		= 6;
+	public static int				INTEGER			= 6;
 	public static int				FETCH_SIZE		= 2048;
 	private static SimpleDateFormat	DATE_FORMAT		= new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+	
 	private Object[]				columns;
 	private int[]					columnTypes;
 	private String[]				columnNames;
@@ -33,17 +33,6 @@ public class BatchedQuery {
 	private ResultSet				resultSet;
 	private Connection				connection;
 	private boolean					done;
-
-//	public static void main(String[] args) {
-//		long[] values = new long[] {1, -1, (long)Math.pow(2, 33), (long)Math.pow(-2, 33)};
-//		Arrays.cop
-//	  double[] y = validateInteger64();
-//
-//	  System.out.println(y[0]);
-//	  System.out.println(y[1]);
-//	  System.out.println(y[2]);
-//	  System.out.println(y[3]);
-//	}
 	
 	private static double[] convertToInteger64ForR(long[] value) {
 		double[] result = new double[value.length];
@@ -53,12 +42,12 @@ public class BatchedQuery {
 		byteBuffer.flip();
 		for (int i = 0; i < value.length; i++)
 			result[i] = byteBuffer.getDouble();
-
+		
 		return result;
 	}
-
+	
 	public static double[] validateInteger64() {
-		long[] values = new long[] {1, -1, (long)Math.pow(2, 33), (long)Math.pow(-2, 33)};
+		long[] values = new long[] { 1, -1, (long) Math.pow(2, 33), (long) Math.pow(-2, 33) };
 		return convertToInteger64ForR(values);
 	}
 	
@@ -88,7 +77,7 @@ public class BatchedQuery {
 				columns[columnIndex] = new String[batchSize];
 		rowCount = 0;
 	}
-
+	
 	private void trySettingAutoCommit(Connection connection, boolean value) throws SQLException {
 		try {
 			connection.setAutoCommit(value);
@@ -96,7 +85,7 @@ public class BatchedQuery {
 			// Do nothing
 		}
 	}
-
+	
 	public BatchedQuery(Connection connection, String query) throws SQLException {
 		this.connection = connection;
 		if (connection.getAutoCommit())
@@ -113,9 +102,9 @@ public class BatchedQuery {
 			int type = metaData.getColumnType(columnIndex + 1);
 			if (type == Types.BIGINT)
 				columnTypes[columnIndex] = INTEGER64;
-			else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT) 
+			else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT)
 				columnTypes[columnIndex] = INTEGER;
-			else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT ||type == Types.NUMERIC || type == Types.REAL)
+			else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
 				columnTypes[columnIndex] = NUMERIC;
 			else if (type == Types.DATE)
 				columnTypes[columnIndex] = DATE;
@@ -131,7 +120,7 @@ public class BatchedQuery {
 		done = false;
 		totalRowCount = 0;
 	}
-
+	
 	public void fetchBatch() throws SQLException {
 		rowCount = 0;
 		while (rowCount < batchSize && resultSet.next()) {
@@ -139,12 +128,16 @@ public class BatchedQuery {
 				if (columnTypes[columnIndex] == NUMERIC) {
 					((double[]) columns[columnIndex])[rowCount] = resultSet.getDouble(columnIndex + 1);
 					if (resultSet.wasNull())
-						((double[]) columns[columnIndex])[rowCount] = Double.NaN;
-				} else if (columnTypes[columnIndex] == INTEGER64) 
+						((double[]) columns[columnIndex])[rowCount] = Double.NaN;				
+				} else if (columnTypes[columnIndex] == INTEGER64) {
 					((long[]) columns[columnIndex])[rowCount] = resultSet.getLong(columnIndex + 1);
-				else if (columnTypes[columnIndex] == INTEGER) 
+					if (resultSet.wasNull())
+						((long[]) columns[columnIndex])[rowCount] = Long.MIN_VALUE;
+				} else if (columnTypes[columnIndex] == INTEGER) {
 					((int[]) columns[columnIndex])[rowCount] = resultSet.getInt(columnIndex + 1);
-				else if (columnTypes[columnIndex] == STRING)
+					if (resultSet.wasNull())
+						((int[]) columns[columnIndex])[rowCount] = Integer.MIN_VALUE;
+				} else if (columnTypes[columnIndex] == STRING)
 					((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
 				else if (columnTypes[columnIndex] == DATE) {
 					Date date = resultSet.getDate(columnIndex + 1);
@@ -158,7 +151,7 @@ public class BatchedQuery {
 						((String[]) columns[columnIndex])[rowCount] = null;
 					else
 						((String[]) columns[columnIndex])[rowCount] = DATETIME_FORMAT.format(timestamp);
-
+					
 				}
 			rowCount++;
 		}
@@ -168,7 +161,7 @@ public class BatchedQuery {
 		}
 		totalRowCount += rowCount;
 	}
-
+	
 	public void clear() {
 		try {
 			resultSet.close();
@@ -180,7 +173,7 @@ public class BatchedQuery {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public double[] getNumeric(int columnIndex) {
 		double[] column = ((double[]) columns[columnIndex - 1]);
 		if (column.length > rowCount) {
@@ -190,7 +183,7 @@ public class BatchedQuery {
 		} else
 			return column;
 	}
-
+	
 	public String[] getString(int columnIndex) {
 		String[] column = ((String[]) columns[columnIndex - 1]);
 		if (column.length > rowCount) {
@@ -220,27 +213,27 @@ public class BatchedQuery {
 		} else
 			return convertToInteger64ForR(column);
 	}
-
+	
 	public boolean isDone() {
 		return done;
 	}
-
+	
 	public boolean isEmpty() {
 		return (rowCount == 0);
 	}
-
+	
 	public int[] getColumnTypes() {
 		return columnTypes;
 	}
-
+	
 	public String[] getColumnSqlTypes() {
 		return columnSqlTypes;
 	}
-
+	
 	public String[] getColumnNames() {
 		return columnNames;
 	}
-
+	
 	public int getTotalRowCount() {
 		return totalRowCount;
 	}

@@ -53,6 +53,9 @@ lowLevelQuerySqlToAndromeda.default <- function(connection, query, andromeda, an
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
   if (length(columnTypes) == 0)
     stop("No columns found")
+  if (any(columnTypes == 5)) {
+    validateInt64Query()
+  }
   first <- TRUE
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
@@ -65,6 +68,19 @@ lowLevelQuerySqlToAndromeda.default <- function(connection, query, andromeda, an
                                 as.integer(i))
         # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
         column[is.nan(column)] <- NA
+        batch[[i]] <- column
+      } else if (columnTypes[i] == 5) {
+        column <- rJava::.jcall(batchedQuery,
+                                "[D",
+                                "getInteger64",
+                                as.integer(i)) 
+        oldClass(column) <- "integer64"
+        batch[[i]] <- column
+      } else if (columnTypes[i] == 6) {
+        column <- rJava::.jcall(batchedQuery,
+                                "[I",
+                                "getInteger",
+                                as.integer(i))
         batch[[i]] <- column
       } else  {
         batch[[i]] <- rJava::.jcall(batchedQuery,
