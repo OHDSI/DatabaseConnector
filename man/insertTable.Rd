@@ -12,7 +12,8 @@ insertTable(
   createTable = TRUE,
   tempTable = FALSE,
   oracleTempSchema = NULL,
-  bulkLoad = Sys.getenv("BULK_LOAD"),
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  bulkLoad = getOption("databaseConnectorBulkUpload"),
   useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
   progressBar = FALSE,
   camelCaseToSnakeCase = FALSE
@@ -31,12 +32,15 @@ insertTable(
 
 \item{tempTable}{Should the table created as a temp table?}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
+
+\item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
+emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
 \item{bulkLoad}{If using Redshift, PDW, Hive or Postgres, use more performant bulk loading 
-techniques. Does not work for temp tables. See Details for requirements 
-for the various platforms.}
+techniques. Does not work for temp tables (except for HIVE). See Details for 
+requirements for the various platforms.}
 
 \item{useMppBulkLoad}{DEPRECATED. Use \code{bulkLoad} instead.}
 
@@ -99,6 +103,6 @@ insertTable(connection = connection,
             dropTableIfExists = TRUE,
             createTable = TRUE,
             tempTable = FALSE,
-            bulkLoad = TRUE)  # or, Sys.setenv('USE_MPP_BULK_LOAD' = TRUE)
+            bulkLoad = TRUE)  # or, options(databaseConnectorBulkUpload = TRUE)
 }
 }

@@ -95,11 +95,13 @@ trySettingAutoCommit <- function(connection, value) {
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param createTable         Create a new table? If false, will append to existing table.
 #' @param tempTable           Should the table created as a temp table?
-#' @param oracleTempSchema    Specifically for Oracle, a schema with write privileges where temp tables
+#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
+#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                            emulate temp tables, provide a schema with write privileges where temp tables
 #'                            can be created.
 #' @param bulkLoad            If using Redshift, PDW, Hive or Postgres, use more performant bulk loading 
-#'                            techniques. Does not work for temp tables. See Details for requirements 
-#'                            for the various platforms.
+#'                            techniques. Does not work for temp tables (except for HIVE). See Details for 
+#'                            requirements for the various platforms.
 #' @param useMppBulkLoad      DEPRECATED. Use \code{bulkLoad} instead.
 #' @param progressBar         Show a progress bar when uploading?
 #' @param camelCaseToSnakeCase If TRUE, the data frame column names are assumed to use camelCase and
@@ -155,7 +157,7 @@ trySettingAutoCommit <- function(connection, value) {
 #'             dropTableIfExists = TRUE,
 #'             createTable = TRUE,
 #'             tempTable = FALSE,
-#'             bulkLoad = TRUE)  # or, Sys.setenv('USE_MPP_BULK_LOAD' = TRUE)
+#'             bulkLoad = TRUE)  # or, options(databaseConnectorBulkUpload = TRUE)
 #' }
 #' @export
 insertTable <- function(connection,
@@ -165,7 +167,8 @@ insertTable <- function(connection,
                         createTable = TRUE,
                         tempTable = FALSE,
                         oracleTempSchema = NULL,
-                        bulkLoad = Sys.getenv("BULK_LOAD"),
+                        tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                        bulkLoad = getOption("databaseConnectorBulkUpload"),
                         useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                         progressBar = FALSE,
                         camelCaseToSnakeCase = FALSE) {
@@ -180,13 +183,18 @@ insertTable.default <- function(connection,
                                 createTable = TRUE,
                                 tempTable = FALSE,
                                 oracleTempSchema = NULL,
-                                bulkLoad = Sys.getenv("BULK_LOAD"),
+                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                bulkLoad = getOption("databaseConnectorBulkUpload"),
                                 useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                                 progressBar = FALSE,
                                 camelCaseToSnakeCase = FALSE) {
   if (!is.null(useMppBulkLoad) && useMppBulkLoad != "") {
     warning("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.")
     bulkLoad <- useMppBulkLoad
+  }
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    tempEmulationSchema <- oracleTempSchema
   }
   if (is.null(bulkLoad) || bulkLoad == "") {
     bulkLoad = FALSE
@@ -234,7 +242,7 @@ insertTable.default <- function(connection,
     renderTranslateExecuteSql(connection = connection, 
                               sql = sql, 
                               tableName = tableName,
-                              oracleTempSchema = oracleTempSchema,
+                              tempEmulationSchema = tempEmulationSchema,
                               progressBar = FALSE, 
                               reportOverallTime = FALSE)
   }
@@ -243,7 +251,7 @@ insertTable.default <- function(connection,
     sql <- paste("CREATE TABLE ", sqlTableName, " (", sqlTableDefinition, ");", sep = "")
     renderTranslateExecuteSql(connection = connection, 
                               sql = sql, 
-                              oracleTempSchema = oracleTempSchema, 
+                              tempEmulationSchema = tempEmulationSchema, 
                               progressBar = FALSE, 
                               reportOverallTime = FALSE)
   }
@@ -265,7 +273,7 @@ insertTable.default <- function(connection,
     }
   } else if (useCtasHack) {
     # Inserting using CTAS hack ----------------------------------------------------------------
-    ctasHack(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, oracleTempSchema)
+    ctasHack(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema)
   } else {
     # Inserting using SQL inserts --------------------------------------------------------------
     if (any(sqlDataTypes == "BIGINT")) {
@@ -281,7 +289,7 @@ insertTable.default <- function(connection,
                        ")")
     insertSql <- SqlRender::translate(insertSql,
                                       targetDialect = connection@dbms,
-                                      oracleTempSchema = oracleTempSchema)
+                                      oracleTempSchema = tempEmulationSchema)
     batchSize <- 10000
     
     autoCommit <- rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")
@@ -344,7 +352,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
                                                        createTable = TRUE,
                                                        tempTable = FALSE,
                                                        oracleTempSchema = NULL,
-                                                       bulkLoad = Sys.getenv("BULK_LOAD"),
+                                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                       bulkLoad = getOption("databaseConnectorBulkUpload"),
                                                        useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                                                        progressBar = FALSE,
                                                        camelCaseToSnakeCase = FALSE) {

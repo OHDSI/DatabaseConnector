@@ -233,7 +233,7 @@ insertTable(connection = connection,
             data = data,
             createTable = TRUE,
             tempTable = FALSE,
-            oracleTempSchema = "synpuf_2m_results")
+            tempEmulationSchema = "synpuf_2m_results")
 
 # Check data on server is same as local
 data2 <- querySql(connection, "SELECT * FROM synpuf_2m_results.temp")

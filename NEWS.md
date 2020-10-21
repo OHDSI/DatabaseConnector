@@ -17,6 +17,8 @@ Changes:
 
 7. Deprecating `useMppBulkLoad` argument of `insertTable()` function in favor of `bulkLoad` argument.
 
+8. Deprecating `oracleTempSchema` argument in various functions in favor of `tempEmulationSchema` argument, which can be set via the "sqlRenderTempEmulationSchema" option.
+
 
 Bugfixes:
 

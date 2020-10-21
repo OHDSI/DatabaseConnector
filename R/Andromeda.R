@@ -215,7 +215,10 @@ querySqlToAndromeda <- function(connection,
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
-#' @param oracleTempSchema     A schema that can be used to create temp tables in when using Oracle or Impala.
+#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
+#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                            emulate temp tables, provide a schema with write privileges where temp tables
+#'                            can be created.
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
@@ -250,9 +253,14 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                                snakeCaseToCamelCase = FALSE,
                                                oracleTempSchema = NULL,
+                                               tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                ...) {
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    tempEmulationSchema <- oracleTempSchema
+  }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
   return(querySqlToAndromeda(connection = connection,
                              sql = sql,
                              andromeda = andromeda,

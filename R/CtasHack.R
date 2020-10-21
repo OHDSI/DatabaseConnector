@@ -17,7 +17,7 @@
 # limitations under the License.
 
 
-mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, oracleTempSchema) {
+mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, tempEmulationSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", sqlFieldNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
   sql <- paste(distribution,
@@ -30,13 +30,13 @@ mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, d
                valueString,
                ";",
                sep = "")
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
@@ -73,7 +73,7 @@ formatRow <- function(data, aliases = c(), castValues, sqlDataTypes) {
   return(paste(data, aliases, collapse = ","))
 }
 
-ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, oracleTempSchema) {
+ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema) {
   if (connection@dbms == "hive") {
     batchSize <- 750
   } else {
@@ -100,7 +100,7 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
     }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, sqlFieldNames, tempNames, distribution, oracleTempSchema)
+      mergeTempTables(connection, mergedName, sqlFieldNames, tempNames, distribution, tempEmulationSchema)
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
@@ -132,12 +132,12 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
                  tempName,
                  " FROM data;",
                  sep = "")
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = oracleTempSchema)
+    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   if (progressBar) {
     setTxtProgressBar(pb, 1)
     close(pb)
   }
-  mergeTempTables(connection, sqlTableName, sqlFieldNames, tempNames, distribution, oracleTempSchema)
+  mergeTempTables(connection, sqlTableName, sqlFieldNames, tempNames, distribution, tempEmulationSchema)
 }
