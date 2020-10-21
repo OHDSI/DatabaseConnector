@@ -69,6 +69,10 @@ BULK Load permissions - needed at a server level USE master; GRANT ADMINISTER BU
 user; --Grant Staging database permissions - we will use the user db. USE scratch; EXEC
 sp_addrolemember 'db_ddladmin', user; Set the R environment variable DWLOADER_PATH to the location 
 of the binary.
+
+PostgreSQL:
+Uses the 'pg' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres 
+binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.
 }
 \examples{
 \dontrun{

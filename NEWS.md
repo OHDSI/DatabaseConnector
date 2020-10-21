@@ -3,7 +3,7 @@ DatabaseConnector 4.0.0
 
 Changes:
 
-1. Support for 64-bit integers using BIGINT and bit64's `integer64` type.
+1. Support for 64-bit integers using bit64's `integer64` type.
 
 2. INT fields are now translated to R integers and back.
 

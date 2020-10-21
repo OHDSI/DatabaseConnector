@@ -30,7 +30,6 @@ Imports:
     bit64
 Suggests:
     aws.s3,
-    uuid,
     R.utils,
     testthat,
     DBItest,

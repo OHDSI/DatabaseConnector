@@ -1,10 +1,7 @@
-# Currently only have PDW set up
+# Currently only have PDW and PostgreSQL set up
+library(DatabaseConnector)
 
-# PDW ------------------------------------------------------------------------------
-connectionDetails <- createConnectionDetails(dbms = "pdw",
-                                             server = keyring::key_get("pdwServer"),
-                                             port = keyring::key_get("pdwPort"))
-conn <- connect(connectionDetails)
+# Generate some data to upload
 set.seed(0)
 day.start <- "1960/01/01"
 day.end <- "2000/12/31"
@@ -34,9 +31,14 @@ data$id[3] <- NA
 data$bigInts[7] <- NA
 data$bigInts[8] <- 3.3043e+10
 
-
+# PDW ------------------------------------------------------------------------------
+Sys.setenv(DWLOADER_PATH = "C:/Program Files/Microsoft SQL Server Parallel Data Warehouse/100/DWLoader.exe")
+connectionDetails <- createConnectionDetails(dbms = "pdw",
+                                             server = keyring::key_get("pdwServer"),
+                                             port = keyring::key_get("pdwPort"))
+connection <- connect(connectionDetails)
 system.time(
-  insertTable(connection = conn,
+  insertTable(connection = connection,
               tableName = "scratch.dbo.insert_test",
               data = data,
               dropTableIfExists = TRUE,
@@ -46,13 +48,38 @@ system.time(
               camelCaseToSnakeCase = TRUE,
               bulkLoad = TRUE)
 )
-data2 <- querySql(conn, "SELECT * FROM scratch.dbo.insert_test;", snakeCaseToCamelCase = TRUE)
+data2 <- querySql(connection, "SELECT * FROM scratch.dbo.insert_test;", snakeCaseToCamelCase = TRUE)
 
 data <- data[order(data$id), ]
 data2 <- data2[order(data2$id), ]
 row.names(data) <- NULL
 row.names(data2) <- NULL
-expect_equal(data, data2)
+all.equal(data, data2)
 
-renderTranslateExecuteSql(conn, "DROP TABLE scratch.dbo.insert_test;")
-disconnect(conn)
+renderTranslateExecuteSql(connection, "DROP TABLE scratch.dbo.insert_test;")
+disconnect(connection)
+
+# PostgreSQL ------------------------------------------------------------------------------
+Sys.setenv(POSTGRES_PATH = "C:/Program Files/PostgreSQL/11/bin")
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
+                                             server = "localhost/ohdsi",
+                                             user = "postgres",
+                                             password = Sys.getenv("pwPostgres"))
+connection <- connect(connectionDetails)
+system.time(
+  insertTable(connection = connection,
+              tableName = "scratch.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE,
+              progressBar = TRUE,
+              camelCaseToSnakeCase = TRUE,
+              bulkLoad = TRUE)
+)
+data2 <- querySql(connection, "SELECT * FROM scratch.insert_test;", snakeCaseToCamelCase = TRUE)
+
+all.equal(data, data2)
+
+renderTranslateExecuteSql(connection, "DROP TABLE scratch.insert_test;")
+disconnect(connection)

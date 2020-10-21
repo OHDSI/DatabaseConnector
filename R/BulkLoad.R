@@ -55,7 +55,12 @@ checkBulkLoadCredentials <- function(connection) {
     if (Sys.getenv("HIVE_KEYFILE") == "") {
       warning("Using ssh password authentication, it's recommended to use keyfile instead")
     }
-    
+    return(TRUE)
+  } else  if (connection@dbms == "postgresql") {
+    if (Sys.getenv("POSTGRES_PATH") == "") {
+      writeLines("Please set environment variable POSTGRES_PATH to Postgres binary path (e.g. 'C:/Program Files/PostgreSQL/11/bin'.")
+      return(FALSE)
+    }
     return(TRUE)
   } else {
     return(FALSE)
@@ -65,6 +70,14 @@ checkBulkLoadCredentials <- function(connection) {
 getHiveSshUser <- function() {
   sshUser <- Sys.getenv("HIVE_SSH_USER")
   return(if (sshUser == "") "root" else sshUser)
+}
+
+countRows <- function(connection, sqlTableName) {
+  sql <- "SELECT COUNT(*) FROM @table"
+  count <- renderTranslateQuerySql(connection = connection, 
+                                   sql  = sql, 
+                                   table = sqlTableName)
+  return(count[1, 1])
 }
 
 bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
@@ -114,9 +127,7 @@ bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
                      shQuote(eol),
                      pdwServer,
                      auth)
-  sql <- "SELECT COUNT(*) FROM @table"
-  countBefore <- renderTranslateQuerySql(connection = connection, sql  = sql, table = sqlTableName)[1, 1]
-  
+  countBefore <- countRows(connection, sqlTableName)
   tryCatch({
     system(command,
            intern = FALSE,
@@ -132,36 +143,42 @@ bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
   }, error = function(e) {
     stop("Error in PDW bulk upload. Please check dwloader.txt and dwloader.txt.reason.")
   })
+  countAfter <- countRows(connection, sqlTableName)
   
-  countAfter <- renderTranslateQuerySql(connection = connection, sql  = sql, table = sqlTableName)[1, 1]
   if (countAfter - countBefore != nrow(data)) {
     stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", (countAfter - countBefore), " new records")
   }
 }
 
 bulkLoadRedshift <- function(connection, sqlTableName, data) {
-  ensure_installed("uuid")
   ensure_installed("R.utils")
+  ensure_installed("aws.s3")
   start <- Sys.time()
-  fileName <- file.path(tempdir(), sprintf("redshift_insert_%s", uuid::UUIDgenerate(use.time = TRUE)))
-  write.csv(x = data, na = "", file = sprintf("%s.csv", fileName), row.names = FALSE, quote = TRUE)
-  R.utils::gzip(filename = sprintf("%s.csv",
-                                   fileName), destname = sprintf("%s.gz", fileName), remove = TRUE)
   
-  s3Put <- aws.s3::put_object(file = sprintf("%s.gz", fileName),
+  csvFileName <- tempfile("redshift_insert_", fileext = ".csv")
+  gzFileName <- tempfile("redshift_insert_", fileext = ".gz")
+  write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
+  on.exit(unlink(csvFileName))
+  R.utils::gzip(filename = csvFileName, destname = gzFileName, remove = TRUE)
+  on.exit(unlink(gzFileName), add = TRUE)
+
+  s3Put <- aws.s3::put_object(file = gzFileName,
                               check_region = FALSE,
                               headers = list(`x-amz-server-side-encryption` = Sys.getenv("AWS_SSE_TYPE")),
-                              object = paste(Sys.getenv("AWS_OBJECT_KEY"), fileName, sep = "/"),
+                              object = paste(Sys.getenv("AWS_OBJECT_KEY"), basename(gzFileName), sep = "/"),
                               bucket = Sys.getenv("AWS_BUCKET_NAME"))
-  
   if (!s3Put) {
     stop("Failed to upload data to AWS S3. Please check your credentials and access.")
   }
+  on.exit(aws.s3::delete_object(object = paste(Sys.getenv("AWS_OBJECT_KEY"), basename(gzFileName), sep = "/"),
+                                bucket = Sys.getenv("AWS_BUCKET_NAME")), 
+          add = TRUE)
+  
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "redshiftCopy.sql",
                                            packageName = "DatabaseConnector",
                                            dbms = "redshift",
                                            sqlTableName = sqlTableName,
-                                           fileName = fileName,
+                                           fileName = basename(gzFileName),
                                            s3RepoName = Sys.getenv("AWS_BUCKET_NAME"),
                                            pathToFiles = Sys.getenv("AWS_OBJECT_KEY"),
                                            awsAccessKey = Sys.getenv("AWS_ACCESS_KEY_ID"),
@@ -169,26 +186,22 @@ bulkLoadRedshift <- function(connection, sqlTableName, data) {
   
   tryCatch({
     DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
-    delta <- Sys.time() - start
-    writeLines(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
   }, error = function(e) {
     stop("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
-  }, finally = {
-    try(file.remove(sprintf("%s.gz", fileName)), silent = TRUE)
-    try(aws.s3::delete_object(object = sprintf("%s.gz", fileName),
-                              bucket = Sys.getenv("AWS_BUCKET_NAME")), silent = TRUE)
   })
+  delta <- Sys.time() - start
+  writeLines(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
 }
 
 bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
-  ensure_installed("uuid")
+  sqlFieldNames <- strsplit(sqlFieldNames, ",")[[1]]
   if (tolower(Sys.info()["sysname"]) == "windows") {
     ensure_installed("ssh")
   } 
   start <- Sys.time()
-  fileName <- sprintf("hive_insert_%s.csv", uuid::UUIDgenerate(use.time = TRUE))
-  filePath <- file.path(tempdir(), fileName)
-  write.csv(x = data, na = "", file = filePath, row.names = FALSE, quote = TRUE)
+  csvFileName <- tempfile("hive_insert_", fileext = ".csv")
+  write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
+  on.exit(unlink(csvFileName))
   
   hiveUser <- getHiveSshUser()
   hivePasswd <- Sys.getenv("HIVE_SSH_PASSWORD")
@@ -201,19 +214,19 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
   tryCatch({
     if (tolower(Sys.info()["sysname"]) == "windows") {
       session <- ssh::ssh_connect(host = sprintf("%s@%s:%s", hiveUser, hiveHost, sshPort), passwd = hivePasswd, keyfile = hiveKeyFile)
-      remoteFile <- paste0("/tmp/", fileName)
-      ssh::scp_upload(session, filePath, to = remoteFile, verbose = FALSE)
-      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
-      hadoopFile <- paste0(hadoopDir, "/", fileName)
+      remoteFile <- paste0("/tmp/", basename(csvFileName))
+      ssh::scp_upload(session, csvFileName, to = remoteFile, verbose = FALSE)
+      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, generateRandomString(30))
+      hadoopFile <- paste0(hadoopDir, "/", basename(csvFileName))
       ssh::ssh_exec_wait(session, sprintf("HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hadoopUser, hadoopDir))
       command <- sprintf("HADOOP_USER_NAME=%s hadoop fs -put %s %s", hadoopUser, remoteFile, hadoopFile)
       ssh::ssh_exec_wait(session, command = command)
     } else {
-      remoteFile <- paste0("/tmp/", fileName)
-      scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, filePath, hiveHost, remoteFile)
+      remoteFile <- paste0("/tmp/", basename(csvFileName))
+      scp_command <- sprintf("sshpass -p \'%s\' scp -P %s %s %s:%s", hivePasswd, sshPort, csvFileName, hiveHost, remoteFile)
       system(scp_command)
-      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, uuid::UUIDgenerate(use.time = TRUE))
-      hadoopFile <- paste0(hadoopDir, "/", fileName)
+      hadoopDir <- sprintf("/user/%s/%s", hadoopUser, generateRandomString(30))
+      hadoopFile <- paste0(hadoopDir, "/", basename(csvFileName))
       hdp_mk_dir_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -mkdir %s", hivePasswd, hiveHost, sshPort, hadoopUser, hadoopDir)
       system(hdp_mk_dir_command)
       hdp_put_command <- sprintf("sshpass -p \'%s\' ssh %s -p %s HADOOP_USER_NAME=%s hadoop fs -put %s %s", hivePasswd, hiveHost, sshPort, hadoopUser, remoteFile, hadoopFile)
@@ -232,15 +245,68 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
       delta <- Sys.time() - start
       writeLines(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
     }, error = function(e) {
-      writeLines(paste("Error:", e))
-      stop("Error in Hive bulk upload.")
-    }, finally = {
-      try(invisible(file.remove(filePath)))
+      stop("Error in Hive bulk upload: ", e$message)
     })
   }, finally = {
     if (tolower(Sys.info()["sysname"]) == "windows")
       ssh::ssh_disconnect(session)
   })
+}
+
+
+bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data) {
+  startTime <- Sys.time()
+  
+  for (i in 1:ncol(data)) {
+    if (sqlDataTypes[i] == "INT") {
+      data[, i] <- format(data[, i], scientific = FALSE)
+    }
+  }
+  csvFileName <- tempfile("pdw_insert_", fileext = ".csv")
+  write.csv(data,csvFileName, row.names = FALSE)
+  on.exit(unlink(csvFileName))
+
+  hostServerDb <- strsplit(attr(connection, "server")(), "/")[[1]]
+  port <- attr(connection, "port")()
+  user <- attr(connection, "user")()
+  password <- attr(connection, "password")()
+
+  if (.Platform$OS.type == "windows") {
+    winPsqlPath <- Sys.getenv("POSTGRES_PATH")
+    command <- file.path(winPsqlPath, "psql.exe")
+    if (!file.exists(command)) {
+      stop("Could not find psql.exe in ", winPsqlPath)
+    }
+  } else {
+    command <- "psql"
+  }
+  headers <- paste0("(", sqlFieldNames, ")")
+  if (is.null(port)) {
+    port <- 5432
+  }
+  
+  connInfo <- sprintf("host='%s' port='%s' dbname='%s' user='%s' password='%s'", hostServerDb[[1]], port, hostServerDb[[2]], user, password)
+  copyCommand <- paste(shQuote(command),
+                       "-d \"",
+                       connInfo,
+                       "\" -c \"\\copy", sqlTableName,
+                       headers,
+                       "FROM", shQuote(csvFileName),
+                       "NULL 'NA' DELIMITER ',' CSV HEADER;\"")
+  
+  countBefore <- countRows(connection, sqlTableName)
+  result <- base::system(copyCommand)
+  countAfter <- countRows(connection, sqlTableName)
+  
+  if (result != 0) {
+    stop("Error while bulk uploading data, psql returned a non zero status. Status = ", result)
+  }
+  if (countAfter - countBefore != nrow(data)) {
+    stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", (countAfter - countBefore), " new records")
+  }
+  
+  delta <- Sys.time() - startTime
+  writeLines(paste("Bulk load to PostgreSQL took", signif(delta, 3), attr(delta, "units")))
 }
 
 # Borrowed from devtools:

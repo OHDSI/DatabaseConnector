@@ -286,6 +286,7 @@ connect <- function(connectionDetails = NULL,
                                            dbms = dbms)
     }
     attr(connection, "dbms") <- dbms
+    # Used for bulk upload:
     userExpression <- rlang::enquo(user)
     attr(connection, "user") <- function() rlang::eval_tidy(userExpression)
     passwordExpression <- rlang::enquo(password)
@@ -388,6 +389,16 @@ connect <- function(connectionDetails = NULL,
                                            dbms = dbms)
     }
     attr(connection, "dbms") <- dbms
+    # Used for bulk upload:
+    userExpression <- rlang::enquo(user)
+    attr(connection, "user") <- function() rlang::eval_tidy(userExpression)
+    passwordExpression <- rlang::enquo(password)
+    attr(connection, "password") <- function() rlang::eval_tidy(passwordExpression)
+    serverExpression <- rlang::enquo(server)
+    attr(connection, "server") <- function() rlang::eval_tidy(serverExpression)
+    portExpression <- rlang::enquo(port)
+    attr(connection, "port") <- function() rlang::eval_tidy(portExpression)
+    
     return(connection)
   }
   if (dbms == "redshift") {
@@ -557,19 +568,18 @@ connectUsingJdbcDriver <- function(jdbcDriver,
       stop("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")")
     }
   }
-  uuid <- paste(sample(c(LETTERS, letters, 0:9), 20, TRUE), collapse = "")
   connection <- new("DatabaseConnectorJdbcConnection",
                     jConnection = jConnection,
                     identifierQuote = identifierQuote,
                     stringQuote = stringQuote,
                     dbms = dbms,
-                    uuid = uuid)
+                    uuid = generateRandomString())
   registerWithRStudio(connection)
   return(connection)
 }
 
 connectUsingRsqLite <- function(server) {
-  uuid <- paste(sample(c(LETTERS, letters, 0:9), 20, TRUE), collapse = "")
+  
   dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server)
   connection <- new("DatabaseConnectorDbiConnection",
                     server = server,
@@ -577,9 +587,13 @@ connectUsingRsqLite <- function(server) {
                     identifierQuote = "'",
                     stringQuote = "'",
                     dbms = "sqlite",
-                    uuid = uuid)
+                    uuid = generateRandomString())
   registerWithRStudio(connection)
   return(connection)
+}
+
+generateRandomString <- function(length = 20) {
+  return(paste(sample(c(letters, 0:9), length, TRUE), collapse = ""))
 }
 
 #' Disconnect from the server

@@ -10,7 +10,7 @@ DatabaseConnector is part of [HADES](https://ohdsi.github.io/Hades).
 
 Introduction
 ============
-This R package provides function for connecting to various DBMSs. 
+This R package provides function for connecting to various DBMSs. Together with the `SqlRender` package, the main goal of `DatabaseConnector` is to provide a uniform interface across database platforms: the same code should run and produce equivalent results, regardless of the database back end.
 
 Features
 ========

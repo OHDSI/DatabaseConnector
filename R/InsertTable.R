@@ -125,6 +125,10 @@ trySettingAutoCommit <- function(connection, value) {
 #' user; --Grant Staging database permissions - we will use the user db. USE scratch; EXEC
 #' sp_addrolemember 'db_ddladmin', user; Set the R environment variable DWLOADER_PATH to the location 
 #' of the binary.
+#' 
+#' PostgreSQL:
+#' Uses the 'pg' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres 
+#' binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.
 #'
 #' @examples
 #' \dontrun{
@@ -212,10 +216,9 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
-  useMppBulkLoad <- (bulkLoad && connection@dbms == "hive" && createTable) ||
-    (bulkLoad && connection@dbms %in% c("redshift", "pdw") && !tempTable)
-  
-  useCtasHack <- connection@dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useMppBulkLoad
+  useBulkLoad <- (bulkLoad && connection@dbms == "hive" && createTable) ||
+    (bulkLoad && connection@dbms %in% c("redshift", "pdw", "postgresql") && !tempTable)
+  useCtasHack <- connection@dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
   
   sqlDataTypes <- sapply(data, getSqlDataTypes)
   sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), sqlDataTypes, collapse = ", ")
@@ -245,20 +248,20 @@ insertTable.default <- function(connection,
                               reportOverallTime = FALSE)
   }
   
-  if (useMppBulkLoad) {
+  if (useBulkLoad) {
     # Inserting using bulk upload for MPP ------------------------------------------------
     if (!checkBulkLoadCredentials(connection)) {
       stop("Bulk load credentials could not be confirmed. Please review them or set 'bulkLoad' to FALSE")
     }
-    writeLines("Attempting to use MPP bulk loading...")
-
+    writeLines("Attempting to use bulk loading...")
     if (connection@dbms == "redshift") {
-      ensure_installed("aws.s3")
       bulkLoadRedshift(connection, sqlTableName, data)
     } else if (connection@dbms == "pdw") {
       bulkLoadPdw(connection, sqlTableName, sqlDataTypes, data)
     } else if (connection@dbms == "hive") {
-      bulkLoadHive(connection, sqlTableName, strsplit(sqlFieldNames, ",")[[1]], data)
+      bulkLoadHive(connection, sqlTableName, sqlFieldNames, data)
+    } else if (connection@dbms == "postgresql") {
+      bulkLoadPostgres(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data) 
     }
   } else if (useCtasHack) {
     # Inserting using CTAS hack ----------------------------------------------------------------
