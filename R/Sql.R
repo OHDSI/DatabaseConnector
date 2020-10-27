@@ -40,9 +40,9 @@
   writeChar(report, fileConn, eos = NULL)
   close(fileConn)
   abort(paste("Error executing SQL:",
-             message,
-             paste("An error report has been created at ", fileName),
-             sep = "\n"), call. = FALSE)
+              message,
+              paste("An error report has been created at ", fileName),
+              sep = "\n"), call. = FALSE)
 }
 
 validateInt64Query <- function() {
@@ -109,15 +109,15 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
         columns[[i]] <- c(columns[[i]], column)
       } else if (columnTypes[i] == 5) {
         columns[[i]] <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getInteger64",
-                                as.integer(i)) 
+                                      "[D",
+                                      "getInteger64",
+                                      as.integer(i)) 
         oldClass(columns[[i]]) <- "integer64"
       } else if (columnTypes[i] == 6) {
         columns[[i]] <- rJava::.jcall(batchedQuery,
-                                "[I",
-                                "getInteger",
-                                as.integer(i))
+                                      "[I",
+                                      "getInteger",
+                                      as.integer(i))
       } else {
         columns[[i]] <- c(columns[[i]],
                           rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
@@ -363,7 +363,7 @@ executeSql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
-
+  
   if (reportOverallTime) {
     delta <- Sys.time() - startTime
     inform(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
@@ -455,8 +455,8 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1)
     abort(paste("A query that returns a result can only consist of one SQL statement, but",
-               length(sqlStatements),
-               "statements were found"))
+                length(sqlStatements),
+                "statements were found"))
   tryCatch({
     result <- lowLevelQuerySql(connection, sqlStatements[1])
     colnames(result) <- toupper(colnames(result))
@@ -525,7 +525,9 @@ renderTranslateExecuteSql <- function(connection,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.", .frequency = "regularly", .frequency_id = "oracleTempSchema")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema")
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
@@ -584,7 +586,9 @@ renderTranslateQuerySql <- function(connection,
                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                     ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.", .frequency = "regularly", .frequency_id = "oracleTempSchema")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema")
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)

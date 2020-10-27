@@ -189,11 +189,15 @@ insertTable.default <- function(connection,
                                 progressBar = FALSE,
                                 camelCaseToSnakeCase = FALSE) {
   if (!is.null(useMppBulkLoad) && useMppBulkLoad != "") {
-    warn("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.")
+    warn("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.",
+         .frequency = "regularly",
+         .frequency_id = "useMppBulkLoad")
     bulkLoad <- useMppBulkLoad
   }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema")
     tempEmulationSchema <- oracleTempSchema
   }
   if (is.null(bulkLoad) || bulkLoad == "") {

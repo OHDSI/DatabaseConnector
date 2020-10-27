@@ -256,7 +256,9 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.", .frequency = "regularly", .frequency_id = "oracleTempSchema")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema")
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
