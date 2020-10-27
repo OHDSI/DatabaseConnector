@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 registerWithRStudio <- function(connection) {
   observer <- getOption("connectionObserver")
   if (!is.null(observer)) {
@@ -187,7 +186,7 @@ previewObject <- function(connection, rowLimit, catalog = NULL, table = NULL, sc
 
 connectionActions <- function(connection) {
   list(Help = list(icon = "", callback = function() {
-    utils::browseURL("https://github.com/OHDSI/DatabaseConnector/blob/master/README.md")
+    utils::browseURL("http://ohdsi.github.io/DatabaseConnector/")
   }))
 }
 

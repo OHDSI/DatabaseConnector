@@ -9,7 +9,7 @@ isSqlReservedWord(sqlNames, warn = FALSE)
 \arguments{
 \item{sqlNames}{A character vector containing table or field names to check.}
 
-\item{warn}{(logical) Should a warning be thrown if invalid SQL names are found?}
+\item{warn}{(logical) Should a warn be thrown if invalid SQL names are found?}
 }
 \value{
 A logical vector with length equal to sqlNames that is TRUE for each name that is reserved and FALSE otherwise

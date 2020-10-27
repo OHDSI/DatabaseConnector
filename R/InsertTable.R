@@ -49,9 +49,9 @@ getSqlDataTypes <- function(column) {
     vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", s)
     if (length(s[-vid])) {
       if (is.na(quote))
-        stop("The JDBC connection doesn't support quoted identifiers, but table/column name contains characters that must be quoted (",
+        abort(paste0("The JDBC connection doesn't support quoted identifiers, but table/column name contains characters that must be quoted (",
              paste(s[-vid], collapse = ","),
-             ")")
+             ")"))
       s[-vid] <- .sql.qescape(s[-vid], FALSE, quote)
     }
     return(s)
@@ -70,7 +70,7 @@ validateInt64Insert <- function() {
   class(values) <- "double"                              
   success <- rJava::J("org.ohdsi.databaseConnector.BatchedInsert")$validateInteger64(values)
   if (!success) {
-    stop("Error converting 64-bit integers between R and Java")
+    abort("Error converting 64-bit integers between R and Java")
   }
 }
 
@@ -189,11 +189,11 @@ insertTable.default <- function(connection,
                                 progressBar = FALSE,
                                 camelCaseToSnakeCase = FALSE) {
   if (!is.null(useMppBulkLoad) && useMppBulkLoad != "") {
-    warning("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.")
+    warn("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.")
     bulkLoad <- useMppBulkLoad
   }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
     tempEmulationSchema <- oracleTempSchema
   }
   if (is.null(bulkLoad) || bulkLoad == "") {
@@ -204,7 +204,7 @@ insertTable.default <- function(connection,
   }
   if (!tempTable & substr(tableName, 1, 1) == "#") {
     tempTable <- TRUE
-    warning("Temp table name detected, setting tempTable parameter to TRUE")
+    warn("Temp table name detected, setting tempTable parameter to TRUE")
   }
   if (dropTableIfExists)
     createTable <- TRUE
@@ -213,7 +213,7 @@ insertTable.default <- function(connection,
   if (is.vector(data) && !is.list(data))
     data <- data.frame(x = data)
   if (length(data) < 1)
-    stop("data must have at least one column")
+    abort("data must have at least one column")
   if (is.null(names(data)))
     names(data) <- paste("V", 1:length(data), sep = "")
   if (length(data[[1]]) > 0) {
@@ -259,9 +259,9 @@ insertTable.default <- function(connection,
   if (useBulkLoad) {
     # Inserting using bulk upload for MPP ------------------------------------------------
     if (!checkBulkLoadCredentials(connection)) {
-      stop("Bulk load credentials could not be confirmed. Please review them or set 'bulkLoad' to FALSE")
+      abort("Bulk load credentials could not be confirmed. Please review them or set 'bulkLoad' to FALSE")
     }
-    writeLines("Attempting to use bulk loading...")
+    inform("Attempting to use bulk loading...")
     if (connection@dbms == "redshift") {
       bulkLoadRedshift(connection, sqlTableName, data)
     } else if (connection@dbms == "pdw") {
@@ -362,7 +362,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   }
   if (!tempTable & substr(tableName, 1, 1) == "#") {
     tempTable <- TRUE
-    warning("Temp table name detected, setting tempTable parameter to TRUE")
+    warn("Temp table name detected, setting tempTable parameter to TRUE")
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   

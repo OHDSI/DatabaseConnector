@@ -19,7 +19,7 @@
 checkBulkLoadCredentials <- function(connection) {
   if (connection@dbms == "pdw" && tolower(Sys.info()["sysname"]) == "windows") {
     if (Sys.getenv("DWLOADER_PATH") == "") {
-      writeLines("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
+      inform("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
       return(FALSE)
     }
     return(TRUE)
@@ -37,28 +37,28 @@ checkBulkLoadCredentials <- function(connection) {
     }
     
     if (Sys.getenv("AWS_SSE_TYPE") == "") {
-      warning("Not using Server Side Encryption for AWS S3")
+      warn("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
   } else if (connection@dbms == "hive") {
     if (Sys.getenv("HIVE_NODE_HOST") == "") {
-      writeLines("Please set environment variable HIVE_NODE_HOST to the Hive Node's host:port")
+      inform("Please set environment variable HIVE_NODE_HOST to the Hive Node's host:port")
       return(FALSE)
     }
     if (Sys.getenv("HIVE_SSH_USER") == "") {
-      warning(paste("HIVE_SSH_USER is not set, using default", getHiveSshUser()))
+      warn(paste("HIVE_SSH_USER is not set, using default", getHiveSshUser()))
     }
     if (Sys.getenv("HIVE_SSH_PASSWORD") == "" && Sys.getenv("HIVE_KEYFILE") == "") {
-      writeLines("At least one of the following environment variables: HIVE_PASSWORD and/or HIVE_KEYFILE should be set")
+      inform("At least one of the following environment variables: HIVE_PASSWORD and/or HIVE_KEYFILE should be set")
       return(FALSE)
     }
     if (Sys.getenv("HIVE_KEYFILE") == "") {
-      warning("Using ssh password authentication, it's recommended to use keyfile instead")
+      warn("Using ssh password authentication, it's recommended to use keyfile instead")
     }
     return(TRUE)
   } else  if (connection@dbms == "postgresql") {
     if (Sys.getenv("POSTGRES_PATH") == "") {
-      writeLines("Please set environment variable POSTGRES_PATH to Postgres binary path (e.g. 'C:/Program Files/PostgreSQL/11/bin'.")
+      inform("Please set environment variable POSTGRES_PATH to Postgres binary path (e.g. 'C:/Program Files/PostgreSQL/11/bin'.")
       return(FALSE)
     }
     return(TRUE)
@@ -116,7 +116,7 @@ bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
   pdwServer <- urltools::url_parse(url)$domain
   
   if (pdwServer == "" | is.null(pdwServer)) {
-    stop("PDW Server name cannot be parsed from JDBC URL string")
+    abort("PDW Server name cannot be parsed from JDBC URL string")
   }
   
   command <- sprintf("%1s -M append -e UTF8 -i %2s -T %3s -R dwloader.txt -fh 1 -t %4s -r %5s -D ymd -E -se -rv 1 -S %6s %7s",
@@ -139,14 +139,14 @@ bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
            minimized = FALSE,
            invisible = TRUE)
     delta <- Sys.time() - start
-    writeLines(paste("Bulk load to PDW took", signif(delta, 3), attr(delta, "units")))
+    inform(paste("Bulk load to PDW took", signif(delta, 3), attr(delta, "units")))
   }, error = function(e) {
-    stop("Error in PDW bulk upload. Please check dwloader.txt and dwloader.txt.reason.")
+    abort("Error in PDW bulk upload. Please check dwloader.txt and dwloader.txt.reason.")
   })
   countAfter <- countRows(connection, sqlTableName)
   
   if (countAfter - countBefore != nrow(data)) {
-    stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", (countAfter - countBefore), " new records")
+    abort(paste("Something went wrong when bulk uploading. Data has", nrow(data), "rows, but table has", (countAfter - countBefore), "new records"))
   }
 }
 
@@ -168,7 +168,7 @@ bulkLoadRedshift <- function(connection, sqlTableName, data) {
                               object = paste(Sys.getenv("AWS_OBJECT_KEY"), basename(gzFileName), sep = "/"),
                               bucket = Sys.getenv("AWS_BUCKET_NAME"))
   if (!s3Put) {
-    stop("Failed to upload data to AWS S3. Please check your credentials and access.")
+    abort("Failed to upload data to AWS S3. Please check your credentials and access.")
   }
   on.exit(aws.s3::delete_object(object = paste(Sys.getenv("AWS_OBJECT_KEY"), basename(gzFileName), sep = "/"),
                                 bucket = Sys.getenv("AWS_BUCKET_NAME")), 
@@ -187,10 +187,10 @@ bulkLoadRedshift <- function(connection, sqlTableName, data) {
   tryCatch({
     DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
   }, error = function(e) {
-    stop("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
+    abort("Error in Redshift bulk upload. Please check stl_load_errors and Redshift/S3 access.")
   })
   delta <- Sys.time() - start
-  writeLines(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
+  inform(paste("Bulk load to Redshift took", signif(delta, 3), attr(delta, "units")))
 }
 
 bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
@@ -243,9 +243,9 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
     tryCatch({
       DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
       delta <- Sys.time() - start
-      writeLines(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
+      inform(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
     }, error = function(e) {
-      stop("Error in Hive bulk upload: ", e$message)
+      abort("Error in Hive bulk upload: ", e$message)
     })
   }, finally = {
     if (tolower(Sys.info()["sysname"]) == "windows")
@@ -275,7 +275,7 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
     winPsqlPath <- Sys.getenv("POSTGRES_PATH")
     command <- file.path(winPsqlPath, "psql.exe")
     if (!file.exists(command)) {
-      stop("Could not find psql.exe in ", winPsqlPath)
+      abort("Could not find psql.exe in ", winPsqlPath)
     }
   } else {
     command <- "psql"
@@ -299,14 +299,14 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
   countAfter <- countRows(connection, sqlTableName)
   
   if (result != 0) {
-    stop("Error while bulk uploading data, psql returned a non zero status. Status = ", result)
+    abort("Error while bulk uploading data, psql returned a non zero status. Status = ", result)
   }
   if (countAfter - countBefore != nrow(data)) {
-    stop("Something went wrong when bulk uploading. Data has ", nrow(data), " rows, but table has ", (countAfter - countBefore), " new records")
+    abort(paste("Something went wrong when bulk uploading. Data has", nrow(data), "rows, but table has", (countAfter - countBefore), "new records"))
   }
   
   delta <- Sys.time() - startTime
-  writeLines(paste("Bulk load to PostgreSQL took", signif(delta, 3), attr(delta, "units")))
+  inform(paste("Bulk load to PostgreSQL took", signif(delta, 3), attr(delta, "units")))
 }
 
 # Borrowed from devtools:
@@ -326,10 +326,10 @@ ensure_installed <- function(pkg) {
       if (menu(c("Yes", "No")) == 1) {
         install.packages(pkg)
       } else {
-        stop(msg, call. = FALSE)
+        abort(msg, call. = FALSE)
       }
     } else {
-      stop(msg, call. = FALSE)
+      abort(msg, call. = FALSE)
     }
   }
 }

@@ -39,7 +39,7 @@
   fileConn <- file(fileName)
   writeChar(report, fileConn, eos = NULL)
   close(fileConn)
-  stop(paste("Error executing SQL:",
+  abort(paste("Error executing SQL:",
              message,
              paste("An error report has been created at ", fileName),
              sep = "\n"), call. = FALSE)
@@ -50,7 +50,7 @@ validateInt64Query <- function() {
   array <- rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$validateInteger64()
   oldClass(array) <- "integer64"
   if (!all.equal(array, bit64::as.integer64(c(1, -1, 8589934592, -8589934592)))) {
-    stop("Error converting 64-bit integers between R and Java")
+    abort("Error converting 64-bit integers between R and Java")
   }
 }
 
@@ -81,7 +81,7 @@ lowLevelQuerySql <- function(connection, query, datesAsString = FALSE) {
 #' @export
 lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
   if (rJava::is.jnull(connection@jConnection))
-    stop("Connection is closed")
+    abort("Connection is closed")
   
   
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -229,14 +229,14 @@ supportsBatchUpdates <- function(connection) {
     dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
     if (!is.jnull(dbmsMeta)) {
       if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
-        # writeLines("JDBC driver supports batch updates")
+        # inform("JDBC driver supports batch updates")
         return(TRUE);
       } else {
-        writeLines("JDBC driver does not support batch updates. Sending updates one at a time.")
+        inform("JDBC driver does not support batch updates. Sending updates one at a time.")
       }
     }
   }, error = function(err) {
-    writeLines(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
+    inform(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
   })
   return(FALSE);
 }
@@ -289,7 +289,7 @@ executeSql <- function(connection,
                        errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                        runAsBatch = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
-    stop("Connection is closed")
+    abort("Connection is closed")
   
   startTime <- Sys.time()
   
@@ -324,7 +324,7 @@ executeSql <- function(connection,
         startQuery <- Sys.time()
         rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
         delta <- Sys.time() - startQuery
-        writeLines(paste("Statements", start, "through", end,  "took", delta, attr(delta, "units")))
+        inform(paste("Statements", start, "through", end,  "took", delta, attr(delta, "units")))
       }, error = function(err) {
         .createErrorReport(connection@dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
       }, finally = {rJava::.jcall(statement, "V", "close")})
@@ -346,7 +346,7 @@ executeSql <- function(connection,
         lowLevelExecuteSql(connection, sqlStatement)
         if (profile) {
           delta <- Sys.time() - startQuery
-          writeLines(paste("Statement ", i, "took", delta, attr(delta, "units")))
+          inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
         }
       }, error = function(err) {
         .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
@@ -366,7 +366,7 @@ executeSql <- function(connection,
 
   if (reportOverallTime) {
     delta <- Sys.time() - startTime
-    writeLines(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
+    inform(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
   }
   if (batched) {
     invisible(rowsAffected)
@@ -450,11 +450,11 @@ trySettingAutoCommit <- function(connection, value) {
 #' @export
 querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReportSql.txt"), snakeCaseToCamelCase = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
-    stop("Connection is closed")
+    abort("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1)
-    stop(paste("A query that returns a result can only consist of one SQL statement, but",
+    abort(paste("A query that returns a result can only consist of one SQL statement, but",
                length(sqlStatements),
                "statements were found"))
   tryCatch({
@@ -525,7 +525,7 @@ renderTranslateExecuteSql <- function(connection,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.", .frequency = "regularly", .frequency_id = "oracleTempSchema")
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
@@ -584,7 +584,7 @@ renderTranslateQuerySql <- function(connection,
                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                     ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.", .frequency = "regularly", .frequency_id = "oracleTempSchema")
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
@@ -601,21 +601,22 @@ renderTranslateQuerySql <- function(connection,
 #' This function checks a character vector against a predefined list of reserved SQL words.
 #'
 #' @param sqlNames A character vector containing table or field names to check.
-#' @param warn (logical) Should a warning be thrown if invalid SQL names are found?
+#' @param warn (logical) Should a warn be thrown if invalid SQL names are found?
 #'
 #' @return A logical vector with length equal to sqlNames that is TRUE for each name that is reserved and FALSE otherwise
 #' 
 #' @export
 isSqlReservedWord <- function(sqlNames, warn = FALSE){
-  stopifnot(is.character(sqlNames))
+  if (!is.character(sqlNames)) 
+    abort("sqlNames should be a character vector")
   sqlNames <- gsub("^#", "", sqlNames)
   sqlReservedWords <- read.csv(system.file("csv", "sqlReservedWords.csv", package = "DatabaseConnector"), stringsAsFactors = FALSE)
   nameIsReserved <- toupper(sqlNames) %in% sqlReservedWords$reservedWords
   badSqlNames <- sqlNames[nameIsReserved]
   if (length(badSqlNames == 1) & warn) {
-    warning(paste(badSqlNames, "is a reserved keyword in SQL and should not be used as a table or field name."))
+    warn(paste(badSqlNames, "is a reserved keyword in SQL and should not be used as a table or field name."))
   } else if (length(badSqlNames) > 1 & warn) {
-    warning(paste(paste(badSqlNames, collapse = ","), "are reserved keywords in SQL and should not be used as table or field names."))
+    warn(paste(paste(badSqlNames, collapse = ","), "are reserved keywords in SQL and should not be used as table or field names."))
   } 
   return(nameIsReserved)
 }
