@@ -97,7 +97,6 @@ To install the latest development version, install from GitHub:
 
 ```r
 install.packages("devtools")
-devtools::install_github("ohdsi/DatabaseConnectorJars")
 devtools::install_github("ohdsi/DatabaseConnector")
 ```
 
