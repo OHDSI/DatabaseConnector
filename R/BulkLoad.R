@@ -245,7 +245,7 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
       delta <- Sys.time() - start
       inform(paste("Bulk load to Hive took", signif(delta, 3), attr(delta, "units")))
     }, error = function(e) {
-      abort("Error in Hive bulk upload: ", e$message)
+      abort(paste("Error in Hive bulk upload: ", e$message))
     })
   }, finally = {
     if (tolower(Sys.info()["sysname"]) == "windows")
@@ -275,7 +275,7 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
     winPsqlPath <- Sys.getenv("POSTGRES_PATH")
     command <- file.path(winPsqlPath, "psql.exe")
     if (!file.exists(command)) {
-      abort("Could not find psql.exe in ", winPsqlPath)
+      abort(paste("Could not find psql.exe in ", winPsqlPath))
     }
   } else {
     command <- "psql"
@@ -299,7 +299,7 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
   countAfter <- countRows(connection, sqlTableName)
   
   if (result != 0) {
-    abort("Error while bulk uploading data, psql returned a non zero status. Status = ", result)
+    abort(paste("Error while bulk uploading data, psql returned a non zero status. Status = ", result))
   }
   if (countAfter - countBefore != nrow(data)) {
     abort(paste("Something went wrong when bulk uploading. Data has", nrow(data), "rows, but table has", (countAfter - countBefore), "new records"))
@@ -326,10 +326,10 @@ ensure_installed <- function(pkg) {
       if (menu(c("Yes", "No")) == 1) {
         install.packages(pkg)
       } else {
-        abort(msg, call. = FALSE)
+        abort(msg)
       }
     } else {
-      abort(msg, call. = FALSE)
+      abort(msg)
     }
   }
 }
