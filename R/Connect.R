@@ -82,16 +82,20 @@ createConnectionDetails <- function(dbms,
 }
 
 jdbcDrivers <- new.env()
-jdbcDrivers$defaultPath <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", 
-                                      unset = path.expand("~/DatabaseConnectorDrivers"))
 
 #' Download DatabaseConnector JDBC Jar files
 #' 
 #' Download the DatabaseConnector JDBC drivers from https://github.com/OHDSI 
 #'
-#' @param destination The full path to the folder where the Jar files should be downloaded to.
-#'        If NULL (default) then the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" is used.
-#'        If DATABASECONNECTOR_JAR_FOLDER is not set then "~/DatabaseConnectorDrivers" is used.
+#' @param pathToDriver The full path to the folder where the JDBC driver .jar files should be downloaded to.
+#'        By default the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" is used.
+#' @param dbms The type of DBMS to download Jar files for.
+#'      \itemize{
+#'          \item{"postgresql" for PostgreSQL}
+#'          \item{"redshift" for Amazon Redshift}
+#'          \item{"sql server" for Microsoft SQL Server}
+#'          \item{"oracle" for Oracle}
+#'      }
 #' @param method The method used for downloading files. See \code{?download.file} for details and options.
 #' @param ... Further arguments passed on to \code{download.file} 
 #' 
@@ -102,36 +106,46 @@ jdbcDrivers$defaultPath <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER",
 #' \dontrun{
 #' downloadJdbcDrivers()
 #' }
-downloadJdbcDrivers <- function(destination = NULL, method = "auto", ...){
-  if (is.null(destination) || missing(destination)) {
-    destination <- jdbcDrivers$defaultPath
-  }
+downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), method = "auto", ...){
   
-  if (!dir.exists(destination)) dir.create(destination)
+  if (is.na(pathToDriver) || pathToDriver == "") stop("The pathToDriver argument must be specified. \nConsider setting the DATABASECONNECTOR_JAR_FOLDER environment variable.")
+  pathToDriver <- path.expand(pathToDriver)
+  if (!dir.exists(pathToDriver)) stop("The folder location '", pathToDriver, "' does not exist. \nPlease create the folder and set the the DATABASECONNECTOR_JAR_FOLDER environment variable to this path.")
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle"))
   
-  baseUrl <- "https://github.com/OHDSI/DatabaseConnectorJars/blob/master/inst/java"
-  jdbcDriverNames <- c("RedshiftJDBC4-no-awssdk-1.2.20.1043.jar",
-                       "ojdbc8.jar",
-                       "postgresql-42.2.5.jre6.jar",
-                       "sqljdbc4.jar")
+  baseUrl <- "https://ohdsi.github.io/DatabaseConnectorJars/"
   
-  result <- lapply(jdbcDriverNames, function(driverName) {
-    download.file(url = paste0(baseUrl,"/", driverName, "?raw=true"),
-                  destfile = paste(destination, driverName, sep = "/"),
-                  method = method)
-  })
+  # perhaps these version numbers should be somewhere else?
+  jdbcDriverNames <- c("postgresql" = "postgresqlV42.2.18.zip",
+                       "redshift" = "redShiftV1.2.27.1051.zip",
+                       "sql server" = "sqlServerV8.4.1.zip",
+                       "oracle" = "oracleV19.8.zip")
   
-  if (all(unlist(result) == 0)) { 
-    message("DatabaseConnector JDBC drivers downloaded to ", destination)
+  driverName <- jdbcDriverNames[[dbms]]
+  result <- download.file(url = paste0(baseUrl, driverName),
+                          destfile = paste(pathToDriver, driverName, sep = "/"),
+                          method = method)
+    
+  
+  
+  # exdir <- gsub("\\.zip$", "", file.path(pathToDriver, driverName)) # should we give each database its own driver folder or just put them all in `pathToDriver`?
+  extractedFilename <- unzip(file.path(pathToDriver, driverName), exdir = pathToDriver)
+  unzipSuccess <- is.character(extractedFilename)
+  
+  if(unzipSuccess) file.remove(file.path(pathToDriver, driverName))
+  
+  if (unzipSuccess && result == 0) { 
+    message("DatabaseConnector JDBC drivers downloaded to ", pathToDriver)
   } else {
-    stop("Downloading of JDBC drivers failed.")
+    stop("Downloading and unzipping of JDBC drivers to", pathToDriver, " has failed.")
   }
-  if (Sys.getenv("DATABASECONNECTOR_JAR_FOLDER") != destination) {
-    message("Consider adding `DATABASECONNECTOR_JAR_FOLDER='", destination,
+  
+  if (Sys.getenv("DATABASECONNECTOR_JAR_FOLDER") != pathToDriver) {
+    message("Consider adding `DATABASECONNECTOR_JAR_FOLDER='", pathToDriver,
             "'` \nto ", path.expand("~/.Renviron"), " and restarting R.")
   }
   
-  invisible(destination)
+  invisible(pathToDriver)
 }
 
 loadJdbcDriver <- function(driverClass, classPath) {
