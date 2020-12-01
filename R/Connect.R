@@ -288,6 +288,14 @@ connect <- function(connectionDetails = NULL,
     
     return(connection)
   }
+  
+  pathToDriver <- path.expand(pathToDriver)
+  if (!dir.exists(pathToDriver)) { 
+    stop("The folder location `pathToDriver = '", pathToDriver, "'` does not exist.",
+         "\nPlease create the folder and set the the DATABASECONNECTOR_JAR_FOLDER environment variable to this path.",
+         "\nJDBC drivers can be downloaded by calling `downloadJdbcDrivers(dbms = \"sql server\")`")
+  }
+  
   if (dbms == "sql server") {
     jarPath <- findPathToJar("^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
