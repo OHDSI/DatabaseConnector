@@ -65,7 +65,15 @@ createConnectionDetails <- function(dbms,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
-                                    pathToDriver = getOption("pathToDriver")) {
+                                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  
+  pathToDriver <- path.expand(pathToDriver)
+  if (!dir.exists(pathToDriver)) { 
+    stop("The folder location `pathToDriver = '", pathToDriver, "'` does not exist.",
+    "\nPlease create the folder and set the the DATABASECONNECTOR_JAR_FOLDER environment variable to this path.",
+    "\nJDBC drivers can be downloaded by calling `downloadJdbcDrivers(dbms = \"sql server\")`")
+  }
+  
   # First: get default values:
   result <- list()
   for (name in names(formals(createConnectionDetails))) {
@@ -104,7 +112,7 @@ jdbcDrivers <- new.env()
 #'
 #' @examples
 #' \dontrun{
-#' downloadJdbcDrivers()
+#' downloadJdbcDrivers("redshift")
 #' }
 downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), method = "auto", ...){
   
@@ -265,7 +273,7 @@ connect <- function(connectionDetails = NULL,
                     extraSettings = NULL,
                     oracleDriver = "thin",
                     connectionString = NULL,
-                    pathToDriver = getOption("pathToDriver")) {
+                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user,
