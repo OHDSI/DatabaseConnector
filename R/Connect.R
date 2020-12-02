@@ -181,9 +181,10 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
   driver
 }
 
-findPathToJar <- function(name, pathToDriver) {
-  if (missing(pathToDriver) || is.null(pathToDriver)) {
-    pathToDriver <- jdbcDrivers$defaultPath
+findPathToJar <- function(name, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  if (missing(pathToDriver) || is.null(pathToDriver) || is.na(pathToDriver) || !dir.exists(pathToDriver)) {
+    stop("The folder location '", pathToDriver, "' does not exist.",
+         "\nPlease create the folder and set the the DATABASECONNECTOR_JAR_FOLDER environment variable to this path.")
   } else {
     if (grepl(".jar$", tolower(pathToDriver))) {
       pathToDriver <- basename(pathToDriver)
@@ -191,15 +192,10 @@ findPathToJar <- function(name, pathToDriver) {
   }
   files <- list.files(path = pathToDriver, pattern = name, full.names = TRUE)
   if (length(files) == 0) {
-    stop("No drives matching pattern ",
-         name,
-         " found in folder ",
-         pathToDriver,
-         ". Please download the JDBC drivers by running `downloadJdbcDrivers()`,",
-         "then add the argument 'pathToDriver', pointing to the local path to directory containing ",
-         "the JDBC JAR file. Type ?jdbcDrivers for help on downloading drivers.",
-         "Add `DATABASECONNECTOR_JAR_FOLDER='", pathToDriver,"'` to ", 
-         path.expand("~/.Renviron"), " and restart R.")
+    stop("No drives matching pattern ", name, " found in folder ", pathToDriver, ".",
+         "\nPlease Add `DATABASECONNECTOR_JAR_FOLDER='", pathToDriver,"'` to ", path.expand("~/.Renviron"), " and restart R.",
+         "\nThen download the JDBC drivers for your database (e.g. SQL server) by running `downloadJdbcDrivers(dbms = 'sql server')`.",
+         "\nType `?jdbcDrivers` and `?downloadJdbcDrivers` for help on downloading drivers.")
   } else {
     return(files)
   }
