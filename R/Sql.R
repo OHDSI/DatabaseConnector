@@ -108,16 +108,18 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
         column[is.nan(column)] <- NA
         columns[[i]] <- c(columns[[i]], column)
       } else if (columnTypes[i] == 5) {
-        columns[[i]] <- rJava::.jcall(batchedQuery,
-                                      "[D",
-                                      "getInteger64",
-                                      as.integer(i)) 
-        oldClass(columns[[i]]) <- "integer64"
+        column <- rJava::.jcall(batchedQuery,
+                                "[D",
+                                "getInteger64",
+                                as.integer(i)) 
+        oldClass(column) <- "integer64"
+        columns[[i]] <- c(columns[[i]], column)
       } else if (columnTypes[i] == 6) {
-        columns[[i]] <- rJava::.jcall(batchedQuery,
-                                      "[I",
-                                      "getInteger",
-                                      as.integer(i))
+        columns[[i]] <- c(columns[[i]],
+                          rJava::.jcall(batchedQuery,
+                                        "[I",
+                                        "getInteger",
+                                        as.integer(i)))
       } else {
         columns[[i]] <- c(columns[[i]],
                           rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
