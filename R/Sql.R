@@ -113,7 +113,11 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
                                 "getInteger64",
                                 as.integer(i)) 
         oldClass(column) <- "integer64"
-        columns[[i]] <- c(columns[[i]], column)
+        if (is.null(columns[[i]])) {
+          columns[[i]] <- column
+        } else {
+          columns[[i]] <- c(columns[[i]], column)
+        }
       } else if (columnTypes[i] == 6) {
         columns[[i]] <- c(columns[[i]],
                           rJava::.jcall(batchedQuery,
