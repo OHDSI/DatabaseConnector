@@ -29,7 +29,7 @@ Field types are unescaped.
 A data frame: field types are generated using
 \code{\link[DBI:dbDataType]{dbDataType()}}.}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Other arguments used by individual methods.}
@@ -48,7 +48,7 @@ override this method.
 }
 \details{
 The \code{row.names} argument is not supported by this method.
-Process the values with \code{\link[DBI:sqlRownamesToColumn]{sqlRownamesToColumn()}} before calling this method.
+Process the values with \code{\link[DBI:rownames]{sqlRownamesToColumn()}} before calling this method.
 
 The argument order is different from the \code{sqlCreateTable()} method, the
 latter will be adapted in a later release of DBI.

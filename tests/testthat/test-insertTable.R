@@ -13,7 +13,7 @@ test_that("insertTable", {
                                             collapse = "")
     return(randomString)
   }
-  bigInts <- 1:length(dayseq) + 2^40
+  bigInts <- bit64::runif64(length(dayseq))
   data <- data.frame(start_date = dayseq,
                      some_datetime = timeSeq,
                      person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
@@ -34,8 +34,7 @@ test_that("insertTable", {
   details <- createConnectionDetails(dbms = "postgresql",
                                      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
-                                     server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-                                     schema = Sys.getenv("CDM5_POSTGRESQL_OHDSI_SCHEMA"))
+                                     server = Sys.getenv("CDM5_POSTGRESQL_SERVER"))
   connection <- connect(details)
   insertTable(connection = connection,
               tableName = "temp",
@@ -61,8 +60,7 @@ test_that("insertTable", {
   details <- createConnectionDetails(dbms = "sql server",
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
-                                     server = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
-                                     schema = Sys.getenv("CDM5_SQL_SERVER_OHDSI_SCHEMA"))
+                                     server = Sys.getenv("CDM5_SQL_SERVER_SERVER"))
   connection <- connect(details)
   insertTable(connection = connection,
               tableName = "#temp",
@@ -88,17 +86,17 @@ test_that("insertTable", {
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
-                                     server = Sys.getenv("CDM5_ORACLE_SERVER"),
-                                     schema = Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA"))
+                                     server = Sys.getenv("CDM5_ORACLE_SERVER"))
+  schema <- Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
   connection <- connect(details)
   insertTable(connection = connection,
-              tableName = "temp",
+              tableName = paste(schema, "temp", sep = "."),
               data = data,
               createTable = TRUE,
               tempTable = FALSE)
   
   # Check data on server is same as local
-  data2 <- querySql(connection, "SELECT * FROM temp")
+  data2 <- renderTranslateQuerySql(connection, "SELECT * FROM @schema.temp", schema = schema)
   names(data2) <- tolower(names(data2))
   data <- data[order(data$person_id), ]
   data2 <- data2[order(data2$person_id), ]
@@ -107,11 +105,15 @@ test_that("insertTable", {
   expect_equal(data, data2)
   
   # Check data types
-  res <- dbSendQuery(connection, "SELECT * FROM temp")
+  res <- dbSendQuery(connection, sprintf("SELECT * FROM %s.temp", schema))
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
   expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "NUMBER", "NUMBER", "VARCHAR2", "NUMBER"))
+ 
   
+  connection@jConnection
+  
+   
   disconnect(connection)
   
   # SQLite

@@ -24,8 +24,6 @@
 
 \item{port}{(optional) The port on the server to connect to.}
 
-\item{schema}{(optional) The name of the schema to connect to.}
-
 \item{extraSettings}{(optional) Additional configuration settings specific to the database
 provider to configure things as security for SSL. These must follow the
 format for the JDBC connection for the RDBMS specified in dbms.}
@@ -48,7 +46,7 @@ A list with all the details needed to connect to a database.
 \code{createConnectionDetails} creates a list containing all details needed to connect to a
 database. There are three ways to call this function:
 \itemize{
-  \item \code{createConnectionDetails(dbms, user, password, server, port, schema, extraSettings,
+  \item \code{createConnectionDetails(dbms, user, password, server, port, extraSettings,
         oracleDriver, pathToDriver)}
   \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
@@ -69,8 +67,6 @@ Oracle:
   \item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName:
         '<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'
   \item \code{port}. Specifies the port on the server (default = 1521)
-  \item \code{schema}. This field contains the schema (i.e. 'user' in Oracle terms) containing the
-        tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "(PROTOCOL=tcps)")
   \item \code{oracleDriver} The driver to be used. Choose between "thin" or "oci".
@@ -83,8 +79,6 @@ Microsoft SQL Server:
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server
   \item \code{port}. Not used for SQL Server
-  \item \code{schema}. The database containing the tables. If both database and schema are specified
-        (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
@@ -96,7 +90,6 @@ Microsoft PDW:
   \item \code{password}. The password used to log on to the server
   \item \code{server}. This field contains the host name of the server
   \item \code{port}. Not used for SQL Server
-  \item \code{schema}. The database containing the tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
 }
@@ -107,7 +100,6 @@ PostgreSQL:
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
   \item \code{port}. Specifies the port on the server (default = 5432)
-  \item \code{schema}. The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")
 }
@@ -118,7 +110,6 @@ Redshift:
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
   \item \code{port}. Specifies the port on the server (default = 5439)
-  \item \code{schema}. The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
 }
@@ -129,7 +120,6 @@ Netezza:
   \item \code{server}. This field contains the host name of the server and the database holding the
         relevant schemas: <host>/<database>
   \item \code{port}. Specifies the port on the server (default = 5480)
-  \item \code{schema}. The schema containing the tables.
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")
   \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file
@@ -141,7 +131,6 @@ Impala:
   \item \code{password}. The password for that user
   \item \code{server}. The host name of the server
   \item \code{port}. Specifies the port on the server (default = 21050)
-  \item \code{schema}. The database containing the tables
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "SSLKeyStorePwd=*****")
   \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
@@ -168,8 +157,7 @@ environmental variable needs to be set before calling \code{connect} for the fir
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/postgres",
                                              user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+                                             password = "blah")
 conn <- connect(connectionDetails)
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)

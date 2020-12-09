@@ -10,18 +10,16 @@ disconnect(connection)
 \item{connection}{The connection to the database server.}
 }
 \description{
-This function sends SQL to the server, and returns the results in an ffdf object.
+Close the connection to the server.
 }
 \examples{
 \dontrun{
-library(ffbase)
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost",
                                              user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+                                             password = "blah")
 conn <- connect(connectionDetails)
-count <- querySql.ffdf(conn, "SELECT COUNT(*) FROM person")
+count <- querySql(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)
 }
 }

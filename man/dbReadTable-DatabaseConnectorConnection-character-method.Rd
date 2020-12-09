@@ -24,7 +24,7 @@ or the result of a call to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier(
 
 \item{schema}{Name of the schema.}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write priviliges where temp tables
+\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Other parameters passed on to methods.}
@@ -37,7 +37,7 @@ An error is raised if the table does not exist.
 An empty table is returned as a data frame with zero rows.
 
 The presence of \link[DBI]{rownames} depends on the \code{row.names} argument,
-see \code{\link[DBI:sqlColumnToRownames]{sqlColumnToRownames()}} for details:
+see \code{\link[DBI:rownames]{sqlColumnToRownames()}} for details:
 \itemize{
 \item If \code{FALSE} or \code{NULL}, the returned data frame doesn't have row names.
 \item If \code{TRUE}, a column named "row_names" is converted to row names,

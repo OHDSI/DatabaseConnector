@@ -10,9 +10,10 @@ renderTranslateExecuteSql(
   profile = FALSE,
   progressBar = TRUE,
   reportOverallTime = TRUE,
-  errorReportFile = file.path(getwd(), "errorReport.txt"),
+  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   runAsBatch = FALSE,
   oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...
 )
 }
@@ -31,7 +32,7 @@ code.}
 all statements.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReport.txt' in the current working directory.}
+'errorReportSql.txt' in the current working directory.}
 
 \item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and 
 executed there. This will be faster if you have many small SQL statements, but
@@ -39,7 +40,11 @@ there will be no progress bar, and no per-statement error messages. If the
 database platform does not support batched updates the query is executed as 
 ordinarily.}
 
-\item{oracleTempSchema}{A schema that can be used to create temp tables in when using Oracle or Impala.}
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
+
+\item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
+emulate temp tables, provide a schema with write privileges where temp tables
+can be created.}
 
 \item{...}{Parameters that will be used to render the SQL.}
 }

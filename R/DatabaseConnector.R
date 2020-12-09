@@ -16,12 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' DatabaseConnector
-#'
-#' @docType package
-#' @name DatabaseConnector
-#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table
-#' install.packages menu
+#' @keywords internal
+"_PACKAGE"
+
+#' @importFrom utils sessionInfo setTxtProgressBar txtProgressBar object.size write.csv write.table read.csv install.packages menu
+#' @importFrom bit64 integer64
+#' @importFrom rlang warn abort inform
 NULL
 
 .onLoad <- function(libname, pkgname) {
@@ -88,7 +88,7 @@ ensure_installed <- function(pkg) {
   if (!is_installed(pkg)) {
     msg <- paste0(sQuote(pkg), " must be installed for this functionality.")
     if (interactive()) {
-      message(msg, "\nWould you like to install it?")
+      inform(paste(msg, "Would you like to install it?", sep = "\n"))
       if (menu(c("Yes", "No")) == 1) {
         install.packages(pkg)
       } else {

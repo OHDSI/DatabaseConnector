@@ -102,7 +102,7 @@ setClass("DatabaseConnectorDbiConnection",
 #'                   server = "localhost/ohdsi",
 #'                   user = "joe",
 #'                   password = "secret")
-#' querySql(conn, "SELECT * FROM cdm_synpuf.person")
+#' querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 #' dbDisconnet(conn)
 #' }
 #'
@@ -155,7 +155,7 @@ setMethod("dbQuoteIdentifier",
               return(DBI::SQL(character()))
             }
             if (any(is.na(x))) {
-              stop("Cannot pass NA to dbQuoteIdentifier()", call. = FALSE)
+              abort("Cannot pass NA to dbQuoteIdentifier()")
             }
             if (nzchar(conn@identifierQuote)) {
               x <- gsub(conn@identifierQuote, paste0(conn@identifierQuote,
@@ -174,7 +174,7 @@ setMethod("dbQuoteString",
               return(DBI::SQL(character()))
             }
             if (any(is.na(x))) {
-              stop("Cannot pass NA to dbQuoteString()", call. = FALSE)
+              abort("Cannot pass NA to dbQuoteString()")
             }
             if (nzchar(conn@stringQuote)) {
               x <- gsub(conn@stringQuote, paste0(conn@stringQuote, conn@stringQuote), x, fixed = TRUE)
@@ -200,10 +200,11 @@ setMethod("dbSendQuery",
           signature("DatabaseConnectorJdbcConnection", "character"),
           function(conn, statement, ...) {
             if (rJava::is.jnull(conn@jConnection))
-              stop("Connection is closed")
+              abort("Connection is closed")
             batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                          conn@jConnection,
-                                         statement)
+                                         statement,
+                                         conn@dbms)
             result <- new("DatabaseConnectorResult",
                           content = batchedQuery,
                           type = "batchedQuery",
@@ -327,9 +328,9 @@ setMethod("dbSendStatement",
 #' @export
 setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
   if (res@type != "rowsAffected") {
-    stop("Object not result of dbSendStatement")
+    abort("Object not result of dbSendStatement")
   }
-  return(.jsimplify(res@content))
+  return(rJava::.jsimplify(res@content))
 })
 
 #' @inherit
@@ -385,7 +386,9 @@ setMethod("dbListTables",
 setMethod("dbExistsTable",
           signature("DatabaseConnectorConnection", "character"),
           function(conn, name, database = NULL, schema = NULL, ...) {
-            stopifnot(length(name) == 1)
+            if (length(name) != 1) {
+              abort("Name should be a single string")
+            }
             tables <- dbListTables(conn, name = name, database = database, schema = schema)
             return(tolower(name) %in% tolower(tables))
           })
@@ -424,7 +427,7 @@ setMethod("dbWriteTable",
 #' @inherit
 #' DBI::dbAppendTable title description params details references return seealso
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #
 #' @export
@@ -450,7 +453,7 @@ setMethod("dbAppendTable",
 #' @inherit
 #' DBI::dbCreateTable title description params details references return seealso
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #
 #' @export
@@ -477,7 +480,7 @@ setMethod("dbCreateTable",
 #' DBI::dbReadTable title description params details references return seealso
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #' @export
 setMethod("dbReadTable",
@@ -501,7 +504,7 @@ setMethod("dbReadTable",
 #' DBI::dbRemoveTable title description params details references return seealso
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write priviliges where temp tables
+#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
 #'                           can be created.
 #' @export
 setMethod("dbRemoveTable",

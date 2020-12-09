@@ -1,11 +1,9 @@
 library(DatabaseConnector)
-options(fftempdir = "s:/fftemp")
 
 # Test PDW with integrated security ----------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              server = Sys.getenv("PDW_SERVER"),
-                                             port = Sys.getenv("PDW_PORT"),
-                                             schema = "CDM_Truven_MDCR_V415")
+                                             port = Sys.getenv("PDW_PORT"))
 conn <- connect(connectionDetails)
 conn2 <- connect(connectionDetails)
 disconnect(conn)
@@ -77,9 +75,21 @@ disconnect(conn)
 connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              server = "localhost/ohdsi",
                                              user = "postgres",
-                                             password = Sys.getenv("pwPostgres"),
-                                             schema = "cdm_synpuf")
+                                             password = Sys.getenv("pwPostgres"))
 conn <- connect(connectionDetails)
+data <- data.frame(x = as.integer(1:5),
+                   y = bit64::as.integer64(1:5))
+data$x[2] <- NA
+data$y[3] <- NA
+insertTable(connection = conn,
+            data = data,
+            tableName = "scratch.test",
+            dropTableIfExists = TRUE,
+            createTable = TRUE,
+            tempTable = FALSE)
+
+querySql(conn, "SELECT * FROM scratch.test")
+
 querySql(conn, "SELECT COUNT(*) FROM person")
 getTableNames(conn, "cdm_synpuf")
 disconnect(conn)
@@ -154,13 +164,13 @@ data <- data.frame(person_id = c(1, 2, 3),
                    start_date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
                    some_text = c("asdf", "asdf", "asdf"))
 system.time(
-insertTable(connection = conn,
-            tableName = "#test",
-            data = data,
-            dropTableIfExists = TRUE,
-            createTable = TRUE,
-            tempTable = TRUE,
-            useMppBulkLoad = F)
+  insertTable(connection = conn,
+              tableName = "#test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = TRUE,
+              useMppBulkLoad = F)
 )
 d2 <- querySql(conn, "SELECT * FROM #test")
 str(d2)
@@ -186,12 +196,12 @@ data <- data.frame(start_date = dayseq,
                    id = makeRandomStrings(length(dayseq)))
 str(data)
 tableName <- "#temp"
-data <- data[1:10, ]
+data <- tibble::as_tibble(data[1:100, ])
 connection <- connect(connectionDetails)
 insertTable(connection, tableName, data, dropTableIfExists = TRUE)
 
 d <- querySql(connection, "SELECT * FROM #temp")
-d <- querySql.ffdf(connection, "SELECT * FROM #temp")
+
 
 library(ffbase)
 data <- as.ffdf(data)
@@ -413,3 +423,34 @@ connectionDetails <- Eunomia::getEunomiaConnectionDetails()
 conn <- connect(connectionDetails)
 
 disconnect(conn)
+
+# Andromeda -----------------------------------------------------
+connectionDetails <- createConnectionDetails(dbms = "pdw",
+                                             server = Sys.getenv("PDW_SERVER"),
+                                             port = Sys.getenv("PDW_PORT"))
+connection <- connect(connectionDetails)
+
+query <- "SELECT TOP 100000 * FROM CDM_Truven_MDCR_V415.dbo.observation_period;"
+sqliteConnection <- Andromeda::Andromeda()
+sqliteTableName <- "test"
+querySql.sqlite(connection = connection,
+                sql = query,
+                sqliteConnection = sqliteConnection,
+                sqliteTableName = sqliteTableName,
+                snakeCaseToCamelCase = TRUE)
+
+disconnect(connection)
+DBI::dbGetQuery(sqliteConnection, "SELECT COUNT(*) FROM test;")
+
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+connection <- connect(connectionDetails)
+query <- "SELECT * FROM main.person;"
+sqliteConnection <- Andromeda::Andromeda()
+sqliteTableName <- "test"
+querySql.sqlite(connection = connection,
+                sql = query,
+                sqliteConnection = sqliteConnection,
+                sqliteTableName = sqliteTableName)
+
+disconnect(connection)
+DBI::dbGetQuery(sqliteConnection, "SELECT COUNT(*) FROM test;")

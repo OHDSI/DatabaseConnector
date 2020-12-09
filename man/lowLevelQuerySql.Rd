@@ -4,7 +4,7 @@
 \alias{lowLevelQuerySql}
 \title{Low level function for retrieving data to a data frame}
 \usage{
-lowLevelQuerySql(connection, query = "", datesAsString = FALSE)
+lowLevelQuerySql(connection, query, datesAsString = FALSE)
 }
 \arguments{
 \item{connection}{The connection to the database server.}

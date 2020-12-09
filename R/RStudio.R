@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 registerWithRStudio <- function(connection) {
   observer <- getOption("connectionObserver")
   if (!is.null(observer)) {
@@ -187,7 +186,7 @@ previewObject <- function(connection, rowLimit, catalog = NULL, table = NULL, sc
 
 connectionActions <- function(connection) {
   list(Help = list(icon = "", callback = function() {
-    utils::browseURL("https://github.com/OHDSI/DatabaseConnector/blob/master/README.md")
+    utils::browseURL("http://ohdsi.github.io/DatabaseConnector/")
   }))
 }
 
@@ -196,10 +195,14 @@ getServer <- function(connection) {
 }
 
 getServer.default <- function(connection) {
-  databaseMetaData <- rJava::.jcall(connection@jConnection,
-                                    "Ljava/sql/DatabaseMetaData;",
-                                    "getMetaData")
-  url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+  if (connection@dbms == "hive") {
+    url <- connection@url
+  } else {
+    databaseMetaData <- rJava::.jcall(connection@jConnection,
+                                      "Ljava/sql/DatabaseMetaData;",
+                                      "getMetaData")
+    url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+  }
   server <- urltools::url_parse(url)$domain
   return(server)
 }
@@ -216,8 +219,13 @@ compileReconnectCode.default <- function(connection) {
   databaseMetaData <- rJava::.jcall(connection@jConnection,
                                     "Ljava/sql/DatabaseMetaData;",
                                     "getMetaData")
-  url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
-  user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
+  if (connection@dbms == 'hive') {
+    url <- connection@url
+    user <- connection@user
+  } else {
+    url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+    user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
+  }
   code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
                   connection@dbms,
                   url,
