@@ -6,6 +6,7 @@
 \usage{
 insertTable(
   connection,
+  databaseSchema = NULL,
   tableName,
   data,
   dropTableIfExists = TRUE,
@@ -21,6 +22,9 @@ insertTable(
 }
 \arguments{
 \item{connection}{The connection to the database server.}
+
+\item{databaseSchema}{(Optional) The name of the database schema where the table should
+be located.}
 
 \item{tableName}{The name of the table where the data should be inserted.}
 
@@ -86,7 +90,7 @@ connectionDetails <- createConnectionDetails(dbms = "mysql",
                                              password = "blah")
 conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
-insertTable(conn, "my_table", data)
+insertTable(conn, "my_schema", "my_table", data)
 disconnect(conn)
 
 ## bulk data insert with Redshift or PDW
@@ -98,7 +102,8 @@ connectionDetails <- createConnectionDetails(dbms = "redshift",
 conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 insertTable(connection = connection,
-            tableName = "scratch.somedata",
+            databaseSchema = "scratch",
+            tableName = "somedata",
             data = data,
             dropTableIfExists = TRUE,
             createTable = TRUE,

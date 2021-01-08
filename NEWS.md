@@ -3,21 +3,27 @@ DatabaseConnector 4.0.0
 
 Changes:
 
-1. Support for 64-bit integers using bit64's `integer64` type.
+1. JDBC drivers are no longer pre-packaged in DatabaseConnectorJars. Instead, drivers need to be downloaded manually to a user-specified location in the local file system. The `downloadJdbcDrivers()` function has been added to make downing drivers easier. The path to the drivers can be set in the 'DATABASECONNECTOR_JAR_FOLDER' environmental variable.
 
-2. INT fields are now translated to R integers and back.
+2. Support for 64-bit integers using bit64's `integer64` type.
 
-3. Removed message that 'JDBC driver supports batch updates' when running executeSql in batch mode.
+3. INT fields are now translated to R integers and back.
 
-4. Batch mode in executeSql divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
+4. ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.
 
-5. ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.
+5. Removing deprecated `schema` argument from `createConnectionDetails` and `connect`.
 
-6. Removing deprecated `schema` argument from `createConnectionDetails` and `connect`.
+6. Deprecating `useMppBulkLoad` argument of `insertTable()` function in favor of `bulkLoad` argument.
 
-7. Deprecating `useMppBulkLoad` argument of `insertTable()` function in favor of `bulkLoad` argument.
+7. Deprecating `oracleTempSchema` argument in various functions in favor of `tempEmulationSchema` argument, which can be set via the "sqlRenderTempEmulationSchema" option.
 
-8. Deprecating `oracleTempSchema` argument in various functions in favor of `tempEmulationSchema` argument, which can be set via the "sqlRenderTempEmulationSchema" option.
+8. Removed message that 'JDBC driver supports batch updates' when running executeSql in batch mode.
+
+9. Batch mode in executeSql divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
+
+10. Added optional `databaseSchema` argument to `insertTable` for consistency with general OHDSI framework.
+
+11. All JDBC drivers (previously in `DatabaseConnectorJars`, now hosted on the OHDSI GitHub pages) have been updated. The new driver for SQL Render and PDW requires an updated authentication library (DLL) when using Windows Authentication.
 
 
 Bugfixes:

@@ -1,5 +1,11 @@
 library(DatabaseConnector)
 
+Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "C:/Users/MSCHUEMI/jdbcDrivers")
+downloadJdbcDrivers("pdw")
+downloadJdbcDrivers("postgresql")
+
+
+
 # Test PDW with integrated security ----------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "pdw",
                                              server = Sys.getenv("PDW_SERVER"),
@@ -8,7 +14,6 @@ conn <- connect(connectionDetails)
 conn2 <- connect(connectionDetails)
 disconnect(conn)
 disconnect(conn2)
-x <- querySql.ffdf(conn, "SELECT * FROM observation_period WHERE person_id = -999")
 getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
 
 
@@ -159,7 +164,6 @@ conn <- connect(connectionDetails)
 getTableNames(conn, "cdm")
 renderTranslateExecuteSql(conn, "CREATE TABLE #test (x INT); INSERT INTO #test (x) SELECT 1; TRUNCATE TABLE #test; DROP TABLE #test;")
 
-person <- querySql.ffdf(conn, "SELECT * FROM person")
 data <- data.frame(person_id = c(1, 2, 3),
                    start_date = as.Date(c("2000-01-01", "2001-01-31", "2004-12-31")),
                    some_text = c("asdf", "asdf", "asdf"))
@@ -175,8 +179,6 @@ system.time(
 d2 <- querySql(conn, "SELECT * FROM #test")
 str(d2)
 
-options(fftempdir = "s:/fftemp")
-d2 <- querySql.ffdf(conn, "SELECT * FROM test")
 d2
 disconnect(conn)
 
@@ -203,8 +205,6 @@ insertTable(connection, tableName, data, dropTableIfExists = TRUE)
 d <- querySql(connection, "SELECT * FROM #temp")
 
 
-library(ffbase)
-data <- as.ffdf(data)
 
 disconnect(connection)
 
