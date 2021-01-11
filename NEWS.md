@@ -23,8 +23,6 @@ Changes:
 
 10. Added optional `databaseSchema` argument to `insertTable` for consistency with general OHDSI framework.
 
-11. All JDBC drivers (previously in `DatabaseConnectorJars`, now hosted on the OHDSI GitHub pages) have been updated. The new driver for SQL Render and PDW requires an updated authentication library (DLL) when using Windows Authentication.
-
 
 Bugfixes:
 
