@@ -1,4 +1,4 @@
-# Currently only have PDW and PostgreSQL set up
+# Currently only have PDW, PostgreSQL, and RedShift set up
 library(DatabaseConnector)
 
 # Generate some data to upload
@@ -82,4 +82,45 @@ data2 <- querySql(connection, "SELECT * FROM scratch.insert_test;", snakeCaseToC
 all.equal(data, data2)
 
 renderTranslateExecuteSql(connection, "DROP TABLE scratch.insert_test;")
+disconnect(connection)
+
+# RedShift ------------------------------------------------------------------------------
+Sys.setenv("AWS_OBJECT_KEY" = "bulk")
+Sys.setenv("AWS_ACCESS_KEY_ID" = Sys.getenv("bulkUploadS3Key"))
+Sys.setenv("AWS_SECRET_ACCESS_KEY" = Sys.getenv("bulkUploadS3Secret"))
+Sys.setenv("AWS_BUCKET_NAME" = Sys.getenv("bulkUploadS3Bucket"))
+Sys.setenv("AWS_DEFAULT_REGION" = "us-east-1")
+Sys.setenv("AWS_SSE_TYPE" = "AES256")
+
+# connectionDetails <- createConnectionDetails(dbms = 'redshift', 
+#                                              user = Sys.getenv('CDM5_REDSHIFT_USER'), 
+#                                              password = URLdecode(Sys.getenv('CDM5_REDSHIFT_PASSWORD')),
+#                                              server = Sys.getenv('CDM5_REDSHIFT_SERVER'))
+connectionDetails <- createConnectionDetails(dbms = "redshift",
+                                             connectionString = keyring::key_get("redShiftConnectionStringMdcd"),
+                                             user = keyring::key_get("redShiftUserName"),
+                                             password = keyring::key_get("redShiftPassword"))
+
+
+connection <- connect(connectionDetails)
+system.time(
+  insertTable(connection = connection,
+              tableName = "scratch_mschuemi2.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE,
+              progressBar = TRUE,
+              camelCaseToSnakeCase = TRUE,
+              bulkLoad = TRUE)
+)
+data2 <- querySql(connection, "SELECT * FROM scratch_mschuemi2.insert_test;", snakeCaseToCamelCase = TRUE)
+
+data <- data[order(data$id), ]
+data2 <- data2[order(data2$id), ]
+row.names(data) <- NULL
+row.names(data2) <- NULL
+all.equal(data, data2)
+
+renderTranslateExecuteSql(connection, "DROP TABLE scratch_mschuemi2.insert_test;")
 disconnect(connection)

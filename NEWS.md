@@ -9,7 +9,7 @@ Changes:
 
 3. Removed message that 'JDBC driver supports batch updates' when running executeSql in batch mode.
 
-4. Batch mode in executeSql divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
+4. Batch mode in `executeSql` divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.
 
 5. ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.
 
@@ -17,7 +17,9 @@ Changes:
 
 7. Deprecating `useMppBulkLoad` argument of `insertTable()` function in favor of `bulkLoad` argument.
 
-8. Deprecating `oracleTempSchema` argument in various functions in favor of `tempEmulationSchema` argument, which can be set via the "sqlRenderTempEmulationSchema" option.
+8. Adding bulk upload mode for PostgreSQL.
+
+9. Deprecating `oracleTempSchema` argument in various functions in favor of `tempEmulationSchema` argument, which can be set via the "sqlRenderTempEmulationSchema" option.
 
 
 Bugfixes:
