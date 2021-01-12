@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2020 Observational Health Data Sciences and Informatics
+# Copyright 2021 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -90,6 +90,8 @@ trySettingAutoCommit <- function(connection, value) {
 #' is created, or the data is appended to an existing table.
 #'
 #' @param connection          The connection to the database server.
+#' @param databaseSchema      (Optional) The name of the database schema where the table should
+#'                            be located. 
 #' @param tableName           The name of the table where the data should be inserted.
 #' @param data                The data frame containing the data to be inserted.
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
@@ -140,7 +142,7 @@ trySettingAutoCommit <- function(connection, value) {
 #'                                              password = "blah")
 #' conn <- connect(connectionDetails)
 #' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
-#' insertTable(conn, "my_table", data)
+#' insertTable(conn, "my_schema", "my_table", data)
 #' disconnect(conn)
 #'
 #' ## bulk data insert with Redshift or PDW
@@ -152,7 +154,8 @@ trySettingAutoCommit <- function(connection, value) {
 #' conn <- connect(connectionDetails)
 #' data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 #' insertTable(connection = connection,
-#'             tableName = "scratch.somedata",
+#'             databaseSchema = "scratch",
+#'             tableName = "somedata",
 #'             data = data,
 #'             dropTableIfExists = TRUE,
 #'             createTable = TRUE,
@@ -161,6 +164,7 @@ trySettingAutoCommit <- function(connection, value) {
 #' }
 #' @export
 insertTable <- function(connection,
+                        databaseSchema = NULL,
                         tableName,
                         data,
                         dropTableIfExists = TRUE,
@@ -177,6 +181,7 @@ insertTable <- function(connection,
 
 #' @export
 insertTable.default <- function(connection,
+                                databaseSchema = NULL,
                                 tableName,
                                 data,
                                 dropTableIfExists = TRUE,
@@ -212,6 +217,8 @@ insertTable.default <- function(connection,
     createTable <- TRUE
   if (tempTable & substr(tableName, 1, 1) != "#" & attr(connection, "dbms") != "redshift")
     tableName <- paste("#", tableName, sep = "")
+  if (!is.null(databaseSchema))
+    tableName <- paste(databaseSchema, tableName, sep = ".")
   if (is.vector(data) && !is.list(data))
     data <- data.frame(x = data)
   if (length(data) < 1)
@@ -348,6 +355,7 @@ insertTable.default <- function(connection,
 
 #' @export
 insertTable.DatabaseConnectorDbiConnection <- function(connection,
+                                                       databaseSchema = NULL,
                                                        tableName,
                                                        data,
                                                        dropTableIfExists = TRUE,
@@ -369,6 +377,10 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   
   tableName <- gsub("^#", "", tableName)
+  if (!is.null(databaseSchema)) {
+    tableName <- paste(databaseSchema, tableName, sep = ".")
+  }
+  
   # Convert dates and datetime to UNIX timestamp:
   for (i in 1:ncol(data)) {
     if (inherits(data[, i], "Date")) {

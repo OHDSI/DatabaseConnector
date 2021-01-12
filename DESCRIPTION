@@ -15,10 +15,10 @@ Authors@R: c(
 Description: An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 
     'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', and 'SQLite'). Also includes support for
     fetching data as 'Andromeda' objects. Uses 'Java Database Connectivity' ('JDBC') to connect to databases (except SQLite).
+SystemRequirements: Java version 8 or higher (https://www.java.com/)
 Depends:
     R (>= 2.10)
 Imports:
-    DatabaseConnectorJars,
     rJava,
     SqlRender (>= 1.6.3),
     methods,
@@ -31,6 +31,7 @@ Imports:
 Suggests:
     aws.s3,
     R.utils,
+    withr,
     testthat,
     DBItest,
     knitr,

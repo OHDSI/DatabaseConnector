@@ -2,6 +2,11 @@
 library(DatabaseConnector)
 library(testthat)
 
+# Download drivers -----------------------------------------------
+
+downloadJdbcDrivers("pdw")
+downloadJdbcDrivers("redshift")
+
 # Open and close connection -----------------------------------------------
 
 # PDW

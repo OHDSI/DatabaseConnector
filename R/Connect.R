@@ -1,6 +1,6 @@
 # @file Connect.R
 #
-# Copyright 2020 Observational Health Data Sciences and Informatics
+# Copyright 2021 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -63,10 +63,17 @@ createConnectionDetails <- function(dbms,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
-                                    pathToDriver = getOption("pathToDriver")) {
+                                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  pathToDriver <- path.expand(pathToDriver)
+  if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
+    abort(paste("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
+                "Please set the folder to the location containing the JDBC driver.",
+                "You can download most drivers using the `downloadJdbcDrivers()` function."))
+  }
+  
   result <- list(dbms = dbms,
                  extraSettings = extraSettings,
-                 oracleDriver = "thin",
+                 oracleDriver = oracleDriver,
                  pathToDriver = pathToDriver)
   
   userExpression <- rlang::enquo(user)
@@ -86,55 +93,6 @@ createConnectionDetails <- function(dbms,
   
   class(result) <- "connectionDetails"
   return(result)
-}
-
-jdbcDrivers <- new.env()
-
-loadJdbcDriver <- function(driverClass, classPath) {
-  rJava::.jaddClassPath(classPath)
-  if (nchar(driverClass) && rJava::is.jnull(rJava::.jfindClass(as.character(driverClass)[1])))
-    abort("Cannot find JDBC driver class ", driverClass)
-  jdbcDriver <- rJava::.jnew(driverClass, check = FALSE)
-  rJava::.jcheck(TRUE)
-  return(jdbcDriver)
-}
-
-# Singleton pattern to ensure driver is instantiated only once
-getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
-  key <- paste(driverClass, classPath)
-  if (key %in% ls(jdbcDrivers)) {
-    driver <- get(key, jdbcDrivers)
-    if (rJava::is.jnull(driver)) {
-      driver <- loadJdbcDriver(driverClass, classPath)
-      assign(key, driver, envir = jdbcDrivers)
-    }
-  } else {
-    driver <- loadJdbcDriver(driverClass, classPath)
-    assign(key, driver, envir = jdbcDrivers)
-  }
-  driver
-}
-
-findPathToJar <- function(name, pathToDriver) {
-  if (missing(pathToDriver) || is.null(pathToDriver)) {
-    pathToDriver <- system.file("java", package = "DatabaseConnectorJars")
-  } else {
-    if (grepl(".jar$", tolower(pathToDriver))) {
-      pathToDriver <- basename(pathToDriver)
-    }
-  }
-  files <- list.files(path = pathToDriver, pattern = name, full.names = TRUE)
-  if (length(files) == 0) {
-    abort(paste("No drives matching pattern",
-         name,
-         "found in folder",
-         pathToDriver,
-         ". Please download the JDBC",
-         "driver, then add the argument 'pathToDriver', pointing to the local path to directory containing",
-         "the JDBC JAR file. Type ?jdbcDrivers for help on downloading drivers."))
-  } else {
-    return(files)
-  }
 }
 
 #' @title
@@ -202,8 +160,7 @@ connect <- function(connectionDetails = NULL,
                     extraSettings = NULL,
                     oracleDriver = "thin",
                     connectionString = NULL,
-                    pathToDriver = getOption("pathToDriver")) {
-  
+                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
     connection <- connect(dbms = connectionDetails$dbms,
                           user = connectionDetails$user(),
@@ -217,6 +174,14 @@ connect <- function(connectionDetails = NULL,
     
     return(connection)
   }
+  
+  pathToDriver <- path.expand(pathToDriver)
+  if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
+    abort(paste("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
+                "Please set the folder to the location containing the JDBC driver.",
+                "You can download most drivers using the `downloadJdbcDrivers()` function."))
+  }
+  
   if (dbms == "sql server") {
     jarPath <- findPathToJar("^mssql-jdbc.*.jar$|^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
@@ -490,24 +455,24 @@ connect <- function(connectionDetails = NULL,
     return(connection)
   }
   if (dbms == "hive") {
-      inform("Connecting using Hive driver")
-      jarPath <- findPathToJar("^hive-jdbc-standalone\\.jar$", pathToDriver)
-      driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
-  
-      if (missing(connectionString) || is.null(connectionString)) {
-          connectionString <- paste0("jdbc:hive2://", server, ":", port)
-          if (!missing(extraSettings) && !is.null(extraSettings)) {
-              connectionString <- paste0(connectionString, ";", extraSettings)
-          }
+    inform("Connecting using Hive driver")
+    jarPath <- findPathToJar("^hive-jdbc-standalone\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
+    
+    if (missing(connectionString) || is.null(connectionString)) {
+      connectionString <- paste0("jdbc:hive2://", server, ":", port)
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
+        connectionString <- paste0(connectionString, ";", extraSettings)
       }
-      connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = user,
-      password = password,
-      dbms = dbms)
-  
-      attr(connection, "dbms") <- dbms
-      return(connection)
+    }
+    connection <- connectUsingJdbcDriver(driver,
+                                         connectionString,
+                                         user = user,
+                                         password = password,
+                                         dbms = dbms)
+    
+    attr(connection, "dbms") <- dbms
+    return(connection)
   }
   if (dbms == "bigquery") {
     inform("Connecting using BigQuery driver")

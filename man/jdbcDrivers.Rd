@@ -6,32 +6,12 @@
 \description{
 Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
 use the \code{pathToDriver} argument in the \code{\link{connect}} or \code{\link{createConnectionDetails}}
-functions to point to the driver.
+functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental 
+variable, for example in your .Renviron file (recommended).
 }
-\section{PostgresSql}{
- Go to \href{https://jdbc.postgresql.org/download.html}{the PostgresSQL JDBC site} and
-download the current version. The file is called something like 'postgresql-42.2.2.jar'.
-}
-
-\section{Oracle}{
- Go to
-\href{http://www.oracle.com/technetwork/database/features/jdbc/jdbc-drivers-12c-download-1958347.html}{the
-Oracle JDBC site}. Select 'Accept License Agreement' and download the jar file. The file is called
-something like 'ojdbc7.jar'.
-}
-
-\section{SQL Server and PDW}{
- Go to \href{https://www.microsoft.com/en-us/download/details.aspx?id=11774}{the
-Microsoft SQL Server JDBC site}, click 'Download' and select the tar.gz file. Click 'Next' to start
-the download. Decompress the file and find a file called something like 'sqljdbc41.jar' in the a
-folder named something like 'sqljdbc_6.0/enu/jre7'.
-}
-
-\section{RedShift}{
- Go to the
-\href{https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver}{Amazon
-RedShfit JDBC driver page} and download the latest JDBC driver. The file is called something like
-'RedshiftJDBC42-1.2.12.1017.jar'.
+\section{SQL Server, Oracle, PostgreSQL, PDW, RedShift}{
+ Use the \code{\link{downloadJdbcDrivers}} function to download these drivers
+from the OHDSI GitHub pages.
 }
 
 \section{Netezza}{
@@ -49,5 +29,10 @@ download the latest JDBC driver. Unzip the file, and locate the appropriate jar 
  Go to
 \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick
 your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
+}
+
+\section{SQLite}{
+ For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
+using \code{install.packages("RSQLite")}.
 }
 
