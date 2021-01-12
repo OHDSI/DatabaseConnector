@@ -228,9 +228,11 @@ DatabaseConnector also supports SQLite through the [RSQLite package](https://cra
 conn <- connect(dbms = "sqlite", server = tempfile())
 
 # Upload cars dataset as table:
-insertTable(conn, "cars", cars)
+insertTable(connection = conn, 
+            tableName = "cars", 
+            data = cars)
 
-querySql(conn, "SELECT COUNT(*) FROM cars;")
+querySql(conn, "SELECT COUNT(*) FROM main.cars;")
 
 disconnect(conn)
 ```
