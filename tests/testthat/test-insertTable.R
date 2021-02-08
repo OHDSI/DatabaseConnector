@@ -45,13 +45,15 @@ test_that("insertTable", {
   # Check data on server is same as local
   data2 <- querySql(connection, "SELECT * FROM temp")
   names(data2) <- tolower(names(data2))
-  expect_equal(data, data2)
+  expect_equal(data, data2, check.attributes = FALSE)
   
   # Check data types
   res <- dbSendQuery(connection, "SELECT * FROM temp")
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "numeric", "varchar", "int8"))
+  expect_equal(as.character(columnInfo$field.type), 
+               c("date", "timestamp", "int4", "numeric", "varchar", "int8"),
+               check.attributes = FALSE)
   
   disconnect(connection)
   
@@ -71,14 +73,15 @@ test_that("insertTable", {
   # Check data on server is same as local
   data2 <- querySql(connection, "SELECT * FROM #temp")
   names(data2) <- tolower(names(data2))
-  expect_equal(data, data2)
+  expect_equal(data, data2, check.attributes = FALSE)
   
   # Check data types
   res <- dbSendQuery(connection, "SELECT * FROM #temp")
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
-  
+  expect_equal(as.character(columnInfo$field.type), 
+               c("date", "datetime2", "int", "float", "varchar", "bigint"),
+               check.attributes = FALSE)
   disconnect(connection)
   
 
@@ -102,13 +105,15 @@ test_that("insertTable", {
   data2 <- data2[order(data2$person_id), ]
   row.names(data) <- NULL
   row.names(data2) <- NULL
-  expect_equal(data, data2)
+  expect_equal(data, data2, check.attributes = FALSE)
   
   # Check data types
   res <- dbSendQuery(connection, sprintf("SELECT * FROM %s.temp", schema))
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "NUMBER", "NUMBER", "VARCHAR2", "NUMBER"))
+  expect_equal(as.character(columnInfo$field.type), 
+               c("DATE", "TIMESTAMP", "NUMBER", "NUMBER", "VARCHAR2", "NUMBER"),
+               check.attributes = FALSE)
  
   
   connection@jConnection
@@ -134,13 +139,15 @@ test_that("insertTable", {
   data2 <- data2[order(data2$person_id), ]
   row.names(data) <- NULL
   row.names(data2) <- NULL
-  expect_equal(data, data2)
+  expect_equal(data, data2, check.attributes = FALSE)
   
   # Check data types
   res <- dbSendQuery(connection, "SELECT * FROM temp")
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$type), c("double", "double", "integer", "double", "character", "double"))
+  expect_equal(as.character(columnInfo$type), 
+               c("double", "double", "integer", "double", "character", "double"),
+               check.attributes = FALSE)
   
   disconnect(connection)
   unlink(dbFile)
