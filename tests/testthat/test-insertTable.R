@@ -51,9 +51,7 @@ test_that("insertTable", {
   res <- dbSendQuery(connection, "SELECT * FROM temp")
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$field.type), 
-               c("date", "timestamp", "int4", "numeric", "varchar", "int8"),
-               check.attributes = FALSE)
+  expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "numeric", "varchar", "int8"))
   
   disconnect(connection)
   
@@ -79,9 +77,8 @@ test_that("insertTable", {
   res <- dbSendQuery(connection, "SELECT * FROM #temp")
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$field.type), 
-               c("date", "datetime2", "int", "float", "varchar", "bigint"),
-               check.attributes = FALSE)
+  expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+  
   disconnect(connection)
   
 
@@ -111,14 +108,8 @@ test_that("insertTable", {
   res <- dbSendQuery(connection, sprintf("SELECT * FROM %s.temp", schema))
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$field.type), 
-               c("DATE", "TIMESTAMP", "NUMBER", "NUMBER", "VARCHAR2", "NUMBER"),
-               check.attributes = FALSE)
- 
-  
-  connection@jConnection
-  
-   
+  expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "NUMBER", "NUMBER", "VARCHAR2", "NUMBER"))
+
   disconnect(connection)
   
   # SQLite
@@ -139,15 +130,15 @@ test_that("insertTable", {
   data2 <- data2[order(data2$person_id), ]
   row.names(data) <- NULL
   row.names(data2) <- NULL
+  attr(data$some_datetime, "tzone") <- NULL
+  attr(data2$some_datetime, "tzone") <- NULL
   expect_equal(data, data2, check.attributes = FALSE)
   
   # Check data types
   res <- dbSendQuery(connection, "SELECT * FROM temp")
   columnInfo <- dbColumnInfo(res)
   dbClearResult(res)
-  expect_equal(as.character(columnInfo$type), 
-               c("double", "double", "integer", "double", "character", "double"),
-               check.attributes = FALSE)
+  expect_equal(as.character(columnInfo$type), c("double", "double", "integer", "double", "character", "double"))
   
   disconnect(connection)
   unlink(dbFile)
