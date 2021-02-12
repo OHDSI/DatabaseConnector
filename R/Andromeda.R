@@ -26,6 +26,8 @@
 #'                        to R's date format?
 #' @param andromeda An open connection to a Andromeda database, for example as created using \code{\link[Andromeda]{andromeda}}.
 #' @param andromedaTableName  The name of the table in the local Andromeda database where the results of the query will be stored.
+#' @param integer64AsNumeric Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                          64-bit integers will be represented using \code{bit64::integer64}. 
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a local Andromeda database This allows very large
@@ -36,12 +38,22 @@
 #' Invisibly returns the andromeda. The Andromeda database will have a table added with the query results.
 #'
 #' @export
-lowLevelQuerySqlToAndromeda <- function(connection, query, andromeda, andromedaTableName, datesAsString = FALSE) {
+lowLevelQuerySqlToAndromeda <- function(connection, 
+                                        query, 
+                                        andromeda, 
+                                        andromedaTableName, 
+                                        datesAsString = FALSE, 
+                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   UseMethod("lowLevelQuerySqlToAndromeda", connection)
 }
 
 #' @export
-lowLevelQuerySqlToAndromeda.default <- function(connection, query, andromeda, andromedaTableName, datesAsString = FALSE) {
+lowLevelQuerySqlToAndromeda.default <- function(connection, 
+                                                query, 
+                                                andromeda, 
+                                                andromedaTableName, 
+                                                datesAsString = FALSE, 
+                                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
@@ -76,7 +88,11 @@ lowLevelQuerySqlToAndromeda.default <- function(connection, query, andromeda, an
                                 "getInteger64",
                                 as.integer(i)) 
         oldClass(column) <- "integer64"
-        batch[[i]] <- column
+        if (integer64AsNumeric) {
+          batch[[i]] <- convertInteger64ToNumeric(column)
+        } else {
+          batch[[i]] <- column
+        }
       } else if (columnTypes[i] == 6) {
         column <- rJava::.jcall(batchedQuery,
                                 "[I",
@@ -113,9 +129,13 @@ lowLevelQuerySqlToAndromeda.default <- function(connection, query, andromeda, an
 }
 
 #' @export
-lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connection, query, andromeda, andromedaTableName, datesAsString = FALSE) {
-  results <- lowLevelQuerySql(connection, query)
-  
+lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connection, 
+                                                                       query, 
+                                                                       andromeda, 
+                                                                       andromedaTableName, 
+                                                                       datesAsString = FALSE, 
+                                                                       integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
+  results <- lowLevelQuerySql(connection, query, integer64AsNumeric = integer64AsNumeric)
   RSQLite::dbWriteTable(conn = andromeda,
                         name = andromedaTableName,
                         value = results,

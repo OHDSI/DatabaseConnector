@@ -9,7 +9,8 @@ lowLevelQuerySqlToAndromeda(
   query,
   andromeda,
   andromedaTableName,
-  datesAsString = FALSE
+  datesAsString = FALSE,
+  integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
 )
 }
 \arguments{
@@ -23,6 +24,9 @@ lowLevelQuerySqlToAndromeda(
 
 \item{datesAsString}{Should dates be imported as character vectors, our should they be converted
 to R's date format?}
+
+\item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+64-bit integers will be represented using \code{bit64::integer64}.}
 }
 \value{
 Invisibly returns the andromeda. The Andromeda database will have a table added with the query results.

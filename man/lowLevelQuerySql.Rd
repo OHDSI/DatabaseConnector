@@ -4,15 +4,23 @@
 \alias{lowLevelQuerySql}
 \title{Low level function for retrieving data to a data frame}
 \usage{
-lowLevelQuerySql(connection, query, datesAsString = FALSE)
+lowLevelQuerySql(
+  connection,
+  query,
+  datesAsString = FALSE,
+  integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
+)
 }
 \arguments{
 \item{connection}{The connection to the database server.}
 
 \item{query}{The SQL statement to retrieve the data}
 
-\item{datesAsString}{Should dates be imported as character vectors, our should they be converted
+\item{datesAsString}{Logical: Should dates be imported as character vectors, our should they be converted
 to R's date format?}
+
+\item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+64-bit integers will be represented using \code{bit64::integer64}.}
 }
 \value{
 A data frame containing the data retrieved from the server

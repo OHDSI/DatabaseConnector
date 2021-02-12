@@ -43,7 +43,7 @@ test_that("insertTable", {
               tempTable = TRUE)
   
   # Check data on server is same as local
-  data2 <- querySql(connection, "SELECT * FROM temp")
+  data2 <- lowLevelQuerySql(connection, "SELECT * FROM temp", integer64AsNumeric = FALSE)
   names(data2) <- tolower(names(data2))
   expect_equal(data, data2, check.attributes = FALSE)
   
@@ -69,7 +69,7 @@ test_that("insertTable", {
               tempTable = TRUE)
   
   # Check data on server is same as local
-  data2 <- querySql(connection, "SELECT * FROM #temp")
+  data2 <- lowLevelQuerySql(connection, "SELECT * FROM #temp", integer64AsNumeric = FALSE)
   names(data2) <- tolower(names(data2))
   expect_equal(data, data2, check.attributes = FALSE)
   
@@ -90,13 +90,18 @@ test_that("insertTable", {
   schema <- Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
   connection <- connect(details)
   insertTable(connection = connection,
-              tableName = paste(schema, "temp", sep = "."),
+              databaseSchema = schema,
+              tableName = "temp",
               data = data,
               createTable = TRUE,
               tempTable = FALSE)
   
+  
+  # lowLevelQuerySql(connection, "SELECT * FROM all_tab_columns WHERE owner = 'OHDSI' AND table_name = 'TEMP'")
+  
   # Check data on server is same as local
-  data2 <- renderTranslateQuerySql(connection, "SELECT * FROM @schema.temp", schema = schema)
+  sql <- SqlRender::render( "SELECT * FROM @schema.temp", schema = schema)
+  data2 <- lowLevelQuerySql(connection, sql, integer64AsNumeric = FALSE)
   names(data2) <- tolower(names(data2))
   data <- data[order(data$person_id), ]
   data2 <- data2[order(data2$person_id), ]
@@ -124,12 +129,16 @@ test_that("insertTable", {
               tempTable = FALSE)
   
   # Check data on server is same as local
-  data2 <- querySql(connection, "SELECT * FROM temp")
+  data2 <- lowLevelQuerySql(connection, "SELECT * FROM temp", integer64AsNumeric = FALSE)
   names(data2) <- tolower(names(data2))
   data <- data[order(data$person_id), ]
   data2 <- data2[order(data2$person_id), ]
   row.names(data) <- NULL
   row.names(data2) <- NULL
+  # Normally automatically done in querySql:
+  data2$start_date <- as.Date(as.POSIXct(data2$start_date, origin = "1970-01-01", tz = "GMT"))
+  data2$some_datetime <- as.POSIXct(data2$some_datetime, origin = "1970-01-01", tz = "GMT")
+  
   attr(data$some_datetime, "tzone") <- NULL
   attr(data2$some_datetime, "tzone") <- NULL
   expect_equal(data, data2, check.attributes = FALSE)

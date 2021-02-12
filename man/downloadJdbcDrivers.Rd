@@ -33,6 +33,15 @@ Invisibly returns the destination if the download was successful.
 \description{
 Download the DatabaseConnector JDBC drivers from https://ohdsi.github.io/DatabaseConnectorJars/
 }
+\details{
+The following versions of the JDBC drivers are currently used:
+\itemize{
+  \item{PostgreSQL}{V42.2.18}
+  \item{RedShift}{V1.2.27.1051}
+  \item{SQL Server}{V8.4.1.zip}
+  \item{Oracle}{V19.8}
+}
+}
 \examples{
 \dontrun{
 downloadJdbcDrivers("redshift")

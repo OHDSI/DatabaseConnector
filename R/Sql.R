@@ -54,6 +54,16 @@ validateInt64Query <- function() {
   }
 }
 
+convertInteger64ToNumeric <- function(x) {
+  if (length(x) == 0) {
+    return(numeric(0))
+  }
+  maxInt64 <- bit64::as.integer64(2)^53
+  if (any(x >= maxInt64 || x <= -maxInt64, na.rm = TRUE)) {
+    abort("The data contains integers >= 2^53, and converting those to R's numeric type leads to precision loss. Consider using smaller integers, converting the integers to doubles on the database side, or using `options(databaseConnectorInteger64AsNumeric = FALSE)`.")
+  }
+  return(bit64::as.double.integer64(x))
+}
 
 #' Low level function for retrieving data to a data frame
 #'
@@ -63,8 +73,10 @@ validateInt64Query <- function() {
 #'
 #' @param connection      The connection to the database server.
 #' @param query           The SQL statement to retrieve the data
-#' @param datesAsString   Should dates be imported as character vectors, our should they be converted
+#' @param datesAsString   Logical: Should dates be imported as character vectors, our should they be converted
 #'                        to R's date format?
+#' @param integer64AsNumeric Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                          64-bit integers will be represented using \code{bit64::integer64}. 
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a data frame. Null values in the database are converted
@@ -74,12 +86,18 @@ validateInt64Query <- function() {
 #' A data frame containing the data retrieved from the server
 #'
 #' @export
-lowLevelQuerySql <- function(connection, query, datesAsString = FALSE) {
+lowLevelQuerySql <- function(connection, 
+                             query, 
+                             datesAsString = FALSE, 
+                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   UseMethod("lowLevelQuerySql", connection)
 }
 
 #' @export
-lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
+lowLevelQuerySql.default <- function(connection, 
+                                     query, 
+                                     datesAsString = FALSE, 
+                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     abort("Connection is closed")
   
@@ -139,6 +157,13 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
       }
     }
   }
+  if (integer64AsNumeric) {
+    for (i in seq.int(length(columnTypes))) {
+      if (columnTypes[i] == 5) {
+        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
+      } 
+    }
+  }
   names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
   attr(columns, "row.names") <- c(NA_integer_, length(columns[[1]]))
   class(columns) <- "data.frame"
@@ -146,8 +171,19 @@ lowLevelQuerySql.default <- function(connection, query, datesAsString = FALSE) {
 }
 
 #' @export
-lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection, query, datesAsString = FALSE) {
-  return(DBI::dbGetQuery(connection@dbiConnection, query))
+lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection, 
+                                                            query, 
+                                                            datesAsString = FALSE, 
+                                                            integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
+  columns <- DBI::dbGetQuery(connection@dbiConnection, query)
+  if (integer64AsNumeric) {
+    for (i in seq.int(ncol(columns))) {
+      if (is(columns[[i]], "integer64")) {
+        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
+      } 
+    }
+  }
+  return(columns)
 }
 
 #' Execute SQL code

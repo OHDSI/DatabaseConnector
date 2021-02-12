@@ -34,6 +34,15 @@ jdbcDrivers <- new.env()
 #' @param method The method used for downloading files. See \code{?download.file} for details and options.
 #' @param ... Further arguments passed on to \code{download.file} 
 #' 
+#' @details 
+#' The following versions of the JDBC drivers are currently used:
+#' \itemize{
+#'   \item{PostgreSQL}{V42.2.18}
+#'   \item{RedShift}{V1.2.27.1051}
+#'   \item{SQL Server}{V8.4.1.zip}
+#'   \item{Oracle}{V19.8}
+#' }
+#' 
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
 #'
