@@ -434,8 +434,8 @@ convertFields <- function(dbms, result) {
       
     }
   } 
-  if (dbms %in% c("bigquery", "oracle")) {
-    # BigQuery and Oracle don't have INT fields, only INT64. For more consistent behavior with other
+  if (dbms %in% c("bigquery")) {
+    # BigQuery doesn't have INT fields, only INT64. For more consistent behavior with other
     # platforms, if it fits in an integer, convert it to an integer:
     if (ncol(result) > 0) {
       for (i in 1:ncol(result)) {
