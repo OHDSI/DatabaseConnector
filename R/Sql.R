@@ -469,6 +469,8 @@ trySettingAutoCommit <- function(connection, value) {
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
+#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                             64-bit integers will be represented using \code{bit64::integer64}. 
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
@@ -490,7 +492,11 @@ trySettingAutoCommit <- function(connection, value) {
 #' disconnect(conn)
 #' }
 #' @export
-querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "errorReportSql.txt"), snakeCaseToCamelCase = FALSE) {
+querySql <- function(connection, 
+                     sql, 
+                     errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
+                     snakeCaseToCamelCase = FALSE, 
+                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     abort("Connection is closed")
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
@@ -500,7 +506,7 @@ querySql <- function(connection, sql, errorReportFile = file.path(getwd(), "erro
                 length(sqlStatements),
                 "statements were found"))
   tryCatch({
-    result <- lowLevelQuerySql(connection, sqlStatements[1])
+    result <- lowLevelQuerySql(connection, sqlStatements[1], integer64AsNumeric = integer64AsNumeric)
     colnames(result) <- toupper(colnames(result))
     result <- convertFields(connection@dbms, result)
     if (snakeCaseToCamelCase) {
@@ -597,6 +603,8 @@ renderTranslateExecuteSql <- function(connection,
 #' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
 #'                            emulate temp tables, provide a schema with write privileges where temp tables
 #'                            can be created.
+#' @param integer64AsNumeric  Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                            64-bit integers will be represented using \code{bit64::integer64}. 
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
@@ -625,7 +633,8 @@ renderTranslateQuerySql <- function(connection,
                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                     snakeCaseToCamelCase = FALSE,
                                     oracleTempSchema = NULL,
-                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), 
+                                    integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                     ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
@@ -638,7 +647,8 @@ renderTranslateQuerySql <- function(connection,
   return(querySql(connection = connection,
                   sql = sql,
                   errorReportFile = errorReportFile,
-                  snakeCaseToCamelCase = snakeCaseToCamelCase))
+                  snakeCaseToCamelCase = snakeCaseToCamelCase,
+                  integer64AsNumeric = integer64AsNumeric))
 }
 
 

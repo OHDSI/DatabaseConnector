@@ -156,6 +156,8 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                             64-bit integers will be represented using \code{bit64::integer64}. 
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a local Andromeda database. This allows very large
@@ -190,7 +192,8 @@ querySqlToAndromeda <- function(connection,
                                 andromeda, 
                                 andromedaTableName, 
                                 errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
-                                snakeCaseToCamelCase = FALSE) {
+                                snakeCaseToCamelCase = FALSE, 
+                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
   if (!inherits(andromeda, "SQLiteConnection"))
@@ -206,7 +209,8 @@ querySqlToAndromeda <- function(connection,
     lowLevelQuerySqlToAndromeda(connection = connection,
                                 query = sqlStatements[1], 
                                 andromeda = andromeda, 
-                                andromedaTableName = andromedaTableName)
+                                andromedaTableName = andromedaTableName,
+                                integer64AsNumeric = integer64AsNumeric)
     columnNames <- RSQLite::dbListFields(andromeda, andromedaTableName)
     newColumnNames <- toupper(columnNames)
     if (snakeCaseToCamelCase) { 
@@ -239,6 +243,8 @@ querySqlToAndromeda <- function(connection,
 #' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
 #'                            emulate temp tables, provide a schema with write privileges where temp tables
 #'                            can be created.
+#' @param integer64AsNumeric  Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                           64-bit integers will be represented using \code{bit64::integer64}. 
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
@@ -273,7 +279,8 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                                snakeCaseToCamelCase = FALSE,
                                                oracleTempSchema = NULL,
-                                               tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                               tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), 
+                                               integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                                ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
@@ -288,5 +295,6 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                              andromeda = andromeda,
                              andromedaTableName = andromedaTableName,
                              errorReportFile = errorReportFile,
-                             snakeCaseToCamelCase = snakeCaseToCamelCase))
+                             snakeCaseToCamelCase = snakeCaseToCamelCase,
+                             integer64AsNumeric = integer64AsNumeric))
 }

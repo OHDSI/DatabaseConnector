@@ -186,7 +186,7 @@ insertTable(connection = connection,
             tempTable = TRUE)
 
 # Check data on server is same as local
-data2 <- lowLevelQuerySql(connection, "SELECT * FROM #temp", integer64AsNumeric = FALSE)
+data2 <- querySql(connection, "SELECT * FROM #temp", integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
 expect_equivalent(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
 
@@ -213,7 +213,7 @@ insertTable(connection = connection,
             tempTable = TRUE)
 
 # Check data on server is same as local
-data2 <- lowLevelQuerySql(connection, "SELECT * FROM #temp", integer64AsNumeric = FALSE)
+data2 <- querySql(connection, "SELECT * FROM #temp", integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
 data <- data[order(data$person_id), ]
 data2 <- data2[order(data2$person_id), ]
@@ -243,10 +243,8 @@ insertTable(connection = connection,
             tempEmulationSchema = "synpuf_2m_results")
 
 # Check data on server is same as local
-data2 <- lowLevelQuerySql(connection, "SELECT * FROM synpuf_2m_results.temp", integer64AsNumeric = FALSE)
+data2 <- querySql(connection, "SELECT * FROM synpuf_2m_results.temp", integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
-# Normally done in querySql:
-data2$person_id <- as.numeric(data2$person_id)
 data <- data[order(data$person_id), ]
 data2 <- data2[order(data2$person_id), ]
 row.names(data) <- NULL

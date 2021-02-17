@@ -10,7 +10,8 @@ querySqlToAndromeda(
   andromeda,
   andromedaTableName,
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
-  snakeCaseToCamelCase = FALSE
+  snakeCaseToCamelCase = FALSE,
+  integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ querySqlToAndromeda(
 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
+
+\item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+64-bit integers will be represented using \code{bit64::integer64}.}
 }
 \value{
 

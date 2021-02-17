@@ -13,6 +13,7 @@ renderTranslateQuerySqlToAndromeda(
   snakeCaseToCamelCase = FALSE,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
   ...
 )
 }
@@ -35,6 +36,9 @@ renderTranslateQuerySqlToAndromeda(
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
+
+\item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+64-bit integers will be represented using \code{bit64::integer64}.}
 
 \item{...}{Parameters that will be used to render the SQL.}
 }
