@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
       </span>
     </div>
 
@@ -41,7 +41,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -70,7 +70,7 @@
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -91,12 +91,12 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#databaseconnector" class="anchor"></a>DatabaseConnector</h1></div>
 
-<p>DatabaseConnector is part of <a href="https://ohdsi.github.io/Hades">HADES</a>.</p>
+<p>DatabaseConnector is part of <a href="https://ohdsi.github.io/Hades/">HADES</a>.</p>
 </div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>This R package provides function for connecting to various DBMSs.</p>
+<p>This R package provides function for connecting to various DBMSs. Together with the <code>SqlRender</code> package, the main goal of <code>DatabaseConnector</code> is to provide a uniform interface across database platforms: the same code should run and produce equivalent results, regardless of the database back end.</p>
 </div>
 <div id="features" class="section level1">
 <h1 class="hasAnchor">
@@ -122,7 +122,7 @@
 <li>Multiple statements per query</li>
 </ul>
 </li>
-<li>Support for fetching data to ffdf objects</li>
+<li>Support for fetching data to Andromeda objects</li>
 <li>Insert data frame to a database table</li>
 <li>Supports the DBI interface</li>
 <li>Integrates with RStudio’s Connections tab</li>
@@ -131,31 +131,33 @@
 <div id="examples" class="section level1">
 <h1 class="hasAnchor">
 <a href="#examples" class="anchor"></a>Examples</h1>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="no">connectionDetails</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="kw">dbms</span><span class="kw">=</span><span class="st">"postgresql"</span>,
-                                             <span class="kw">server</span><span class="kw">=</span><span class="st">"localhost"</span>,
-                                             <span class="kw">user</span><span class="kw">=</span><span class="st">"root"</span>,
-                                             <span class="kw">password</span><span class="kw">=</span><span class="st">"blah"</span>,
-                                             <span class="kw">schema</span><span class="kw">=</span><span class="st">"cdm_v4"</span>)
-<span class="no">conn</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/connect.html">connect</a></span>(<span class="no">connectionDetails</span>)
-<span class="fu"><a href="reference/querySql.html">querySql</a></span>(<span class="no">conn</span>,<span class="st">"SELECT COUNT(*) FROM person"</span>)
-<span class="fu"><a href="reference/disconnect.html">disconnect</a></span>(<span class="no">conn</span>)</pre></div>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="co">## regular data insert</span>
-<span class="fu"><a href="reference/insertTable.html">insertTable</a></span>(<span class="kw">connection</span> <span class="kw">=</span> <span class="no">connection</span>,
-            <span class="kw">tableName</span> <span class="kw">=</span> <span class="st">"scratch.somedata"</span>,
-            <span class="kw">data</span> <span class="kw">=</span> <span class="no">data</span>,
-            <span class="kw">dropTableIfExists</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-            <span class="kw">createTable</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-            <span class="kw">tempTable</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
-            <span class="kw">useMppBulkLoad</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
-
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span>dbms<span class="op">=</span><span class="st">"postgresql"</span>, 
+                                             server<span class="op">=</span><span class="st">"localhost"</span>,
+                                             user<span class="op">=</span><span class="st">"root"</span>,
+                                             password<span class="op">=</span><span class="st">"blah"</span>,
+                                             schema<span class="op">=</span><span class="st">"cdm_v4"</span><span class="op">)</span>
+<span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span>
+<span class="fu"><a href="reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>,<span class="st">"SELECT COUNT(*) FROM person"</span><span class="op">)</span>
+<span class="fu"><a href="reference/disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">## regular data insert</span>
+<span class="fu"><a href="reference/insertTable.html">insertTable</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">connection</span>, 
+            tableName <span class="op">=</span> <span class="st">"scratch.somedata"</span>, 
+            data <span class="op">=</span> <span class="va">data</span>, 
+            dropTableIfExists <span class="op">=</span> <span class="cn">TRUE</span>, 
+            createTable <span class="op">=</span> <span class="cn">TRUE</span>, 
+            tempTable <span class="op">=</span> <span class="cn">FALSE</span>, 
+            useMppBulkLoad <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+            
 <span class="co">## bulk data insert with Redshift or PDW</span>
-<span class="fu"><a href="reference/insertTable.html">insertTable</a></span>(<span class="kw">connection</span> <span class="kw">=</span> <span class="no">connection</span>,
-            <span class="kw">tableName</span> <span class="kw">=</span> <span class="st">"scratch.somedata"</span>,
-            <span class="kw">data</span> <span class="kw">=</span> <span class="no">data</span>,
-            <span class="kw">dropTableIfExists</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-            <span class="kw">createTable</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-            <span class="kw">tempTable</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
-            <span class="kw">useMppBulkLoad</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
+<span class="fu"><a href="reference/insertTable.html">insertTable</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">connection</span>, 
+            tableName <span class="op">=</span> <span class="st">"scratch.somedata"</span>, 
+            data <span class="op">=</span> <span class="va">data</span>, 
+            dropTableIfExists <span class="op">=</span> <span class="cn">TRUE</span>, 
+            createTable <span class="op">=</span> <span class="cn">TRUE</span>, 
+            tempTable <span class="op">=</span> <span class="cn">FALSE</span>, 
+            useMppBulkLoad <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="technology" class="section level1">
 <h1 class="hasAnchor">
@@ -174,14 +176,15 @@
 <li><p>See the instructions <a href="https://ohdsi.github.io/Hades/rSetup.html">here</a> for configuring your R environment, including Java.</p></li>
 <li><p>To install the latest stable version, install from CRAN:</p></li>
 </ol>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"DatabaseConnector"</span>)</pre></div>
-<p>To download and use the JDBC drivers for BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html">these instructions</a>.</p>
-<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .exe from <a href="http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774">Microsoft</a> and run it, thereby extracting its contents to a folder. In the extracted folder you will find the file sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</a></code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"DatabaseConnector"</span><span class="op">)</span></code></pre></div>
+<p>To download and use the JDBC drivers for Oracle, SQL Server, PDW, PostgreSQL, or RedShift, you can use the <code><a href="reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> function. For BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html">these instructions</a>.</p>
+<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .zip from <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15">Microsoft</a> and extract its contents to a folder. In the extracted folder you will find the file sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</a></code>.</p>
 </div>
 <div id="user-documentation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#user-documentation" class="anchor"></a>User Documentation</h1>
-<p>Documentation can be found on the <a href="https://ohdsi.github.io/DatabaseConnector">package website</a>.</p>
+<p>Documentation can be found on the <a href="https://ohdsi.github.io/DatabaseConnector/">package website</a>.</p>
 <p>PDF versions of the documentation are also available:</p>
 <ul>
 <li>Vignette: <a href="https://github.com/OHDSI/DatabaseConnector/raw/master/inst/doc/UsingDatabaseConnector.pdf">Using DatabaseConnector</a>
@@ -261,7 +264,7 @@
   <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://travis-ci.org/OHDSI/DatabaseConnector"><img src="https://travis-ci.org/OHDSI/DatabaseConnector.svg?branch=master" alt="Build Status"></a></li>
+<li><a href="https://github.com/OHDSI/DatabaseConnector/actions?query=workflow%3AR-CMD-check"><img src="https://github.com/OHDSI/DatabaseConnector/workflows/R-CMD-check/badge.svg" alt="Build Status"></a></li>
 <li><a href="https://codecov.io/github/OHDSI/DatabaseConnector?branch=master"><img src="https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=master" alt="codecov.io"></a></li>
 <li><a href="https://cran.r-project.org/package=DatabaseConnector"><img src="http://www.r-pkg.org/badges/version/DatabaseConnector" alt="CRAN_Status_Badge"></a></li>
 <li><a href="https://cran.r-project.org/package=DatabaseConnector"><img src="http://cranlogs.r-pkg.org/badges/DatabaseConnector" alt="CRAN_Status_Badge"></a></li>
@@ -276,7 +279,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
       </span>
     </div>
 
@@ -79,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -108,7 +108,7 @@
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -129,17 +129,42 @@
       <small>Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="databaseconnector-300" class="section level1">
-<h1 class="page-header" data-toc-text="3.0.0">
-<a href="#databaseconnector-300" class="anchor"></a>DatabaseConnector 3.0.0<small> Unreleased </small>
+    <div id="databaseconnector-400" class="section level1">
+<h1 class="page-header" data-toc-text="4.0.0">
+<a href="#databaseconnector-400" class="anchor"></a>DatabaseConnector 4.0.0<small> Unreleased </small>
 </h1>
 <p>Changes:</p>
-<ul>
+<ol>
+<li><p>JDBC drivers are no longer pre-packaged in the <code>DatabaseConnectorJars</code> package. Instead, drivers need to be downloaded manually to a user-specified location in the local file system. The <code><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> function has been added to make downing drivers easier. The path to the drivers can be set in the ‘DATABASECONNECTOR_JAR_FOLDER’ environmental variable.</p></li>
+<li><p>Support for 64-bit integers using bit64’s <code>integer64</code> type, although this is disabled by default because of the danger of silent errors when using <code>integer64</code> in R. Each query function has a <code>integer64AsNumeric</code> argument, and overall behavior can be set using<code><a href="https://rdrr.io/r/base/options.html">options(databaseConnectorInteger64AsNumeric = FALSE)</a></code>.</p></li>
+<li><p>INT fields are now translated to R integers and back.</p></li>
+<li><p>ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.</p></li>
+<li><p>Removing deprecated <code>schema</code> argument from <code>createConnectionDetails</code> and <code>connect</code>.</p></li>
+<li><p>Deprecating <code>useMppBulkLoad</code> argument of <code><a href="../reference/insertTable.html">insertTable()</a></code> function in favor of <code>bulkLoad</code> argument.</p></li>
+<li><p>Deprecating <code>oracleTempSchema</code> argument in various functions in favor of <code>tempEmulationSchema</code> argument, which can be set via the “sqlRenderTempEmulationSchema” option.</p></li>
+<li><p>Adding bulk upload mode for PostgreSQL.</p></li>
+<li><p>Batch mode in <code>executeSql</code> divides SQL into batches (1000 statements per batch) to avoid running our of Java heap memory.</p></li>
+<li><p>Removed message that ‘JDBC driver supports batch updates’ when running executeSql in batch mode.</p></li>
+<li><p>Added optional <code>databaseSchema</code> argument to <code>insertTable</code> for consistency with general OHDSI framework.</p></li>
+</ol>
+<p>Bugfixes:</p>
+<ol>
+<li><p>Fixed ‘Warning: no non-missing arguments to max; returning -Inf’ when a column only has NA values, or no values at all.</p></li>
+<li><p>Fixed error when trying to insert data from a tibble.</p></li>
+<li><p>Error report now includes all SQL in a batch when failing in batch mode.</p></li>
+</ol>
+</div>
+    <div id="databaseconnector-300" class="section level1">
+<h1 class="page-header" data-toc-text="3.0.0">
+<a href="#databaseconnector-300" class="anchor"></a>DatabaseConnector 3.0.0<small> 2020-06-06 </small>
+</h1>
+<p>Changes:</p>
+<ol>
 <li><p>Dropping support for orphaned ff package.</p></li>
 <li><p>Adding support for Andromeda package to replace ff.</p></li>
 <li><p>Error report file name now defaults to errorReportSql.txt to avoid confusion with other error reports.</p></li>
 <li><p>Enforcing delay if about to exceed query quota on BigQuery.</p></li>
-</ul>
+</ol>
 </div>
     <div id="databaseconnector-244" class="section level1">
 <h1 class="page-header" data-toc-text="2.4.4">
@@ -303,7 +328,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>The number of rows fetched so far — dbGetRowCount,DatabaseConnectorResult-method • DatabaseConnector</title>
+<title>Download DatabaseConnector JDBC Jar files — downloadJdbcDrivers • DatabaseConnector</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,8 @@
 
 
 
-<meta property="og:title" content="The number of rows fetched so far — dbGetRowCount,DatabaseConnectorResult-method" />
-<meta property="og:description" content="Returns the total number of rows actually fetched with calls to dbFetch()
-for this result set.
-Methods in other packages
-DatabaseConnector::dbGetRowCount(&quot;DatabaseConnectorResult&quot;)
-" />
+<meta property="og:title" content="Download DatabaseConnector JDBC Jar files — downloadJdbcDrivers" />
+<meta property="og:description" content="Download the DatabaseConnector JDBC drivers from https://ohdsi.github.io/DatabaseConnectorJars/" />
 
 
 
@@ -130,74 +126,67 @@ DatabaseConnector::dbGetRowCount(&quot;DatabaseConnectorResult&quot;)
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>The number of rows fetched so far</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/DBI.R'><code>R/DBI.R</code></a></small>
-    <div class="hidden name"><code>dbGetRowCount-DatabaseConnectorResult-method.Rd</code></div>
+    <h1>Download DatabaseConnector JDBC Jar files</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/Drivers.R'><code>R/Drivers.R</code></a></small>
+    <div class="hidden name"><code>downloadJdbcDrivers.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Returns the total number of rows actually fetched with calls to <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code>
-for this result set.</p>
-<p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Methods in other packages</h3><ul>
-<li><p><code>DatabaseConnector::dbGetRowCount("DatabaseConnectorResult")</code></p></li>
-</ul></p>
+    <p>Download the DatabaseConnector JDBC drivers from https://ohdsi.github.io/DatabaseConnectorJars/</p>
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for DatabaseConnectorResult</span>
-<span class='fu'>dbGetRowCount</span><span class='op'>(</span><span class='va'>res</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>downloadJdbcDrivers</span><span class='op'>(</span>
+  <span class='va'>dbms</span>,
+  pathToDriver <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.getenv.html'>Sys.getenv</a></span><span class='op'>(</span><span class='st'>"DATABASECONNECTOR_JAR_FOLDER"</span><span class='op'>)</span>,
+  method <span class='op'>=</span> <span class='st'>"auto"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>res</th>
-      <td><p>An object inheriting from DBIResult.</p></td>
+      <th>dbms</th>
+      <td><p>The type of DBMS to download Jar files for.</p><ul>
+<li><p>"postgresql" for PostgreSQL</p></li>
+<li><p>"redshift" for Amazon Redshift</p></li>
+<li><p>"sql server" or "pdw" for Microsoft SQL Server</p></li>
+<li><p>"oracle" for Oracle</p></li>
+</ul></td>
+    </tr>
+    <tr>
+      <th>pathToDriver</th>
+      <td><p>The full path to the folder where the JDBC driver .jar files should be downloaded to.
+By default the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" is used.</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>The method used for downloading files. See <code><a href='https://rdrr.io/r/utils/download.file.html'>?download.file</a></code> for details and options.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Other arguments passed on to methods.</p></td>
+      <td><p>Further arguments passed on to <code>download.file</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>dbGetRowCount()</code> returns a scalar number (integer or numeric),
-the number of rows fetched so far.
-After calling <code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>,
-the row count is initially zero.
-After a call to <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code> without limit,
-the row count matches the total number of rows returned.
-Fetching a limited number of rows
-increases the number of rows by the number of rows returned,
-even if fetching past the end of the result set.
-For queries with an empty result set,
-zero is returned
-even after fetching.
-For data manipulation statements issued with
-<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>,
-zero is returned before
-and after calling <code>dbFetch()</code>.
-Attempting to get the row count for a result set cleared with
-<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> gives an error.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>Invisibly returns the destination if the download was successful.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <div class='dont-index'><p>Other DBIResult generics: 
-<code><a href='https://dbi.r-dbi.org/reference/DBIResult-class.html'>DBIResult-class</a></code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbBind.html'>dbBind</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetRowsAffected.html'>dbGetRowsAffected</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetStatement.html'>dbGetStatement</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteString.html'>dbQuoteString</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
+    <p>The following versions of the JDBC drivers are currently used:</p><ul>
+<li><p>PostgreSQLV42.2.18</p></li>
+<li><p>RedShiftV1.2.27.1051</p></li>
+<li><p>SQL ServerV8.4.1.zip</p></li>
+<li><p>OracleV19.8</p></li>
+</ul>
 
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='fu'>downloadJdbcDrivers</span><span class='op'>(</span><span class='st'>"redshift"</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

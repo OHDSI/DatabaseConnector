@@ -3,7 +3,7 @@ DatabaseConnector 4.0.0
 
 Changes:
 
-1. JDBC drivers are no longer pre-packaged in DatabaseConnectorJars. Instead, drivers need to be downloaded manually to a user-specified location in the local file system. The `downloadJdbcDrivers()` function has been added to make downing drivers easier. The path to the drivers can be set in the 'DATABASECONNECTOR_JAR_FOLDER' environmental variable.
+1. JDBC drivers are no longer pre-packaged in the `DatabaseConnectorJars` package. Instead, drivers need to be downloaded manually to a user-specified location in the local file system. The `downloadJdbcDrivers()` function has been added to make downing drivers easier. The path to the drivers can be set in the 'DATABASECONNECTOR_JAR_FOLDER' environmental variable.
 
 2. Support for 64-bit integers using bit64's `integer64` type, although this is disabled by default because of the danger of silent errors when using `integer64` in R. Each query function has a `integer64AsNumeric` argument, and overall behavior can be set using`options(databaseConnectorInteger64AsNumeric = FALSE)`.
 

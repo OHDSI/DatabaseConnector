@@ -39,8 +39,8 @@ or \code{"oci"}.}
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
 
-\item{pathToDriver}{Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
-and Netezza. See \link{jdbcDrivers} for details on how to get the drivers.}
+\item{pathToDriver}{Path to the JDBC driver JAR files. See \code{\link{downloadJdbcDrivers}} 
+for instructions on how to download the relevant drivers.}
 }
 \value{
 An object that extends \code{DBIConnection} in a database-specific manner. This object is used to
@@ -74,6 +74,7 @@ Oracle:
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "(PROTOCOL=tcps)")
   \item \code{oracleDriver} The driver to be used. Choose between "thin" or "oci".
+  \item \code{pathToDriver} The path to the folder containing the Oracle JDBC driver JAR files.
 }
 Microsoft SQL Server:
 \itemize{
@@ -85,6 +86,7 @@ Microsoft SQL Server:
   \item \code{port}. Not used for SQL Server
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
+  \item \code{pathToDriver} The path to the folder containing the SQL Server JDBC driver JAR files.
 }
 Microsoft PDW:
 \itemize{
@@ -96,6 +98,7 @@ Microsoft PDW:
   \item \code{port}. Not used for SQL Server
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")
+  \item \code{pathToDriver} The path to the folder containing the SQL Server JDBC driver JAR files.
 }
 PostgreSQL:
 \itemize{
@@ -106,6 +109,7 @@ PostgreSQL:
   \item \code{port}. Specifies the port on the server (default = 5432)
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")
+  \item \code{pathToDriver} The path to the folder containing the PostgreSQL JDBC driver JAR files.
 }
 Redshift:
 \itemize{
@@ -116,6 +120,7 @@ Redshift:
   \item \code{port}. Specifies the port on the server (default = 5439)
   \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
+  \item \code{pathToDriver} The path to the folder containing the RedShift JDBC driver JAR files.
 }
 Netezza:
 \itemize{
@@ -145,10 +150,10 @@ SQLite:
 }
 
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
-driver. Download the .exe from
-\href{http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=11774}{Microsoft} and
-run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
-sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll
+driver. Download the .zip from
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15}{Microsoft} 
+and extract its contents to a folder. In the extracted folder you will find the file
+sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll
 (32-bits), which needs to be moved to location on the system path, for example to
 c:/windows/system32. If you not have write access to any folder in the system path, you can also 
 specify the path to the folder containing the dll by setting the environmental variable 

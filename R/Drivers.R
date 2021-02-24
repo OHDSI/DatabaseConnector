@@ -80,7 +80,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
   
   jdbcDriverNames <- c("postgresql" = "postgresqlV42.2.18.zip",
                        "redshift" = "redShiftV1.2.27.1051.zip",
-                       "sql server" = "sqlServerV8.4.1.zip",
+                       "sql server" = "sqlServerV9.2.0.zip",
                        "oracle" = "oracleV19.8.zip")
   
   driverName <- jdbcDriverNames[[dbms]]

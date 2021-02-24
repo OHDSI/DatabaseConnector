@@ -73,7 +73,7 @@ written when an error occurs." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ written when an error occurs." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -110,7 +110,7 @@ written when an error occurs." />
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -137,13 +137,14 @@ written when an error occurs." />
 written when an error occurs.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>lowLevelQuerySqlToAndromeda</span>(
-  <span class='no'>connection</span>,
-  <span class='no'>query</span>,
-  <span class='no'>andromeda</span>,
-  <span class='no'>andromedaTableName</span>,
-  <span class='kw'>datesAsString</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>lowLevelQuerySqlToAndromeda</span><span class='op'>(</span>
+  <span class='va'>connection</span>,
+  <span class='va'>query</span>,
+  <span class='va'>andromeda</span>,
+  <span class='va'>andromedaTableName</span>,
+  datesAsString <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  integer64AsNumeric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"databaseConnectorInteger64AsNumeric"</span>, default <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,7 +159,7 @@ written when an error occurs.</p>
     </tr>
     <tr>
       <th>andromeda</th>
-      <td><p>An open connection to a Andromeda database, for example as created using <code><a href='https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html'>andromeda</a></code>.</p></td>
+      <td><p>An open connection to a Andromeda database, for example as created using <code><a href='https://ohdsi.github.io/Andromeda/reference/andromeda_constructor.html'>andromeda</a></code>.</p></td>
     </tr>
     <tr>
       <th>andromedaTableName</th>
@@ -168,6 +169,11 @@ written when an error occurs.</p>
       <th>datesAsString</th>
       <td><p>Should dates be imported as character vectors, our should they be converted
 to R's date format?</p></td>
+    </tr>
+    <tr>
+      <th>integer64AsNumeric</th>
+      <td><p>Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+64-bit integers will be represented using <code><a href='https://rdrr.io/pkg/bit64/man/bit64-package.html'>bit64::integer64</a></code>.</p></td>
     </tr>
     </table>
 
@@ -195,7 +201,7 @@ to NA values in R. If a table with the same name already exists in the local And
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

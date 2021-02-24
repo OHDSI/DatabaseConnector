@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -109,7 +109,7 @@
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -135,15 +135,15 @@
     <p>This function executes SQL consisting of one or more statements.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>executeSql</span>(
-  <span class='no'>connection</span>,
-  <span class='no'>sql</span>,
-  <span class='kw'>profile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>reportOverallTime</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>errorReportFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), <span class='st'>"errorReportSql.txt"</span>),
-  <span class='kw'>runAsBatch</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>executeSql</span><span class='op'>(</span>
+  <span class='va'>connection</span>,
+  <span class='va'>sql</span>,
+  profile <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  progressBar <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  reportOverallTime <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  errorReportFile <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"errorReportSql.txt"</span><span class='op'>)</span>,
+  runAsBatch <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -195,16 +195,17 @@ Optionally, each separate SQL statement is written to file, and the execution ti
 shown to aid in detecting performance issues.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>connectionDetails</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='createConnectionDetails.html'>createConnectionDetails</a></span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"postgresql"</span>,
-                                             <span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>,
-                                             <span class='kw'>user</span> <span class='kw'>=</span> <span class='st'>"root"</span>,
-                                             <span class='kw'>password</span> <span class='kw'>=</span> <span class='st'>"blah"</span>,
-                                             <span class='kw'>schema</span> <span class='kw'>=</span> <span class='st'>"cdm_v4"</span>)
-<span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span>(<span class='no'>connectionDetails</span>)
-<span class='fu'>executeSql</span>(<span class='no'>conn</span>, <span class='st'>"CREATE TABLE x (k INT); CREATE TABLE y (k INT);"</span>)
-<span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>connectionDetails</span> <span class='op'>&lt;-</span> <span class='fu'><a href='createConnectionDetails.html'>createConnectionDetails</a></span><span class='op'>(</span>dbms <span class='op'>=</span> <span class='st'>"postgresql"</span>,
+                                             server <span class='op'>=</span> <span class='st'>"localhost"</span>,
+                                             user <span class='op'>=</span> <span class='st'>"root"</span>,
+                                             password <span class='op'>=</span> <span class='st'>"blah"</span>,
+                                             schema <span class='op'>=</span> <span class='st'>"cdm_v4"</span><span class='op'>)</span>
+<span class='va'>conn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span><span class='op'>(</span><span class='va'>connectionDetails</span><span class='op'>)</span>
+<span class='fu'>executeSql</span><span class='op'>(</span><span class='va'>conn</span>, <span class='st'>"CREATE TABLE x (k INT); CREATE TABLE y (k INT);"</span><span class='op'>)</span>
+<span class='fu'><a href='disconnect.html'>disconnect</a></span><span class='op'>(</span><span class='va'>conn</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -220,7 +221,7 @@ shown to aid in detecting performance issues.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -42,7 +42,8 @@
 <meta property="og:title" content="How to download and use JDBC drivers for the various data platforms. — jdbcDrivers" />
 <meta property="og:description" content="Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
 use the pathToDriver argument in the connect or createConnectionDetails
-functions to point to the driver." />
+functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental 
+variable, for example in your .Renviron file (recommended)." />
 
 
 
@@ -74,7 +75,7 @@ functions to point to the driver." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
       </span>
     </div>
 
@@ -82,7 +83,7 @@ functions to point to the driver." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -111,7 +112,7 @@ functions to point to the driver." />
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -136,33 +137,16 @@ functions to point to the driver." />
     <div class="ref-description">
     <p>Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
 use the <code>pathToDriver</code> argument in the <code><a href='connect.html'>connect</a></code> or <code><a href='createConnectionDetails.html'>createConnectionDetails</a></code>
-functions to point to the driver.</p>
+functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental 
+variable, for example in your .Renviron file (recommended).</p>
     </div>
 
 
 
-    <h2 class="hasAnchor" id="postgressql"><a class="anchor" href="#postgressql"></a>PostgresSql</h2>
+    <h2 class="hasAnchor" id="sql-server-oracle-postgresql-pdw-redshift"><a class="anchor" href="#sql-server-oracle-postgresql-pdw-redshift"></a>SQL Server, Oracle, PostgreSQL, PDW, RedShift</h2>
 
-    <p>Go to <a href='https://jdbc.postgresql.org/download.html'>the PostgresSQL JDBC site</a> and
-download the current version. The file is called something like 'postgresql-42.2.2.jar'.</p>
-    <h2 class="hasAnchor" id="oracle"><a class="anchor" href="#oracle"></a>Oracle</h2>
-
-    <p>Go to
-<a href='http://www.oracle.com/technetwork/database/features/jdbc/jdbc-drivers-12c-download-1958347.html'>the
-Oracle JDBC site</a>. Select 'Accept License Agreement' and download the jar file. The file is called
-something like 'ojdbc7.jar'.</p>
-    <h2 class="hasAnchor" id="sql-server-and-pdw"><a class="anchor" href="#sql-server-and-pdw"></a>SQL Server and PDW</h2>
-
-    <p>Go to <a href='https://www.microsoft.com/en-us/download/details.aspx?id=11774'>the
-Microsoft SQL Server JDBC site</a>, click 'Download' and select the tar.gz file. Click 'Next' to start
-the download. Decompress the file and find a file called something like 'sqljdbc41.jar' in the a
-folder named something like 'sqljdbc_6.0/enu/jre7'.</p>
-    <h2 class="hasAnchor" id="redshift"><a class="anchor" href="#redshift"></a>RedShift</h2>
-
-    <p>Go to the
-<a href='https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver'>Amazon
-RedShfit JDBC driver page</a> and download the latest JDBC driver. The file is called something like
-'RedshiftJDBC42-1.2.12.1017.jar'.</p>
+    <p>Use the <code><a href='downloadJdbcDrivers.html'>downloadJdbcDrivers</a></code> function to download these drivers
+from the OHDSI GitHub pages.</p>
     <h2 class="hasAnchor" id="netezza"><a class="anchor" href="#netezza"></a>Netezza</h2>
 
     <p>Read the instructions
@@ -177,6 +161,10 @@ download the latest JDBC driver. Unzip the file, and locate the appropriate jar 
     <p>Go to
 <a href='https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html'>Cloudera's site</a>, pick
 your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.</p>
+    <h2 class="hasAnchor" id="sqlite"><a class="anchor" href="#sqlite"></a>SQLite</h2>
+
+    <p>For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
+using <code><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages("RSQLite")</a></code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -193,7 +181,7 @@ your OS version, and click "GET IT NOW!'. Register, and you should be able to do
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

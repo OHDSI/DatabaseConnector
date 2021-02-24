@@ -42,7 +42,7 @@
 <meta property="og:title" content="createConnectionDetails — createConnectionDetails" />
 <meta property="og:description" content="createConnectionDetails creates a list containing all details needed to connect to a
 database. There are three ways to call this function:
-createConnectionDetails(dbms, user, password, server, port, schema, extraSettings,
+createConnectionDetails(dbms, user, password, server, port, extraSettings,
         oracleDriver, pathToDriver)
 createConnectionDetails(dbms, connectionString, pathToDriver)
 createConnectionDetails(dbms, connectionString, user, password, pathToDriver)
@@ -79,7 +79,7 @@ createConnectionDetails(dbms, connectionString, user, password, pathToDriver)
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@ createConnectionDetails(dbms, connectionString, user, password, pathToDriver)
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -116,7 +116,7 @@ createConnectionDetails(dbms, connectionString, user, password, pathToDriver)
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -141,7 +141,7 @@ createConnectionDetails(dbms, connectionString, user, password, pathToDriver)
     <div class="ref-description">
     <p><code>createConnectionDetails</code> creates a list containing all details needed to connect to a
 database. There are three ways to call this function:</p><ul>
-<li><p><code>createConnectionDetails(dbms, user, password, server, port, schema, extraSettings,
+<li><p><code>createConnectionDetails(dbms, user, password, server, port, extraSettings,
         oracleDriver, pathToDriver)</code></p></li>
 <li><p><code>createConnectionDetails(dbms, connectionString, pathToDriver)</code></p></li>
 <li><p><code>createConnectionDetails(dbms, connectionString, user, password, pathToDriver)</code></p></li>
@@ -183,14 +183,6 @@ database. There are three ways to call this function:</p><ul>
       <td><p>(optional) The port on the server to connect to.</p></td>
     </tr>
     <tr>
-      <th>schema</th>
-      <td><p>(DEPRECATED. optional) The name of the schema to connect to. 
-DatabaseConnector attempts to set the schema using USE statement, but
-not all DBMS support USE statements. In DBMS that don't support USE
-statements this strategy will fail. Instead use a fully specified table 
-names in your SQL statement, for example 'SELECT * FROM my_schema.my_table;'</p></td>
-    </tr>
-    <tr>
       <th>extraSettings</th>
       <td><p>(optional) Additional configuration settings specific to the database
 provider to configure things as security for SSL. These must follow the
@@ -210,8 +202,8 @@ already be included in the connection string.</p></td>
     </tr>
     <tr>
       <th>pathToDriver</th>
-      <td><p>Path to the JDBC driver JAR files. Currently only needed for BigQuery, Impala 
-and Netezza. See <a href='jdbcDrivers.html'>jdbcDrivers</a> for details on how to get the drivers.</p></td>
+      <td><p>Path to the JDBC driver JAR files. See <code><a href='downloadJdbcDrivers.html'>downloadJdbcDrivers</a></code> 
+for instructions on how to download the relevant drivers.</p></td>
     </tr>
     </table>
 
@@ -232,11 +224,10 @@ interpretations:</p>
 <li><p><code>server</code>. This field contains the SID, or host and servicename, SID, or TNSName:
         '&lt;sid&gt;', '&lt;host&gt;/&lt;sid&gt;', '&lt;host&gt;/&lt;service name&gt;', or '&lt;tnsname&gt;'</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 1521)</p></li>
-<li><p><code>schema</code>. DEPRECATED: This field contains the schema (i.e. 'user' in Oracle terms) containing the
-        tables</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "(PROTOCOL=tcps)")</p></li>
 <li><p><code>oracleDriver</code> The driver to be used. Choose between "thin" or "oci".</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the Oracle JDBC driver JAR files.</p></li>
 </ul><p>Microsoft SQL Server:</p><ul>
 <li><p><code>user</code>. The user used to log in to the server. If the user is not specified, Windows
         Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
@@ -244,10 +235,9 @@ interpretations:</p>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server</p></li>
 <li><p><code>port</code>. Not used for SQL Server</p></li>
-<li><p><code>schema</code>. DEPRECATED: The database containing the tables. If both database and schema are specified
-        (e.g. 'my_database.dbo', then only the database part is used, the schema is ignored.</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the SQL Server JDBC driver JAR files.</p></li>
 </ul><p>Microsoft PDW:</p><ul>
 <li><p><code>user</code>. The user used to log in to the server. If the user is not specified, Windows
         Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
@@ -255,34 +245,33 @@ interpretations:</p>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server</p></li>
 <li><p><code>port</code>. Not used for SQL Server</p></li>
-<li><p><code>schema</code>. DEPRECATED: The database containing the tables</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "encrypt=true; trustServerCertificate=false;")</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the SQL Server JDBC driver JAR files.</p></li>
 </ul><p>PostgreSQL:</p><ul>
 <li><p><code>user</code>. The user used to log in to the server</p></li>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server and the database holding the
         relevant schemas: &lt;host&gt;/&lt;database&gt;</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 5432)</p></li>
-<li><p><code>schema</code>. DEPRECATED: The schema containing the tables.</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the PostgreSQL JDBC driver JAR files.</p></li>
 </ul><p>Redshift:</p><ul>
 <li><p><code>user</code>. The user used to log in to the server</p></li>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server and the database holding the
         relevant schemas: &lt;host&gt;/&lt;database&gt;</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 5439)</p></li>
-<li><p><code>schema</code>. DEPRECATED: The schema containing the tables.</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true&amp;sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")</p></li>
+<li><p><code>pathToDriver</code> The path to the folder containing the RedShift JDBC driver JAR files.</p></li>
 </ul><p>Netezza:</p><ul>
 <li><p><code>user</code>. The user used to log in to the server</p></li>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server and the database holding the
         relevant schemas: &lt;host&gt;/&lt;database&gt;</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 5480)</p></li>
-<li><p><code>schema</code>. DEPRECATED: The schema containing the tables.</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "ssl=true")</p></li>
 <li><p><code>pathToDriver</code> The path to the folder containing the Netezza JDBC driver JAR file
@@ -292,7 +281,6 @@ interpretations:</p>
 <li><p><code>password</code>. The password for that user</p></li>
 <li><p><code>server</code>. The host name of the server</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 21050)</p></li>
-<li><p><code>schema</code>. DEPRECATED: The database containing the tables</p></li>
 <li><p><code>extraSettings</code> The configuration settings for the connection (i.e. SSL Settings such
         as "SSLKeyStorePwd=*****")</p></li>
 <li><p><code>pathToDriver</code> The path to the folder containing the Impala JDBC driver JAR files.</p></li>
@@ -301,10 +289,10 @@ interpretations:</p>
 </ul>
 
 <p>To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
-driver. Download the .exe from
-<a href='http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&amp;id=11774'>Microsoft</a> and
-run it, thereby extracting its contents to a folder. In the extracted folder you will find the file
-sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll (64-bits) or sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll
+driver. Download the .zip from
+<a href='https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15'>Microsoft</a> 
+and extract its contents to a folder. In the extracted folder you will find the file
+sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll
 (32-bits), which needs to be moved to location on the system path, for example to
 c:/windows/system32. If you not have write access to any folder in the system path, you can also 
 specify the path to the folder containing the dll by setting the environmental variable 
@@ -312,15 +300,16 @@ PATH_TO_AUTH_DLL, so for example <code><a href='https://rdrr.io/r/base/Sys.seten
 environmental variable needs to be set before calling <code>connect</code> for the first time.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>connectionDetails</span> <span class='kw'>&lt;-</span> <span class='fu'>createConnectionDetails</span>(<span class='kw'>dbms</span> <span class='kw'>=</span> <span class='st'>"postgresql"</span>,
-                                             <span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost/postgres"</span>,
-                                             <span class='kw'>user</span> <span class='kw'>=</span> <span class='st'>"root"</span>,
-                                             <span class='kw'>password</span> <span class='kw'>=</span> <span class='st'>"blah"</span>)
-<span class='no'>conn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span>(<span class='no'>connectionDetails</span>)
-<span class='fu'>dbGetQuery</span>(<span class='no'>conn</span>, <span class='st'>"SELECT COUNT(*) FROM person"</span>)
-<span class='fu'><a href='disconnect.html'>disconnect</a></span>(<span class='no'>conn</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>connectionDetails</span> <span class='op'>&lt;-</span> <span class='fu'>createConnectionDetails</span><span class='op'>(</span>dbms <span class='op'>=</span> <span class='st'>"postgresql"</span>,
+                                             server <span class='op'>=</span> <span class='st'>"localhost/postgres"</span>,
+                                             user <span class='op'>=</span> <span class='st'>"root"</span>,
+                                             password <span class='op'>=</span> <span class='st'>"blah"</span><span class='op'>)</span>
+<span class='va'>conn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span><span class='op'>(</span><span class='va'>connectionDetails</span><span class='op'>)</span>
+<span class='fu'>dbGetQuery</span><span class='op'>(</span><span class='va'>conn</span>, <span class='st'>"SELECT COUNT(*) FROM person"</span><span class='op'>)</span>
+<span class='fu'><a href='disconnect.html'>disconnect</a></span><span class='op'>(</span><span class='va'>conn</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -336,7 +325,7 @@ environmental variable needs to be set before calling <code>connect</code> for t
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
