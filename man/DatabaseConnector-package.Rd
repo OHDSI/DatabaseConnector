@@ -13,7 +13,7 @@ An R 'DataBase Interface' ('DBI') compatible interface to various database platf
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://ohdsi.github.io/DatabaseConnector}
+  \item \url{https://ohdsi.github.io/DatabaseConnector/}
   \item \url{https://github.com/OHDSI/DatabaseConnector}
   \item Report bugs at \url{https://github.com/OHDSI/DatabaseConnector/issues}
 }
