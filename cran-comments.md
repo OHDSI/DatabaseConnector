@@ -1,12 +1,14 @@
-We have been unable to submit new versions to CRAN Since v2.4.2, at which time CRAN started rejecting this package due to its dependency on the orpaned package 'bit'. We have now dropped the dependency (using the new Andromeda package).
+Because our update to DatabaseConnectorJars was rejected by CRAN due to increased file sizes, this new version of DatabaseConnector no longer depends on DatabaseConnectorJars. Users are now required to download the Jar files themselves.
 
-Since v2.4.2 there have been 10 changes, 5 bugfixes (see NEWS.md).
+This update includes 11 changes and 3 bugfixes (see NEWS.md)
 
 ---
 
 ## Test environments
-* Ubuntu 16.04.6 LTS (Travis), R 4.0.0
-* Windows 10, R 4.0.0
+* Ubuntu 20.03, R 4.0.3
+* Microsoft Windows Server 2019, R 4.0.3
+* MacOS, R 4.0.3
+* Windows 10, R 4.0.3
 
 ## R CMD check results
 
