@@ -49,7 +49,7 @@ NULL
 #' on how to obtain the Netezza JDBC driver.
 #'
 #' @section
-#' BigQuery: Go to \href{https://cloud.google.com/bigquery/partners/simba-drivers}{Google's site} and
+#' BigQuery: Go to \href{https://cloud.google.com/bigquery/providers/simba-drivers}{Google's site} and
 #' download the latest JDBC driver. Unzip the file, and locate the appropriate jar files.
 #'
 #' @section
