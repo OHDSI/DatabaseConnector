@@ -16,4 +16,4 @@ There were no ERRORs or WARNINGs.
 
 ## Downstream dependencies
 
-There are no downstream dependencies.
+- Eunomia depends on DatabaseConnector, and has been tested with this new version. No problems were found.
