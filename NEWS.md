@@ -1,3 +1,10 @@
+DatabaseConnector 4.0.1
+=======================
+
+Changes:
+
+1. Using `SqlRender`'s new `tempEmulationSchema` argument. Avoids deprecation warning.
+
 DatabaseConnector 4.0.0
 =======================
 

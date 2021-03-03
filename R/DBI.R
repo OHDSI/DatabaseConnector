@@ -480,12 +480,20 @@ setMethod("dbCreateTable",
 #' DBI::dbReadTable title description params details references return seealso
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
-#'                           can be created.
+#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
+#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                            emulate temp tables, provide a schema with write privileges where temp tables
+#'                            can be created.
 #' @export
 setMethod("dbReadTable",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, name, database = NULL, schema = NULL, oracleTempSchema = NULL, ...) {
+          function(conn, name, database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+            if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+              warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+                   .frequency = "regularly",
+                   .frequency_id = "oracleTempSchema")
+              tempEmulationSchema <- oracleTempSchema
+            }
             if (!is.null(schema)) {
               name <- paste(schema, name, sep = ".")
             }
@@ -496,7 +504,7 @@ setMethod("dbReadTable",
             sql <- SqlRender::render(sql = sql, table = name)
             sql <- SqlRender::translate(sql = sql,
                                         targetDialect = conn@dbms,
-                                        oracleTempSchema = oracleTempSchema)
+                                        tempEmulationSchema = tempEmulationSchema)
             return(lowLevelQuerySql(conn, sql))
           })
 

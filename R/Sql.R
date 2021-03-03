@@ -579,7 +579,7 @@ renderTranslateExecuteSql <- function(connection,
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
   executeSql(connection = connection,
              sql = sql,
              profile = profile,
@@ -643,7 +643,7 @@ renderTranslateQuerySql <- function(connection,
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
   return(querySql(connection = connection,
                   sql = sql,
                   errorReportFile = errorReportFile,

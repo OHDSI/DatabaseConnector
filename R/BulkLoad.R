@@ -238,7 +238,7 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
     fdef <- paste(sapply(sqlFieldNames, def), collapse = ", ")
     sql <- SqlRender::render("CREATE TABLE @table(@fdef) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION 'hdfs://@hiveHost:@nodePort@filename';", 
                              filename = hadoopDir, table = sqlTableName, fdef = fdef, hiveHost = hiveHost, nodePort = nodePort)
-    sql <- SqlRender::translate(sql, targetDialect = "hive", oracleTempSchema = NULL)
+    sql <- SqlRender::translate(sql, targetDialect = "hive", tempEmulationSchema = NULL)
     
     tryCatch({
       DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)

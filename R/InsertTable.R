@@ -298,7 +298,7 @@ insertTable.default <- function(connection,
                        ")")
     insertSql <- SqlRender::translate(insertSql,
                                       targetDialect = connection@dbms,
-                                      oracleTempSchema = tempEmulationSchema)
+                                      tempEmulationSchema = tempEmulationSchema)
     batchSize <- 10000
     
     autoCommit <- rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")

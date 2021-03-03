@@ -289,7 +289,7 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, oracleTempSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
   return(querySqlToAndromeda(connection = connection,
                              sql = sql,
                              andromeda = andromeda,
