@@ -136,12 +136,14 @@ findPathToJar <- function(name, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR
   if (missing(pathToDriver) || is.null(pathToDriver) || is.na(pathToDriver)) {
     abort("The pathToDriver argument must be provided")
   } else if (!dir.exists(pathToDriver)) {
-    abort("The folder location pathToDriver = '", pathToDriver, "' does not exist. ")
-  } else {
-    if (grepl(".jar$", tolower(pathToDriver))) {
-      pathToDriver <- basename(pathToDriver)
+    if (file.exists(pathToDriver)) {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
+    } else {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
+                   "Please set the folder to the location containing the JDBC driver.",
+                   "You can download most drivers using the `downloadJdbcDrivers()` function."))
     }
-  }
+  } 
   files <- list.files(path = pathToDriver, pattern = name, full.names = TRUE)
   if (length(files) == 0) {
     abort(paste("No drives matching pattern", name, "found in folder", pathToDriver, ".",
