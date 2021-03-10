@@ -53,7 +53,7 @@ jdbcDrivers <- new.env()
 downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), method = "auto", ...){
   
   if (is.null(pathToDriver) || is.na(pathToDriver) || pathToDriver == "") 
-    stop("The pathToDriver argument must be specified. Consider setting the DATABASECONNECTOR_JAR_FOLDER environment variable, for example in the .Renviron file.")
+    abort("The pathToDriver argument must be specified. Consider setting the DATABASECONNECTOR_JAR_FOLDER environment variable, for example in the .Renviron file.")
   
   if (pathToDriver != Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
     if (Sys.getenv("DATABASECONNECTOR_JAR_FOLDER") != pathToDriver) {
@@ -65,7 +65,11 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
   }
   
   pathToDriver <- path.expand(pathToDriver)
+  
   if (!dir.exists(pathToDriver)) {
+    if (file.exists(pathToDriver)) {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
+    }
     warn(paste0("The folder location '", pathToDriver, "' does not exist. Attempting to create."))
     dir.create(pathToDriver, recursive = TRUE)
   }

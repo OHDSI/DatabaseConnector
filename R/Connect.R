@@ -66,9 +66,13 @@ createConnectionDetails <- function(dbms,
                                     pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   pathToDriver <- path.expand(pathToDriver)
   if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
-    abort(paste("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                "Please set the folder to the location containing the JDBC driver.",
-                "You can download most drivers using the `downloadJdbcDrivers()` function."))
+    if (file.exists(pathToDriver)) {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
+    } else {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
+                  "Please set the folder to the location containing the JDBC driver.",
+                  "You can download most drivers using the `downloadJdbcDrivers()` function."))
+    }
   }
   
   result <- list(dbms = dbms,
@@ -177,9 +181,13 @@ connect <- function(connectionDetails = NULL,
   
   pathToDriver <- path.expand(pathToDriver)
   if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
-    abort(paste("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                "Please set the folder to the location containing the JDBC driver.",
-                "You can download most drivers using the `downloadJdbcDrivers()` function."))
+    if (file.exists(pathToDriver)) {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
+    } else {
+      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
+                  "Please set the folder to the location containing the JDBC driver.",
+                  "You can download most drivers using the `downloadJdbcDrivers()` function."))
+    }
   }
   
   if (dbms == "sql server") {

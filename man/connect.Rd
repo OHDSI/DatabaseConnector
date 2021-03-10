@@ -39,7 +39,7 @@ or \code{"oci"}.}
 \code{user} and \code{password} are not specified, they are assumed to
 already be included in the connection string.}
 
-\item{pathToDriver}{Path to the JDBC driver JAR files. See \code{\link{downloadJdbcDrivers}} 
+\item{pathToDriver}{Path to a folder containing the JDBC driver JAR files. See \code{\link{downloadJdbcDrivers}} 
 for instructions on how to download the relevant drivers.}
 }
 \value{

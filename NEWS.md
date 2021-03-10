@@ -5,6 +5,9 @@ Changes:
 
 1. Using `SqlRender`'s new `tempEmulationSchema` argument. Avoids deprecation warning.
 
+2. Throwing an informative error when the user points the `pathToDriver` argument to a file instead of a folder.
+
+
 DatabaseConnector 4.0.0
 =======================
 
