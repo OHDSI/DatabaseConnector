@@ -1,3 +1,11 @@
+DatabaseConnector 4.0.2
+=======================
+
+Bugfixes: 
+
+1. Fixing handling of tibbles when inserting tables to avoid issues with date fields.
+
+
 DatabaseConnector 4.0.1
 =======================
 

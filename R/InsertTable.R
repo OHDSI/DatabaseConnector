@@ -320,7 +320,7 @@ insertTable.default <- function(connection,
         }
         end <- min(start + batchSize - 1, nrow(data))
         setColumn <- function(i, start, end) {
-          column <- unlist(data[start:end, i], use.names = FALSE)
+          column <- data[start:end, i][[1]]
           if (is.integer(column)) {
             rJava::.jcall(batchedInsert, "V", "setInteger", i, column)
           } else if (bit64::is.integer64(column)) {
