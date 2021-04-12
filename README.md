@@ -46,26 +46,6 @@ querySql(conn,"SELECT COUNT(*) FROM person")
 disconnect(conn)
 ```
 
-```r
-## regular data insert
-insertTable(connection = connection, 
-            tableName = "scratch.somedata", 
-            data = data, 
-            dropTableIfExists = TRUE, 
-            createTable = TRUE, 
-            tempTable = FALSE, 
-            useMppBulkLoad = FALSE)
-            
-## bulk data insert with Redshift or PDW
-insertTable(connection = connection, 
-            tableName = "scratch.somedata", 
-            data = data, 
-            dropTableIfExists = TRUE, 
-            createTable = TRUE, 
-            tempTable = FALSE, 
-            useMppBulkLoad = TRUE)
-```
-
 Technology
 ============
 DatabaseConnector is an R package using Java's JDBC drivers. 

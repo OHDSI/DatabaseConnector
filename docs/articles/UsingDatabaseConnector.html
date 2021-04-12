@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -82,13 +82,13 @@
 
       
 
-      </header><script src="UsingDatabaseConnector_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="UsingDatabaseConnector_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using DatabaseConnector</h1>
                         <h4 class="author">Martijn J. Schuemie</h4>
             
-            <h4 class="date">2021-03-02</h4>
+            <h4 class="date">2021-04-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/master/vignettes/UsingDatabaseConnector.Rmd"><code>vignettes/UsingDatabaseConnector.Rmd</code></a></small>
       <div class="hidden name"><code>UsingDatabaseConnector.Rmd</code></div>
@@ -195,9 +195,9 @@
 <h2 class="hasAnchor">
 <a href="#querying-using-andromeda-objects" class="anchor"></a>Querying using Andromeda objects</h2>
 <p>Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the <code>Andromeda</code> package to store R data objects on file, and use them as if they are available in memory. <code>DatabaseConnector</code> can download data directly into Andromeda objects:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">library</span>(Andromeda)</span>
-<span id="cb16-2"><a href="#cb16-2"></a>x &lt;-<span class="st"> </span><span class="kw">andromeda</span>()</span>
-<span id="cb16-3"><a href="#cb16-3"></a><span class="kw">querySqlToAndromeda</span>(conn, <span class="st">"SELECT * FROM person"</span>, <span class="dt">andromeda =</span> x, <span class="dt">andromedaTableName =</span> <span class="st">"person)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Andromeda)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">andromeda</span>()</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">querySqlToAndromeda</span>(conn, <span class="st">"SELECT * FROM person"</span>, <span class="at">andromeda =</span> x, <span class="at">andromedaTableName =</span> <span class="st">"person)</span></span></code></pre></div>
 <p>Where <code>x</code> is now an <code>Andromeda</code> object with table <code>person</code>.</p>
 </div>
 <div id="querying-different-platforms-using-the-same-sql" class="section level2">

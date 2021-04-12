@@ -73,16 +73,16 @@ renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
 
 # Fetch data.frame:
 count <- querySql(connection, renderedSql)
-expect_equal(count[1, 1], 148)
+expect_equal(count[1, 1], 164)
 count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
-expect_equal(count[1, 1], 148)
+expect_equal(count[1, 1], 164)
 
 # Fetch Andromeda:
 andromeda <- Andromeda::andromeda()
 querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
-expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 148)
+expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 164)
 renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchema, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
-expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 148)
+expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 164)
 
 disconnect(connection)
 

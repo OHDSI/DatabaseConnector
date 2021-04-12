@@ -76,7 +76,7 @@ DatabaseConnector::dbGetStatement(&quot;DatabaseConnectorResult&quot;)
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -136,8 +136,8 @@ DatabaseConnector::dbGetStatement(&quot;DatabaseConnectorResult&quot;)
     </div>
 
     <div class="ref-description">
-    <p>Returns the statement that was passed to <code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>
-or <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>.</p>
+    <p>Returns the statement that was passed to <code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery()</a></code>
+or <code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement()</a></code>.</p>
 <p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Methods in other packages</h3><ul>
 <li><p><code>DatabaseConnector::dbGetStatement("DatabaseConnectorResult")</code></p></li>
 </ul></p>
@@ -162,28 +162,28 @@ or <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendSt
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p><code>dbGetStatement()</code> returns a string, the query used in
-either <code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>
-or <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>.
+either <code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery()</a></code>
+or <code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement()</a></code>.
 Attempting to query the statement for a result set cleared with
-<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> gives an error.</p>
+<code><a href='https://rdrr.io/pkg/DBI/man/dbClearResult.html'>dbClearResult()</a></code> gives an error.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other DBIResult generics: 
-<code><a href='https://dbi.r-dbi.org/reference/DBIResult-class.html'>DBIResult-class</a></code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbBind.html'>dbBind</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetRowCount.html'>dbGetRowCount</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetRowsAffected.html'>dbGetRowsAffected</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteString.html'>dbQuoteString</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
+<code><a href='https://rdrr.io/pkg/DBI/man/DBIResult-class.html'>DBIResult-class</a></code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbBind.html'>dbBind</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbClearResult.html'>dbClearResult</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbFetch.html'>dbFetch</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbGetRowCount.html'>dbGetRowCount</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbGetRowsAffected.html'>dbGetRowsAffected</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteString.html'>dbQuoteString</a>()</code>,
+<code><a href='https://rdrr.io/pkg/DBI/man/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
