@@ -1,5 +1,7 @@
 This update includes 2 changes and 1 bugfix since 4.0.0 (see NEWS.md)
 
+Fixed URLs as requested. Note that the URL issues did not show when running R Check --as-cran locally, or on any of the testing servers including WinBuilder. It would be helpful to be able to detect these issues before submitting to CRAN.
+
 ---
 
 ## Test environments

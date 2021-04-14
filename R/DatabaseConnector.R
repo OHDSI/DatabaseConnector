@@ -45,11 +45,11 @@ NULL
 #'
 #' @section
 #' Netezza: Read the instructions
-#' \href{https://www.ibm.com/support/knowledgecenter/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html}{here}
+#' \href{https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html}{here}
 #' on how to obtain the Netezza JDBC driver.
 #'
 #' @section
-#' BigQuery: Go to \href{https://cloud.google.com/bigquery/providers/simba-drivers}{Google's site} and
+#' BigQuery: Go to \href{https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers}{Google's site} and
 #' download the latest JDBC driver. Unzip the file, and locate the appropriate jar files.
 #'
 #' @section
