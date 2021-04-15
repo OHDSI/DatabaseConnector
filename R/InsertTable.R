@@ -233,8 +233,8 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
-  useBulkLoad <- (bulkLoad && connection@dbms == "hive" && createTable) ||
-    (bulkLoad && connection@dbms %in% c("redshift", "pdw", "postgresql") && !tempTable)
+  useBulkLoad <- (bulkLoad && connection@dbms %in% c("hive", "redshift") && createTable) ||
+    (bulkLoad && connection@dbms %in% c("pdw", "postgresql") && !tempTable)
   useCtasHack <- connection@dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
   
   sqlDataTypes <- sapply(data, getSqlDataTypes)
