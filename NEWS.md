@@ -1,3 +1,11 @@
+DatabaseConnector 4.0.3
+=======================
+
+Bugfixes: 
+
+1. Fixing field type of numeric fields on Oracle when fetching data.
+
+
 DatabaseConnector 4.0.2
 =======================
 
