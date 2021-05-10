@@ -1,6 +1,10 @@
 DatabaseConnector 4.0.3
 =======================
 
+Changes:
+
+1. Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.
+
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.

@@ -33,22 +33,21 @@ public class BatchedQuery {
 	private ResultSet				resultSet;
 	private Connection				connection;
 	private boolean					done;
+	private ByteBuffer				byteBuffer;
 	
-	private static double[] convertToInteger64ForR(long[] value) {
+	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
-		ByteBuffer byteBuffer = ByteBuffer.allocate(8 * value.length);
 		for (int i = 0; i < value.length; i++)
 			byteBuffer.putLong(value[i]);
 		byteBuffer.flip();
 		for (int i = 0; i < value.length; i++)
 			result[i] = byteBuffer.getDouble();
-		
 		return result;
 	}
 	
 	public static double[] validateInteger64() {
 		long[] values = new long[] { 1, -1, (long) Math.pow(2, 33), (long) Math.pow(-2, 33) };
-		return convertToInteger64ForR(values);
+		return convertToInteger64ForR(values, ByteBuffer.allocate(8 * values.length));
 	}
 	
 	private void reserveMemory() {
@@ -58,6 +57,10 @@ public class BatchedQuery {
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
 				bytesPerRow += 8;
+			else if (columnTypes[columnIndex] == INTEGER)
+				bytesPerRow += 4;
+			else if (columnTypes[columnIndex] == INTEGER64)
+				bytesPerRow += 16; // 8 more in ByteBuffer
 			else if (columnTypes[columnIndex] == STRING)
 				bytesPerRow += 512;
 			else
@@ -75,6 +78,7 @@ public class BatchedQuery {
 				columns[columnIndex] = new String[batchSize];
 			else
 				columns[columnIndex] = new String[batchSize];
+		byteBuffer = ByteBuffer.allocate(8 * batchSize);
 		rowCount = 0;
 	}
 	
@@ -103,7 +107,8 @@ public class BatchedQuery {
 			String className = metaData.getColumnClassName(columnIndex + 1);
 			int precision = metaData.getPrecision(columnIndex + 1);
 			int scale = metaData.getScale(columnIndex + 1);
-			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT || (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision != 19 && scale == 0))
+			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT
+					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision != 19 && scale == 0))
 				columnTypes[columnIndex] = INTEGER;
 			else if (type == Types.BIGINT || (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision == 19 && scale == 0))
 				columnTypes[columnIndex] = INTEGER64;
@@ -131,7 +136,7 @@ public class BatchedQuery {
 				if (columnTypes[columnIndex] == NUMERIC) {
 					((double[]) columns[columnIndex])[rowCount] = resultSet.getDouble(columnIndex + 1);
 					if (resultSet.wasNull())
-						((double[]) columns[columnIndex])[rowCount] = Double.NaN;				
+						((double[]) columns[columnIndex])[rowCount] = Double.NaN;
 				} else if (columnTypes[columnIndex] == INTEGER64) {
 					((long[]) columns[columnIndex])[rowCount] = resultSet.getLong(columnIndex + 1);
 					if (resultSet.wasNull())
@@ -212,9 +217,9 @@ public class BatchedQuery {
 		if (column.length > rowCount) {
 			long[] newColumn = new long[rowCount];
 			System.arraycopy(column, 0, newColumn, 0, rowCount);
-			return convertToInteger64ForR(newColumn);
+			return convertToInteger64ForR(newColumn, byteBuffer);
 		} else
-			return convertToInteger64ForR(column);
+			return convertToInteger64ForR(column, byteBuffer);
 	}
 	
 	public boolean isDone() {
