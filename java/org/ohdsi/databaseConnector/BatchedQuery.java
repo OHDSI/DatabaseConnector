@@ -37,6 +37,7 @@ public class BatchedQuery {
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
+		byteBuffer.clear();
 		for (int i = 0; i < value.length; i++)
 			byteBuffer.putLong(value[i]);
 		byteBuffer.flip();
