@@ -87,21 +87,27 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
                        "sql server" = "sqlServerV9.2.0.zip",
                        "oracle" = "oracleV19.8.zip")
   
-  driverName <- jdbcDriverNames[[dbms]]
-  result <- download.file(url = paste0(baseUrl, driverName),
-                          destfile = paste(pathToDriver, driverName, sep = "/"),
-                          method = method)
-  
-  extractedFilename <- unzip(file.path(pathToDriver, driverName), exdir = pathToDriver)
-  unzipSuccess <- is.character(extractedFilename)
-  
-  if (unzipSuccess) {
-    file.remove(file.path(pathToDriver, driverName))
+  if (dbms == "all") {
+    dbms <- names(jdbcDriverNames)
   }
-  if (unzipSuccess && result == 0) { 
-    inform(paste0("DatabaseConnector JDBC drivers downloaded to '", pathToDriver, "'."))
-  } else {
-    abort(paste0("Downloading and unzipping of JDBC drivers to '", pathToDriver, "' has failed."))
+  
+  for(db in dbms) {
+    driverName <- jdbcDriverNames[[db]]
+    result <- download.file(url = paste0(baseUrl, driverName),
+                            destfile = paste(pathToDriver, driverName, sep = "/"),
+                            method = method)
+    
+    extractedFilename <- unzip(file.path(pathToDriver, driverName), exdir = pathToDriver)
+    unzipSuccess <- is.character(extractedFilename)
+    
+    if (unzipSuccess) {
+      file.remove(file.path(pathToDriver, driverName))
+    }
+    if (unzipSuccess && result == 0) { 
+      inform(paste0("DatabaseConnector ", db, " JDBC driver downloaded to '", pathToDriver, "'."))
+    } else {
+      abort(paste0("Downloading and unzipping of ", db, " JDBC driver to '", pathToDriver, "' has failed."))
+    }
   }
   
   invisible(pathToDriver)
