@@ -75,6 +75,8 @@ convertInteger64ToNumeric <- function(x) {
 #' @param query           The SQL statement to retrieve the data
 #' @param datesAsString   Logical: Should dates be imported as character vectors, our should they be converted
 #'                        to R's date format?
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class. 
 #' @param integer64AsNumeric Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 #'                          64-bit integers will be represented using \code{bit64::integer64}. 
 #'
@@ -89,6 +91,7 @@ convertInteger64ToNumeric <- function(x) {
 lowLevelQuerySql <- function(connection, 
                              query, 
                              datesAsString = FALSE, 
+                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                              integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   UseMethod("lowLevelQuerySql", connection)
 }
@@ -97,6 +100,7 @@ lowLevelQuerySql <- function(connection,
 lowLevelQuerySql.default <- function(connection, 
                                      query, 
                                      datesAsString = FALSE, 
+                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     abort("Connection is closed")
@@ -157,6 +161,13 @@ lowLevelQuerySql.default <- function(connection,
       }
     }
   }
+  if (integerAsNumeric) {
+    for (i in seq.int(length(columnTypes))) {
+      if (columnTypes[i] == 6) {
+        columns[[i]] <- as.numeric(columns[[i]])
+      } 
+    }
+  }
   if (integer64AsNumeric) {
     for (i in seq.int(length(columnTypes))) {
       if (columnTypes[i] == 5) {
@@ -174,8 +185,16 @@ lowLevelQuerySql.default <- function(connection,
 lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection, 
                                                             query, 
                                                             datesAsString = FALSE, 
+                                                            integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   columns <- DBI::dbGetQuery(connection@dbiConnection, query)
+  if (integerAsNumeric) {
+    for (i in seq.int(ncol(columns))) {
+      if (is(columns[[i]], "integer")) {
+        columns[[i]] <- as.numeric(columns[[i]])
+      } 
+    }
+  }
   if (integer64AsNumeric) {
     for (i in seq.int(ncol(columns))) {
       if (is(columns[[i]], "integer64")) {
@@ -469,6 +488,8 @@ trySettingAutoCommit <- function(connection, value) {
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class. 
 #' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 #'                             64-bit integers will be represented using \code{bit64::integer64}. 
 #'
@@ -496,6 +517,7 @@ querySql <- function(connection,
                      sql, 
                      errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                      snakeCaseToCamelCase = FALSE, 
+                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     abort("Connection is closed")
@@ -506,7 +528,10 @@ querySql <- function(connection,
                 length(sqlStatements),
                 "statements were found"))
   tryCatch({
-    result <- lowLevelQuerySql(connection, sqlStatements[1], integer64AsNumeric = integer64AsNumeric)
+    result <- lowLevelQuerySql(connection = connection, 
+                               query = sqlStatements[1], 
+                               integerAsNumeric = integerAsNumeric, 
+                               integer64AsNumeric = integer64AsNumeric)
     colnames(result) <- toupper(colnames(result))
     result <- convertFields(connection@dbms, result)
     if (snakeCaseToCamelCase) {
@@ -633,7 +658,8 @@ renderTranslateQuerySql <- function(connection,
                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                     snakeCaseToCamelCase = FALSE,
                                     oracleTempSchema = NULL,
-                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), 
+                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                    integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                     ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
@@ -648,6 +674,7 @@ renderTranslateQuerySql <- function(connection,
                   sql = sql,
                   errorReportFile = errorReportFile,
                   snakeCaseToCamelCase = snakeCaseToCamelCase,
+                  integerAsNumeric = integerAsNumeric,
                   integer64AsNumeric = integer64AsNumeric))
 }
 

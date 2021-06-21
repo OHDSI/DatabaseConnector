@@ -11,6 +11,7 @@ renderTranslateQuerySql(
   snakeCaseToCamelCase = FALSE,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
   ...
 )

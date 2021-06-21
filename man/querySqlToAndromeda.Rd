@@ -11,6 +11,7 @@ querySqlToAndromeda(
   andromedaTableName,
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
+  integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
 )
 }
@@ -27,6 +28,9 @@ querySqlToAndromeda(
 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
+
+\item{integerAsNumeric}{Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+32-bit integers will be represented using R's native \code{Integer} class.}
 
 \item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 64-bit integers will be represented using \code{bit64::integer64}.}
