@@ -1,9 +1,11 @@
-DatabaseConnector 4.0.3
+DatabaseConnector 5.0.0
 =======================
 
 Changes:
 
-1. Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.
+1. 32-bit integers are also converted to numeric by default because (a) the output of some SQL functions (e.g. DATEDIFF) is INT on some platforms, BIG_INT on others, and (b) dplyr often throws errors when working with both integer and numeric vectors.
+
+2. Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.
 
 Bugfixes: 
 

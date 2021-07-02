@@ -60,7 +60,7 @@ test_that("Fetch results", {
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
   
   # Fetch types correctly:
-  x <- querySql(connection, "SELECT CAST(1 AS INT) AS my_int, CAST(1 AS FLOAT) AS my_float, 1/10 AS my_numeric FROM dual;")
+  x <- querySql(connection, "SELECT CAST(1 AS INT) AS my_int, CAST(1 AS FLOAT) AS my_float, 1/10 AS my_numeric FROM dual;", integerAsNumeric = FALSE)
   expect_is(x$MY_INT, "integer")
   expect_is(x$MY_FLOAT, "numeric")
   expect_is(x$MY_NUMERIC, "numeric")

@@ -26,6 +26,8 @@
 #'                        to R's date format?
 #' @param andromeda An open connection to a Andromeda database, for example as created using \code{\link[Andromeda]{andromeda}}.
 #' @param andromedaTableName  The name of the table in the local Andromeda database where the results of the query will be stored.
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class. 
 #' @param integer64AsNumeric Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 #'                          64-bit integers will be represented using \code{bit64::integer64}. 
 #'
@@ -43,6 +45,7 @@ lowLevelQuerySqlToAndromeda <- function(connection,
                                         andromeda, 
                                         andromedaTableName, 
                                         datesAsString = FALSE, 
+                                        integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                         integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   UseMethod("lowLevelQuerySqlToAndromeda", connection)
 }
@@ -53,6 +56,7 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                                 andromeda, 
                                                 andromedaTableName, 
                                                 datesAsString = FALSE, 
+                                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
@@ -98,7 +102,11 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                 "[I",
                                 "getInteger",
                                 as.integer(i))
-        batch[[i]] <- column
+        if (integerAsNumeric) {
+          batch[[i]] <- as.numeric(column)
+        } else {
+          batch[[i]] <- column
+        }
       } else  {
         batch[[i]] <- rJava::.jcall(batchedQuery,
                                     "[Ljava/lang/String;",
@@ -134,8 +142,9 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                        andromeda, 
                                                                        andromedaTableName, 
                                                                        datesAsString = FALSE, 
+                                                                       integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
-  results <- lowLevelQuerySql(connection, query, integer64AsNumeric = integer64AsNumeric)
+  results <- lowLevelQuerySql(connection, query, integerAsNumeric = integerAsNumeric, integer64AsNumeric = integer64AsNumeric)
   RSQLite::dbWriteTable(conn = andromeda,
                         name = andromedaTableName,
                         value = results,
@@ -156,6 +165,8 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class. 
 #' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 #'                             64-bit integers will be represented using \code{bit64::integer64}. 
 #'
@@ -193,6 +204,7 @@ querySqlToAndromeda <- function(connection,
                                 andromedaTableName, 
                                 errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
                                 snakeCaseToCamelCase = FALSE, 
+                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
@@ -210,6 +222,7 @@ querySqlToAndromeda <- function(connection,
                                 query = sqlStatements[1], 
                                 andromeda = andromeda, 
                                 andromedaTableName = andromedaTableName,
+                                integerAsNumeric = integerAsNumeric,
                                 integer64AsNumeric = integer64AsNumeric)
     columnNames <- RSQLite::dbListFields(andromeda, andromedaTableName)
     newColumnNames <- toupper(columnNames)
@@ -243,6 +256,8 @@ querySqlToAndromeda <- function(connection,
 #' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
 #'                            emulate temp tables, provide a schema with write privileges where temp tables
 #'                            can be created.
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class. 
 #' @param integer64AsNumeric  Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 #'                           64-bit integers will be represented using \code{bit64::integer64}. 
 #' @param ...                  Parameters that will be used to render the SQL.
@@ -280,6 +295,7 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                snakeCaseToCamelCase = FALSE,
                                                oracleTempSchema = NULL,
                                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), 
+                                               integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                                ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
@@ -296,5 +312,6 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                              andromedaTableName = andromedaTableName,
                              errorReportFile = errorReportFile,
                              snakeCaseToCamelCase = snakeCaseToCamelCase,
+                             integerAsNumeric = integerAsNumeric,
                              integer64AsNumeric = integer64AsNumeric))
 }
