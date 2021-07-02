@@ -23,6 +23,7 @@ Imports:
     SqlRender (>= 1.7.0),
     methods,
     stringr,
+    readr,
     rlang,
     utils,
     DBI (>= 1.0.0),

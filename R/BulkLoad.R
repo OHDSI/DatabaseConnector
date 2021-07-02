@@ -263,7 +263,7 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
     }
   }
   csvFileName <- tempfile("pdw_insert_", fileext = ".csv")
-  write.csv(data,csvFileName, row.names = FALSE)
+  readr::write_excel_csv(data, csvFileName)
   on.exit(unlink(csvFileName))
 
   hostServerDb <- strsplit(attr(connection, "server")(), "/")[[1]]
