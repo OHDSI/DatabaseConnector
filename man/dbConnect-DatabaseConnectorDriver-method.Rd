@@ -27,7 +27,7 @@ conn <- dbConnect(DatabaseConnectorDriver(),
                   user = "joe",
                   password = "secret")
 querySql(conn, "SELECT * FROM cdm_synpuf.person;")
-dbDisconnet(conn)
+dbDisconnect(conn)
 }
 
 }

@@ -15,15 +15,15 @@ test_that("Fetch results", {
   expect_equal(count[1, 1], 58)
   count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
   expect_equal(count[1, 1], 58)
-
+  
   # Fetch Andromeda:
   andromeda <- Andromeda::andromeda()
   querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 58)
   renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchema, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
-
-
+  Andromeda::close(andromeda)
+  
   disconnect(connection)
   
   # SQL Server --------------------------------------
@@ -47,7 +47,8 @@ test_that("Fetch results", {
   expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 71)
   renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchema, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-
+  Andromeda::close(andromeda)
+  
   disconnect(connection)
   
   # Oracle ---------------------------------------
@@ -64,7 +65,7 @@ test_that("Fetch results", {
   expect_is(x$MY_INT, "integer")
   expect_is(x$MY_FLOAT, "numeric")
   expect_is(x$MY_NUMERIC, "numeric")
-    
+  
   # Fetch data.frame:
   count <- querySql(connection, renderedSql)
   expect_equal(count[1, 1], 71)
@@ -77,6 +78,32 @@ test_that("Fetch results", {
   expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 71)
   renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchema, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-
+  Andromeda::close(andromeda)
+  
+  disconnect(connection)
+  
+  # RedShift ----------------------------------------------
+  connection <- connect(dbms = "redshift", 
+                        user = Sys.getenv("CDM5_REDSHIFT_USER"), 
+                        password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+                        server = Sys.getenv("CDM5_REDSHIFT_SERVER"))
+  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA")
+  sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
+  renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
+  
+  # Fetch data.frame:
+  count <- querySql(connection, renderedSql)
+  expect_equal(count[1, 1], 91)
+  count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
+  expect_equal(count[1, 1], 91)
+  
+  # Fetch Andromeda:
+  andromeda <- Andromeda::andromeda()
+  querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 91)
+  renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchema, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
+  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 91)
+  Andromeda::close(andromeda)
+  
   disconnect(connection)
 })

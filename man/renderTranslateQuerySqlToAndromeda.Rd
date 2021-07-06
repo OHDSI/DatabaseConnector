@@ -23,38 +23,45 @@ renderTranslateQuerySqlToAndromeda(
 
 \item{sql}{The SQL to be send.}
 
-\item{andromeda}{An open connection to a Andromeda database, for example as created using \code{\link[Andromeda]{andromeda}}.}
+\item{andromeda}{An open connection to a Andromeda database, for example as created
+using \code{\link[Andromeda]{andromeda}}.}
 
-\item{andromedaTableName}{The name of the table in the local Andromeda database where the results of the query will be stored.}
+\item{andromedaTableName}{The name of the table in the local Andromeda database where the
+results of the query will be stored.}
 
-\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReportSql.txt' in the current working directory.}
+\item{errorReportFile}{The file where an error report will be written if an error occurs.
+Defaults to 'errorReportSql.txt' in the current working directory.}
 
-\item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
+\item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted
+to camelCase.}
 
 \item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 
-\item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
-emulate temp tables, provide a schema with write privileges where temp tables
-can be created.}
+\item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support
+temp tables. To emulate temp tables, provide a schema with write
+privileges where temp tables can be created.}
 
-\item{integerAsNumeric}{Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
-32-bit integers will be represented using R's native \code{Integer} class.}
+\item{integerAsNumeric}{Logical: should 32-bit integers be converted to numeric (double)
+values? If FALSE 32-bit integers will be represented using R's native
+\code{Integer} class.}
 
-\item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-64-bit integers will be represented using \code{bit64::integer64}.}
+\item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double)
+values? If FALSE 64-bit integers will be represented using
+\code{bit64::integer64}.}
 
 \item{...}{Parameters that will be used to render the SQL.}
 }
 \value{
-Invisibly returns the andromeda. The Andromeda database will have a table added with the query results.
+Invisibly returns the andromeda. The Andromeda database will have a table added with the query
+results.
 }
 \description{
-This function renders, and translates SQL, sends it to the server, and returns the results as an ffdf object
+This function renders, and translates SQL, sends it to the server, and returns the results as an
+ffdf object
 }
 \details{
-This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
-calling \code{\link{querySqlToAndromeda}}.
+This function calls the \code{render} and \code{translate} functions in the SqlRender package
+before calling \code{\link{querySqlToAndromeda}}.
 }
 \examples{
 \dontrun{
@@ -64,7 +71,7 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              password = "blah",
                                              schema = "cdm_v4")
 conn <- connect(connectionDetails)
-renderTranslatequerySqlToAndromeda(conn, 
+renderTranslatequerySqlToAndromeda(conn,
                                    sql = "SELECT * FROM @schema.person",
                                    schema = "cdm_synpuf",
                                    andromeda = andromeda,
