@@ -65,7 +65,7 @@ createConnectionDetails <- function(dbms,
                                     connectionString = NULL,
                                     pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   pathToDriver <- path.expand(pathToDriver)
-  if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
+  if (!dir.exists(pathToDriver) && !dbms %in% c("sqlite", "sqlite extended")) { 
     if (file.exists(pathToDriver)) {
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
     } else {
@@ -180,7 +180,7 @@ connect <- function(connectionDetails = NULL,
   }
   
   pathToDriver <- path.expand(pathToDriver)
-  if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
+  if (!dir.exists(pathToDriver) && !dbms %in% c("sqlite", "sqlite extended")) { 
     if (file.exists(pathToDriver)) {
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
     } else {
@@ -506,10 +506,10 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
-  if (dbms == "sqlite") {
+  if (dbms %in% c("sqlite", "sqlite extended")) {
     inform("Connecting using SQLite driver")
     ensure_installed("RSQLite")
-    connection <- connectUsingRsqLite(server = server)
+    connection <- connectUsingRsqLite(server = server, extended = (dbms == "sqlite extended"))
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -551,15 +551,15 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   return(connection)
 }
 
-connectUsingRsqLite <- function(server) {
+connectUsingRsqLite <- function(server, extended) {
   
-  dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server)
+  dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server, extended_types = extended)
   connection <- new("DatabaseConnectorDbiConnection",
                     server = server,
                     dbiConnection = dbiConnection,
                     identifierQuote = "'",
                     stringQuote = "'",
-                    dbms = "sqlite",
+                    dbms = ifelse(extended, "sqlite extended", "sqlite"),
                     uuid = generateRandomString())
   registerWithRStudio(connection)
   return(connection)

@@ -384,13 +384,15 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     tableName <- paste(databaseSchema, tableName, sep = ".")
   }
   
-  # Convert dates and datetime to UNIX timestamp:
-  for (i in 1:ncol(data)) {
-    if (inherits(data[, i], "Date")) {
-      data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
-    }
-    if (inherits(data[, i], "POSIXct")) {
-      data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
+  if (connection@dbms == "sqlite") {
+    # Convert dates and datetime to UNIX timestamp:
+    for (i in 1:ncol(data)) {
+      if (inherits(data[, i], "Date")) {
+        data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
+      }
+      if (inherits(data[, i], "POSIXct")) {
+        data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
+      }
     }
   }
   DBI::dbWriteTable(conn = connection@dbiConnection,

@@ -39,7 +39,7 @@ Suggests:
     rmarkdown,
     RSQLite,
     ssh,
-    Andromeda,
+    Andromeda (>= 0.5.0),
     dplyr
 License: Apache License
 VignetteBuilder: knitr

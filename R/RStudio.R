@@ -152,7 +152,7 @@ listDatabaseConnectorObjects <- function(connection, catalog = NULL, schema = NU
                       type = rep("schema", times = length(schemas)),
                       stringsAsFactors = FALSE))
   }
-  if (!hasCatalogs(connection) || connection@dbms %in% c("postgresql", "redshift", "sqlite")) {
+  if (!hasCatalogs(connection) || connection@dbms %in% c("postgresql", "redshift", "sqlite", "sqlite extended")) {
     databaseSchema <- schema
   } else {
     databaseSchema <- paste(catalog, schema, sep = ".")
@@ -234,7 +234,8 @@ compileReconnectCode.default <- function(connection) {
 }
 
 compileReconnectCode.DatabaseConnectorDbiConnection <- function(connection) {
-  code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"sqlite\", server = \"%s\")", 
+  code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", server = \"%s\")", 
+                  connection@dbms,
                   connection@server)
   return(code)
 }

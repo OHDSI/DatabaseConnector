@@ -17,6 +17,7 @@
   \item {"netezza" for IBM Netezza}
   \item {"bigquery" for Google BigQuery}
   \item {"sqlite" for SQLite}
+  \item {"sqlite extended" for SQLite with extended types (DATE and DATETIME)}
 }}
 
 \item{user}{The user name used to access the server.}
