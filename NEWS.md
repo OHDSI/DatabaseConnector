@@ -7,6 +7,8 @@ Changes:
 
 2. Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.
 
+3. Adding support for SQLite with extended types (DATE and DATETIME), with `dbms = 'sqlite extended'`.
+
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.

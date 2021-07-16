@@ -6,7 +6,7 @@ test_that("Send updates to server", {
     DELETE FROM #temp WHERE x = 123;
     DROP TABLE #temp;"
   
-  # Postgresql
+  # Postgresql --------------------------------------------------
   details <- createConnectionDetails(dbms = "postgresql",
                                      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
@@ -19,7 +19,7 @@ test_that("Send updates to server", {
   
   disconnect(connection)
   
-  # SQL Server
+  # SQL Server --------------------------------------------------
   details <- createConnectionDetails(dbms = "sql server",
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
@@ -32,7 +32,7 @@ test_that("Send updates to server", {
   
   disconnect(connection)
   
-  # Oracle
+  # Oracle --------------------------------------------------
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
@@ -45,9 +45,16 @@ test_that("Send updates to server", {
   
   disconnect(connection)
   
-  # # RedShift details <- createConnectionDetails(dbms = 'redshift', user =
-  # Sys.getenv('CDM5_REDSHIFT_USER'), password = URLdecode(Sys.getenv('CDM5_REDSHIFT_PASSWORD')),
-  # server = Sys.getenv('CDM5_REDSHIFT_SERVER'), schema = Sys.getenv('CDM5_REDSHIFT_CDM_SCHEMA'))
-  # connection <- connect(details) expect_true(inherits(connection, 'DatabaseConnectorConnection'))
-  # expect_true(disconnect(connection))
+  # RedShift --------------------------------------------------
+  details <- createConnectionDetails(dbms = "redshift", 
+                                     user = Sys.getenv("CDM5_REDSHIFT_USER"), 
+                                     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+                                     server = Sys.getenv("CDM5_REDSHIFT_SERVER"))
+  connection <- connect(details)
+  
+  expect_null(renderTranslateExecuteSql(connection, sql))
+  
+  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
+  
+  disconnect(connection)
 })

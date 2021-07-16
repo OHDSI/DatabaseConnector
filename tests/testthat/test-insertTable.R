@@ -30,7 +30,7 @@ test_that("insertTable", {
   data$big_ints[7] <- NA
   data$big_ints[8] <- 3.3043e+10
   
-  # Postgresql
+  # Postgresql --------------------------------------
   details <- createConnectionDetails(dbms = "postgresql",
                                      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
@@ -56,7 +56,7 @@ test_that("insertTable", {
   disconnect(connection)
   
   
-  # SQL Server
+  # SQL Server ----------------------------------------------
   details <- createConnectionDetails(dbms = "sql server",
                                      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
@@ -82,7 +82,7 @@ test_that("insertTable", {
   disconnect(connection)
   
 
-  # Oracle
+  # Oracle -----------------------------------------
   details <- createConnectionDetails(dbms = "oracle",
                                      user = Sys.getenv("CDM5_ORACLE_USER"),
                                      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
@@ -117,7 +117,7 @@ test_that("insertTable", {
 
   disconnect(connection)
   
-  # SQLite
+  # SQLite ---------------------------------------------------------------
   dbFile <- tempfile()
   details <- createConnectionDetails(dbms = "sqlite",
                                      server = dbFile)
@@ -148,4 +148,35 @@ test_that("insertTable", {
   
   disconnect(connection)
   unlink(dbFile)
+  
+  # RedShift --------------------------------------
+  details <- createConnectionDetails(dbms = "redshift", 
+                                     user = Sys.getenv("CDM5_REDSHIFT_USER"), 
+                                     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+                                     server = Sys.getenv("CDM5_REDSHIFT_SERVER"))
+  connection <- connect(details)
+  
+  # Use subset of data because inserts on RedShift are slow:
+  subset <- data[1:10, ]
+  
+  insertTable(connection = connection,
+              tableName = "temp",
+              data = subset,
+              createTable = TRUE,
+              tempTable = TRUE)
+  
+  # Check data on server is same as local
+  data2 <- querySql(connection, "SELECT * FROM temp", integer64AsNumeric = FALSE)
+  names(data2) <- tolower(names(data2))
+  subset <- subset[order(subset$person_id), ]
+  data2 <- data2[order(data2$person_id), ]
+  expect_equal(subset, data2, check.attributes = FALSE)
+  
+  # Check data types
+  res <- dbSendQuery(connection, "SELECT * FROM temp")
+  columnInfo <- dbColumnInfo(res)
+  dbClearResult(res)
+  expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "float8", "varchar", "int8"))
+  
+  disconnect(connection)
 })
