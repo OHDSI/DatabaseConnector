@@ -513,6 +513,25 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "spark") {
+    inform("Connecting using Spark driver")
+    jarPath <- findPathToJar("^SparkJDBC42\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
+    if (missing(connectionString) || is.null(connectionString)) {
+      abort("Error: Connection string required for connecting to Spark.")
+    }
+    if (missing(user) || is.null(user)) {
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
+    } else {
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password,
+                                           dbms = dbms)
+    }
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
 }
 
 connectUsingJdbcDriver <- function(jdbcDriver,

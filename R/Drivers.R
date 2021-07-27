@@ -74,7 +74,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     dir.create(pathToDriver, recursive = TRUE)
   }
   
-  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw"))
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "spark"))
   
   if (dbms == "pdw") {
     dbms <- "sql server"
@@ -85,7 +85,8 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
   jdbcDriverNames <- c("postgresql" = "postgresqlV42.2.18.zip",
                        "redshift" = "redShiftV1.2.27.1051.zip",
                        "sql server" = "sqlServerV9.2.0.zip",
-                       "oracle" = "oracleV19.8.zip")
+                       "oracle" = "oracleV19.8.zip",
+                       "spark" = "SimbaSparkV2.6.17.zip")
   
   if (dbms == "all") {
     dbms <- names(jdbcDriverNames)

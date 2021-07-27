@@ -70,7 +70,7 @@ unregisterWithRStudio <- function(connection) {
 }
 
 hasCatalogs <- function(connection) {
-  return(connection@dbms %in% c("pdw", "sql server", "postgresql", "redshift"))
+  return(connection@dbms %in% c("pdw", "sql server", "postgresql", "redshift", "spark"))
 }
 
 listDatabaseConnectorColumns <- function(connection,
@@ -134,8 +134,10 @@ listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connecti
   res <- DBI::dbSendQuery(connection@dbiConnection, sprintf("SELECT * FROM %s LIMIT 0;", table))
   info <- dbColumnInfo(res) 
   dbClearResult(res)
-  info$type[grepl("DATE$", info$name)] <- "date"
-  info$type[grepl("DATETIME$", info$name)] <- "datetime"
+  if (connection@dbms == "sqlite") {
+    info$type[grepl("DATE$", info$name)] <- "date"
+    info$type[grepl("DATETIME$", info$name)] <- "datetime"
+  }
   return(info)
 }
 
@@ -257,7 +259,7 @@ getSchemaNames.default <- function(conn, catalog = NULL) {
   schemas <- character()
   while (rJava::.jcall(resultSet, "Z", "next")) {
     thisCatalog <- rJava::.jcall(resultSet, "S", "getString", "TABLE_CATALOG")
-    if (is.jnull(thisCatalog) || (!is.jnull(catalog) && thisCatalog == catalog)) {
+    if (rJava::is.jnull(thisCatalog) || (!rJava::is.jnull(catalog) && thisCatalog == catalog)) {
       schemas <- c(schemas, rJava::.jcall(resultSet, "S", "getString", "TABLE_SCHEM"))
     }
   }

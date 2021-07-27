@@ -6,6 +6,7 @@ downloadJdbcDrivers("postgresql")
 downloadJdbcDrivers("sql server")
 downloadJdbcDrivers("oracle")
 downloadJdbcDrivers("redshift")
+downloadJdbcDrivers("spark")
 
 withr::defer({
   unlink(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), recursive = TRUE, force = TRUE)

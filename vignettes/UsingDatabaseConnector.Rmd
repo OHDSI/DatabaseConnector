@@ -36,6 +36,7 @@ Supported database platforms:
 * Google BigQuery
 * IBM Netezza
 * SQLite
+* Spark
 
 # Obtaining drivers 
 

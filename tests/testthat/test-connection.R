@@ -114,6 +114,18 @@ test_that("Open and close connection using connection strings with embedded user
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
+  
+  # Spark --------------------------------------------------
+  connectionString <- sprintf("%s;UID=%s;PWD=%s", 
+                              Sys.getenv("CDM5_SPARK_CONNECTION_STRING"),
+                              Sys.getenv("CDM5_SPARK_USER"),
+                              URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")))
+                              
+  details <- createConnectionDetails(dbms = "spark", 
+                                     connectionString = connectionString) 
+  connection <- connect(details)
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_true(disconnect(connection))
 })
 
 test_that("Open and close connection using connection strings with separate user and pw", {
@@ -170,6 +182,15 @@ test_that("Open and close connection using connection strings with separate user
                                      connectionString = connectionString, 
                                      user = Sys.getenv("CDM5_REDSHIFT_USER"), 
                                      password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD"))) 
+  connection <- connect(details)
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_true(disconnect(connection))
+  
+  # Spark --------------------------------------------------
+  details <- createConnectionDetails(dbms = "spark", 
+                                     connectionString =  Sys.getenv("CDM5_SPARK_CONNECTION_STRING"), 
+                                     user = Sys.getenv("CDM5_SPARK_USER"), 
+                                     password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD"))) 
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))

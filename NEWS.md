@@ -9,6 +9,8 @@ Changes:
 
 3. Adding support for SQLite with extended types (DATE and DATETIME), with `dbms = 'sqlite extended'`.
 
+4. Adding support for connecting to Spark.
+
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.
