@@ -445,12 +445,11 @@ convertFields <- function(dbms, result) {
   if (dbms == "sqlite") {
     for (colname in colnames(result)) {
       if (grepl("DATE$", colname)) {
-        result[[colname]] <- as.Date(as.POSIXct(result[[colname]], origin = "1970-01-01", tz = "GMT"))
+        result[[colname]] <- as.Date(as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT"))
       }
       if (grepl("DATETIME$", colname)) {
-        result[[colname]] <- as.POSIXct(result[[colname]], origin = "1970-01-01", tz = "GMT")
+        result[[colname]] <- as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT")
       }
-      
     }
   } 
   if (dbms %in% c("bigquery")) {
