@@ -7,13 +7,13 @@ Changes:
 
 2. Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.
 
-3. Adding support for SQLite with extended types (DATE and DATETIME), with `dbms = 'sqlite extended'`.
-
-4. Adding support for connecting to Spark.
+3. Adding support for connecting to Spark.
 
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.
+
+2. Fixing issues when fetching dates from SQLite (needed casting to numeric in some scenarios before conversion to date in R).
 
 
 DatabaseConnector 4.0.2
