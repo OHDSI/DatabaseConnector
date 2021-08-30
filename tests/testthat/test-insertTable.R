@@ -71,6 +71,10 @@ test_that("insertTable", {
   # Check data on server is same as local
   data2 <- querySql(connection, "SELECT * FROM #temp", integer64AsNumeric = FALSE)
   names(data2) <- tolower(names(data2))
+  data <- data[order(data$person_id), ]
+  data2 <- data2[order(data2$person_id), ]
+  row.names(data) <- NULL
+  row.names(data2) <- NULL
   expect_equal(data, data2, check.attributes = FALSE)
   
   # Check data types
