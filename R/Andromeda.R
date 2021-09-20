@@ -125,10 +125,10 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                                                     default = TRUE),
                                                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
                                                                                                       default = TRUE),
-                                                                       modifyBatchedDataFunction = NULL) {
+                                                                       modifyBatchedData = NULL) {
 
-  if (!is.null(modifyBatchedDataFunction) & !is.function(modifyBatchedDataFunction)) {
-    stop("modifyBatchedDataFunction must be a function or null")
+  if (!is.null(modifyBatchedData) & !is.function(modifyBatchedData)) {
+    stop("modifyBatchedData must be a function or null")
   }
 
   results <- lowLevelQuerySql(connection,
@@ -136,7 +136,7 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                               integerAsNumeric = integerAsNumeric,
                               integer64AsNumeric = integer64AsNumeric)
 
-  results <- modifyBatchedDataFunction(results)
+  results <- modifyBatchedData(results)
 
   RSQLite::dbWriteTable(conn = andromeda,
                         name = andromedaTableName,
