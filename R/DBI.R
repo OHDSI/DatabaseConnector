@@ -260,33 +260,81 @@ setMethod("dbGetRowCount", "DatabaseConnectorResult", function(res, ...) {
   return(rJava::.jcall(res@content, "I", "getTotalRowCount"))
 })
 
+
+parseJdbcColumnData <- function(content,
+                                columnTypes = NULL,
+                                datesAsString = FALSE,
+                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
+                                                             default = TRUE),
+                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
+                                                               default = TRUE)) {
+
+  if (is.null(columnTypes))
+    columnTypes <- rJava::.jcall(content, "[I", "getColumnTypes")
+
+  columns <- vector("list", length(columnTypes))
+
+  for (i in seq.int(length(columnTypes))) {
+    if (columnTypes[i] == 1) {
+      column <- rJava::.jcall(content,
+                              "[D",
+                              "getNumeric",
+                              as.integer(i))
+      # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
+      column[is.nan(column)] <- NA
+      columns[[i]] <- c(columns[[i]], column)
+    } else if (columnTypes[i] == 5) {
+      column <- rJava::.jcall(content,
+                              "[D",
+                              "getInteger64",
+                              as.integer(i))
+      oldClass(column) <- "integer64"
+      if (is.null(columns[[i]])) {
+        columns[[i]] <- column
+      } else {
+        columns[[i]] <- c(columns[[i]], column)
+      }
+
+      if (integer64AsNumeric) {
+        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
+      }
+    } else if (columnTypes[i] == 6) {
+      columns[[i]] <- c(columns[[i]],
+                        rJava::.jcall(content,
+                                      "[I",
+                                      "getInteger",
+                                      as.integer(i)))
+      if (integerAsNumeric) {
+        columns[[i]] <- as.numeric(columns[[i]])
+      }
+    } else {
+      columns[[i]] <- c(columns[[i]],
+                        rJava::.jcall(content, "[Ljava/lang/String;", "getString", i))
+
+      if (!datesAsString) {
+        if (columnTypes[i] == 3) {
+          columns[[i]] <- as.Date(columns[[i]])
+        } else if (columnTypes[i] == 4) {
+          columns[[i]] <- as.POSIXct(columns[[i]])
+        }
+      }
+    }
+  }
+
+  names(columns) <- rJava::.jcall(content, "[Ljava/lang/String;", "getColumnNames")
+  # More efficient than as.data.frame, as it avoids converting row.names to character:
+  columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
+  return(columns)
+}
+
 #' @inherit
 #' DBI::dbFetch title description params details references return seealso
 #' @param datesAsString   Should dates be represented as strings? (instead of Date objects)
 #'
 #' @export
-setMethod("dbFetch", "DatabaseConnectorResult", function(res, datesAsString = FALSE, ...) {
-  columnTypes <- rJava::.jcall(res@content, "[I", "getColumnTypes")
-  columns <- vector("list", length(columnTypes))
+setMethod("dbFetch", "DatabaseConnectorResult", function(res, ...) {
   rJava::.jcall(res@content, "V", "fetchBatch")
-  for (i in seq.int(length(columnTypes))) {
-    if (columnTypes[i] == 1) {
-      columns[[i]] <- c(columns[[i]], rJava::.jcall(res@content, "[D", "getNumeric", as.integer(i)))
-    } else {
-      columns[[i]] <- c(columns[[i]],
-                        rJava::.jcall(res@content, "[Ljava/lang/String;", "getString", i))
-    }
-  }
-  if (!datesAsString) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 3) {
-        columns[[i]] <- as.Date(columns[[i]])
-      }
-    }
-  }
-  names(columns) <- rJava::.jcall(res@content, "[Ljava/lang/String;", "getColumnNames")
-  attr(columns, "row.names") <- c(NA_integer_, length(columns[[1]]))
-  class(columns) <- "data.frame"
+  columns <- parseJdbcColumnData(res@content, ...)
   return(columns)
 })
 
@@ -438,7 +486,7 @@ setMethod("dbAppendTable",
                    value,
                    temporary = FALSE,
                    oracleTempSchema = NULL,
-                   ..., 
+                   ...,
                    row.names = NULL) {
             insertTable(connection = conn,
                         tableName = name,
@@ -468,7 +516,7 @@ setMethod("dbCreateTable",
                    temporary = FALSE) {
             insertTable(connection = conn,
                         tableName = name,
-                        data = fields[FALSE, ],
+                        data = fields[FALSE,],
                         dropTableIfExists = TRUE,
                         createTable = TRUE,
                         tempTable = temporary,

@@ -12,7 +12,8 @@ querySqlToAndromeda(
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
   integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
-  integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
+  integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+  modifyBatchedData = NULL
 )
 }
 \arguments{
@@ -39,6 +40,9 @@ values? If FALSE 32-bit integers will be represented using R's native
 \item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double)
 values? If FALSE 64-bit integers will be represented using
 \code{bit64::integer64}.}
+
+\item{modifyBatchedData}{Function that takes a single parameter as a batched data frame. Allows values
+to be modified as they are being written to the andromeda object.}
 }
 \value{
 

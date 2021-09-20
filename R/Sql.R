@@ -104,8 +104,7 @@ lowLevelQuerySql.default <- function(connection,
                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     abort("Connection is closed")
-  
-  
+
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
                                query,
@@ -117,67 +116,17 @@ lowLevelQuerySql.default <- function(connection,
   if (any(columnTypes == 5)) {
     validateInt64Query()
   }
-  columns <- vector("list", length(columnTypes))
+  columns <- data.frame()
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 1) {
-        column <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getNumeric",
-                                as.integer(i))
-        # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
-        column[is.nan(column)] <- NA
-        columns[[i]] <- c(columns[[i]], column)
-      } else if (columnTypes[i] == 5) {
-        column <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getInteger64",
-                                as.integer(i)) 
-        oldClass(column) <- "integer64"
-        if (is.null(columns[[i]])) {
-          columns[[i]] <- column
-        } else {
-          columns[[i]] <- c(columns[[i]], column)
-        }
-      } else if (columnTypes[i] == 6) {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery,
-                                        "[I",
-                                        "getInteger",
-                                        as.integer(i)))
-      } else {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
-      }
-    }
+    batch <- parseJdbcColumnData(batchedQuery,
+                                 columnTypes = columnTypes,
+                                 datesAsString = datesAsString,
+                                 integer64AsNumeric = integer64AsNumeric,
+                                 integerAsNumeric = integerAsNumeric)
+
+    columns <- rbind(columns, batch)
   }
-  if (!datesAsString) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 3) {
-        columns[[i]] <- as.Date(columns[[i]])
-      } else if (columnTypes[i] == 4) {
-        columns[[i]] <- as.POSIXct(columns[[i]])
-      }
-    }
-  }
-  if (integerAsNumeric) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 6) {
-        columns[[i]] <- as.numeric(columns[[i]])
-      } 
-    }
-  }
-  if (integer64AsNumeric) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 5) {
-        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
-      } 
-    }
-  }
-  names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
-  attr(columns, "row.names") <- c(NA_integer_, length(columns[[1]]))
-  class(columns) <- "data.frame"
   return(columns)
 }
 
