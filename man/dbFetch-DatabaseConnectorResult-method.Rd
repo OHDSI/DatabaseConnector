@@ -16,8 +16,6 @@ to retrieve all pending records.  Some implementations may recognize other
 special values.}
 
 \item{...}{Other arguments passed on to methods.}
-
-\item{datesAsString}{Should dates be represented as strings? (instead of Date objects)}
 }
 \value{
 \code{dbFetch()} always returns a \link{data.frame}

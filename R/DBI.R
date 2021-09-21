@@ -329,8 +329,6 @@ parseJdbcColumnData <- function(content,
 
 #' @inherit
 #' DBI::dbFetch title description params details references return seealso
-#' @param datesAsString   Should dates be represented as strings? (instead of Date objects)
-#'
 #' @export
 setMethod("dbFetch", "DatabaseConnectorResult", function(res, ...) {
   rJava::.jcall(res@content, "V", "fetchBatch")
