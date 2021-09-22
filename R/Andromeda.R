@@ -34,8 +34,6 @@
 #' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values?
 #'                             If FALSE 64-bit integers will be represented using
 #'                             \code{bit64::integer64}.
-#' @param modifyBatchedData    Function that takes a single parameter as a batched data frame. Allows values
-#'                             to be modified as they are being written to the andromeda object.
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a local Andromeda database This allows
@@ -56,8 +54,7 @@ lowLevelQuerySqlToAndromeda <- function(connection,
                                         integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                      default = TRUE),
                                         integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                                       default = TRUE),
-                                        modifyBatchedData = NULL) {
+                                                                       default = TRUE)) {
   UseMethod("lowLevelQuerySqlToAndromeda", connection)
 }
 
@@ -70,14 +67,9 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                              default = TRUE),
                                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                                               default = TRUE),
-                                                modifyBatchedData = NULL) {
+                                                                               default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
-
-  if (!is.null(modifyBatchedData) & !is.function(modifyBatchedData)) {
-    stop("modifyBatchedData must be a function or null")
-  }
 
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
@@ -101,10 +93,6 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                  integer64AsNumeric = integer64AsNumeric,
                                  integerAsNumeric = integerAsNumeric)
 
-    if (!is.null(modifyBatchedData)) {
-      batch <- modifyBatchedData(batch)
-    }
-
     RSQLite::dbWriteTable(conn = andromeda,
                           name = andromedaTableName,
                           value = batch,
@@ -124,19 +112,12 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                        integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                                                     default = TRUE),
                                                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                                                                      default = TRUE),
-                                                                       modifyBatchedData = NULL) {
-
-  if (!is.null(modifyBatchedData) & !is.function(modifyBatchedData)) {
-    stop("modifyBatchedData must be a function or null")
-  }
+                                                                                                      default = TRUE)) {
 
   results <- lowLevelQuerySql(connection,
                               query,
                               integerAsNumeric = integerAsNumeric,
                               integer64AsNumeric = integer64AsNumeric)
-
-  results <- modifyBatchedData(results)
 
   RSQLite::dbWriteTable(conn = andromeda,
                         name = andromedaTableName,
@@ -167,8 +148,6 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
 #' @param integer64AsNumeric     Logical: should 64-bit integers be converted to numeric (double)
 #'                               values? If FALSE 64-bit integers will be represented using
 #'                               \code{bit64::integer64}.
-#' @param modifyBatchedData      Function that takes a single parameter as a batched data frame. Allows values
-#'                               to be modified as they are being written to the andromeda object.
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a local Andromeda database. This allows
@@ -209,8 +188,7 @@ querySqlToAndromeda <- function(connection,
                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                              default = TRUE),
                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                               default = TRUE),
-                                modifyBatchedData = NULL) {
+                                                               default = TRUE)) {
   if (inherits(connection,
                "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
@@ -229,8 +207,7 @@ querySqlToAndromeda <- function(connection,
                                 andromeda = andromeda,
                                 andromedaTableName = andromedaTableName,
                                 integerAsNumeric = integerAsNumeric,
-                                integer64AsNumeric = integer64AsNumeric,
-                                modifyBatchedData = modifyBatchedData)
+                                integer64AsNumeric = integer64AsNumeric)
     columnNames <- RSQLite::dbListFields(andromeda, andromedaTableName)
     newColumnNames <- toupper(columnNames)
     if (snakeCaseToCamelCase) {
@@ -276,8 +253,6 @@ querySqlToAndromeda <- function(connection,
 #' @param integer64AsNumeric     Logical: should 64-bit integers be converted to numeric (double)
 #'                               values? If FALSE 64-bit integers will be represented using
 #'                               \code{bit64::integer64}.
-#' @param modifyBatchedData      Function that takes a single parameter as a batched data frame. Allows values
-#'                               to be modified as they are being written to the andromeda object.
 #' @param ...                    Parameters that will be used to render the SQL.
 #'
 #' @details
@@ -319,7 +294,6 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                                             default = TRUE),
                                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
                                                                               default = TRUE),
-                                               modifyBatchedData = NULL,
                                                ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
@@ -338,6 +312,5 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                              errorReportFile = errorReportFile,
                              snakeCaseToCamelCase = snakeCaseToCamelCase,
                              integerAsNumeric = integerAsNumeric,
-                             integer64AsNumeric = integer64AsNumeric,
-                             modifyBatchedData = modifyBatchedData))
+                             integer64AsNumeric = integer64AsNumeric))
 }

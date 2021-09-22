@@ -1,14 +1,6 @@
 library(testthat)
 
 test_that("Fetch results", {
-
-  outerXValue <- 1337
-
-  modifyBatchedData <- function(.data) {
-    .data$inner_x_value <- outerXValue
-    return(.data)
-  }
-
   # Postgres ----------------------------------------------------------
   connection <- connect(dbms = "postgresql",
                         user = Sys.getenv("CDM5_POSTGRESQL_USER"),
@@ -33,10 +25,8 @@ test_that("Fetch results", {
                                      cdm_database_schema = cdmDatabaseSchema,
                                      andromeda = andromeda,
                                      andromedaTableName = "test2",
-                                     snakeCaseToCamelCase = TRUE,
-                                     modifyBatchedData = modifyBatchedData)
+                                     snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
-  expect_true(all.equal(dplyr::collect(andromeda$test2)$innerXValue, outerXValue))
   Andromeda::close(andromeda)
 
   disconnect(connection)
@@ -65,10 +55,8 @@ test_that("Fetch results", {
                                      cdm_database_schema = cdmDatabaseSchema,
                                      andromeda = andromeda,
                                      andromedaTableName = "test2",
-                                     snakeCaseToCamelCase = TRUE,
-                                     modifyBatchedData = modifyBatchedData)
+                                     snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-  expect_true(all.equal(dplyr::collect(andromeda$test2)$innerXValue, outerXValue))
   Andromeda::close(andromeda)
 
   disconnect(connection)
@@ -103,10 +91,8 @@ test_that("Fetch results", {
                                      cdm_database_schema = cdmDatabaseSchema,
                                      andromeda = andromeda,
                                      andromedaTableName = "test2",
-                                     snakeCaseToCamelCase = TRUE,
-                                     modifyBatchedData = modifyBatchedData)
+                                     snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-  expect_true(all.equal(dplyr::collect(andromeda$test2)$innerXValue, outerXValue))
   Andromeda::close(andromeda)
 
   disconnect(connection)
@@ -135,10 +121,8 @@ test_that("Fetch results", {
                                      cdm_database_schema = cdmDatabaseSchema,
                                      andromeda = andromeda,
                                      andromedaTableName = "test2",
-                                     snakeCaseToCamelCase = TRUE,
-                                     modifyBatchedData = modifyBatchedData)
+                                     snakeCaseToCamelCase = TRUE)
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 91)
-  expect_true(all.equal(dplyr::collect(andromeda$test2)$innerXValue, outerXValue))
   Andromeda::close(andromeda)
 
   disconnect(connection)
