@@ -381,7 +381,13 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   
   tableName <- gsub("^#", "", tableName)
   if (!is.null(databaseSchema)) {
-    tableName <- paste(databaseSchema, tableName, sep = ".")
+    if (connection@dbms %in% c("sqlite", "sqlite extended")) {
+      if (tolower(databaseSchema) != "main") {
+        abort("Only the 'main' schema exists on SQLite")
+      }
+    } else {
+      tableName <- paste(databaseSchema, tableName, sep = ".")
+    }
   }
   
   if (connection@dbms == "sqlite") {

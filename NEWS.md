@@ -15,6 +15,8 @@ Bugfixes:
 
 2. Fixing issues when fetching dates from SQLite (needed casting to numeric in some scenarios before conversion to date in R).
 
+3. Fixing `insertTable()` when using a `databaseSchema` argument on SQLite.
+
 
 DatabaseConnector 4.0.2
 =======================
