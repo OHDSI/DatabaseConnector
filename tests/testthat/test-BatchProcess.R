@@ -76,4 +76,25 @@ test_that("renderTranslateQueryApplyBatched works", {
   expect_true(all(data$test == "MY STRING"))
   disconnect(connection)
 
+
+  # Sqlite --------------------------------------------------
+  dbFile <- tempfile()
+  details <- createConnectionDetails(dbms = "sqlite",
+                                     server = dbFile)
+  connection <- connect(details)
+  executeSql(connection, "CREATE TABLE person (x INT);
+  INSERT INTO person (x) VALUES (1); INSERT INTO person (x) VALUES (2); INSERT INTO person (x) VALUES (3);")
+
+  sql <- "SELECT  * FROM person"
+  data <- renderTranslateQueryApplyBatched(connection,
+                                           sql,
+                                           fun,
+                                           args,
+                                           returnResultsData = TRUE)
+
+  expect_true("test" %in% colnames(data))
+  expect_true(all(data$test == "MY STRING"))
+
+  disconnect(connection)
+  unlink(dbFile)
 })
