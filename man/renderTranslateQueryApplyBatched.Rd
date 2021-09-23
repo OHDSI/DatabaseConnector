@@ -8,6 +8,7 @@ renderTranslateQueryApplyBatched(
   connection,
   sql,
   fun,
+  args = list(),
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
   oracleTempSchema = NULL,
@@ -23,7 +24,9 @@ renderTranslateQueryApplyBatched(
 
 \item{sql}{The SQL to be send.}
 
-\item{fun}{Function to apply to batch. Must take data.frame as a single parameter}
+\item{fun}{Function to apply to batch. Must take data.frame and integer position as parameters}
+
+\item{args}{List of arguments to be passed to function call}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
 'errorReportSql.txt' in the current working directory.}
@@ -68,11 +71,9 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              user = "root",
                                              password = "blah",
                                              schema = "cdm_v4")
-first <- TRUE
 filepath <- "myBigFile.csv"
-writeBatches <- function(data) {
-    write.csv(data, filepath, append=!first)
-    first <<- FALSE
+writeBatches <- function(data, position, ...) {
+    write.csv(data, filepath, append=position != 1)
 }
 renderTranslateQueryApplyBatched(connection,
                                  "SELECT * FROM @schema.person",
@@ -81,12 +82,10 @@ renderTranslateQueryApplyBatched(connection,
 
 # Alternative to querySqlToAndromeda if some process is computed
 bigResults <- Andromeda::andromeda()
-first <- TRUE
-writeBatchesToAndromeda <- function(data) {
+writeBatchesToAndromeda <- function(data, position, ...) {
     data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
-    if (first) {
+    if (position == 1) {
         bigResults$rrs <- data
-        first <<- FALSE
     } else {
         Andromeda::appendToTable(bigResults$rrs, data)
     }

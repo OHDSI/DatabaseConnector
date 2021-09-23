@@ -665,7 +665,8 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE){
 #'
 #' @param connection           The connection to the database server.
 #' @param sql                  The SQL to be send.
-#' @param fun                  Function to apply to batch. Must take data.frame as a single parameter
+#' @param fun                  Function to apply to batch. Must take data.frame and integer position as parameters
+#' @param args                 List of arguments to be passed to function call
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
@@ -695,11 +696,9 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE){
 #'                                              user = "root",
 #'                                              password = "blah",
 #'                                              schema = "cdm_v4")
-#' first <- TRUE
 #' filepath <- "myBigFile.csv"
-#' writeBatches <- function(data) {
-#'     write.csv(data, filepath, append=!first)
-#'     first <<- FALSE
+#' writeBatches <- function(data, position, ...) {
+#'     write.csv(data, filepath, append=position != 1)
 #' }
 #' renderTranslateQueryApplyBatched(connection,
 #'                                  "SELECT * FROM @schema.person",
@@ -708,12 +707,10 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE){
 #'
 #' # Alternative to querySqlToAndromeda if some process is computed
 #' bigResults <- Andromeda::andromeda()
-#' first <- TRUE
-#' writeBatchesToAndromeda <- function(data) {
+#' writeBatchesToAndromeda <- function(data, position, ...) {
 #'     data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
-#'     if (first) {
+#'     if (position == 1) {
 #'         bigResults$rrs <- data
-#'         first <<- FALSE
 #'     } else {
 #'         Andromeda::appendToTable(bigResults$rrs, data)
 #'     }
@@ -730,6 +727,7 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE){
 renderTranslateQueryApplyBatched <- function(connection,
                                              sql,
                                              fun,
+                                             args = list(),
                                              errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                              snakeCaseToCamelCase = FALSE,
                                              oracleTempSchema = NULL,
@@ -743,16 +741,21 @@ renderTranslateQueryApplyBatched <- function(connection,
 
 #' @export
 renderTranslateQueryApplyBatched.default <- function(connection,
-                                             sql,
-                                             fun,
-                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
-                                             snakeCaseToCamelCase = FALSE,
-                                             oracleTempSchema = NULL,
-                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
-                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
-                                             returnResultsData = FALSE,
-                                             ...) {
+                                                     sql,
+                                                     fun,
+                                                     args = list(),
+                                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                                     snakeCaseToCamelCase = FALSE,
+                                                     oracleTempSchema = NULL,
+                                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                                     returnResultsData = FALSE,
+                                                     ...) {
+
+  if (!is.function(fun))
+    abort("fun argument must be a function")
+
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
@@ -777,6 +780,7 @@ renderTranslateQueryApplyBatched.default <- function(connection,
   if (returnResultsData)
     result <- data.frame()
 
+  position <- 1
   while (!rJava::.jcall(queryResult@content, "Z", "isDone")) {
     batch <- dbFetch(queryResult,
                      columnTypes = columnTypes,
@@ -785,13 +789,14 @@ renderTranslateQueryApplyBatched.default <- function(connection,
     if (snakeCaseToCamelCase)
       colnames(batch) <- SqlRender::snakeCaseToCamelCase(colnames(batch))
 
-    batch <- fun(batch)
+    batch <- do.call(fun, append(list(batch, position), args))
+    position <- position + nrow(batch)
     if (returnResultsData) {
       result <- rbind(result, batch)
     }
   }
 
-  if(returnResultsData)
+  if (returnResultsData)
     return(result)
 
   invisible(NULL)
@@ -800,16 +805,21 @@ renderTranslateQueryApplyBatched.default <- function(connection,
 
 #' @export
 renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(connection,
-                                             sql,
-                                             fun,
-                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
-                                             snakeCaseToCamelCase = FALSE,
-                                             oracleTempSchema = NULL,
-                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
-                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
-                                             returnResultsData = FALSE,
-                                             ...) {
+                                                                            sql,
+                                                                            fun,
+                                                                            args = list(),
+                                                                            errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                                                            snakeCaseToCamelCase = FALSE,
+                                                                            oracleTempSchema = NULL,
+                                                                            tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                                            integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                                                            integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                                                            returnResultsData = FALSE,
+                                                                            ...) {
+
+  if (!is.function(fun))
+    abort("fun argument must be a function")
+
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
@@ -825,10 +835,12 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
   if (snakeCaseToCamelCase)
     colnames(results) <- SqlRender::snakeCaseToCamelCase(colnames(results))
 
-  result <- fun(results)
+  # Note that the DBI connection implementation only ever processes a single batch
+  position <- 1
+  results <- do.call(fun, append(list(results, position), args))
 
   if (returnResultsData)
-    return(result)
+    return(results)
 
   invisible(NULL)
 }

@@ -7,13 +7,15 @@ test_that("renderTranslateQueryApplyBatched works", {
   cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
   sql <- "SELECT * FROM @cdm_database_schema.vocabulary LIMIT 10"
 
-  fun <- function(data) {
-    data$test <- "MY STRING"
+  fun <- function(data, position, myString) {
+    data$test <- myString
     return(data)
   }
+  args <- list(myString = "MY STRING")
   data <- renderTranslateQueryApplyBatched(connection,
                                            sql,
                                            fun,
+                                           args,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            returnResultsData = TRUE)
   expect_true("test" %in% colnames(data))
@@ -31,6 +33,7 @@ test_that("renderTranslateQueryApplyBatched works", {
   data <- renderTranslateQueryApplyBatched(connection,
                                            sql,
                                            fun,
+                                           args,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            returnResultsData = TRUE)
   expect_true("test" %in% colnames(data))
@@ -48,6 +51,7 @@ test_that("renderTranslateQueryApplyBatched works", {
   data <- renderTranslateQueryApplyBatched(connection,
                                            sql,
                                            fun,
+                                           args,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            returnResultsData = TRUE)
   expect_true("test" %in% colnames(data))
@@ -65,6 +69,7 @@ test_that("renderTranslateQueryApplyBatched works", {
   data <- renderTranslateQueryApplyBatched(connection,
                                            sql,
                                            fun,
+                                           args,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            returnResultsData = TRUE)
   expect_true("test" %in% colnames(data))
