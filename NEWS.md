@@ -9,6 +9,8 @@ Changes:
 
 3. Adding support for connecting to Spark.
 
+4. Adding `renderTranslateQueryApplyBatched()` function.
+
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.
