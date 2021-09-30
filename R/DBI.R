@@ -59,9 +59,7 @@ DatabaseConnectorDriver <- function() {
 setClass("DatabaseConnectorConnection",
          contains = "DBIConnection",
          slots = list(identifierQuote = "character",
-                      stringQuote = "character",
-                      dbms = "character",
-                      uuid = "character"))
+                      stringQuote = "character", dbms = "character", uuid = "character"))
 
 #' DatabaseConnectorJdbcConnection class.
 #'
@@ -101,7 +99,8 @@ setClass("DatabaseConnectorDbiConnection",
 #'                   dbms = "postgresql",
 #'                   server = "localhost/ohdsi",
 #'                   user = "joe",
-#'                   password = "secret")
+#'
+#'   password = "secret")
 #' querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 #' dbDisconnect(conn)
 #' }
@@ -148,21 +147,20 @@ setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
 #' @inherit
 #' DBI::dbQuoteIdentifier title description params details references return seealso
 #' @export
-setMethod("dbQuoteIdentifier",
-          signature("DatabaseConnectorConnection", "character"),
-          function(conn, x, ...) {
-            if (length(x) == 0L) {
-              return(DBI::SQL(character()))
-            }
-            if (any(is.na(x))) {
-              abort("Cannot pass NA to dbQuoteIdentifier()")
-            }
-            if (nzchar(conn@identifierQuote)) {
-              x <- gsub(conn@identifierQuote, paste0(conn@identifierQuote,
-                                                     conn@identifierQuote), x, fixed = TRUE)
-            }
-            return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
-          })
+setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn,
+                                                                                               x, ...) {
+  if (length(x) == 0L) {
+    return(DBI::SQL(character()))
+  }
+  if (any(is.na(x))) {
+    abort("Cannot pass NA to dbQuoteIdentifier()")
+  }
+  if (nzchar(conn@identifierQuote)) {
+    x <- gsub(conn@identifierQuote, paste0(conn@identifierQuote,
+                                           conn@identifierQuote), x, fixed = TRUE)
+  }
+  return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
+})
 
 #' @inherit
 #' DBI::dbQuoteString title description params details references return seealso
@@ -191,19 +189,22 @@ setMethod("dbQuoteString",
 #' @export
 setClass("DatabaseConnectorResult",
          contains = "DBIResult",
-         slots = list(content = "jobjRef", type = "character", statement = "character"))
+         slots = list(content = "jobjRef", type = "character",
+                      statement = "character"))
 
 #' @inherit
 #' DBI::dbSendQuery title description params details references return seealso
 #' @export
 setMethod("dbSendQuery",
           signature("DatabaseConnectorJdbcConnection", "character"),
-          function(conn, statement, ...) {
+          function(conn, statement,
+                   ...) {
             if (rJava::is.jnull(conn@jConnection))
               abort("Connection is closed")
             batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                          conn@jConnection,
                                          statement,
+                                         
                                          conn@dbms)
             result <- new("DatabaseConnectorResult",
                           content = batchedQuery,
@@ -217,7 +218,8 @@ setMethod("dbSendQuery",
 #' @export
 setMethod("dbSendQuery",
           signature("DatabaseConnectorDbiConnection", "character"),
-          function(conn, statement, ...) {
+          function(conn, statement,
+                   ...) {
             return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
           })
 
@@ -260,73 +262,6 @@ setMethod("dbGetRowCount", "DatabaseConnectorResult", function(res, ...) {
   return(rJava::.jcall(res@content, "I", "getTotalRowCount"))
 })
 
-
-parseJdbcColumnData <- function(content,
-                                columnTypes = NULL,
-                                datesAsString = FALSE,
-                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                                             default = TRUE),
-                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                               default = TRUE)) {
-
-  if (is.null(columnTypes))
-    columnTypes <- rJava::.jcall(content, "[I", "getColumnTypes")
-
-  columns <- vector("list", length(columnTypes))
-
-  for (i in seq.int(length(columnTypes))) {
-    if (columnTypes[i] == 1) {
-      column <- rJava::.jcall(content,
-                              "[D",
-                              "getNumeric",
-                              as.integer(i))
-      # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
-      column[is.nan(column)] <- NA
-      columns[[i]] <- c(columns[[i]], column)
-    } else if (columnTypes[i] == 5) {
-      column <- rJava::.jcall(content,
-                              "[D",
-                              "getInteger64",
-                              as.integer(i))
-      oldClass(column) <- "integer64"
-      if (is.null(columns[[i]])) {
-        columns[[i]] <- column
-      } else {
-        columns[[i]] <- c(columns[[i]], column)
-      }
-
-      if (integer64AsNumeric) {
-        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
-      }
-    } else if (columnTypes[i] == 6) {
-      columns[[i]] <- c(columns[[i]],
-                        rJava::.jcall(content,
-                                      "[I",
-                                      "getInteger",
-                                      as.integer(i)))
-      if (integerAsNumeric) {
-        columns[[i]] <- as.numeric(columns[[i]])
-      }
-    } else {
-      columns[[i]] <- c(columns[[i]],
-                        rJava::.jcall(content, "[Ljava/lang/String;", "getString", i))
-
-      if (!datesAsString) {
-        if (columnTypes[i] == 3) {
-          columns[[i]] <- as.Date(columns[[i]])
-        } else if (columnTypes[i] == 4) {
-          columns[[i]] <- as.POSIXct(columns[[i]])
-        }
-      }
-    }
-  }
-
-  names(columns) <- rJava::.jcall(content, "[Ljava/lang/String;", "getColumnNames")
-  # More efficient than as.data.frame, as it avoids converting row.names to character:
-  columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
-  return(columns)
-}
-
 #' @inherit
 #' DBI::dbFetch title description params details references return seealso
 #' @export
@@ -351,7 +286,8 @@ setMethod("dbClearResult", "DatabaseConnectorResult", function(res, ...) {
 #' @export
 setMethod("dbGetQuery",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, statement, ...) {
+          function(conn, statement,
+                   ...) {
             lowLevelQuerySql(conn, statement)
           })
 
@@ -360,7 +296,8 @@ setMethod("dbGetQuery",
 #' @export
 setMethod("dbSendStatement",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, statement, ...) {
+          function(conn, statement,
+                   ...) {
             rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
             rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
             result <- new("DatabaseConnectorResult",
@@ -384,7 +321,8 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
 #' @export
 setMethod("dbExecute",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, statement, ...) {
+          function(conn, statement,
+                   ...) {
             rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
             return(rowsAffected)
           })
@@ -399,7 +337,8 @@ setMethod("dbExecute",
 #' @export
 setMethod("dbListFields",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, name, database = NULL, schema = NULL, ...) {
+          function(conn, name,
+                   database = NULL, schema = NULL, ...) {
             columns <- listDatabaseConnectorColumns(connection = conn,
                                                     catalog = database,
                                                     schema = schema,
@@ -415,7 +354,8 @@ setMethod("dbListFields",
 #' @export
 setMethod("dbListTables",
           "DatabaseConnectorConnection",
-          function(conn, database = NULL, schema = NULL, ...) {
+          function(conn, database = NULL, schema = NULL,
+                   ...) {
             if (is.null(database)) {
               databaseSchema <- schema
             } else {
@@ -431,7 +371,8 @@ setMethod("dbListTables",
 #' @export
 setMethod("dbExistsTable",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, name, database = NULL, schema = NULL, ...) {
+          function(conn, name,
+                   database = NULL, schema = NULL, ...) {
             if (length(name) != 1) {
               abort("Name should be a single string")
             }
@@ -451,13 +392,7 @@ setMethod("dbExistsTable",
 setMethod("dbWriteTable",
           signature("DatabaseConnectorConnection", "character", "data.frame"),
           function(conn,
-                   name,
-                   value,
-                   overwrite = FALSE,
-                   append = FALSE,
-                   temporary = FALSE,
-                   oracleTempSchema = NULL,
-                   ...) {
+                   name, value, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, ...) {
             if (overwrite)
               append <- FALSE
             insertTable(connection = conn,
@@ -465,8 +400,8 @@ setMethod("dbWriteTable",
                         data = value,
                         dropTableIfExists = overwrite,
                         createTable = !append,
-                        tempTable = temporary,
-                        oracleTempSchema = oracleTempSchema)
+                        
+                        tempTable = temporary, oracleTempSchema = oracleTempSchema)
             invisible(TRUE)
           })
 
@@ -480,19 +415,14 @@ setMethod("dbWriteTable",
 setMethod("dbAppendTable",
           signature("DatabaseConnectorConnection", "character", "data.frame"),
           function(conn,
-                   name,
-                   value,
-                   temporary = FALSE,
-                   oracleTempSchema = NULL,
-                   ...,
-                   row.names = NULL) {
+                   name, value, temporary = FALSE, oracleTempSchema = NULL, ..., row.names = NULL) {
             insertTable(connection = conn,
                         tableName = name,
                         data = value,
                         dropTableIfExists = FALSE,
                         createTable = FALSE,
-                        tempTable = temporary,
-                        oracleTempSchema = oracleTempSchema)
+                        
+                        tempTable = temporary, oracleTempSchema = oracleTempSchema)
             invisible(TRUE)
           })
 
@@ -506,53 +436,44 @@ setMethod("dbAppendTable",
 setMethod("dbCreateTable",
           signature("DatabaseConnectorConnection", "character", "data.frame"),
           function(conn,
-                   name,
-                   fields,
-                   oracleTempSchema = NULL,
-                   ...,
-                   row.names = NULL,
-                   temporary = FALSE) {
-            insertTable(connection = conn,
-                        tableName = name,
-                        data = fields[FALSE,],
-                        dropTableIfExists = TRUE,
-                        createTable = TRUE,
-                        tempTable = temporary,
-                        oracleTempSchema = oracleTempSchema)
+                   name, fields, oracleTempSchema = NULL, ..., row.names = NULL, temporary = FALSE) {
+            insertTable(connection = conn, tableName = name, data = fields[FALSE, ], dropTableIfExists = TRUE,
+                        createTable = TRUE, tempTable = temporary, oracleTempSchema = oracleTempSchema)
             invisible(TRUE)
           })
 
 #' @inherit
 #' DBI::dbReadTable title description params details references return seealso
-#' @param database           Name of the database.
-#' @param schema             Name of the schema.
-#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                            emulate temp tables, provide a schema with write privileges where temp tables
-#'                            can be created.
+#' @param database              Name of the database.
+#' @param schema                Name of the schema.
+#' @param oracleTempSchema      DEPRECATED: use \code{tempEmulationSchema} instead.
+#' @param tempEmulationSchema   Some database platforms like Oracle and Impala do not truly support
+#'                              temp tables. To emulate temp tables, provide a schema with write
+#'                              privileges where temp tables can be created.
 #' @export
-setMethod("dbReadTable",
-          signature("DatabaseConnectorConnection", "character"),
-          function(conn, name, database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
-            if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-              warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-                   .frequency = "regularly",
-                   .frequency_id = "oracleTempSchema")
-              tempEmulationSchema <- oracleTempSchema
-            }
-            if (!is.null(schema)) {
-              name <- paste(schema, name, sep = ".")
-            }
-            if (!is.null(database)) {
-              name <- paste(database, name, sep = ".")
-            }
-            sql <- "SELECT * FROM @table;"
-            sql <- SqlRender::render(sql = sql, table = name)
-            sql <- SqlRender::translate(sql = sql,
-                                        targetDialect = conn@dbms,
-                                        tempEmulationSchema = tempEmulationSchema)
-            return(lowLevelQuerySql(conn, sql))
-          })
+setMethod("dbReadTable", signature("DatabaseConnectorConnection", "character"), function(conn, name,
+                                                                                         database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                                                         ...) {
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         
+         .frequency_id = "oracleTempSchema")
+    tempEmulationSchema <- oracleTempSchema
+  }
+  if (!is.null(schema)) {
+    name <- paste(schema, name, sep = ".")
+  }
+  if (!is.null(database)) {
+    name <- paste(database, name, sep = ".")
+  }
+  sql <- "SELECT * FROM @table;"
+  sql <- SqlRender::render(sql = sql, table = name)
+  sql <- SqlRender::translate(sql = sql,
+                              targetDialect = conn@dbms,
+                              tempEmulationSchema = tempEmulationSchema)
+  return(lowLevelQuerySql(conn, sql))
+})
 
 #' @inherit
 #' DBI::dbRemoveTable title description params details references return seealso
@@ -563,7 +484,8 @@ setMethod("dbReadTable",
 #' @export
 setMethod("dbRemoveTable",
           signature("DatabaseConnectorConnection", "character"),
-          function(conn, name, database = NULL, schema = NULL, oracleTempSchema = NULL, ...) {
+          function(conn, name,
+                   database = NULL, schema = NULL, oracleTempSchema = NULL, ...) {
             if (!is.null(schema)) {
               name <- paste(schema, name, sep = ".")
             }

@@ -25,7 +25,8 @@ conn <- dbConnect(DatabaseConnectorDriver(),
                   dbms = "postgresql",
                   server = "localhost/ohdsi",
                   user = "joe",
-                  password = "secret")
+
+  password = "secret")
 querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 dbDisconnect(conn)
 }

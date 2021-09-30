@@ -11,11 +11,9 @@ renderTranslateQueryApplyBatched(
   args = list(),
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
-  oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
-  returnResultsData = FALSE,
   ...
 )
 }
@@ -24,16 +22,14 @@ renderTranslateQueryApplyBatched(
 
 \item{sql}{The SQL to be send.}
 
-\item{fun}{Function to apply to batch. Must take data.frame and integer position as parameters}
+\item{fun}{Function to apply to batch. Must take data.frame and integer position as parameters.}
 
-\item{args}{List of arguments to be passed to function call}
+\item{args}{List of arguments to be passed to function call.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
-
-\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
@@ -45,13 +41,10 @@ can be created.}
 \item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 64-bit integers will be represented using \code{bit64::integer64}.}
 
-\item{returnResultsData}{Locial: should the full data.frame be returned. Not ideal if this would fill up
-system memory.}
-
 \item{...}{Parameters that will be used to render the SQL.}
 }
 \value{
-A data frame.
+Invisibly returns a list of outputs from each call to the provided function.
 }
 \description{
 This function renders, and translates SQL, sends it to the server, processes the data in batches with a call back
@@ -71,16 +64,21 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              user = "root",
                                              password = "blah",
                                              schema = "cdm_v4")
+connection <- connect(connectionDetails)
+                                             
+# First example: write data to a large CSV file:
 filepath <- "myBigFile.csv"
-writeBatches <- function(data, position, ...) {
-    write.csv(data, filepath, append=position != 1)
+writeBatchesToCsv <- function(data, position, ...) {
+    write.csv(data, filepath, append = position != 1)
+    return(NULL)
 }
 renderTranslateQueryApplyBatched(connection,
-                                 "SELECT * FROM @schema.person",
+                                 "SELECT * FROM @schema.person;",
                                  schema = "cdm_synpuf",
-                                 fun = writeBatches)
+                                 fun = writeBatchesToCsv)
 
-# Alternative to querySqlToAndromeda if some process is computed
+# Second example: write data to Andromeda
+# (Alternative to querySqlToAndromeda if some local computation needs to be applied)
 bigResults <- Andromeda::andromeda()
 writeBatchesToAndromeda <- function(data, position, ...) {
     data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
@@ -89,13 +87,16 @@ writeBatchesToAndromeda <- function(data, position, ...) {
     } else {
         Andromeda::appendToTable(bigResults$rrs, data)
     }
+    return(NULL)
 }
+sql <- "SELECT target_id, comparator_id, log_rr, log_se_rr FROM @schema.my_results;"
 renderTranslateQueryApplyBatched(connection,
-                                 "SELECT target_id, comparator_id, log_rr, log_se_rr FROM @schema.my_results",
+                                 sql,
                                  fun = writeBatchesToAndromeda
-                                 schema = "my_resutls",
+                                 schema = "my_results",
                                  snakeCaseToCamelCase = TRUE)
 
-disconnect(conn)
+disconnect(connection)
 }
+
 }

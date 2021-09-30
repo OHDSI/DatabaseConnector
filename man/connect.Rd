@@ -17,7 +17,8 @@
   \item {"netezza" for IBM Netezza}
   \item {"bigquery" for Google BigQuery}
   \item {"sqlite" for SQLite}
-  \item {"sqlite extended" for SQLite with extended types (DATE and DATETIME)}
+  \item {"sqlite extended" for SQLite with extended types (DATE and
+        DATETIME)}
   \item {"spark" for Spark}
 }}
 
@@ -65,8 +66,7 @@ This function creates a connection to a database.
 }
 \section{DBMS parameter details}{
  Depending on the DBMS, the function arguments have slightly different
-interpretations:
-Oracle:
+interpretations: Oracle:
 \itemize{
   \item \code{user}. The user name used to access the server
   \item \code{password}. The password for that user
@@ -152,7 +152,8 @@ SQLite:
 }
 Spark:
 \itemize{
-  \item \code{connectionString}. The connection string (e.g. starting with 'jdbc:spark://my-org.dev.cloud.databricks.com...').
+  \item \code{connectionString}. The connection string (e.g. starting with
+        'jdbc:spark://my-org.dev.cloud.databricks.com...').
   \item \code{user}. The user name used to access the server.
   \item \code{password}. The password for that user.
 }
