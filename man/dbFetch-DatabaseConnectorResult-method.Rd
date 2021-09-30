@@ -4,13 +4,16 @@
 \alias{dbFetch,DatabaseConnectorResult-method}
 \title{Fetch records from a previously executed query}
 \usage{
-\S4method{dbFetch}{DatabaseConnectorResult}(res, datesAsString = FALSE, ...)
+\S4method{dbFetch}{DatabaseConnectorResult}(res, n = -1, ...)
 }
 \arguments{
 \item{res}{An object inheriting from \linkS4class{DBIResult}, created by
 \code{\link[DBI:dbSendQuery]{dbSendQuery()}}.}
 
-\item{datesAsString}{Should dates be represented as strings? (instead of Date objects)}
+\item{n}{maximum number of records to retrieve per fetch. Use \code{n = -1}
+or \code{n = Inf}
+to retrieve all pending records.  Some implementations may recognize other
+special values.}
 
 \item{...}{Other arguments passed on to methods.}
 }

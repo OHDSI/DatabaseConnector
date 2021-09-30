@@ -104,8 +104,7 @@ lowLevelQuerySql.default <- function(connection,
                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     abort("Connection is closed")
-  
-  
+
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
                                query,
@@ -117,67 +116,17 @@ lowLevelQuerySql.default <- function(connection,
   if (any(columnTypes == 5)) {
     validateInt64Query()
   }
-  columns <- vector("list", length(columnTypes))
+  columns <- data.frame()
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 1) {
-        column <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getNumeric",
-                                as.integer(i))
-        # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
-        column[is.nan(column)] <- NA
-        columns[[i]] <- c(columns[[i]], column)
-      } else if (columnTypes[i] == 5) {
-        column <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getInteger64",
-                                as.integer(i)) 
-        oldClass(column) <- "integer64"
-        if (is.null(columns[[i]])) {
-          columns[[i]] <- column
-        } else {
-          columns[[i]] <- c(columns[[i]], column)
-        }
-      } else if (columnTypes[i] == 6) {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery,
-                                        "[I",
-                                        "getInteger",
-                                        as.integer(i)))
-      } else {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
-      }
-    }
+    batch <- parseJdbcColumnData(batchedQuery,
+                                 columnTypes = columnTypes,
+                                 datesAsString = datesAsString,
+                                 integer64AsNumeric = integer64AsNumeric,
+                                 integerAsNumeric = integerAsNumeric)
+
+    columns <- rbind(columns, batch)
   }
-  if (!datesAsString) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 3) {
-        columns[[i]] <- as.Date(columns[[i]])
-      } else if (columnTypes[i] == 4) {
-        columns[[i]] <- as.POSIXct(columns[[i]])
-      }
-    }
-  }
-  if (integerAsNumeric) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 6) {
-        columns[[i]] <- as.numeric(columns[[i]])
-      } 
-    }
-  }
-  if (integer64AsNumeric) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 5) {
-        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
-      } 
-    }
-  }
-  names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
-  attr(columns, "row.names") <- c(NA_integer_, length(columns[[1]]))
-  class(columns) <- "data.frame"
   return(columns)
 }
 
@@ -703,4 +652,195 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE){
     warn(paste(paste(badSqlNames, collapse = ","), "are reserved keywords in SQL and should not be used as table or field names."))
   } 
   return(nameIsReserved)
+}
+
+#' Render, translate, and perform process to batches of data.
+#'
+#' @description
+#' This function renders, and translates SQL, sends it to the server, processes the data in batches with a call back
+#' function. Note that this function should perform a row-wise operation. This is designed to work with massive data
+#' that won't fit in to memory.
+#'
+#' The batch sizes are determined by the java virtual machine and will depend on the data.
+#'
+#' @param connection           The connection to the database server.
+#' @param sql                  The SQL to be send.
+#' @param fun                  Function to apply to batch. Must take data.frame and integer position as parameters
+#' @param args                 List of arguments to be passed to function call
+#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
+#'                             'errorReportSql.txt' in the current working directory.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @param oracleTempSchema     DEPRECATED: use \code{tempEmulationSchema} instead.
+#' @param tempEmulationSchema  Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                             emulate temp tables, provide a schema with write privileges where temp tables
+#'                             can be created.
+#' @param integerAsNumeric     Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                             32-bit integers will be represented using R's native \code{Integer} class.
+#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                             64-bit integers will be represented using \code{bit64::integer64}.
+#' @param returnResultsData    Locial: should the full data.frame be returned. Not ideal if this would fill up
+#'                             system memory.
+#' @param ...                  Parameters that will be used to render the SQL.
+#'
+#' @details
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
+#' calling \code{\link{querySql}}.
+#'
+#' @return
+#' A data frame.
+#'
+#' @examples
+#' \dontrun{
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#'                                              server = "localhost",
+#'                                              user = "root",
+#'                                              password = "blah",
+#'                                              schema = "cdm_v4")
+#' filepath <- "myBigFile.csv"
+#' writeBatches <- function(data, position, ...) {
+#'     write.csv(data, filepath, append=position != 1)
+#' }
+#' renderTranslateQueryApplyBatched(connection,
+#'                                  "SELECT * FROM @schema.person",
+#'                                  schema = "cdm_synpuf",
+#'                                  fun = writeBatches)
+#'
+#' # Alternative to querySqlToAndromeda if some process is computed
+#' bigResults <- Andromeda::andromeda()
+#' writeBatchesToAndromeda <- function(data, position, ...) {
+#'     data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
+#'     if (position == 1) {
+#'         bigResults$rrs <- data
+#'     } else {
+#'         Andromeda::appendToTable(bigResults$rrs, data)
+#'     }
+#' }
+#' renderTranslateQueryApplyBatched(connection,
+#'                                  "SELECT target_id, comparator_id, log_rr, log_se_rr FROM @schema.my_results",
+#'                                  fun = writeBatchesToAndromeda
+#'                                  schema = "my_resutls",
+#'                                  snakeCaseToCamelCase = TRUE)
+#'
+#' disconnect(conn)
+#' }
+#' @export
+renderTranslateQueryApplyBatched <- function(connection,
+                                             sql,
+                                             fun,
+                                             args = list(),
+                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                             snakeCaseToCamelCase = FALSE,
+                                             oracleTempSchema = NULL,
+                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                             returnResultsData = FALSE,
+                                             ...) {
+  UseMethod("renderTranslateQueryApplyBatched", connection)
+}
+
+#' @export
+renderTranslateQueryApplyBatched.default <- function(connection,
+                                                     sql,
+                                                     fun,
+                                                     args = list(),
+                                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                                     snakeCaseToCamelCase = FALSE,
+                                                     oracleTempSchema = NULL,
+                                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                                     returnResultsData = FALSE,
+                                                     ...) {
+
+  if (!is.function(fun))
+    abort("fun argument must be a function")
+
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema")
+    tempEmulationSchema <- oracleTempSchema
+  }
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+
+  tryCatch({
+    queryResult <- dbSendQuery(connection, sql)
+  }, error = function(err) {
+    .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+  })
+  on.exit(dbClearResult(queryResult))
+
+  columnTypes <- rJava::.jcall(queryResult@content, "[I", "getColumnTypes")
+  if (any(columnTypes == 5)) {
+    validateInt64Query()
+  }
+
+  if (returnResultsData)
+    result <- data.frame()
+
+  position <- 1
+  while (!rJava::.jcall(queryResult@content, "Z", "isDone")) {
+    batch <- dbFetch(queryResult,
+                     columnTypes = columnTypes,
+                     integerAsNumeric = integerAsNumeric,
+                     integer64AsNumeric = integer64AsNumeric)
+    if (snakeCaseToCamelCase)
+      colnames(batch) <- SqlRender::snakeCaseToCamelCase(colnames(batch))
+
+    batch <- do.call(fun, append(list(batch, position), args))
+    position <- position + nrow(batch)
+    if (returnResultsData) {
+      result <- rbind(result, batch)
+    }
+  }
+
+  if (returnResultsData)
+    return(result)
+
+  invisible(NULL)
+}
+
+
+#' @export
+renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(connection,
+                                                                            sql,
+                                                                            fun,
+                                                                            args = list(),
+                                                                            errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                                                            snakeCaseToCamelCase = FALSE,
+                                                                            oracleTempSchema = NULL,
+                                                                            tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                                            integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                                                            integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                                                            returnResultsData = FALSE,
+                                                                            ...) {
+
+  if (!is.function(fun))
+    abort("fun argument must be a function")
+
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema")
+    tempEmulationSchema <- oracleTempSchema
+  }
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  results <- lowLevelQuerySql(connection,
+                              sql,
+                              integerAsNumeric = integerAsNumeric,
+                              integer64AsNumeric = integer64AsNumeric)
+  if (snakeCaseToCamelCase)
+    colnames(results) <- SqlRender::snakeCaseToCamelCase(colnames(results))
+
+  # Note that the DBI connection implementation only ever processes a single batch
+  position <- 1
+  results <- do.call(fun, append(list(results, position), args))
+
+  if (returnResultsData)
+    return(results)
+
+  invisible(NULL)
 }

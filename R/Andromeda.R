@@ -70,6 +70,7 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                                                                default = TRUE)) {
   if (rJava::is.jnull(connection@jConnection))
     stop("Connection is closed")
+
   batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
                                connection@jConnection,
                                query,
@@ -86,44 +87,12 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
   first <- TRUE
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
-    batch <- vector("list", length(columnTypes))
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 1) {
-        column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
-        # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
-        column[is.nan(column)] <- NA
-        batch[[i]] <- column
-      } else if (columnTypes[i] == 5) {
-        column <- rJava::.jcall(batchedQuery, "[D", "getInteger64", as.integer(i))
-        oldClass(column) <- "integer64"
-        if (integer64AsNumeric) {
-          batch[[i]] <- convertInteger64ToNumeric(column)
-        } else {
-          batch[[i]] <- column
-        }
-      } else if (columnTypes[i] == 6) {
-        column <- rJava::.jcall(batchedQuery, "[I", "getInteger", as.integer(i))
-        if (integerAsNumeric) {
-          batch[[i]] <- as.numeric(column)
-        } else {
-          batch[[i]] <- column
-        }
-      } else {
-        batch[[i]] <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i)
-        if (!datesAsString) {
-          if (columnTypes[i] == 3) {
-          batch[[i]] <- as.Date(batch[[i]])
-          } else if (columnTypes[i] == 4) {
-          batch[[i]] <- as.POSIXct(batch[[i]])
-          }
-        }
-      }
+    batch <- parseJdbcColumnData(batchedQuery,
+                                 columnTypes = columnTypes,
+                                 datesAsString = datesAsString,
+                                 integer64AsNumeric = integer64AsNumeric,
+                                 integerAsNumeric = integerAsNumeric)
 
-    }
-    names(batch) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
-
-    # More efficient than as.data.frame, as it avoids converting row.names to character:
-    batch <- structure(batch, class = "data.frame", row.names = seq_len(length(batch[[1]])))
     RSQLite::dbWriteTable(conn = andromeda,
                           name = andromedaTableName,
                           value = batch,
@@ -144,10 +113,12 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                                                     default = TRUE),
                                                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
                                                                                                       default = TRUE)) {
+
   results <- lowLevelQuerySql(connection,
                               query,
                               integerAsNumeric = integerAsNumeric,
                               integer64AsNumeric = integer64AsNumeric)
+
   RSQLite::dbWriteTable(conn = andromeda,
                         name = andromedaTableName,
                         value = results,
