@@ -19,6 +19,8 @@ Bugfixes:
 
 3. Fixing `insertTable()` when using a `databaseSchema` argument on SQLite.
 
+4. Fixing `insertTable()` for inserting into temp table on RedShift when table name does not start with '#'.
+
 
 DatabaseConnector 4.0.2
 =======================

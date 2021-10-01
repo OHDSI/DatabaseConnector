@@ -17,7 +17,7 @@
 # limitations under the License.
 
 
-mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, tempEmulationSchema) {
+mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, tempTable, tempEmulationSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", sqlFieldNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
   sql <- paste(distribution,
@@ -31,6 +31,9 @@ mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, d
                ";",
                sep = "")
   sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  if (tempTable && connection@dbms == "redshift") {
+    sql <- gsub("CREATE TABLE", "CREATE TEMP TABLE", sql)
+  }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   # Drop source tables:
@@ -100,7 +103,13 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
     }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, sqlFieldNames, tempNames, distribution, tempEmulationSchema)
+      mergeTempTables(connection = connection, 
+                      tableName = mergedName, 
+                      sqlFieldNames = sqlFieldNames, 
+                      sourceNames = tempNames, 
+                      distribution = distribution, 
+                      tempTable = TRUE, 
+                      tempEmulationSchema = tempEmulationSchema)
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
@@ -139,5 +148,11 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
     setTxtProgressBar(pb, 1)
     close(pb)
   }
-  mergeTempTables(connection, sqlTableName, sqlFieldNames, tempNames, distribution, tempEmulationSchema)
+  mergeTempTables(connection = connection, 
+                  tableName = sqlTableName, 
+                  sqlFieldNames = sqlFieldNames, 
+                  sourceNames = tempNames, 
+                  distribution = distribution, 
+                  tempTable = tempTable, 
+                  tempEmulationSchema = tempEmulationSchema)
 }
