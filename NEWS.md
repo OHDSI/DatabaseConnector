@@ -11,6 +11,8 @@ Changes:
 
 4. Adding `renderTranslateQueryApplyBatched()` function.
 
+5. Throw informative error when provided `dbms` argument does not match any of the expected values.
+
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.

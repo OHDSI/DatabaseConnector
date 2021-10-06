@@ -195,3 +195,8 @@ test_that("Open and close connection using connection strings with separate user
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
   expect_true(disconnect(connection))
 })
+
+test_that("Error is thrown when using incorrect dbms argument", {
+  expect_error(createConnectionDetails(dbms = "foobar"), "DBMS 'foobar' not supported")
+  expect_error(connect(dbms = "foobar"), "DBMS 'foobar' not supported")
+})

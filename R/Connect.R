@@ -16,6 +16,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+checkIfDbmsIsSupported <- function(dbms) {
+  supportedDbmss <- c("oracle",
+                      "postgresql",
+                      "redshift",
+                      "sql server",
+                      "pdw",
+                      "netezza",
+                      "bigquery",
+                      "sqlite",
+                      "sqlite extended",
+                      "spark")
+  if (!dbms %in% supportedDbmss) {
+    abort(sprintf("DBMS '%s' not supported. Please use one of these values: '%s'",
+                  dbms,
+                  paste(supportedDbmss, collapse = "', '")))
+  }
+}
+
 #' @title
 #' createConnectionDetails
 #'
@@ -64,14 +82,15 @@ createConnectionDetails <- function(dbms,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
                                     pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  checkIfDbmsIsSupported(dbms)
   pathToDriver <- path.expand(pathToDriver)
   if (!dir.exists(pathToDriver) && !dbms %in% c("sqlite", "sqlite extended")) { 
     if (file.exists(pathToDriver)) {
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
     } else {
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                  "Please set the folder to the location containing the JDBC driver.",
-                  "You can download most drivers using the `downloadJdbcDrivers()` function."))
+                   "Please set the folder to the location containing the JDBC driver.",
+                   "You can download most drivers using the `downloadJdbcDrivers()` function."))
     }
   }
   
@@ -178,6 +197,7 @@ connect <- function(connectionDetails = NULL,
     
     return(connection)
   }
+  checkIfDbmsIsSupported(dbms)
   
   pathToDriver <- path.expand(pathToDriver)
   if (!dir.exists(pathToDriver) && !dbms %in% c("sqlite", "sqlite extended")) { 
@@ -185,8 +205,8 @@ connect <- function(connectionDetails = NULL,
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
     } else {
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                  "Please set the folder to the location containing the JDBC driver.",
-                  "You can download most drivers using the `downloadJdbcDrivers()` function."))
+                   "Please set the folder to the location containing the JDBC driver.",
+                   "You can download most drivers using the `downloadJdbcDrivers()` function."))
     }
   }
   
