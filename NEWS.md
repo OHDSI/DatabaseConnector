@@ -13,6 +13,8 @@ Changes:
 
 5. Throw informative error when provided `dbms` argument does not match any of the expected values.
 
+6. Adding `getAvailableJavaHeapSpace()` function for debugging purposes.
+
 Bugfixes: 
 
 1. Fixing field type of numeric fields on Oracle when fetching data.

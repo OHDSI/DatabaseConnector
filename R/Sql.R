@@ -16,6 +16,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Get available Java heap space
+#' 
+#' @description 
+#' For debugging purposes: get the available Java heap space.
+#' 
+#' @return
+#' The Java heap space (in bytes).
+#' 
+#' @export
+getAvailableJavaHeapSpace <- function() {
+  availableSpace <- rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$getAvailableHeapSpace()
+  return(availableSpace)
+}
+
 .systemInfo <- function() {
   si <- sessionInfo()
   lines <- c()

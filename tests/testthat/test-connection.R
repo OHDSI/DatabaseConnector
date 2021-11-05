@@ -200,3 +200,7 @@ test_that("Error is thrown when using incorrect dbms argument", {
   expect_error(createConnectionDetails(dbms = "foobar"), "DBMS 'foobar' not supported")
   expect_error(connect(dbms = "foobar"), "DBMS 'foobar' not supported")
 })
+
+test_that("getAvailableJavaHeapSpace returns a positive number", {
+  expect_gt(getAvailableJavaHeapSpace(), 0)
+})

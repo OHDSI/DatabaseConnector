@@ -1,5 +1,6 @@
 package org.ohdsi.databaseConnector;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -37,10 +38,12 @@ public class BatchedQuery {
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
-		byteBuffer.clear();
+		// Must cast to Buffer to avoid java.lang.NoSuchMethodError: java.nio.ByteBuffer.clear() on Java 8:
+		((Buffer)byteBuffer).clear();
 		for (int i = 0; i < value.length; i++)
 			byteBuffer.putLong(value[i]);
-		byteBuffer.flip();
+		// Must cast to Buffer to avoid java.lang.NoSuchMethodError: java.nio.ByteBuffer.flip() on Java 8:
+		((Buffer)byteBuffer).flip();
 		for (int i = 0; i < value.length; i++)
 			result[i] = byteBuffer.getDouble();
 		return result;
@@ -51,9 +54,13 @@ public class BatchedQuery {
 		return convertToInteger64ForR(values, ByteBuffer.allocate(8 * values.length));
 	}
 	
-	private void reserveMemory() {
+	public static double getAvailableHeapSpace() {
 		System.gc();
-		long available = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+		return Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+	}
+	
+	private void reserveMemory() {
+		double available = getAvailableHeapSpace();
 		int bytesPerRow = 0;
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
@@ -175,7 +182,7 @@ public class BatchedQuery {
 		try {
 			resultSet.close();
 			columns = null;
-			finalize();
+			byteBuffer = null;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (Throwable e) {
