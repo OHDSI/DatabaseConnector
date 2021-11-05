@@ -99,6 +99,12 @@ jobs:
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
         
+      - name: Ensure makeindex is installed
+        run: |
+          tinytex::check_installed("makeindex")
+          tinytex::tlmgr_install("makeindex")
+        shell: Rscript {0}
+        
       - name: Install covr
         if: runner.os == 'macOS'
         run: |
