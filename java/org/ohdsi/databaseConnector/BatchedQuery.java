@@ -1,6 +1,5 @@
 package org.ohdsi.databaseConnector;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,12 +37,10 @@ public class BatchedQuery {
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
-		// Must cast to Buffer to avoid java.lang.NoSuchMethodError: java.nio.ByteBuffer.clear() on Java 8:
-		((Buffer)byteBuffer).clear();
+		byteBuffer.clear();
 		for (int i = 0; i < value.length; i++)
 			byteBuffer.putLong(value[i]);
-		// Must cast to Buffer to avoid java.lang.NoSuchMethodError: java.nio.ByteBuffer.flip() on Java 8:
-		((Buffer)byteBuffer).flip();
+		byteBuffer.flip();
 		for (int i = 0; i < value.length; i++)
 			result[i] = byteBuffer.getDouble();
 		return result;
