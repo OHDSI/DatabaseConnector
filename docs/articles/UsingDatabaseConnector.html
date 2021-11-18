@@ -82,13 +82,13 @@
 
       
 
-      </header><script src="UsingDatabaseConnector_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><script src="UsingDatabaseConnector_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using DatabaseConnector</h1>
                         <h4 class="author">Martijn J. Schuemie</h4>
             
-            <h4 class="date">2021-11-17</h4>
+            <h4 class="date">2021-11-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/master/vignettes/UsingDatabaseConnector.Rmd"><code>vignettes/UsingDatabaseConnector.Rmd</code></a></small>
       <div class="hidden name"><code>UsingDatabaseConnector.Rmd</code></div>
@@ -119,9 +119,9 @@
 <h1 class="hasAnchor">
 <a href="#obtaining-drivers" class="anchor"></a>Obtaining drivers</h1>
 <p>Before DatabaseConnector can be used to connect to a database, the drivers need to be downloaded to a location in the local file system.</p>
-<div id="obtaining-drivers-for-sql-server-oracle-postgresql-pdw-redshift" class="section level2">
+<div id="obtaining-drivers-for-sql-server-oracle-postgresql-pdw-spark-redshift" class="section level2">
 <h2 class="hasAnchor">
-<a href="#obtaining-drivers-for-sql-server-oracle-postgresql-pdw-redshift" class="anchor"></a>Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, RedShift</h2>
+<a href="#obtaining-drivers-for-sql-server-oracle-postgresql-pdw-spark-redshift" class="anchor"></a>Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift</h2>
 <p>For your convenience these JDBC drivers are hosted on the OHDSI GitHub pages, and can be downloaded using the <code>downloadJdbcDrivers</code> function. Before downloading, we need to specify the location on the local file system where the driver can be stored. We recommend setting the <code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable to the folder where the drivers are stored.</p>
 <p>For example, in this vignette we will use the PostgreSQL driver. We specify the local folder we’d like to use for storing the PostgreSQL driver:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">

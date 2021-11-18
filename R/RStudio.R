@@ -3,13 +3,13 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,27 +30,33 @@ registerWithRStudio <- function(connection) {
       i <- i + 1
       displayName <- paste0(server, " (", i, ")")
     }
-    registeredDisplayNames <- rbind(registeredDisplayNames,
-                                    data.frame(uuid = connection@uuid,
-                                               displayName = displayName,
-                                               stringsAsFactors = FALSE))
+    registeredDisplayNames <- rbind(
+      registeredDisplayNames,
+      data.frame(
+        uuid = connection@uuid,
+        displayName = displayName,
+        stringsAsFactors = FALSE
+      )
+    )
     options(registeredDisplayNames = registeredDisplayNames)
-    observer$connectionOpened(type = compileTypeLabel(connection),
-                              displayName = displayName,
-                              host = displayName,
-                              connectCode = compileReconnectCode(connection),
-                              icon = "",
-                              disconnect = function() {
-                                disconnect(connection)
-                              }, listObjectTypes = function() {
-                                listDatabaseConnectorObjectTypes(connection)
-                              }, listObjects = function(...) {
-                                listDatabaseConnectorObjects(connection, ...)
-                              }, listColumns = function(...) {
-                                listDatabaseConnectorColumns(connection, ...)
-                              }, previewObject = function(rowLimit, ...) {
-                                previewObject(connection, rowLimit, ...)
-                              }, actions = connectionActions(connection), connectionObject = connection)
+    observer$connectionOpened(
+      type = compileTypeLabel(connection),
+      displayName = displayName,
+      host = displayName,
+      connectCode = compileReconnectCode(connection),
+      icon = "",
+      disconnect = function() {
+        disconnect(connection)
+      }, listObjectTypes = function() {
+        listDatabaseConnectorObjectTypes(connection)
+      }, listObjects = function(...) {
+        listDatabaseConnectorObjects(connection, ...)
+      }, listColumns = function(...) {
+        listDatabaseConnectorColumns(connection, ...)
+      }, previewObject = function(rowLimit, ...) {
+        previewObject(connection, rowLimit, ...)
+      }, actions = connectionActions(connection), connectionObject = connection
+    )
   }
 }
 
@@ -78,7 +84,7 @@ listDatabaseConnectorColumns <- function(connection,
                                          schema = NULL,
                                          table = NULL,
                                          ...) {
-  UseMethod("listDatabaseConnectorColumns", connection) 
+  UseMethod("listDatabaseConnectorColumns", connection)
 }
 
 listDatabaseConnectorColumns.default <- function(connection,
@@ -103,19 +109,23 @@ listDatabaseConnectorColumns.default <- function(connection,
       schema <- tolower(schema)
     }
   }
-  if (is.null(catalog))
+  if (is.null(catalog)) {
     catalog <- rJava::.jnull("java/lang/String")
-  if (is.null(schema))
+  }
+  if (is.null(schema)) {
     schema <- rJava::.jnull("java/lang/String")
-  
+  }
+
   metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-  resultSet <- rJava::.jcall(metaData,
-                             "Ljava/sql/ResultSet;",
-                             "getColumns",
-                             catalog,
-                             schema,
-                             table,
-                             rJava::.jnull("java/lang/String"))
+  resultSet <- rJava::.jcall(
+    metaData,
+    "Ljava/sql/ResultSet;",
+    "getColumns",
+    catalog,
+    schema,
+    table,
+    rJava::.jnull("java/lang/String")
+  )
   on.exit(rJava::.jcall(resultSet, "V", "close"))
   fields <- character()
   types <- character()
@@ -132,7 +142,7 @@ listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connecti
                                                                         table = NULL,
                                                                         ...) {
   res <- DBI::dbSendQuery(connection@dbiConnection, sprintf("SELECT * FROM %s LIMIT 0;", table))
-  info <- dbColumnInfo(res) 
+  info <- dbColumnInfo(res)
   dbClearResult(res)
   if (connection@dbms == "sqlite") {
     info$type[grepl("DATE$", info$name)] <- "date"
@@ -144,15 +154,19 @@ listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connecti
 listDatabaseConnectorObjects <- function(connection, catalog = NULL, schema = NULL, ...) {
   if (is.null(catalog) && hasCatalogs(connection)) {
     catalogs <- getCatalogs(connection)
-    return(data.frame(name = catalogs,
-                      type = rep("catalog", times = length(catalogs)),
-                      stringsAsFactors = FALSE))
+    return(data.frame(
+      name = catalogs,
+      type = rep("catalog", times = length(catalogs)),
+      stringsAsFactors = FALSE
+    ))
   }
   if (is.null(schema)) {
     schemas <- getSchemaNames(connection, catalog)
-    return(data.frame(name = schemas,
-                      type = rep("schema", times = length(schemas)),
-                      stringsAsFactors = FALSE))
+    return(data.frame(
+      name = schemas,
+      type = rep("schema", times = length(schemas)),
+      stringsAsFactors = FALSE
+    ))
   }
   if (!hasCatalogs(connection) || connection@dbms %in% c("postgresql", "redshift", "sqlite", "sqlite extended")) {
     databaseSchema <- schema
@@ -160,14 +174,18 @@ listDatabaseConnectorObjects <- function(connection, catalog = NULL, schema = NU
     databaseSchema <- paste(catalog, schema, sep = ".")
   }
   tables <- getTableNames(connection, databaseSchema)
-  return(data.frame(name = tables, 
-                    type = rep("table", times = length(tables)), 
-                    stringsAsFactors = FALSE))
+  return(data.frame(
+    name = tables,
+    type = rep("table", times = length(tables)),
+    stringsAsFactors = FALSE
+  ))
 }
 
 listDatabaseConnectorObjectTypes <- function(connection) {
-  types <- list(schema = list(contains = c(list(table = list(contains = "data")),
-                                           list(view = list(contains = "data")))))
+  types <- list(schema = list(contains = c(
+    list(table = list(contains = "data")),
+    list(view = list(contains = "data"))
+  )))
   if (hasCatalogs(connection)) {
     types <- list(catalog = list(contains = types))
   }
@@ -200,9 +218,11 @@ getServer.default <- function(connection) {
   if (connection@dbms == "hive") {
     url <- connection@url
   } else {
-    databaseMetaData <- rJava::.jcall(connection@jConnection,
-                                      "Ljava/sql/DatabaseMetaData;",
-                                      "getMetaData")
+    databaseMetaData <- rJava::.jcall(
+      connection@jConnection,
+      "Ljava/sql/DatabaseMetaData;",
+      "getMetaData"
+    )
     url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
   }
   server <- urltools::url_parse(url)$domain
@@ -218,27 +238,33 @@ compileReconnectCode <- function(connection) {
 }
 
 compileReconnectCode.default <- function(connection) {
-  databaseMetaData <- rJava::.jcall(connection@jConnection,
-                                    "Ljava/sql/DatabaseMetaData;",
-                                    "getMetaData")
-  if (connection@dbms == 'hive') {
+  databaseMetaData <- rJava::.jcall(
+    connection@jConnection,
+    "Ljava/sql/DatabaseMetaData;",
+    "getMetaData"
+  )
+  if (connection@dbms == "hive") {
     url <- connection@url
     user <- connection@user
   } else {
     url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
     user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
   }
-  code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
-                  connection@dbms,
-                  url,
-                  user)
+  code <- sprintf(
+    "library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
+    connection@dbms,
+    url,
+    user
+  )
   return(code)
 }
 
 compileReconnectCode.DatabaseConnectorDbiConnection <- function(connection) {
-  code <- sprintf("library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", server = \"%s\")", 
-                  connection@dbms,
-                  connection@server)
+  code <- sprintf(
+    "library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", server = \"%s\")",
+    connection@dbms,
+    connection@server
+  )
   return(code)
 }
 
@@ -247,14 +273,17 @@ getSchemaNames <- function(conn, catalog = NULL) {
 }
 
 getSchemaNames.default <- function(conn, catalog = NULL) {
-  if (is.null(catalog))
+  if (is.null(catalog)) {
     catalog <- rJava::.jnull("java/lang/String")
+  }
   metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-  resultSet <- rJava::.jcall(metaData,
-                             "Ljava/sql/ResultSet;",
-                             "getSchemas",
-                             catalog,
-                             rJava::.jnull("java/lang/String"))
+  resultSet <- rJava::.jcall(
+    metaData,
+    "Ljava/sql/ResultSet;",
+    "getSchemas",
+    catalog,
+    rJava::.jnull("java/lang/String")
+  )
   on.exit(rJava::.jcall(resultSet, "V", "close"))
   schemas <- character()
   while (rJava::.jcall(resultSet, "Z", "next")) {

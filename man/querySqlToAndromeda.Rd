@@ -59,16 +59,20 @@ database it is replaced.
 \examples{
 \dontrun{
 andromeda <- Andromeda::andromeda()
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 conn <- connect(connectionDetails)
-querySqlToAndromeda(connection = conn,
-                    sql = "SELECT * FROM person;",
-                    andromeda = andromeda,
-                    andromedaTableName = "foo")
+querySqlToAndromeda(
+  connection = conn,
+  sql = "SELECT * FROM person;",
+  andromeda = andromeda,
+  andromedaTableName = "foo"
+)
 disconnect(conn)
 
 andromeda$foo

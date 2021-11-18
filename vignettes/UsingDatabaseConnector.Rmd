@@ -42,7 +42,7 @@ Supported database platforms:
 
 Before DatabaseConnector can be used to connect to a database, the drivers need to be downloaded to a location in the local file system. 
 
-## Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, RedShift
+## Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift
 
 For your convenience these JDBC drivers are hosted on the OHDSI GitHub pages, and can be downloaded using the `downloadJdbcDrivers` function. Before downloading, we need to specify the location on the local file system where the driver can be stored. We recommend setting the `DATABASECONNECTOR_JAR_FOLDER` environmental variable to the folder where the drivers are stored. 
 

@@ -46,3 +46,12 @@ The package DatabaseConnector includes other software components. The following 
 
    Related JARs: RedshiftJDBC*.jar
    
+** Spark JDBC driver
+
+   Copyright © 2018: Simba Technologies Inc.
+
+   Project Website: https://docs.datastax.com/en/articles/jdbc/Simba_Spark_JDBC_Install_and_Configuration_Guide.pdf
+   License Information: https://www.datastax.com/legal/simba-odbcjdbc-driver-license-terms
+
+   Related JARs: SparkJDBC42.jar
+   

@@ -65,17 +65,20 @@ before calling \code{\link{querySqlToAndromeda}}.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 conn <- connect(connectionDetails)
 renderTranslatequerySqlToAndromeda(conn,
-                                   sql = "SELECT * FROM @schema.person",
-                                   schema = "cdm_synpuf",
-                                   andromeda = andromeda,
-                                   andromedaTableName = "foo")
+  sql = "SELECT * FROM @schema.person",
+  schema = "cdm_synpuf",
+  andromeda = andromeda,
+  andromedaTableName = "foo"
+)
 disconnect(conn)
 
 andromeda$foo

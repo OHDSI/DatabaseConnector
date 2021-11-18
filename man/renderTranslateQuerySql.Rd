@@ -47,20 +47,23 @@ A data frame.
 This function renders, and translates SQL, sends it to the server, and returns the results as a data.frame.
 }
 \details{
-This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+This function calls the \code{render} and \code{translate} functions in the SqlRender package before
 calling \code{\link{querySql}}.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 conn <- connect(connectionDetails)
-persons <- renderTranslatequerySql(conn, 
-                                   sql = "SELECT TOP 10 * FROM @schema.person",
-                                   schema = "cdm_synpuf")
+persons <- renderTranslatequerySql(conn,
+  sql = "SELECT TOP 10 * FROM @schema.person",
+  schema = "cdm_synpuf"
+)
 disconnect(conn)
 }
 }

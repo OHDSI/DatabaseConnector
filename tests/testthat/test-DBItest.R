@@ -1,13 +1,15 @@
-# Run only DBI tests with testthat::test_file("tests/testthat/test-DBItest.R") 
+# Run only DBI tests with testthat::test_file("tests/testthat/test-DBItest.R")
 
 port <- Sys.getenv("CDM5_POSTGRESQL_PORT")
-if(port == "") port <- "5432"
+if (port == "") port <- "5432"
 
-cdlist <- list(dbms = "postgresql",
-               server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-               user = Sys.getenv("CDM5_POSTGRESQL_USER"),
-               password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"),
-               port = port)
+cdlist <- list(
+  dbms = "postgresql",
+  server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
+  user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+  password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"),
+  port = port
+)
 
 
 default_skip <- c("package_name")
@@ -37,4 +39,3 @@ DBItest::test_driver(skip = c(
   "get_info_driver", # Need to implement dbGetInfo
   "connect_bigint.*" # Possibly need to fix bigint tests
 ))
-

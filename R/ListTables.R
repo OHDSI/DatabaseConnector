@@ -41,14 +41,14 @@ getTableNames <- function(connection, databaseSchema) {
     tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
     return(toupper(tables))
   }
-  
+
   if (is.null(databaseSchema)) {
     database <- rJava::.jnull("java/lang/String")
     schema <- rJava::.jnull("java/lang/String")
   } else {
     if (connection@dbms == "oracle") {
       databaseSchema <- toupper(databaseSchema)
-    } 
+    }
     if (connection@dbms == "redshift") {
       databaseSchema <- tolower(databaseSchema)
     }
@@ -69,17 +69,17 @@ getTableNames <- function(connection, databaseSchema) {
   metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   types <- rJava::.jarray(c("TABLE", "VIEW"))
   resultSet <- rJava::.jcall(metaData,
-                             "Ljava/sql/ResultSet;",
-                             "getTables",
-                             database,
-                             schema,
-                             rJava::.jnull("java/lang/String"),
-                             types,
-                             check = FALSE)
+    "Ljava/sql/ResultSet;",
+    "getTables",
+    database,
+    schema,
+    rJava::.jnull("java/lang/String"),
+    types,
+    check = FALSE
+  )
   tables <- character()
   while (rJava::.jcall(resultSet, "Z", "next")) {
     tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
   }
   return(toupper(tables))
-  
 }

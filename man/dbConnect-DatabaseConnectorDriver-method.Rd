@@ -22,11 +22,11 @@ a dummy driver needs to be specified
 \examples{
 \dontrun{
 conn <- dbConnect(DatabaseConnectorDriver(),
-                  dbms = "postgresql",
-                  server = "localhost/ohdsi",
-                  user = "joe",
-
-  password = "secret")
+  dbms = "postgresql",
+  server = "localhost/ohdsi",
+  user = "joe",
+  password = "secret"
+)
 querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 dbDisconnect(conn)
 }

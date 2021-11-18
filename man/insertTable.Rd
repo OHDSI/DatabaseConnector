@@ -42,8 +42,8 @@ be located.}
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
-\item{bulkLoad}{If using Redshift, PDW, Hive or Postgres, use more performant bulk loading 
-techniques. Does not work for temp tables (except for HIVE). See Details for 
+\item{bulkLoad}{If using Redshift, PDW, Hive or Postgres, use more performant bulk loading
+techniques. Does not work for temp tables (except for HIVE). See Details for
 requirements for the various platforms.}
 
 \item{useMppBulkLoad}{DEPRECATED. Use \code{bulkLoad} instead.}
@@ -60,54 +60,60 @@ is created, or the data is appended to an existing table.
 \details{
 This function sends the data in a data frame to a table on the server. Either a new table is
 created, or the data is appended to an existing table. NA values are inserted as null values in the
-database. 
+database.
 
-Bulk uploading: 
+Bulk uploading:
 
 Redshift: The MPP bulk loading relies upon the CloudyR S3 library
-to test a connection to an S3 bucket using AWS S3 credentials. Credentials are configured 
+to test a connection to an S3 bucket using AWS S3 credentials. Credentials are configured
 directly into the System Environment using the following keys: Sys.setenv("AWS_ACCESS_KEY_ID" =
 "some_access_key_id", "AWS_SECRET_ACCESS_KEY" = "some_secret_access_key", "AWS_DEFAULT_REGION" =
 "some_aws_region", "AWS_BUCKET_NAME" = "some_bucket_name", "AWS_OBJECT_KEY" = "some_object_key",
-"AWS_SSE_TYPE" = "server_side_encryption_type"). 
+"AWS_SSE_TYPE" = "server_side_encryption_type").
 
 PDW: The MPP bulk loading relies upon the client
 having a Windows OS and the DWLoader exe installed, and the following permissions granted: --Grant
 BULK Load permissions - needed at a server level USE master; GRANT ADMINISTER BULK OPERATIONS TO
 user; --Grant Staging database permissions - we will use the user db. USE scratch; EXEC
-sp_addrolemember 'db_ddladmin', user; Set the R environment variable DWLOADER_PATH to the location 
+sp_addrolemember 'db_ddladmin', user; Set the R environment variable DWLOADER_PATH to the location
 of the binary.
 
 PostgreSQL:
-Uses the 'pg' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres 
+Uses the 'pg' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
 binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "mysql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah")
+connectionDetails <- createConnectionDetails(
+  dbms = "mysql",
+  server = "localhost",
+  user = "root",
+  password = "blah"
+)
 conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
 insertTable(conn, "my_schema", "my_table", data)
 disconnect(conn)
 
 ## bulk data insert with Redshift or PDW
-connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v5")
+connectionDetails <- createConnectionDetails(
+  dbms = "redshift",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v5"
+)
 conn <- connect(connectionDetails)
 data <- data.frame(x = c(1, 2, 3), y = c("a", "b", "c"))
-insertTable(connection = connection,
-            databaseSchema = "scratch",
-            tableName = "somedata",
-            data = data,
-            dropTableIfExists = TRUE,
-            createTable = TRUE,
-            tempTable = FALSE,
-            bulkLoad = TRUE)  # or, Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)
+insertTable(
+  connection = connection,
+  databaseSchema = "scratch",
+  tableName = "somedata",
+  data = data,
+  dropTableIfExists = TRUE,
+  createTable = TRUE,
+  tempTable = FALSE,
+  bulkLoad = TRUE
+) # or, Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)
 }
 }

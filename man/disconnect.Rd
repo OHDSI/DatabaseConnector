@@ -14,10 +14,12 @@ Close the connection to the server.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah"
+)
 conn <- connect(connectionDetails)
 count <- querySql(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)

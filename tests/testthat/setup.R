@@ -9,9 +9,12 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   downloadJdbcDrivers("oracle")
   downloadJdbcDrivers("redshift")
   downloadJdbcDrivers("spark")
-  
-  withr::defer({
-    unlink(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), recursive = TRUE, force = TRUE)
-    Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = oldJarFolder)
-  }, testthat::teardown_env())
+
+  withr::defer(
+    {
+      unlink(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), recursive = TRUE, force = TRUE)
+      Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = oldJarFolder)
+    },
+    testthat::teardown_env()
+  )
 }

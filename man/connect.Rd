@@ -159,8 +159,7 @@ Spark:
 }
 
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
-driver. Download the .zip from
-\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15}{Microsoft}
+driver. Download the **version 9.2.0** .zip from [Microsoft](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases) 
 and extract its contents to a folder. In the extracted folder you will find the file
 sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or
 ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to
@@ -173,10 +172,12 @@ set before calling \code{connect} for the first time.
 
 \examples{
 \dontrun{
-conn <- connect(dbms = "postgresql",
-                server = "localhost/postgres",
-                user = "root",
-                password = "xxx")
+conn <- connect(
+  dbms = "postgresql",
+  server = "localhost/postgres",
+  user = "root",
+  password = "xxx"
+)
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)
 
@@ -184,18 +185,21 @@ conn <- connect(dbms = "sql server", server = "RNDUSRDHIT06.jnj.com")
 dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
 disconnect(conn)
 
-conn <- connect(dbms = "oracle",
-                server = "127.0.0.1/xe",
-                user = "system",
-                password = "xxx",
-                pathToDriver = "c:/temp")
+conn <- connect(
+  dbms = "oracle",
+  server = "127.0.0.1/xe",
+  user = "system",
+  password = "xxx",
+  pathToDriver = "c:/temp"
+)
 dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 disconnect(conn)
 
-conn <- connect(dbms = "postgresql",
-                connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
+conn <- connect(
+  dbms = "postgresql",
+  connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database"
+)
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)
-
 }
 }

@@ -59,42 +59,46 @@ calling \code{\link{querySql}}.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 connection <- connect(connectionDetails)
-                                             
+
 # First example: write data to a large CSV file:
 filepath <- "myBigFile.csv"
 writeBatchesToCsv <- function(data, position, ...) {
-    write.csv(data, filepath, append = position != 1)
-    return(NULL)
+  write.csv(data, filepath, append = position != 1)
+  return(NULL)
 }
 renderTranslateQueryApplyBatched(connection,
-                                 "SELECT * FROM @schema.person;",
-                                 schema = "cdm_synpuf",
-                                 fun = writeBatchesToCsv)
+  "SELECT * FROM @schema.person;",
+  schema = "cdm_synpuf",
+  fun = writeBatchesToCsv
+)
 
 # Second example: write data to Andromeda
 # (Alternative to querySqlToAndromeda if some local computation needs to be applied)
 bigResults <- Andromeda::andromeda()
 writeBatchesToAndromeda <- function(data, position, ...) {
-    data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
-    if (position == 1) {
-        bigResults$rrs <- data
-    } else {
-        Andromeda::appendToTable(bigResults$rrs, data)
-    }
-    return(NULL)
+  data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
+  if (position == 1) {
+    bigResults$rrs <- data
+  } else {
+    Andromeda::appendToTable(bigResults$rrs, data)
+  }
+  return(NULL)
 }
 sql <- "SELECT target_id, comparator_id, log_rr, log_se_rr FROM @schema.my_results;"
 renderTranslateQueryApplyBatched(connection,
-                                 sql,
-                                 fun = writeBatchesToAndromeda
-                                 schema = "my_results",
-                                 snakeCaseToCamelCase = TRUE)
+  sql,
+  fun = writeBatchesToAndromeda,
+  schema = "my_results",
+  snakeCaseToCamelCase = TRUE
+)
 
 disconnect(connection)
 }

@@ -213,7 +213,52 @@ can be created.</p></td>
 calling <code><a href='querySql.html'>querySql</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>connectionDetails</span> <span class='op'>&lt;-</span> <span class='fu'><a href='createConnectionDetails.html'>createConnectionDetails</a></span><span class='op'>(</span></span>
+<span class='r-in'>  dbms <span class='op'>=</span> <span class='st'>"postgresql"</span>,</span>
+<span class='r-in'>  server <span class='op'>=</span> <span class='st'>"localhost"</span>,</span>
+<span class='r-in'>  user <span class='op'>=</span> <span class='st'>"root"</span>,</span>
+<span class='r-in'>  password <span class='op'>=</span> <span class='st'>"blah"</span>,</span>
+<span class='r-in'>  schema <span class='op'>=</span> <span class='st'>"cdm_v4"</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>connection</span> <span class='op'>&lt;-</span> <span class='fu'><a href='connect.html'>connect</a></span><span class='op'>(</span><span class='va'>connectionDetails</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># First example: write data to a large CSV file:</span></span>
+<span class='r-in'><span class='va'>filepath</span> <span class='op'>&lt;-</span> <span class='st'>"myBigFile.csv"</span></span>
+<span class='r-in'><span class='va'>writeBatchesToCsv</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>position</span>, <span class='va'>...</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/utils/write.table.html'>write.csv</a></span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>filepath</span>, append <span class='op'>=</span> <span class='va'>position</span> <span class='op'>!=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='cn'>NULL</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'><span class='fu'>renderTranslateQueryApplyBatched</span><span class='op'>(</span><span class='va'>connection</span>,</span>
+<span class='r-in'>  <span class='st'>"SELECT * FROM @schema.person;"</span>,</span>
+<span class='r-in'>  schema <span class='op'>=</span> <span class='st'>"cdm_synpuf"</span>,</span>
+<span class='r-in'>  fun <span class='op'>=</span> <span class='va'>writeBatchesToCsv</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Second example: write data to Andromeda</span></span>
+<span class='r-in'><span class='co'># (Alternative to querySqlToAndromeda if some local computation needs to be applied)</span></span>
+<span class='r-in'><span class='va'>bigResults</span> <span class='op'>&lt;-</span> <span class='fu'>Andromeda</span><span class='fu'>::</span><span class='fu'><a href='https://ohdsi.github.io/Andromeda/reference/andromeda_constructor.html'>andromeda</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>writeBatchesToAndromeda</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>position</span>, <span class='va'>...</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='va'>data</span><span class='op'>$</span><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'>EmpiricalCalibration</span><span class='fu'>::</span><span class='fu'><a href='https://ohdsi.github.io/EmpiricalCalibration/reference/computeTraditionalP.html'>computeTraditionalP</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>$</span><span class='va'>logRr</span>, <span class='va'>data</span><span class='op'>$</span><span class='va'>logSeRr</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='kw'>if</span> <span class='op'>(</span><span class='va'>position</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>    <span class='va'>bigResults</span><span class='op'>$</span><span class='va'>rrs</span> <span class='op'>&lt;-</span> <span class='va'>data</span></span>
+<span class='r-in'>  <span class='op'>}</span> <span class='kw'>else</span> <span class='op'>{</span></span>
+<span class='r-in'>    <span class='fu'>Andromeda</span><span class='fu'>::</span><span class='fu'><a href='https://ohdsi.github.io/Andromeda/reference/appendToTable.html'>appendToTable</a></span><span class='op'>(</span><span class='va'>bigResults</span><span class='op'>$</span><span class='va'>rrs</span>, <span class='va'>data</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='op'>}</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='cn'>NULL</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'><span class='va'>sql</span> <span class='op'>&lt;-</span> <span class='st'>"SELECT target_id, comparator_id, log_rr, log_se_rr FROM @schema.my_results;"</span></span>
+<span class='r-in'><span class='fu'>renderTranslateQueryApplyBatched</span><span class='op'>(</span><span class='va'>connection</span>,</span>
+<span class='r-in'>  <span class='va'>sql</span>,</span>
+<span class='r-in'>  fun <span class='op'>=</span> <span class='va'>writeBatchesToAndromeda</span>,</span>
+<span class='r-in'>  schema <span class='op'>=</span> <span class='st'>"my_results"</span>,</span>
+<span class='r-in'>  snakeCaseToCamelCase <span class='op'>=</span> <span class='cn'>TRUE</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'><a href='disconnect.html'>disconnect</a></span><span class='op'>(</span><span class='va'>connection</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
