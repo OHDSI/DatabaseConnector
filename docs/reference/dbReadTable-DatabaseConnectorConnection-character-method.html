@@ -77,7 +77,7 @@ DatabaseConnector::dbReadTable(&quot;DatabaseConnectorConnection&quot;, &quot;ch
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -162,12 +162,12 @@ R identifiers.</p>
     <tr>
       <th>conn</th>
       <td><p>A DBIConnection object, as returned by
-<code><a href='https://rdrr.io/pkg/DBI/man/dbConnect.html'>dbConnect()</a></code>.</p></td>
+<code><a href='https://dbi.r-dbi.org/reference/dbConnect.html'>dbConnect()</a></code>.</p></td>
     </tr>
     <tr>
       <th>name</th>
       <td><p>A character string specifying the unquoted DBMS table name,
-or the result of a call to <code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>.</p></td>
+or the result of a call to <code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>.</p></td>
     </tr>
     <tr>
       <th>database</th>
@@ -183,9 +183,9 @@ or the result of a call to <code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteIde
     </tr>
     <tr>
       <th>tempEmulationSchema</th>
-      <td><p>Some database platforms like Oracle and Impala do not truly support temp tables. To
-emulate temp tables, provide a schema with write privileges where temp tables
-can be created.</p></td>
+      <td><p>Some database platforms like Oracle and Impala do not truly support
+temp tables. To emulate temp tables, provide a schema with write
+privileges where temp tables can be created.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -196,12 +196,12 @@ can be created.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p><code>dbReadTable()</code> returns a data frame that contains the complete data
-from the remote table, effectively the result of calling <code><a href='https://rdrr.io/pkg/DBI/man/dbGetQuery.html'>dbGetQuery()</a></code>
+from the remote table, effectively the result of calling <code><a href='https://dbi.r-dbi.org/reference/dbGetQuery.html'>dbGetQuery()</a></code>
 with <code>SELECT * FROM &lt;name&gt;</code>.
 An error is raised if the table does not exist.
 An empty table is returned as a data frame with zero rows.</p>
-<p>The presence of <a href='https://rdrr.io/pkg/DBI/man/rownames.html'>rownames</a> depends on the <code>row.names</code> argument,
-see <code><a href='https://rdrr.io/pkg/DBI/man/rownames.html'>sqlColumnToRownames()</a></code> for details:</p><ul>
+<p>The presence of <a href='https://dbi.r-dbi.org/reference/rownames.html'>rownames</a> depends on the <code>row.names</code> argument,
+see <code><a href='https://dbi.r-dbi.org/reference/rownames.html'>sqlColumnToRownames()</a></code> for details:</p><ul>
 <li><p>If <code>FALSE</code> or <code>NULL</code>, the returned data frame doesn't have row names.</p></li>
 <li><p>If <code>TRUE</code>, a column named "row_names" is converted to row names,
 an error is raised if no such column exists.</p></li>
@@ -221,7 +221,7 @@ If <code>check.names = FALSE</code>, the returned table has non-syntactic column
 <p>An error is raised when calling this method for a closed
 or invalid connection.
 An error is raised
-if <code>name</code> cannot be processed with <code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>
+if <code>name</code> cannot be processed with <code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>
 or if this results in a non-scalar.
 Unsupported values for <code>row.names</code> and <code>check.names</code>
 (non-scalars,
@@ -231,26 +231,26 @@ also raise an error.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other DBIConnection generics: 
-<code><a href='https://rdrr.io/pkg/DBI/man/DBIConnection-class.html'>DBIConnection-class</a></code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbAppendTable.html'>dbAppendTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbCreateTable.html'>dbCreateTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbDataType.html'>dbDataType</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbDisconnect.html'>dbDisconnect</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExistsTable.html'>dbExistsTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetException.html'>dbGetException</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetQuery.html'>dbGetQuery</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListFields.html'>dbListFields</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListObjects.html'>dbListObjects</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListResults.html'>dbListResults</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListTables.html'>dbListTables</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
+<code><a href='https://dbi.r-dbi.org/reference/DBIConnection-class.html'>DBIConnection-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbAppendTable.html'>dbAppendTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDataType.html'>dbDataType</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDisconnect.html'>dbDisconnect</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExistsTable.html'>dbExistsTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetException.html'>dbGetException</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetQuery.html'>dbGetQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListFields.html'>dbListFields</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListObjects.html'>dbListObjects</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListResults.html'>dbListResults</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListTables.html'>dbListTables</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

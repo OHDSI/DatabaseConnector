@@ -79,7 +79,7 @@ DatabaseConnector::dbGetQuery(&quot;DatabaseConnectorConnection&quot;, &quot;cha
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -142,8 +142,8 @@ DatabaseConnector::dbGetQuery(&quot;DatabaseConnectorConnection&quot;, &quot;cha
     <p>Returns the result of a query as a data frame.
 <code>dbGetQuery()</code> comes with a default implementation
 (which should work with most backends) that calls
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery()</a></code>, then <code><a href='https://rdrr.io/pkg/DBI/man/dbFetch.html'>dbFetch()</a></code>, ensuring that
-the result is always free-d by <code><a href='https://rdrr.io/pkg/DBI/man/dbClearResult.html'>dbClearResult()</a></code>.</p>
+<code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>, then <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code>, ensuring that
+the result is always free-d by <code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code>.</p>
 <p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Methods in other packages</h3><ul>
 <li><p><code>DatabaseConnector::dbGetQuery("DatabaseConnectorConnection", "character")</code></p></li>
 </ul></p>
@@ -158,7 +158,7 @@ the result is always free-d by <code><a href='https://rdrr.io/pkg/DBI/man/dbClea
     <tr>
       <th>conn</th>
       <td><p>A DBIConnection object, as returned by
-<code><a href='https://rdrr.io/pkg/DBI/man/dbConnect.html'>dbConnect()</a></code>.</p></td>
+<code><a href='https://dbi.r-dbi.org/reference/dbConnect.html'>dbConnect()</a></code>.</p></td>
     </tr>
     <tr>
       <th>statement</th>
@@ -191,35 +191,35 @@ but a subsequent call to <code>dbGetQuery()</code> with proper <code>n</code> ar
 (incl. other SQL statements that return a <code>SELECT</code>-alike result,
 e. g. execution of a stored procedure).</p>
 <p>To execute a stored procedure that does not return a result set,
-use <code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute()</a></code>.</p>
+use <code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute()</a></code>.</p>
 <p>Some backends may
 support data manipulation statements through this method for compatibility
 reasons.  However, callers are strongly advised to use
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute()</a></code> for data manipulation statements.</p>
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute()</a></code> for data manipulation statements.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>For updates: <code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement()</a></code> and <code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute()</a></code>.</p>
+    <div class='dont-index'><p>For updates: <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code> and <code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute()</a></code>.</p>
 <p>Other DBIConnection generics: 
-<code><a href='https://rdrr.io/pkg/DBI/man/DBIConnection-class.html'>DBIConnection-class</a></code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbAppendTable.html'>dbAppendTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbCreateTable.html'>dbCreateTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbDataType.html'>dbDataType</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbDisconnect.html'>dbDisconnect</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExistsTable.html'>dbExistsTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetException.html'>dbGetException</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListFields.html'>dbListFields</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListObjects.html'>dbListObjects</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListResults.html'>dbListResults</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListTables.html'>dbListTables</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbReadTable.html'>dbReadTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
+<code><a href='https://dbi.r-dbi.org/reference/DBIConnection-class.html'>DBIConnection-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbAppendTable.html'>dbAppendTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDataType.html'>dbDataType</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDisconnect.html'>dbDisconnect</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExistsTable.html'>dbExistsTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetException.html'>dbGetException</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListFields.html'>dbListFields</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListObjects.html'>dbListObjects</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListResults.html'>dbListResults</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListTables.html'>dbListTables</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbReadTable.html'>dbReadTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

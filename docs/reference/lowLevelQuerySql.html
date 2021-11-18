@@ -73,7 +73,7 @@ when an error occurs." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -141,6 +141,7 @@ when an error occurs.</p>
   <span class='va'>connection</span>,
   <span class='va'>query</span>,
   datesAsString <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  integerAsNumeric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"databaseConnectorIntegerAsNumeric"</span>, default <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
   integer64AsNumeric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"databaseConnectorInteger64AsNumeric"</span>, default <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='op'>)</span></pre>
 
@@ -159,6 +160,11 @@ when an error occurs.</p>
       <th>datesAsString</th>
       <td><p>Logical: Should dates be imported as character vectors, our should they be converted
 to R's date format?</p></td>
+    </tr>
+    <tr>
+      <th>integerAsNumeric</th>
+      <td><p>Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+32-bit integers will be represented using R's native <code>Integer</code> class.</p></td>
     </tr>
     <tr>
       <th>integer64AsNumeric</th>

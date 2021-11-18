@@ -25,7 +25,7 @@ unlink(folder, recursive = TRUE, force = TRUE)
 file.exists(folder)
 
 # Format and check code:
-OhdsiRTools::formatRFolder()
+styler::style_pkg()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()

@@ -73,7 +73,7 @@ written when an error occurs." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -143,6 +143,7 @@ written when an error occurs.</p>
   <span class='va'>andromeda</span>,
   <span class='va'>andromedaTableName</span>,
   datesAsString <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  integerAsNumeric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"databaseConnectorIntegerAsNumeric"</span>, default <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
   integer64AsNumeric <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"databaseConnectorInteger64AsNumeric"</span>, default <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='op'>)</span></pre>
 
@@ -159,32 +160,43 @@ written when an error occurs.</p>
     </tr>
     <tr>
       <th>andromeda</th>
-      <td><p>An open connection to a Andromeda database, for example as created using <code><a href='https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html'>andromeda</a></code>.</p></td>
+      <td><p>An open connection to a Andromeda database, for example as created using
+<code><a href='https://ohdsi.github.io/Andromeda/reference/andromeda_constructor.html'>andromeda</a></code>.</p></td>
     </tr>
     <tr>
       <th>andromedaTableName</th>
-      <td><p>The name of the table in the local Andromeda database where the results of the query will be stored.</p></td>
+      <td><p>The name of the table in the local Andromeda database where the results
+of the query will be stored.</p></td>
     </tr>
     <tr>
       <th>datesAsString</th>
-      <td><p>Should dates be imported as character vectors, our should they be converted
-to R's date format?</p></td>
+      <td><p>Should dates be imported as character vectors, our should they be
+converted to R's date format?</p></td>
+    </tr>
+    <tr>
+      <th>integerAsNumeric</th>
+      <td><p>Logical: should 32-bit integers be converted to numeric (double) values?
+If FALSE 32-bit integers will be represented using R's native
+<code>Integer</code> class.</p></td>
     </tr>
     <tr>
       <th>integer64AsNumeric</th>
-      <td><p>Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-64-bit integers will be represented using <code><a href='https://rdrr.io/pkg/bit64/man/bit64-package.html'>bit64::integer64</a></code>.</p></td>
+      <td><p>Logical: should 64-bit integers be converted to numeric (double) values?
+If FALSE 64-bit integers will be represented using
+<code><a href='https://rdrr.io/pkg/bit64/man/bit64-package.html'>bit64::integer64</a></code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Invisibly returns the andromeda. The Andromeda database will have a table added with the query results.</p>
+    <p>Invisibly returns the andromeda. The Andromeda database will have a table added with the query
+results.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Retrieves data from the database server and stores it in a local Andromeda database This allows very large
-data sets to be retrieved without running out of memory. Null values in the database are converted
-to NA values in R. If a table with the same name already exists in the local Andromeda database it is replaced.</p>
+    <p>Retrieves data from the database server and stores it in a local Andromeda database This allows
+very large data sets to be retrieved without running out of memory. Null values in the database are
+converted to NA values in R. If a table with the same name already exists in the local Andromeda
+database it is replaced.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

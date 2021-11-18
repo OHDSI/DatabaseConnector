@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>The number of rows affected — dbGetRowsAffected,DatabaseConnectorResult-method • DatabaseConnector</title>
+<title>Get available Java heap space — getAvailableJavaHeapSpace • DatabaseConnector</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,8 @@
 
 
 
-<meta property="og:title" content="The number of rows affected — dbGetRowsAffected,DatabaseConnectorResult-method" />
-<meta property="og:description" content="This method returns the number of rows that were added, deleted, or updated
-by a data manipulation statement.
-Methods in other packages
-DatabaseConnector::dbGetRowsAffected(&quot;DatabaseConnectorResult&quot;)
-" />
+<meta property="og:title" content="Get available Java heap space — getAvailableJavaHeapSpace" />
+<meta property="og:description" content="For debugging purposes: get the available Java heap space." />
 
 
 
@@ -130,65 +126,21 @@ DatabaseConnector::dbGetRowsAffected(&quot;DatabaseConnectorResult&quot;)
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>The number of rows affected</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/DBI.R'><code>R/DBI.R</code></a></small>
-    <div class="hidden name"><code>dbGetRowsAffected-DatabaseConnectorResult-method.Rd</code></div>
+    <h1>Get available Java heap space</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/R/Sql.R'><code>R/Sql.R</code></a></small>
+    <div class="hidden name"><code>getAvailableJavaHeapSpace.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This method returns the number of rows that were added, deleted, or updated
-by a data manipulation statement.</p>
-<p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Methods in other packages</h3><ul>
-<li><p><code>DatabaseConnector::dbGetRowsAffected("DatabaseConnectorResult")</code></p></li>
-</ul></p>
+    <p>For debugging purposes: get the available Java heap space.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for DatabaseConnectorResult</span>
-<span class='fu'>dbGetRowsAffected</span><span class='op'>(</span><span class='va'>res</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>getAvailableJavaHeapSpace</span><span class='op'>(</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>res</th>
-      <td><p>An object inheriting from DBIResult.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Other arguments passed on to methods.</p></td>
-    </tr>
-    </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>dbGetRowsAffected()</code> returns a scalar number (integer or numeric),
-the number of rows affected by a data manipulation statement
-issued with <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>.
-The value is available directly after the call
-and does not change after calling <code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch()</a></code>.
-For queries issued with <code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>,
-zero is returned before
-and after the call to <code>dbFetch()</code>.
-Attempting to get the rows affected for a result set cleared with
-<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> gives an error.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other DBIResult generics: 
-<code><a href='https://dbi.r-dbi.org/reference/DBIResult-class.html'>DBIResult-class</a></code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbBind.html'>dbBind</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbFetch.html'>dbFetch</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetRowCount.html'>dbGetRowCount</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbGetStatement.html'>dbGetStatement</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbQuoteString.html'>dbQuoteString</a>()</code>,
-<code><a href='https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
+    <p>The Java heap space (in bytes).</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

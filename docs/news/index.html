@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -129,9 +129,30 @@
       <small>Source: <a href='https://github.com/OHDSI/DatabaseConnector/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="databaseconnector-500" class="section level1">
+<h1 class="page-header" data-toc-text="5.0.0">
+<a href="#databaseconnector-500" class="anchor"></a>DatabaseConnector 5.0.0<small> Unreleased </small>
+</h1>
+<p>Changes:</p>
+<ol>
+<li><p>32-bit integers are also converted to numeric by default because (a) the output of some SQL functions (e.g. DATEDIFF) is INT on some platforms, BIG_INT on others, and (b) dplyr often throws errors when working with both integer and numeric vectors.</p></li>
+<li><p>Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.</p></li>
+<li><p>Adding support for connecting to Spark.</p></li>
+<li><p>Adding <code><a href="../reference/renderTranslateQueryApplyBatched.html">renderTranslateQueryApplyBatched()</a></code> function.</p></li>
+<li><p>Throw informative error when provided <code>dbms</code> argument does not match any of the expected values.</p></li>
+<li><p>Adding <code><a href="../reference/getAvailableJavaHeapSpace.html">getAvailableJavaHeapSpace()</a></code> function for debugging purposes.</p></li>
+</ol>
+<p>Bugfixes:</p>
+<ol>
+<li><p>Fixing field type of numeric fields on Oracle when fetching data.</p></li>
+<li><p>Fixing issues when fetching dates from SQLite (needed casting to numeric in some scenarios before conversion to date in R).</p></li>
+<li><p>Fixing <code><a href="../reference/insertTable.html">insertTable()</a></code> when using a <code>databaseSchema</code> argument on SQLite.</p></li>
+<li><p>Fixing <code><a href="../reference/insertTable.html">insertTable()</a></code> for inserting into temp table on RedShift when table name does not start with ‘#’.</p></li>
+</ol>
+</div>
     <div id="databaseconnector-402" class="section level1">
 <h1 class="page-header" data-toc-text="4.0.2">
-<a href="#databaseconnector-402" class="anchor"></a>DatabaseConnector 4.0.2<small> Unreleased </small>
+<a href="#databaseconnector-402" class="anchor"></a>DatabaseConnector 4.0.2<small> 2021-04-15 </small>
 </h1>
 <p>Bugfixes:</p>
 <ol>
@@ -155,7 +176,7 @@
 <p>Changes:</p>
 <ol>
 <li><p>JDBC drivers are no longer pre-packaged in the <code>DatabaseConnectorJars</code> package. Instead, drivers need to be downloaded manually to a user-specified location in the local file system. The <code><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> function has been added to make downing drivers easier. The path to the drivers can be set in the ‘DATABASECONNECTOR_JAR_FOLDER’ environmental variable.</p></li>
-<li><p>Support for 64-bit integers using bit64’s <code>integer64</code> type, although this is disabled by default because of the danger of silent errors when using <code>integer64</code> in R. Each query function has a <code>integer64AsNumeric</code> argument, and overall behavior can be set using<code><a href="https://rdrr.io/r/base/options.html">options(databaseConnectorInteger64AsNumeric = FALSE)</a></code>.</p></li>
+<li><p>Support for 64-bit integers using bit64’s <code>integer64</code> type, although this is disabled by default because of the danger of silent errors when using <code>integer64</code> in R. Each query function has a <code>integer64AsNumeric</code> argument, and overall behavior can be set using<code>options(databaseConnectorInteger64AsNumeric = FALSE)</code>.</p></li>
 <li><p>INT fields are now translated to R integers and back.</p></li>
 <li><p>ConnectionDetails delays evaluation of sensitive arguments until needed for improved security.</p></li>
 <li><p>Removing deprecated <code>schema</code> argument from <code>createConnectionDetails</code> and <code>connect</code>.</p></li>

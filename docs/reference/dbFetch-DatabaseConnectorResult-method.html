@@ -76,7 +76,7 @@ DatabaseConnector::dbFetch(&quot;DatabaseConnectorResult&quot;)
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -144,7 +144,7 @@ as a data.frame.</p>
     </div>
 
     <pre class="usage"><span class='co'># S4 method for DatabaseConnectorResult</span>
-<span class='fu'>dbFetch</span><span class='op'>(</span><span class='va'>res</span>, datesAsString <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>dbFetch</span><span class='op'>(</span><span class='va'>res</span>, n <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,11 +152,14 @@ as a data.frame.</p>
     <tr>
       <th>res</th>
       <td><p>An object inheriting from DBIResult, created by
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery()</a></code>.</p></td>
+<code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>datesAsString</th>
-      <td><p>Should dates be represented as strings? (instead of Date objects)</p></td>
+      <th>n</th>
+      <td><p>maximum number of records to retrieve per fetch. Use <code>n = -1</code>
+or <code>n = Inf</code>
+to retrieve all pending records.  Some implementations may recognize other
+special values.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -177,7 +180,7 @@ If the <code>n</code> argument is not an atomic whole number
 greater or equal to -1 or Inf, an error is raised,
 but a subsequent call to <code>dbFetch()</code> with proper <code>n</code> argument succeeds.
 Calling <code>dbFetch()</code> on a result set from a data manipulation query
-created by <code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement()</a></code>
+created by <code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement()</a></code>
 can be fetched and return an empty data frame, with a warning.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -187,24 +190,24 @@ implementation for <code>dbFetch()</code> calls <code>fetch()</code> so that it 
 existing code. Modern backends should implement for <code>dbFetch()</code> only.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Close the result set with <code><a href='https://rdrr.io/pkg/DBI/man/dbClearResult.html'>dbClearResult()</a></code> as soon as you
+    <div class='dont-index'><p>Close the result set with <code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult()</a></code> as soon as you
 finish retrieving the records you want.</p>
 <p>Other DBIResult generics: 
-<code><a href='https://rdrr.io/pkg/DBI/man/DBIResult-class.html'>DBIResult-class</a></code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbBind.html'>dbBind</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbClearResult.html'>dbClearResult</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetRowCount.html'>dbGetRowCount</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetRowsAffected.html'>dbGetRowsAffected</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetStatement.html'>dbGetStatement</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteString.html'>dbQuoteString</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
+<code><a href='https://dbi.r-dbi.org/reference/DBIResult-class.html'>DBIResult-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbBind.html'>dbBind</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbClearResult.html'>dbClearResult</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbColumnInfo.html'>dbColumnInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetRowCount.html'>dbGetRowCount</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetRowsAffected.html'>dbGetRowsAffected</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetStatement.html'>dbGetStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbHasCompleted.html'>dbHasCompleted</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteLiteral.html'>dbQuoteLiteral</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbQuoteString.html'>dbQuoteString</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html'>dbUnquoteIdentifier</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

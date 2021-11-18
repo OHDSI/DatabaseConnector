@@ -80,7 +80,7 @@ ways to create tables) need to override the dbAppendTable() method." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
       </span>
     </div>
 
@@ -141,12 +141,12 @@ ways to create tables) need to override the dbAppendTable() method." />
 
     <div class="ref-description">
     <p>The <code>dbAppendTable()</code> method assumes that the table has been created
-beforehand, e.g. with <code><a href='https://rdrr.io/pkg/DBI/man/dbCreateTable.html'>dbCreateTable()</a></code>.
-The default implementation calls <code><a href='https://rdrr.io/pkg/DBI/man/sqlAppendTable.html'>sqlAppendTableTemplate()</a></code> and then
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute()</a></code> with the <code>param</code> argument. Backends compliant to
+beforehand, e.g. with <code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable()</a></code>.
+The default implementation calls <code><a href='https://dbi.r-dbi.org/reference/sqlAppendTable.html'>sqlAppendTableTemplate()</a></code> and then
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute()</a></code> with the <code>param</code> argument. Backends compliant to
 ANSI SQL 99 which use <code>?</code> as a placeholder for prepared queries don't need
 to override it. Backends with a different SQL syntax which use <code>?</code>
-as a placeholder for prepared queries can override <code><a href='https://rdrr.io/pkg/DBI/man/sqlAppendTable.html'>sqlAppendTable()</a></code>.
+as a placeholder for prepared queries can override <code><a href='https://dbi.r-dbi.org/reference/sqlAppendTable.html'>sqlAppendTable()</a></code>.
 Other backends (with different placeholders or with entirely different
 ways to create tables) need to override the <code>dbAppendTable()</code> method.</p>
     </div>
@@ -168,11 +168,11 @@ ways to create tables) need to override the <code>dbAppendTable()</code> method.
     <tr>
       <th>conn</th>
       <td><p>A DBIConnection object, as returned by
-<code><a href='https://rdrr.io/pkg/DBI/man/dbConnect.html'>dbConnect()</a></code>.</p></td>
+<code><a href='https://dbi.r-dbi.org/reference/dbConnect.html'>dbConnect()</a></code>.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>Name of the table, escaped with <code><a href='https://rdrr.io/pkg/DBI/man/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>.</p></td>
+      <td><p>Name of the table, escaped with <code><a href='https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html'>dbQuoteIdentifier()</a></code>.</p></td>
     </tr>
     <tr>
       <th>value</th>
@@ -201,30 +201,30 @@ can be created.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The <code>row.names</code> argument is not supported by this method.
-Process the values with <code><a href='https://rdrr.io/pkg/DBI/man/rownames.html'>sqlRownamesToColumn()</a></code> before calling this method.</p>
+Process the values with <code><a href='https://dbi.r-dbi.org/reference/rownames.html'>sqlRownamesToColumn()</a></code> before calling this method.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other DBIConnection generics: 
-<code><a href='https://rdrr.io/pkg/DBI/man/DBIConnection-class.html'>DBIConnection-class</a></code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbCreateTable.html'>dbCreateTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbDataType.html'>dbDataType</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbDisconnect.html'>dbDisconnect</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExecute.html'>dbExecute</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbExistsTable.html'>dbExistsTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetException.html'>dbGetException</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetInfo.html'>dbGetInfo</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbGetQuery.html'>dbGetQuery</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbIsValid.html'>dbIsValid</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListFields.html'>dbListFields</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListObjects.html'>dbListObjects</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListResults.html'>dbListResults</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbListTables.html'>dbListTables</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbReadTable.html'>dbReadTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendQuery.html'>dbSendQuery</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbSendStatement.html'>dbSendStatement</a>()</code>,
-<code><a href='https://rdrr.io/pkg/DBI/man/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
+<code><a href='https://dbi.r-dbi.org/reference/DBIConnection-class.html'>DBIConnection-class</a></code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbCreateTable.html'>dbCreateTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDataType.html'>dbDataType</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbDisconnect.html'>dbDisconnect</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExecute.html'>dbExecute</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbExistsTable.html'>dbExistsTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetException.html'>dbGetException</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetInfo.html'>dbGetInfo</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbGetQuery.html'>dbGetQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsReadOnly.html'>dbIsReadOnly</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbIsValid.html'>dbIsValid</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListFields.html'>dbListFields</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListObjects.html'>dbListObjects</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListResults.html'>dbListResults</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbListTables.html'>dbListTables</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbReadTable.html'>dbReadTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbRemoveTable.html'>dbRemoveTable</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendQuery.html'>dbSendQuery</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbSendStatement.html'>dbSendStatement</a>()</code>,
+<code><a href='https://dbi.r-dbi.org/reference/dbWriteTable.html'>dbWriteTable</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
