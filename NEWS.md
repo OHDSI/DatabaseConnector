@@ -1,3 +1,11 @@
+DatabaseConnector 5.0.1
+=======================
+
+Bugfixes:
+
+1. Fixed R-Studio connection panel for BigQuery.
+
+
 DatabaseConnector 5.0.0
 =======================
 
