@@ -58,9 +58,9 @@ getAvailableJavaHeapSpace <- function() {
   writeChar(report, fileConn, eos = NULL)
   close(fileConn)
   abort(paste("Error executing SQL:",
-    message,
-    paste("An error report has been created at ", fileName),
-    sep = "\n"
+              message,
+              paste("An error report has been created at ", fileName),
+              sep = "\n"
   ), call. = FALSE)
 }
 
@@ -88,17 +88,17 @@ parseJdbcColumnData <- function(content,
                                 columnTypes = NULL,
                                 datesAsString = FALSE,
                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                  default = TRUE
+                                                             default = TRUE
                                 ),
                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                  default = TRUE
+                                                               default = TRUE
                                 )) {
   if (is.null(columnTypes)) {
     columnTypes <- rJava::.jcall(content, "[I", "getColumnTypes")
   }
-
+  
   columns <- vector("list", length(columnTypes))
-
+  
   for (i in seq.int(length(columnTypes))) {
     if (columnTypes[i] == 1) {
       column <- rJava::.jcall(
@@ -123,7 +123,7 @@ parseJdbcColumnData <- function(content,
       } else {
         columns[[i]] <- c(columns[[i]], column)
       }
-
+      
       if (integer64AsNumeric) {
         columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
       }
@@ -145,7 +145,7 @@ parseJdbcColumnData <- function(content,
         columns[[i]],
         rJava::.jcall(content, "[Ljava/lang/String;", "getString", i)
       )
-
+      
       if (!datesAsString) {
         if (columnTypes[i] == 3) {
           columns[[i]] <- as.Date(columns[[i]])
@@ -155,7 +155,7 @@ parseJdbcColumnData <- function(content,
       }
     }
   }
-
+  
   names(columns) <- rJava::.jcall(content, "[Ljava/lang/String;", "getColumnNames")
   # More efficient than as.data.frame, as it avoids converting row.names to character:
   columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
@@ -202,16 +202,16 @@ lowLevelQuerySql.default <- function(connection,
   if (rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
-
+  
   batchedQuery <- rJava::.jnew(
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
     query,
     connection@dbms
   )
-
+  
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
-
+  
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
   if (any(columnTypes == 5)) {
     validateInt64Query()
@@ -220,12 +220,12 @@ lowLevelQuerySql.default <- function(connection,
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
     batch <- parseJdbcColumnData(batchedQuery,
-      columnTypes = columnTypes,
-      datesAsString = datesAsString,
-      integer64AsNumeric = integer64AsNumeric,
-      integerAsNumeric = integerAsNumeric
+                                 columnTypes = columnTypes,
+                                 datesAsString = datesAsString,
+                                 integer64AsNumeric = integer64AsNumeric,
+                                 integerAsNumeric = integerAsNumeric
     )
-
+    
     columns <- rbind(columns, batch)
   }
   return(columns)
@@ -280,7 +280,7 @@ delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
         Sys.sleep(threshold - delta)
       }
     }
-
+    
     executionTimeList[[tableName]] <- currentTime
   }
   return(executionTimeList)
@@ -291,7 +291,7 @@ delayIfNecessaryForDdl <- function(sql) {
   if (is.null(ddlList)) {
     ddlList <- list()
   }
-
+  
   regexForDdl <- "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
   updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5)
   options(ddlList = updatedList)
@@ -302,7 +302,7 @@ delayIfNecessaryForInsert <- function(sql) {
   if (is.null(insetList)) {
     insetList <- list()
   }
-
+  
   regexForInsert <- "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
   updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5)
   options(insetList = updatedList)
@@ -313,12 +313,12 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
   hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
-
+  
   if (connection@dbms == "bigquery") {
     delayIfNecessaryForDdl(sql)
     delayIfNecessaryForInsert(sql)
   }
-
+  
   rowsAffected <- 0
   if (!hasResultSet) {
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
@@ -407,18 +407,18 @@ executeSql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
-
+  
   startTime <- Sys.time()
-
+  
   if (inherits(connection, "DatabaseConnectorJdbcConnection") &&
-    connection@dbms == "redshift" &&
-    rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
+      connection@dbms == "redshift" &&
+      rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
     # https://github.com/OHDSI/DatabaseConnector/issues/90
     trySettingAutoCommit(connection, FALSE)
     on.exit(trySettingAutoCommit(connection, TRUE))
   }
-
+  
   batched <- runAsBatch && supportsBatchUpdates(connection)
   sqlStatements <- SqlRender::splitSql(sql)
   if (batched) {
@@ -426,7 +426,7 @@ executeSql <- function(connection,
     rowsAffected <- 0
     for (start in seq(1, length(sqlStatements), by = batchSize)) {
       end <- min(start + batchSize - 1, length(sqlStatements))
-
+      
       statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
       batchSql <- c()
       for (i in start:end) {
@@ -456,7 +456,7 @@ executeSql <- function(connection,
     if (progressBar) {
       pb <- txtProgressBar(style = 3)
     }
-
+    
     for (i in 1:length(sqlStatements)) {
       sqlStatement <- sqlStatements[i]
       if (profile) {
@@ -485,11 +485,11 @@ executeSql <- function(connection,
       close(pb)
     }
   }
-
+  
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
-
+  
   if (reportOverallTime) {
     delta <- Sys.time() - startTime
     inform(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
@@ -523,8 +523,8 @@ convertFields <- function(dbms, result) {
     if (ncol(result) > 0) {
       for (i in 1:ncol(result)) {
         if (bit64::is.integer64(result[[i]]) &&
-          (all(is.na(result[[i]])) || (
-            min(result[[i]], na.rm = TRUE) > -.Machine$integer.max &&
+            (all(is.na(result[[i]])) || (
+              min(result[[i]], na.rm = TRUE) > -.Machine$integer.max &&
               max(result[[i]], na.rm = TRUE) < .Machine$integer.max))) {
           result[[i]] <- as.integer(result[[i]])
         }
@@ -680,8 +680,8 @@ renderTranslateExecuteSql <- function(connection,
                                       ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-      .frequency = "regularly",
-      .frequency_id = "oracleTempSchema"
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema"
     )
     tempEmulationSchema <- oracleTempSchema
   }
@@ -753,8 +753,8 @@ renderTranslateQuerySql <- function(connection,
                                     ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-      .frequency = "regularly",
-      .frequency_id = "oracleTempSchema"
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema"
     )
     tempEmulationSchema <- oracleTempSchema
   }
@@ -922,19 +922,19 @@ renderTranslateQueryApplyBatched.default <- function(connection,
     }
   )
   on.exit(dbClearResult(queryResult))
-
+  
   columnTypes <- rJava::.jcall(queryResult@content, "[I", "getColumnTypes")
   if (any(columnTypes == 5)) {
     validateInt64Query()
   }
-
+  
   results <- list()
   position <- 1
   while (!rJava::.jcall(queryResult@content, "Z", "isDone")) {
     batch <- dbFetch(queryResult,
-      columnTypes = columnTypes,
-      integerAsNumeric = integerAsNumeric,
-      integer64AsNumeric = integer64AsNumeric
+                     columnTypes = columnTypes,
+                     integerAsNumeric = integerAsNumeric,
+                     integer64AsNumeric = integer64AsNumeric
     )
     if (snakeCaseToCamelCase) {
       colnames(batch) <- SqlRender::snakeCaseToCamelCase(colnames(batch))
@@ -964,7 +964,7 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
   if (!is.function(fun)) {
     abort("fun argument must be a function")
   }
-
+  
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
   sql <- SqlRender::splitSql(sql)
@@ -976,16 +976,51 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
     ))
   }
   results <- lowLevelQuerySql(connection,
-    sql,
-    integerAsNumeric = integerAsNumeric,
-    integer64AsNumeric = integer64AsNumeric
+                              sql,
+                              integerAsNumeric = integerAsNumeric,
+                              integer64AsNumeric = integer64AsNumeric
   )
   if (snakeCaseToCamelCase) {
     colnames(results) <- SqlRender::snakeCaseToCamelCase(colnames(results))
   }
-
+  
   # Note that the DBI connection implementation only ever processes a single batch
   position <- 1
   results <- list(do.call(fun, append(list(results, position), args)))
   invisible(results)
+}
+
+
+#' Drop all emulated temp tables.
+#'
+#' @description
+#' On some DBMSs, like Oracle and BigQuery, \code{DatabaseConnector} through \code{SqlRender} emulates temp tables
+#' in a schema provided by the user. Ideally, these tables are deleted by the application / R script creating them,
+#' but for various reasons orphan temp tables may remain. This function drops all emulated temp tables created in this
+#' session only.
+#'
+#' @param connection           The connection to the database server.
+#' @param tempEmulationSchema  Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                             emulate temp tables, provide a schema with write privileges where temp tables
+#'                             can be created.
+#'
+#' @return
+#' Invisibly returns the list of deleted emulated temp tables.
+#'
+#' @export
+dropEmulatedTempTables <- function(connection,
+                                   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (is.null(tempEmulationSchema))
+    abort("The `tempEmulationSchema` must be specified.")
+  prefix <- SqlRender::getTempTablePrefix()
+  tableNames <- getTableNames(connection, tempEmulationSchema)
+  tableNames <- tableNames[grepl(sprintf("^%s", prefix), tableNames, ignore.case = TRUE)]
+  if (length(tableNames) > 0) {
+    inform(sprintf("Dropping tables '%s' from schema '%s'.", paste(tableNames, collapse = "', '"), tempEmulationSchema))
+    tableNames <- tolower(paste(tempEmulationSchema, tableNames, sep = "."))
+    sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    sql <- SqlRender::translate(sql, connection@dbms)
+    executeSql(connection, sql)
+  }
+  return(tableNames)
 }

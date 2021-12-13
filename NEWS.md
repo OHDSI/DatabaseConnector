@@ -1,6 +1,10 @@
 DatabaseConnector 5.0.1
 =======================
 
+Changes:
+
+1. Added `dropEmulatedTempTables()` function.
+
 Bugfixes:
 
 1. Fixed R-Studio connection panel for BigQuery.

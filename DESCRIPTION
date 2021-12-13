@@ -20,7 +20,7 @@ Depends:
     R (>= 2.10)
 Imports:
     rJava,
-    SqlRender (>= 1.7.0),
+    SqlRender (>= 1.8.3),
     methods,
     stringr,
     readr,
@@ -41,6 +41,8 @@ Suggests:
     ssh,
     Andromeda (>= 0.5.0),
     dplyr
+Remotes:
+    ohdsi/SqlRender@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

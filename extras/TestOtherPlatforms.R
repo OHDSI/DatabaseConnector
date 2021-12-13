@@ -30,8 +30,7 @@ expect_true(disconnect(connection))
 details <- createConnectionDetails(dbms = "bigquery",
                                    connectionString = keyring::key_get("bigQueryConnString"),
                                    user = "",
-                                   password = "",
-                                   pathToDriver = "C:/Users/mschuemi/BqDriver")
+                                   password = "")
 connection <- connect(details)
 expect_true(inherits(connection, "DatabaseConnectorConnection"))
 expect_true(disconnect(connection))
@@ -91,8 +90,7 @@ disconnect(connection)
 connection <- connect(dbms = "bigquery",
                       connectionString = keyring::key_get("bigQueryConnString"),
                       user = "",
-                      password = "",
-                      pathToDriver = "C:/Users/mschuemi/BqDriver")
+                      password = "")
 cdmDatabaseSchema <- "synpuf_2m"
 sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
 renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
@@ -137,8 +135,7 @@ disconnect(connection)
 details <- createConnectionDetails(dbms = "bigquery",
                                    connectionString = keyring::key_get("bigQueryConnString"),
                                    user = "",
-                                   password = "",
-                                   pathToDriver = "C:/Users/mschuemi/BqDriver")
+                                   password = "")
 connection <- connect(details)
 tables <- getTableNames(connection, "synpuf_2m")
 expect_true("PERSON" %in% tables)
@@ -232,8 +229,7 @@ disconnect(connection)
 details <- createConnectionDetails(dbms = "bigquery",
                                    connectionString = keyring::key_get("bigQueryConnString"),
                                    user = "",
-                                   password = "",
-                                   pathToDriver = "C:/Users/mschuemi/BqDriver")
+                                   password = "")
 connection <- connect(details)
 insertTable(connection = connection,
             tableName = "synpuf_2m_results.temp",
@@ -261,3 +257,21 @@ executeSql(connection, "DROP TABLE synpuf_2m_results.temp;")
 
 disconnect(connection)
 
+
+# Test dropEmulatedTempTables ----------------------------------------------
+# BigQuery
+details <- createConnectionDetails(dbms = "bigquery",
+                                   connectionString = keyring::key_get("bigQueryConnString"),
+                                   user = "",
+                                   password = "")
+connection <- connect(details)
+insertTable(connection = connection,
+            tableName = "temp",
+            data = cars,
+            createTable = TRUE,
+            tempTable = TRUE,
+            tempEmulationSchema = "synpuf_2m_results")
+
+droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = "synpuf_2m_results")
+expect_equal(droppedTables, sprintf("%s.%stemp", tempEmulationSchema, SqlRender::getTempTablePrefix()))
+disconnect(connection)
