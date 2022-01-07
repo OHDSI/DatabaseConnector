@@ -1,3 +1,11 @@
+DatabaseConnector 5.0.2
+=======================
+
+Changes:
+
+1. Updating Spark JDBC driver in response to Log4J vulnerability.
+
+
 DatabaseConnector 5.0.1
 =======================
 

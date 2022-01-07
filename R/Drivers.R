@@ -42,7 +42,7 @@ jdbcDrivers <- new.env()
 #'   \item{RedShift}{V1.2.27.1051}
 #'   \item{SQL Server}{V8.4.1.zip}
 #'   \item{Oracle}{V19.8}
-#'   \item{Spark}{V2.6.17}
+#'   \item{Spark}{V2.6.21}
 #' }
 #'
 #' @return Invisibly returns the destination if the download was successful.
@@ -91,7 +91,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     "redshift" = "redShiftV1.2.27.1051.zip",
     "sql server" = "sqlServerV9.2.0.zip",
     "oracle" = "oracleV19.8.zip",
-    "spark" = "SimbaSparkV2.6.17.zip"
+    "spark" = "SimbaSparkV2.6.21.zip"
   )
 
   if (dbms == "all") {
