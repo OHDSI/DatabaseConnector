@@ -2,7 +2,7 @@
 % Please edit documentation in R/Andromeda.R
 \name{querySqlToAndromeda}
 \alias{querySqlToAndromeda}
-\title{Retrieves data to a local Andromeda database}
+\title{Retrieves data to a local Andromeda object}
 \usage{
 querySqlToAndromeda(
   connection,
@@ -20,10 +20,10 @@ querySqlToAndromeda(
 
 \item{sql}{The SQL to be sent.}
 
-\item{andromeda}{An open connection to a Andromeda database, for example as created
+\item{andromeda}{An open connection to a Andromeda object, for example as created
 using \code{\link[Andromeda]{andromeda}}.}
 
-\item{andromedaTableName}{The name of the table in the local Andromeda database where the
+\item{andromedaTableName}{The name of the table in the local Andromeda object where the
 results of the query will be stored.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs.
@@ -43,18 +43,18 @@ values? If FALSE 64-bit integers will be represented using
 \value{
 
 
-Invisibly returns the andromeda. The Andromeda database will have a table added with the query
+Invisibly returns the andromeda. The Andromeda object will have a table added with the query
 results.
 }
 \description{
-This function sends SQL to the server, and returns the results in a local Andromeda database.
+This function sends SQL to the server, and returns the results in a local Andromeda object
 }
 \details{
-Retrieves data from the database server and stores it in a local Andromeda database. This allows
+Retrieves data from the database server and stores it in a local Andromeda object. This allows
 very large data sets to be retrieved without running out of memory. If an error occurs during SQL
 execution, this error is written to a file to facilitate debugging. Null values in the database are
 converted to NA values in R.If a table with the same name already exists in the local Andromeda
-database it is replaced.
+object it is replaced.
 }
 \examples{
 \dontrun{

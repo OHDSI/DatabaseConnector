@@ -23,10 +23,10 @@ renderTranslateQuerySqlToAndromeda(
 
 \item{sql}{The SQL to be send.}
 
-\item{andromeda}{An open connection to a Andromeda database, for example as created
+\item{andromeda}{An open Andromeda object, for example as created
 using \code{\link[Andromeda]{andromeda}}.}
 
-\item{andromedaTableName}{The name of the table in the local Andromeda database where the
+\item{andromedaTableName}{The name of the table in the local Andromeda object where the
 results of the query will be stored.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs.
@@ -52,7 +52,7 @@ values? If FALSE 64-bit integers will be represented using
 \item{...}{Parameters that will be used to render the SQL.}
 }
 \value{
-Invisibly returns the andromeda. The Andromeda database will have a table added with the query
+Invisibly returns the andromeda. The Andromeda object will have a table added with the query
 results.
 }
 \description{
