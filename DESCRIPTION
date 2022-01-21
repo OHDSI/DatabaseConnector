@@ -42,7 +42,7 @@ Suggests:
     Andromeda (>= 0.5.1),
     dplyr
 Remotes:
-    ohdsi/Andromda@develop
+    ohdsi/Andromeda@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
