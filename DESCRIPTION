@@ -39,10 +39,10 @@ Suggests:
     rmarkdown,
     RSQLite,
     ssh,
-    Andromeda (>= 0.5.0),
+    Andromeda (>= 0.5.1),
     dplyr
 Remotes:
-    ohdsi/SqlRender@develop
+    ohdsi/Andromda@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
