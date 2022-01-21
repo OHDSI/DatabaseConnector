@@ -102,13 +102,11 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
       integerAsNumeric = integerAsNumeric
     )
 
-    RSQLite::dbWriteTable(
-      conn = andromeda,
-      name = andromedaTableName,
-      value = batch,
-      overwrite = first,
-      append = !first
-    )
+    if (first) {
+      andromeda[[andromedaTableName]] <- batch
+    } else {
+      Andromeda::appendToTable(andromeda[[andromedaTableName]], batch)
+    }
     first <- FALSE
   }
   invisible(andromeda)
@@ -132,13 +130,7 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
     integer64AsNumeric = integer64AsNumeric
   )
 
-  RSQLite::dbWriteTable(
-    conn = andromeda,
-    name = andromedaTableName,
-    value = results,
-    overwrite = TRUE,
-    append = FALSE
-  )
+  andromeda[[andromedaTableName]] <- results
   invisible(andromeda)
 }
 
@@ -216,8 +208,8 @@ querySqlToAndromeda <- function(connection,
   ) && rJava::is.jnull(connection@jConnection)) {
     stop("Connection is closed")
   }
-  if (!inherits(andromeda, "SQLiteConnection")) {
-    stop("The andromeda argument must be an Andromeda object (or SQLiteConnection objecT).")
+  if (!inherits(andromeda, "Andromeda")) {
+    stop("The andromeda argument must be an Andromeda object.")
   }
 
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
@@ -239,21 +231,12 @@ querySqlToAndromeda <- function(connection,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      columnNames <- RSQLite::dbListFields(andromeda, andromedaTableName)
+      columnNames <- colnames(andromeda[[andromedaTableName]])
       newColumnNames <- toupper(columnNames)
       if (snakeCaseToCamelCase) {
         newColumnNames <- SqlRender::snakeCaseToCamelCase(newColumnNames)
       }
-      idx <- columnNames != newColumnNames
-      if (any(idx)) {
-        sql <- sprintf(
-          "ALTER TABLE %s RENAME COLUMN %s TO %s;",
-          andromedaTableName,
-          columnNames[idx],
-          newColumnNames[idx]
-        )
-        lapply(sql, function(x) RSQLite::dbExecute(andromeda, x))
-      }
+      names(andromeda[[andromedaTableName]]) <- newColumnNames
       invisible(andromeda)
     },
     error = function(err) {
