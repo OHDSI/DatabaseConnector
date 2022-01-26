@@ -5,6 +5,10 @@ Changes:
 
 1. Updating Spark JDBC driver in response to Log4J vulnerability.
 
+2. Using new Andromeda functions for better abstraction.
+
+3. More informative error messages when user forgets to provide a connecton property (like a password).
+
 
 DatabaseConnector 5.0.1
 =======================

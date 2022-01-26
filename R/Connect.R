@@ -614,6 +614,9 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   p <- rJava::.jnew("java/util/Properties")
   if (length(properties) > 0) {
     for (i in 1:length(properties)) {
+      if (is.null(properties[[i]])) {
+        abort(sprintf("Connection propery '%s' is NULL.", names(properties)[i]))
+      }
       rJava::.jcall(
         p,
         "Ljava/lang/Object;",
