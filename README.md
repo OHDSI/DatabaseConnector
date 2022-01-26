@@ -2,7 +2,7 @@ DatabaseConnector
 =================
 
 [![Build Status](https://github.com/OHDSI/DatabaseConnector/workflows/R-CMD-check/badge.svg)](https://github.com/OHDSI/DatabaseConnector/actions?query=workflow%3AR-CMD-check)
-[![codecov.io](https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=master)](https://codecov.io/github/OHDSI/DatabaseConnector?branch=master)
+[![codecov.io](https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=main)](https://codecov.io/github/OHDSI/DatabaseConnector?branch=main)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
 [![CRAN_Status_Badge](http://cranlogs.r-pkg.org/badges/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
 
@@ -76,8 +76,8 @@ User Documentation
 Documentation can be found on the [package website](https://ohdsi.github.io/DatabaseConnector/).
 
 PDF versions of the documentation are also available:
-* Vignette: [Using DatabaseConnector](https://github.com/OHDSI/DatabaseConnector/raw/master/inst/doc/UsingDatabaseConnector.pdf)
-* Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf) 
+* Vignette: [Using DatabaseConnector](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/UsingDatabaseConnector.pdf)
+* Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf) 
 
 Support
 =======
@@ -90,7 +90,7 @@ Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribut
 
 License
 =======
-DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers [fall under their own respective licenses](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/inst/COPYRIGHTS).
+DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers [fall under their own respective licenses](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/inst/COPYRIGHTS).
 
 Development
 ===========
