@@ -25,9 +25,6 @@ argument, it is returned unchanged.
 Passing objects of class \link[DBI]{SQL} should also return them unchanged.
 (For backends it may be most convenient to return \link[DBI]{SQL} objects
 to achieve this behavior, but this is not required.)
-
-An error is raised if the input contains \code{NA},
-but not for an empty string.
 }
 \description{
 Call this method to generate a string that is suitable for

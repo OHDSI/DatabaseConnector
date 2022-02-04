@@ -62,3 +62,9 @@ test_that("Get table names", {
   expect_true("PERSON" %in% tables)
   disconnect(connection)
 })
+
+test_that("Cleaning of database or schema name", {
+  expect_equivalent(cleanSchemaName("[test\\name]"), "test\\\\name")
+  expect_equivalent(cleanSchemaName("\"test\\name\""), "test\\\\name")
+  expect_equivalent(cleanDatabaseName("test\\name"), "test\\name")
+})
