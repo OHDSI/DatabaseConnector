@@ -7,7 +7,11 @@ Changes:
 
 2. Using new Andromeda functions for better abstraction.
 
-3. More informative error messages when user forgets to provide a connecton property (like a password).
+3. More informative error messages when user forgets to provide a connection property (like a password).
+
+Bugfixes:
+
+1. Fixing `getTableNames()` when the database or schema name contains escaped characters.
 
 
 DatabaseConnector 5.0.1

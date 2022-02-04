@@ -55,15 +55,15 @@ getTableNames <- function(connection, databaseSchema) {
     databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
     if (length(databaseSchema) == 1) {
       if (connection@dbms %in% c("sql server", "pdw")) {
-        database <- databaseSchema
+        database <- cleanDatabaseOrSchemaName(databaseSchema)
         schema <- "dbo"
       } else {
         database <- rJava::.jnull("java/lang/String")
-        schema <- databaseSchema
+        schema <- cleanSchemaName(databaseSchema)
       }
     } else {
-      database <- databaseSchema[1]
-      schema <- databaseSchema[2]
+      database <- cleanDatabaseName(databaseSchema[1])
+      schema <- cleanSchemaName(databaseSchema[2])
     }
   }
   metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
@@ -82,4 +82,18 @@ getTableNames <- function(connection, databaseSchema) {
     tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
   }
   return(toupper(tables))
+}
+
+cleanDatabaseName <- function(name) {
+  if (grepl("^\\[.*\\]$", name) || grepl("^\".*\"$", name)) {
+    name <- substr(name, 2, nchar(name) - 1)
+  }
+  return(name)
+}
+
+cleanSchemaName <- function(name) {
+  # JDBC interprets schema as a regular expression, so make valid expression
+  name <- cleanDatabaseName(name)
+  name <- gsub("\\\\", "\\\\\\\\", name)
+  return(name)
 }
