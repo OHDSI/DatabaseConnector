@@ -55,7 +55,7 @@ getTableNames <- function(connection, databaseSchema) {
     databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
     if (length(databaseSchema) == 1) {
       if (connection@dbms %in% c("sql server", "pdw")) {
-        database <- cleanDatabaseOrSchemaName(databaseSchema)
+        database <- cleanDatabaseName(databaseSchema)
         schema <- "dbo"
       } else {
         database <- rJava::.jnull("java/lang/String")
