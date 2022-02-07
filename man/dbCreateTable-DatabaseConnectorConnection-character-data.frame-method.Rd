@@ -9,6 +9,7 @@
   name,
   fields,
   oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...,
   row.names = NULL,
   temporary = FALSE
@@ -37,7 +38,10 @@ Field types are unescaped.
 A data frame: field types are generated using
 \code{\link[DBI:dbDataType]{dbDataType()}}.}
 
-\item{oracleTempSchema}{Specifically for Oracle, a schema with write privileges where temp tables
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
+
+\item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
+emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Other parameters passed on to methods.}

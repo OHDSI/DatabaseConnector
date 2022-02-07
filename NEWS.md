@@ -9,6 +9,10 @@ Changes:
 
 3. More informative error messages when user forgets to provide a connection property (like a password).
 
+4. Also deprecating `oracleTempSchema` in DBI functions.
+
+5. Adding `existsTable()` function.
+
 Bugfixes:
 
 1. Fixing `getTableNames()` when the database or schema name contains escaped characters.

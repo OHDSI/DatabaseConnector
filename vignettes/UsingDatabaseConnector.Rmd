@@ -156,14 +156,17 @@ Sometimes the data to be fetched from the database is too large to fit into memo
 ```{r eval=FALSE}
 library(Andromeda)
 x <- andromeda()
-querySqlToAndromeda(conn, "SELECT * FROM person", andromeda = x, andromedaTableName = "person)
+querySqlToAndromeda(connection = conn, 
+                    sql = "SELECT * FROM person", 
+                    andromeda = x, 
+                    andromedaTableName = "person")
 ```
 
 Where `x` is now an `Andromeda` object with table `person`. 
 
 ## Querying different platforms using the same SQL
 
-One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the [SqlRender package](https://ohdsi.github.io/SqlRender/) was developed. SqlRender can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the `render` and `translate` functions in `SqlRender`: `renderTranslateExecuteSql`, `renderTranslateQuerySql`, `renderTranslateQuerySqlToAndromeda`. For example:
+One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the [SqlRender package](https://ohdsi.github.io/SqlRender/) was developed. `SqlRender` can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the `render` and `translate` functions in `SqlRender`: `renderTranslateExecuteSql`, `renderTranslateQuerySql`, `renderTranslateQuerySqlToAndromeda`. For example:
 
 ```{r eval=FALSE}
 persons <- renderTranslatequerySql(conn, 
@@ -171,6 +174,8 @@ persons <- renderTranslatequerySql(conn,
                                    schema = "cdm_synpuf")
 ```
 Note that the SQL Server-specific 'TOP 10' syntax will be translated to for example 'LIMIT 10' on PostgreSQL, and that the SQL parameter `@schema` will be instantiated with the provided value 'cdm_synpuf'.
+
+Note that, on some platforms like Oracle, when using temp tables, it might be required to provide a `tempEmulationSchema`, since these platforms do not support tables the way other platforms do. 
 
 # Inserting tables
 

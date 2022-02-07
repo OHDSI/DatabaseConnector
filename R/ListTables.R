@@ -1,6 +1,6 @@
 # @file ListTables.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -22,14 +22,7 @@
 #' This function returns a list of all tables in a database schema.
 #'
 #' @param connection       The connection to the database server.
-#' @param databaseSchema   The name of the database schema. See details for platform-specific details.
-#'
-#' @details
-#' The \code{databaseSchema} argument is interpreted differently according to the different platforms:
-#' SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-#' 'my_database.dbo'. PostgreSQL and Redshift: The databaseSchema should specify the schema. Oracle:
-#' The databaseSchema should specify the Oracle 'user'. MySql and Impala: The databaseSchema should
-#' specify the database.
+#' @template DatabaseSchema
 #'
 #' @return
 #' A character vector of table names. To ensure consistency across platforms, these table names are in
@@ -84,6 +77,26 @@ getTableNames <- function(connection, databaseSchema) {
   return(toupper(tables))
 }
 
+#' Does the table exist?
+#'
+#' @description
+#' Checks whether a table exists. Accounts for surrounding escape characters. 
+#' Case insensitive.
+#'
+#' @param connection       The connection to the database server.
+#' @template DatabaseSchema
+#' @param tableName        The name of the table to check.
+#'
+#' @return
+#' A logical value indicating whether the table exits.
+#'
+#' @export
+existsTable <- function(connection, databaseSchema, tableName) {
+  tables <- getTableNames(connection, databaseSchema)
+  tableName <- toupper(cleanTableName(tableName))
+  return(tableName %in% tables)
+}
+
 cleanDatabaseName <- function(name) {
   if (grepl("^\\[.*\\]$", name) || grepl("^\".*\"$", name)) {
     name <- substr(name, 2, nchar(name) - 1)
@@ -96,4 +109,8 @@ cleanSchemaName <- function(name) {
   name <- cleanDatabaseName(name)
   name <- gsub("\\\\", "\\\\\\\\", name)
   return(name)
+}
+
+cleanTableName <- function(name) {
+  return(cleanDatabaseName(name))
 }

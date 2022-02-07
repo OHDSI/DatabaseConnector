@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -105,10 +105,7 @@ trySettingAutoCommit <- function(connection, value) {
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param createTable         Create a new table? If false, will append to existing table.
 #' @param tempTable           Should the table created as a temp table?
-#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                            emulate temp tables, provide a schema with write privileges where temp tables
-#'                            can be created.
+#' @template TempEmulationSchema 
 #' @param bulkLoad            If using Redshift, PDW, Hive or Postgres, use more performant bulk loading
 #'                            techniques. Does not work for temp tables (except for HIVE). See Details for
 #'                            requirements for the various platforms.

@@ -1,6 +1,6 @@
 # @file Sql.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -641,10 +641,7 @@ querySql <- function(connection,
 #'                            there will be no progress bar, and no per-statement error messages. If the
 #'                            database platform does not support batched updates the query is executed as
 #'                            ordinarily.
-#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                            emulate temp tables, provide a schema with write privileges where temp tables
-#'                            can be created.
+#' @template TempEmulationSchema
 #' @param ...                 Parameters that will be used to render the SQL.
 #'
 #' @details
@@ -708,10 +705,7 @@ renderTranslateExecuteSql <- function(connection,
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
-#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                            emulate temp tables, provide a schema with write privileges where temp tables
-#'                            can be created.
+#' @template TempEmulationSchema
 #' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
 #'                          32-bit integers will be represented using R's native \code{Integer} class.
 #' @param integer64AsNumeric  Logical: should 64-bit integers be converted to numeric (double) values? If FALSE

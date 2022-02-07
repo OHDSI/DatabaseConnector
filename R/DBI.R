@@ -1,6 +1,6 @@
 # @file DBI.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -411,8 +411,14 @@ setMethod(
     if (length(name) != 1) {
       abort("Name should be a single string")
     }
-    tables <- dbListTables(conn, name = name, database = database, schema = schema)
-    return(tolower(name) %in% tolower(tables))
+    if (is.null(database)) {
+      databaseSchema <- schema
+    } else {
+      databaseSchema <- paste(database, schema, sep = ".")
+    }
+    return(existsTable(connection = conn,
+                       databaseSchema = databaseSchema, 
+                       tableName = name))
   }
 )
 
@@ -421,15 +427,21 @@ setMethod(
 #' @param overwrite          Overwrite an existing table (if exists)?
 #' @param append             Append to existing table?
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
-#'                           can be created.
+#' @template TempEmulationSchema
 #
 #' @export
 setMethod(
   "dbWriteTable",
   signature("DatabaseConnectorConnection", "character", "data.frame"),
   function(conn,
-           name, value, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, ...) {
+           name, value, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+           .frequency = "regularly",
+           .frequency_id = "oracleTempSchema"
+      )
+      tempEmulationSchema <- oracleTempSchema
+    }
     if (overwrite) {
       append <- FALSE
     }
@@ -439,7 +451,8 @@ setMethod(
       data = value,
       dropTableIfExists = overwrite,
       createTable = !append,
-      tempTable = temporary, oracleTempSchema = oracleTempSchema
+      tempTable = temporary, 
+      tempEmulationSchema = tempEmulationSchema
     )
     invisible(TRUE)
   }
@@ -448,22 +461,29 @@ setMethod(
 #' @inherit
 #' DBI::dbAppendTable title description params details references return seealso
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
-#'                           can be created.
+#' @template TempEmulationSchema
 #
 #' @export
 setMethod(
   "dbAppendTable",
   signature("DatabaseConnectorConnection", "character", "data.frame"),
   function(conn,
-           name, value, temporary = FALSE, oracleTempSchema = NULL, ..., row.names = NULL) {
+           name, value, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL) {
+    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+           .frequency = "regularly",
+           .frequency_id = "oracleTempSchema"
+      )
+      tempEmulationSchema <- oracleTempSchema
+    }
     insertTable(
       connection = conn,
       tableName = name,
       data = value,
       dropTableIfExists = FALSE,
       createTable = FALSE,
-      tempTable = temporary, oracleTempSchema = oracleTempSchema
+      tempTable = temporary, 
+      tempEmulationSchema = tempEmulationSchema
     )
     invisible(TRUE)
   }
@@ -472,18 +492,24 @@ setMethod(
 #' @inherit
 #' DBI::dbCreateTable title description params details references return seealso
 #' @param temporary          Should the table created as a temp table?
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
-#'                           can be created.
+#' @template TempEmulationSchema
 #
 #' @export
 setMethod(
   "dbCreateTable",
   signature("DatabaseConnectorConnection", "character", "data.frame"),
   function(conn,
-           name, fields, oracleTempSchema = NULL, ..., row.names = NULL, temporary = FALSE) {
+           name, fields, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL, temporary = FALSE) {
+    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+           .frequency = "regularly",
+           .frequency_id = "oracleTempSchema"
+      )
+      tempEmulationSchema <- oracleTempSchema
+    }
     insertTable(
       connection = conn, tableName = name, data = fields[FALSE, ], dropTableIfExists = TRUE,
-      createTable = TRUE, tempTable = temporary, oracleTempSchema = oracleTempSchema
+      createTable = TRUE, tempTable = temporary, tempEmulationSchema = tempEmulationSchema
     )
     invisible(TRUE)
   }
@@ -493,13 +519,15 @@ setMethod(
 #' DBI::dbReadTable title description params details references return seealso
 #' @param database              Name of the database.
 #' @param schema                Name of the schema.
-#' @param oracleTempSchema      DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema   Some database platforms like Oracle and Impala do not truly support
-#'                              temp tables. To emulate temp tables, provide a schema with write
-#'                              privileges where temp tables can be created.
+#' @template TempEmulationSchema
+#'
 #' @export
-setMethod("dbReadTable", signature("DatabaseConnectorConnection", "character"), function(conn, name,
-                                                                                         database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+setMethod("dbReadTable", signature("DatabaseConnectorConnection", "character"), function(conn, 
+                                                                                         name,
+                                                                                         database = NULL, 
+                                                                                         schema = NULL, 
+                                                                                         oracleTempSchema = NULL, 
+                                                                                         tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                                                          ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
@@ -528,14 +556,21 @@ setMethod("dbReadTable", signature("DatabaseConnectorConnection", "character"), 
 #' DBI::dbRemoveTable title description params details references return seealso
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
-#' @param oracleTempSchema   Specifically for Oracle, a schema with write privileges where temp tables
-#'                           can be created.
+#' @template TempEmulationSchema
+#'
 #' @export
 setMethod(
   "dbRemoveTable",
   signature("DatabaseConnectorConnection", "character"),
   function(conn, name,
-           database = NULL, schema = NULL, oracleTempSchema = NULL, ...) {
+           database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+           .frequency = "regularly",
+           .frequency_id = "oracleTempSchema"
+      )
+      tempEmulationSchema <- oracleTempSchema
+    }
     if (!is.null(schema)) {
       name <- paste(schema, name, sep = ".")
     }
@@ -547,7 +582,7 @@ setMethod(
     sql <- SqlRender::translate(
       sql = sql,
       targetDialect = conn@dbms,
-      oracleTempSchema = oracleTempSchema
+      tempEmulationSchema = tempEmulationSchema
     )
     for (statement in SqlRender::splitSql(sql)) {
       lowLevelExecuteSql(conn, statement)

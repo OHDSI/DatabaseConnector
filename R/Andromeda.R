@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -261,10 +261,7 @@ querySqlToAndromeda <- function(connection,
 #'                               Defaults to 'errorReportSql.txt' in the current working directory.
 #' @param snakeCaseToCamelCase   If true, field names are assumed to use snake_case, and are converted
 #'                               to camelCase.
-#' @param oracleTempSchema       DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema    Some database platforms like Oracle and Impala do not truly support
-#'                               temp tables. To emulate temp tables, provide a schema with write
-#'                               privileges where temp tables can be created.
+#' @template TempEmulationSchema
 #' @param integerAsNumeric       Logical: should 32-bit integers be converted to numeric (double)
 #'                               values? If FALSE 32-bit integers will be represented using R's native
 #'                               \code{Integer} class.
