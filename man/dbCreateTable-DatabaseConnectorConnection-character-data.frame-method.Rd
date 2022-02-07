@@ -19,15 +19,7 @@
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
-\item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
-\itemize{
-\item a character string with the unquoted DBMS table name,
-e.g. \code{"table_name"},
-\item a call to \code{\link[DBI:Id]{Id()}} with components to the fully qualified table name,
-e.g. \code{Id(schema = "my_schema", table = "table_name")}
-\item a call to \code{\link[DBI:SQL]{SQL()}} with the quoted and fully qualified table name
-given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
-}}
+\item{name}{Name of the table, escaped with \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}.}
 
 \item{fields}{Either a character vector or a data frame.
 
@@ -44,14 +36,11 @@ A data frame: field types are generated using
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
-\item{...}{Other parameters passed on to methods.}
+\item{...}{Other arguments used by individual methods.}
 
 \item{row.names}{Must be \code{NULL}.}
 
 \item{temporary}{Should the table created as a temp table?}
-}
-\value{
-\code{dbCreateTable()} returns \code{TRUE}, invisibly.
 }
 \description{
 The default \code{dbCreateTable()} method calls \code{\link[DBI:sqlCreateTable]{sqlCreateTable()}} and

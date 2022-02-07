@@ -21,6 +21,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,23 +35,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="news/index.html">Changelog</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -63,13 +56,16 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="news/index.html">Changelog</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
+  <a href="https://ohdsi.github.io/Hades" class="external-link"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
-  <a href="https://github.com/OHDSI/DatabaseConnector/">
+  <a href="https://github.com/OHDSI/DatabaseConnector/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -87,20 +83,20 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<div id="databaseconnector" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#databaseconnector" class="anchor"></a>DatabaseConnector</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="databaseconnector">DatabaseConnector<a class="anchor" aria-label="anchor" href="#databaseconnector"></a>
+</h1></div>
 
-<p>DatabaseConnector is part of <a href="https://ohdsi.github.io/Hades/">HADES</a>.</p>
+<p>DatabaseConnector is part of <a href="https://ohdsi.github.io/Hades/" class="external-link">HADES</a>.</p>
 </div>
-<div id="introduction" class="section level1">
-<h1 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h1>
+<div class="section level1">
+<h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h1>
 <p>This R package provides function for connecting to various DBMSs. Together with the <code>SqlRender</code> package, the main goal of <code>DatabaseConnector</code> is to provide a uniform interface across database platforms: the same code should run and produce equivalent results, regardless of the database back end.</p>
 </div>
-<div id="features" class="section level1">
-<h1 class="hasAnchor">
-<a href="#features" class="anchor"></a>Features</h1>
+<div class="section level1">
+<h1 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+</h1>
 <ul>
 <li>Create connections to the various database platforms:
 <ul>
@@ -129,9 +125,9 @@
 <li>Integrates with RStudio’s Connections tab</li>
 </ul>
 </div>
-<div id="examples" class="section level1">
-<h1 class="hasAnchor">
-<a href="#examples" class="anchor"></a>Examples</h1>
+<div class="section level1">
+<h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h1>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span>dbms<span class="op">=</span><span class="st">"postgresql"</span>, 
                                              server<span class="op">=</span><span class="st">"localhost"</span>,
@@ -142,72 +138,66 @@
 <span class="fu"><a href="reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>,<span class="st">"SELECT COUNT(*) FROM person"</span><span class="op">)</span>
 <span class="fu"><a href="reference/disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="technology" class="section level1">
-<h1 class="hasAnchor">
-<a href="#technology" class="anchor"></a>Technology</h1>
+<div class="section level1">
+<h1 id="technology">Technology<a class="anchor" aria-label="anchor" href="#technology"></a>
+</h1>
 <p>DatabaseConnector is an R package using Java’s JDBC drivers.</p>
 </div>
-<div id="system-requirements" class="section level1">
-<h1 class="hasAnchor">
-<a href="#system-requirements" class="anchor"></a>System Requirements</h1>
+<div class="section level1">
+<h1 id="system-requirements">System Requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
+</h1>
 <p>Running the package requires R with the package rJava installed. Also requires Java 1.8 or higher.</p>
 </div>
-<div id="installation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h1>
-<ol>
-<li><p>See the instructions <a href="https://ohdsi.github.io/Hades/rSetup.html">here</a> for configuring your R environment, including Java.</p></li>
+<div class="section level1">
+<h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h1>
+<ol style="list-style-type: decimal">
+<li><p>See the instructions <a href="https://ohdsi.github.io/Hades/rSetup.html" class="external-link">here</a> for configuring your R environment, including Java.</p></li>
 <li><p>To install the latest stable version, install from CRAN:</p></li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"DatabaseConnector"</span><span class="op">)</span></code></pre></div>
-<p>To download and use the JDBC drivers for Oracle, SQL Server, PDW, PostgreSQL, Spark, or RedShift, you can use the <code><a href="reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> function. For BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html">these instructions</a>.</p>
-<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the <strong>version 9.2.0</strong> .zip from <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases">Microsoft</a> and extract its contents to a folder. In the extracted folder you will find the file sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code>Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</code>.</p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"DatabaseConnector"</span><span class="op">)</span></code></pre></div>
+<p>To download and use the JDBC drivers for Oracle, SQL Server, PDW, PostgreSQL, Spark, or RedShift, you can use the <code><a href="reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> function. For BigQuery, Impala, or Netezza, see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html" class="external-link">these instructions</a>.</p>
+<p>To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the <strong>version 9.2.0</strong> .zip from <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases" class="external-link">Microsoft</a> and extract its contents to a folder. In the extracted folder you will find the file sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable <code>PATH_TO_AUTH_DLL</code>, so for example <code>Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")</code>.</p>
 </div>
-<div id="user-documentation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#user-documentation" class="anchor"></a>User Documentation</h1>
-<p>Documentation can be found on the <a href="https://ohdsi.github.io/DatabaseConnector/">package website</a>.</p>
-<p>PDF versions of the documentation are also available:</p>
+<div class="section level1">
+<h1 id="user-documentation">User Documentation<a class="anchor" aria-label="anchor" href="#user-documentation"></a>
+</h1>
+<p>Documentation can be found on the <a href="https://ohdsi.github.io/DatabaseConnector/" class="external-link">package website</a>.</p>
+<p>PDF versions of the documentation are also available: * Vignette: <a href="https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/UsingDatabaseConnector.pdf" class="external-link">Using DatabaseConnector</a> * Package manual: <a href="https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf" class="external-link">DatabaseConnector manual</a></p>
+</div>
+<div class="section level1">
+<h1 id="support">Support<a class="anchor" aria-label="anchor" href="#support"></a>
+</h1>
 <ul>
-<li>Vignette: <a href="https://github.com/OHDSI/DatabaseConnector/raw/master/inst/doc/UsingDatabaseConnector.pdf">Using DatabaseConnector</a>
+<li>Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers" class="external-link">OHDSI Forum</a>
 </li>
-<li>Package manual: <a href="https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf">DatabaseConnector manual</a>
-</li>
+<li>We use the <a href="https://github.com/OHDSI/DatabaseConnector/issues" class="external-link">GitHub issue tracker</a> for all bugs/issues/enhancements</li>
 </ul>
 </div>
-<div id="support" class="section level1">
-<h1 class="hasAnchor">
-<a href="#support" class="anchor"></a>Support</h1>
-<ul>
-<li>Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
-</li>
-<li>We use the <a href="https://github.com/OHDSI/DatabaseConnector/issues">GitHub issue tracker</a> for all bugs/issues/enhancements</li>
-</ul>
+<div class="section level1">
+<h1 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h1>
+<p>Read <a href="https://ohdsi.github.io/Hades/contribute.html" class="external-link">here</a> how you can contribute to this package.</p>
 </div>
-<div id="contributing" class="section level1">
-<h1 class="hasAnchor">
-<a href="#contributing" class="anchor"></a>Contributing</h1>
-<p>Read <a href="https://ohdsi.github.io/Hades/contribute.html">here</a> how you can contribute to this package.</p>
+<div class="section level1">
+<h1 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h1>
+<p>DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers <a href="https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/inst/COPYRIGHTS" class="external-link">fall under their own respective licenses</a>.</p>
 </div>
-<div id="license" class="section level1">
-<h1 class="hasAnchor">
-<a href="#license" class="anchor"></a>License</h1>
-<p>DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers <a href="https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/inst/COPYRIGHTS">fall under their own respective licenses</a>.</p>
-</div>
-<div id="development" class="section level1">
-<h1 class="hasAnchor">
-<a href="#development" class="anchor"></a>Development</h1>
+<div class="section level1">
+<h1 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
+</h1>
 <p>DatabaseConnector is being developed in R Studio.</p>
-<div id="development-status" class="section level3">
-<h3 class="hasAnchor">
-<a href="#development-status" class="anchor"></a>Development status</h3>
+<div class="section level3">
+<h3 id="development-status">Development status<a class="anchor" aria-label="anchor" href="#development-status"></a>
+</h3>
 <p>Stable. The code is actively being used in several projects.</p>
 </div>
 </div>
-<div id="acknowledgements" class="section level1">
-<h1 class="hasAnchor">
-<a href="#acknowledgements" class="anchor"></a>Acknowledgements</h1>
+<div class="section level1">
+<h1 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h1>
 <ul>
 <li>This project is supported in part through the National Science Foundation grant IIS 1251151.</li>
 </ul>
@@ -217,52 +207,61 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=DatabaseConnector">https://​cloud.r-project.org/​package=DatabaseConnector</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/OHDSI/DatabaseConnector/">https://​github.com/​OHDSI/​DatabaseConnector/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/OHDSI/DatabaseConnector/issues">https://​github.com/​OHDSI/​DatabaseConnector/​issues</a>
-</li>
-<li>Ask a question at <br><a href="http://forums.ohdsi.org">http://​forums.ohdsi.org</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=DatabaseConnector" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/OHDSI/DatabaseConnector/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/OHDSI/DatabaseConnector/issues" class="external-link">Report a bug</a></li>
+<li><a href="http://forums.ohdsi.org" class="external-link">Ask a question</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>Apache License</li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Martijn Schuemie <br><small class="roles"> Author, maintainer </small>  </li>
-<li>Marc Suchard <br><small class="roles"> Author </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html#citation">Citing DatabaseConnector</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/OHDSI/DatabaseConnector/actions?query=workflow%3AR-CMD-check"><img src="https://github.com/OHDSI/DatabaseConnector/workflows/R-CMD-check/badge.svg" alt="Build Status"></a></li>
-<li><a href="https://codecov.io/github/OHDSI/DatabaseConnector?branch=master"><img src="https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=master" alt="codecov.io"></a></li>
-<li><a href="https://cran.r-project.org/package=DatabaseConnector"><img src="http://www.r-pkg.org/badges/version/DatabaseConnector" alt="CRAN_Status_Badge"></a></li>
-<li><a href="https://cran.r-project.org/package=DatabaseConnector"><img src="http://cranlogs.r-pkg.org/badges/DatabaseConnector" alt="CRAN_Status_Badge"></a></li>
+<li>Martijn Schuemie <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Marc Suchard <br><small class="roles"> Author </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/OHDSI/DatabaseConnector/actions?query=workflow%3AR-CMD-check" class="external-link"><img src="https://github.com/OHDSI/DatabaseConnector/workflows/R-CMD-check/badge.svg" alt="Build Status"></a></li>
+<li><a href="https://codecov.io/github/OHDSI/DatabaseConnector?branch=main" class="external-link"><img src="https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=main" alt="codecov.io"></a></li>
+<li><a href="https://cran.r-project.org/package=DatabaseConnector" class="external-link"><img src="http://www.r-pkg.org/badges/version/DatabaseConnector" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cran.r-project.org/package=DatabaseConnector" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/DatabaseConnector" alt="CRAN_Status_Badge"></a></li>
+</ul>
 </div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Martijn Schuemie, Marc Suchard.</p>
+  <p></p>
+<p>Developed by Martijn Schuemie, Marc Suchard.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -270,6 +269,8 @@
 
   
 
+
+  
 
   </body>
 </html>

@@ -15,6 +15,8 @@
 \code{dbClearResult()} returns \code{TRUE}, invisibly, for result sets obtained from
 both \code{dbSendQuery()}
 and \code{dbSendStatement()}.
+An attempt to close an already closed result set issues a warning
+in both cases.
 }
 \description{
 Frees all resources (local and remote) associated with a result set.  In some
