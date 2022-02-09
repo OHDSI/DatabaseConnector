@@ -148,26 +148,41 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
   driver
 }
 
-findPathToJar <- function(name, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
-  if (missing(pathToDriver) || is.null(pathToDriver) || is.na(pathToDriver)) {
-    abort("The pathToDriver argument must be provided")
-  } else if (!dir.exists(pathToDriver)) {
+checkPathToDriver <- function(pathToDriver, dbms) {
+  if (!is.null(dbms) && dbms %in% c("sqlite", "sqlite extended")) {
+    return()
+  }
+  if (pathToDriver == "") {
+    abort(paste(
+      "The `pathToDriver` argument hasn't been specified.",
+      "Please set the path to the location containing the JDBC driver.",
+      "See `?jdbcDrivers` for instructions on downloading the drivers."
+    ))
+  }
+  if (!dir.exists(pathToDriver)) {
     if (file.exists(pathToDriver)) {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
+      abort(sprintf(
+        "The folder location pathToDriver = '%s' points to a file, but should point to a folder.",
+        pathToDriver
+      ))
     } else {
-      abort(paste0(
+      abort(paste(
         "The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-        "Please set the folder to the location containing the JDBC driver.",
-        "You can download most drivers using the `downloadJdbcDrivers()` function."
+        "Please set the path to the location containing the JDBC driver.",
+        "See `?jdbcDrivers` for instructions on downloading the drivers."
       ))
     }
   }
+}
+
+findPathToJar <- function(name, pathToDriver) {
+  checkPathToDriver(pathToDriver, NULL)
   files <- list.files(path = pathToDriver, pattern = name, full.names = TRUE)
   if (length(files) == 0) {
     abort(paste(
-      "No drives matching pattern", name, "found in folder", pathToDriver, ".",
+      sprintf("No drivers matching pattern '%s'found in folder '%s'.", name, pathToDriver),
       "\nPlease download the JDBC drivers for your database to the folder.",
-      "You can download most drivers using the `downloadJdbcDrivers()` function."
+      "See `?jdbcDrivers` for instructions on downloading the drivers."
     ))
   } else {
     return(files)

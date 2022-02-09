@@ -15,6 +15,8 @@ Changes:
 
 6. Splitting vignette into two, because many users will only need to now how to connect to their database.
 
+7. Improved error messaging related to the driver folder.
+
 Bugfixes:
 
 1. Fixing `getTableNames()` when the database or schema name contains escaped characters.
