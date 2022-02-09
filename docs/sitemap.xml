@@ -4,7 +4,13 @@
     <loc>/404.html</loc>
   </url>
   <url>
+    <loc>/articles/Connecting.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/Querying.html</loc>
   </url>
   <url>
     <loc>/articles/UsingDatabaseConnector.html</loc>

@@ -13,6 +13,8 @@ Changes:
 
 5. Adding `existsTable()` function.
 
+6. Splitting vignette into two, because many users will only need to now how to connect to their database.
+
 Bugfixes:
 
 1. Fixing `getTableNames()` when the database or schema name contains escaped characters.

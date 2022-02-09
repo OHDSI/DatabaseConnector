@@ -40,7 +40,10 @@ connect(dbms, connectionString, user, password, pathToDriver)
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/UsingDatabaseConnector.html">Using DatabaseConnector</a>
+      <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/Querying.html">Querying a database</a>
     </li>
   </ul></li>
 <li>
@@ -133,7 +136,10 @@ direct commands to the database engine.</p>
     </div>
     <div id="dbms-parameter-details">
     <h2>DBMS parameter details</h2>
-    <p>Depending on the DBMS, the function arguments have slightly different
+    
+ 
+
+<p>Depending on the DBMS, the function arguments have slightly different
 interpretations: Oracle:</p><ul><li><p><code>user</code>. The user name used to access the server</p></li>
 <li><p><code>password</code>. The password for that user</p></li>
 <li><p><code>server</code>. This field contains the SID, or host and servicename, SID, or TNSName:
@@ -198,8 +204,14 @@ interpretations: Oracle:</p><ul><li><p><code>user</code>. The user name used to 
         'jdbc:spark://my-org.dev.cloud.databricks.com...').</p></li>
 <li><p><code>user</code>. The user name used to access the server.</p></li>
 <li><p><code>password</code>. The password for that user.</p></li>
-</ul><p>To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
-driver. Download the **version 9.2.0** .zip from [Microsoft](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases) 
+</ul></div>
+    <div id="windows-authentication-for-sql-server">
+    <h2>Windows authentication for SQL Server</h2>
+    
+
+
+<p>To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
+driver. Download the version 9.2.0 .zip from <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases" class="external-link">Microsoft</a> 
 and extract its contents to a folder. In the extracted folder you will find the file
 sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or
 ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to

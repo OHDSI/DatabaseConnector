@@ -66,17 +66,18 @@ Installation
 install.packages("DatabaseConnector")
 ```
 
+3. Download the database drivers as described [here](http://ohdsi.github.io/DatabaseConnector/articles/Connecting.html#obtaining-drivers)
 
-To download and use the JDBC drivers for Oracle, SQL Server, PDW, PostgreSQL, Spark, or RedShift, you can use the `downloadJdbcDrivers()` function. For BigQuery, Impala, or Netezza, see [these instructions](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html).
-
-To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the **version 9.2.0** .zip from [Microsoft](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases) and extract its contents to a folder. In the extracted folder you will find the file sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable `PATH_TO_AUTH_DLL`, so for example `Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")`.
+4. (Optionally) To use Windows Authentication for SQL Server, download the authentication DDL file as described  [here](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1)
 
 User Documentation
 ==================
 Documentation can be found on the [package website](https://ohdsi.github.io/DatabaseConnector/).
 
 PDF versions of the documentation are also available:
-* Vignette: [Using DatabaseConnector](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/UsingDatabaseConnector.pdf)
+
+* Vignette: [Connecting to a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Connecting.pdf)
+* Vignette: [Querying a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Querying.pdf)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf) 
 
 Support
