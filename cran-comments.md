@@ -1,4 +1,4 @@
-This update includes 7 changes and 2 bugfixes since 5.0.0 (see NEWS.md)
+This update includes 8 changes and 2 bugfixes since 5.0.0 (see NEWS.md)
 
 ---
 

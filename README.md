@@ -8,8 +8,10 @@ DatabaseConnector
 
 DatabaseConnector is part of [HADES](https://ohdsi.github.io/Hades/).
 
+
 Introduction
 ============
+
 This R package provides function for connecting to various DBMSs. Together with the `SqlRender` package, the main goal of `DatabaseConnector` is to provide a uniform interface across database platforms: the same code should run and produce equivalent results, regardless of the database back end.
 
 Features
@@ -34,8 +36,10 @@ Features
 - Supports the DBI interface
 - Integrates with RStudio's Connections tab
 
+
 Examples
 ========
+
 ```r
 connectionDetails <- createConnectionDetails(dbms="postgresql", 
                                              server="localhost",
@@ -47,13 +51,18 @@ querySql(conn,"SELECT COUNT(*) FROM person")
 disconnect(conn)
 ```
 
+
 Technology
 ============
+
 DatabaseConnector is an R package using Java's JDBC drivers. 
+
 
 System Requirements
 ===================
+
 Running the package requires R with the package rJava installed. Also requires Java 1.8 or higher.
+
 
 Installation
 ============
@@ -66,9 +75,9 @@ Installation
 install.packages("DatabaseConnector")
 ```
 
-3. Download the database drivers as described [here](http://ohdsi.github.io/DatabaseConnector/articles/Connecting.html#obtaining-drivers)
+3. Download the database drivers as described [here](http://ohdsi.github.io/DatabaseConnector/articles/Connecting.html#obtaining-drivers).
 
-4. (Optionally) To use Windows Authentication for SQL Server, download the authentication DDL file as described  [here](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1)
+4. (Optionally) To use Windows Authentication for SQL Server, download the authentication DDL file as described  [here](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1).
 
 User Documentation
 ==================
@@ -80,27 +89,38 @@ PDF versions of the documentation are also available:
 * Vignette: [Querying a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Querying.pdf)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf) 
 
+
 Support
 =======
+
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
 * We use the <a href="https://github.com/OHDSI/DatabaseConnector/issues">GitHub issue tracker</a> for all bugs/issues/enhancements
 
+
 Contributing
 ============
+
 Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribute to this package.
+
 
 License
 =======
+
 DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers [fall under their own respective licenses](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/inst/COPYRIGHTS).
+
 
 Development
 ===========
+
 DatabaseConnector is being developed in R Studio.
+
 
 ### Development status
 
 Stable. The code is actively being used in several projects.
 
-# Acknowledgements
-- This project is supported in part through the National Science Foundation grant IIS 1251151.
 
+Acknowledgements
+================
+
+- This project is supported in part through the National Science Foundation grant IIS 1251151.
