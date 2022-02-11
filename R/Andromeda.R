@@ -211,6 +211,9 @@ querySqlToAndromeda <- function(connection,
   if (!inherits(andromeda, "Andromeda")) {
     stop("The andromeda argument must be an Andromeda object.")
   }
+  if (packageVersion("Andromeda") < "0.6.0") {
+    stop(sprintf("Andromeda version 0.6.0 or higher required, but version %s found", packageVersion("Andromeda")))
+  }
 
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
