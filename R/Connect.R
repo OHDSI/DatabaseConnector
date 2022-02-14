@@ -397,7 +397,9 @@ connect <- function(connectionDetails = NULL,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms
+                                           dbms = dbms,
+                                           identifierQuote = '"',
+                                           stringQuote = '"'
       )
     }
     attr(connection, "dbms") <- dbms
