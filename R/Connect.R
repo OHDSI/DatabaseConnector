@@ -587,7 +587,7 @@ connect <- function(connectionDetails = NULL,
 
 connectUsingJdbcDriver <- function(jdbcDriver,
                                    url,
-                                   identifierQuote = "'",
+                                   identifierQuote = '"',
                                    stringQuote = "'",
                                    dbms = "Unknown",
                                    ...) {
