@@ -590,3 +590,7 @@ setMethod(
     return(TRUE)
   }
 )
+
+#' @importFrom dbplyr dbplyr_edition
+#' @export
+dbplyr_edition.DatabaseConnectorConnection <- function(con) 2L
