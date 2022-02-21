@@ -1,3 +1,7 @@
+library(testthat)
+library(dplyr)
+
+# SQLite -------------------------------------------------
 test_that("dplyr tbl reference works", {
   
   con <- connect(dbms = "sqlite", server = tempfile())
@@ -10,3 +14,62 @@ test_that("dplyr tbl reference works", {
   expect_equal(cars, cars2)
   disconnect(con)
 })
+
+
+details <- list()
+
+# Postgresql --------------------------------------------------
+details$postgresql <- createConnectionDetails(
+  dbms = "postgresql",
+  user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+  password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
+  server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
+)
+
+# SQL Server --------------------------------------------------
+details$sql_server <- createConnectionDetails(
+  dbms = "sql server",
+  user = Sys.getenv("CDM5_SQL_SERVER_USER"),
+  password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
+  server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
+)
+
+# Oracle --------------------------------------------------
+details$oracle <- createConnectionDetails(
+  dbms = "oracle",
+  user = Sys.getenv("CDM5_ORACLE_USER"),
+  password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
+  server = Sys.getenv("CDM5_ORACLE_SERVER")
+)
+
+# RedShift  --------------------------------------------------
+details$redshift <- createConnectionDetails(
+  dbms = "redshift",
+  user = Sys.getenv("CDM5_REDSHIFT_USER"),
+  password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+  server = Sys.getenv("CDM5_REDSHIFT_SERVER")
+)
+
+
+dbms <- "sql_server"
+
+for (dbms in c("postgresql", "sql_server", "oracle", "redshift")) {
+
+  test_that(paste("dplyr verbs work with", dbms), {
+    con <- connect(details[[dbms]])
+    person <- tbl(con, dbplyr::in_schema("cdmv531", "person"))
+    
+    df <- person %>% 
+      group_by(year_of_birth) %>% 
+      summarise(n = n()) %>% 
+      arrange(desc(n)) %>% 
+      head(5) %>% 
+      collect()
+    
+    expect_s3_class(df, "data.frame")
+    expect_equal(nrow(df), 5)
+  
+    disconnect(con)
+    
+  })
+}
