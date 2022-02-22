@@ -20,10 +20,6 @@ scalar
 numeric
 that specifies the number of rows affected
 by the statement.
-An error is raised when issuing a statement over a closed
-or invalid connection,
-if the syntax of the statement is invalid,
-or if the statement is not a non-\code{NA} string.
 }
 \description{
 Executes a statement and returns the number of rows affected.

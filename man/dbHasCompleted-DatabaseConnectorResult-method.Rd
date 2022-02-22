@@ -18,8 +18,6 @@ For a query initiated by \code{\link[DBI:dbSendQuery]{dbSendQuery()}} with non-e
 and \code{TRUE} after calling \code{\link[DBI:dbFetch]{dbFetch()}} without limit.
 For a query initiated by \code{\link[DBI:dbSendStatement]{dbSendStatement()}},
 \code{dbHasCompleted()} always returns \code{TRUE}.
-Attempting to query completion status for a result set cleared with
-\code{\link[DBI:dbClearResult]{dbClearResult()}} gives an error.
 }
 \description{
 This method returns if the operation has completed.
