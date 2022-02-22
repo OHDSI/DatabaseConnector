@@ -28,6 +28,7 @@ Imports:
     utils,
     DBI (>= 1.0.0),
     urltools,
+    dbplyr,
     bit64
 Suggests:
     aws.s3,
