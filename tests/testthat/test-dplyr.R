@@ -50,26 +50,56 @@ details$redshift <- createConnectionDetails(
   server = Sys.getenv("CDM5_REDSHIFT_SERVER")
 )
 
-
-dbms <- "sql_server"
-
-for (dbms in c("postgresql", "sql_server", "oracle", "redshift")) {
-
-  test_that(paste("dplyr verbs work with", dbms), {
-    con <- connect(details[[dbms]])
-    person <- tbl(con, dbplyr::in_schema("cdmv531", "person"))
-    
-    df <- person %>% 
-      group_by(year_of_birth) %>% 
-      summarise(n = n()) %>% 
-      arrange(desc(n)) %>% 
-      head(5) %>% 
-      collect()
-    
-    expect_s3_class(df, "data.frame")
-    expect_equal(nrow(df), 5)
+# databases using lower case names
+test_that("dplyr verbs work on redshift", {
+  con <- connect(details[["redshift"]])
+  person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
   
-    disconnect(con)
-    
-  })
-}
+  df <- person %>% 
+    group_by(year_of_birth) %>% 
+    summarise(n = n()) %>% 
+    arrange(desc(n)) %>% 
+    head(5) %>% 
+    collect()
+  
+  expect_s3_class(df, "data.frame")
+  expect_equal(nrow(df), 5)
+
+  disconnect(con)
+})
+
+test_that("dplyr verbs work on postgresql", {
+  con <- connect(details[["postgresql"]])
+  person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
+  
+  df <- person %>% 
+    group_by(year_of_birth) %>% 
+    summarise(n = n()) %>% 
+    arrange(desc(n)) %>% 
+    head(5) %>% 
+    collect()
+  
+  expect_s3_class(df, "data.frame")
+  expect_equal(nrow(df), 5)
+
+  disconnect(con)
+})
+
+# databases using uppercase names
+test_that("dplyr verbs work with oracle", {
+  con <- connect(details[["oracle"]])
+  person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"), "PERSON"))
+  
+  df <- person %>% 
+    group_by(YEAR_OF_BIRTH) %>% 
+    summarise(n = n()) %>% 
+    arrange(desc(n)) %>% 
+    head(5) %>% 
+    collect()
+  
+  expect_s3_class(df, "data.frame")
+  expect_equal(nrow(df), 5)
+
+  disconnect(con)
+  
+})

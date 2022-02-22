@@ -74,6 +74,14 @@ setClass("DatabaseConnectorJdbcConnection",
   slots = list(jConnection = "jobjRef")
 )
 
+
+#' Oracle connection class
+#' 
+#' @keywords internal
+#' @export
+setClass("Oracle", contains = "DatabaseConnectorJdbcConnection")
+
+
 #' DatabaseConnectorDbiConnection class.
 #'
 #' @keywords internal
