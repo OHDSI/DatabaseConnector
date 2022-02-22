@@ -616,13 +616,24 @@ connectUsingJdbcDriver <- function(jdbcDriver,
       abort(paste0("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")"))
     }
   }
-  connection <- new("DatabaseConnectorJdbcConnection",
-                    jConnection = jConnection,
-                    identifierQuote = identifierQuote,
-                    stringQuote = stringQuote,
-                    dbms = dbms,
-                    uuid = generateRandomString()
-  )
+  
+  if (dbms == "oracle") {
+    connection <- new("Oracle",
+                      jConnection = jConnection,
+                      identifierQuote = identifierQuote,
+                      stringQuote = stringQuote,
+                      dbms = dbms,
+                      uuid = generateRandomString()
+    )
+  } else {
+    connection <- new("DatabaseConnectorJdbcConnection",
+                      jConnection = jConnection,
+                      identifierQuote = identifierQuote,
+                      stringQuote = stringQuote,
+                      dbms = dbms,
+                      uuid = generateRandomString()
+    )
+  }
   registerWithRStudio(connection)
   return(connection)
 }
