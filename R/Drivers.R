@@ -256,6 +256,47 @@ Pdw <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   new("PdwDriver")
 }
 
+setClass("NetezzaDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+Netezza <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("NetezzaDriver")
+}
+
+setClass("ImpalaDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+Impala <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("ImpalaDriver")
+}
+
+setClass("HiveDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+Hive <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("HiveDriver")
+}
+
+setClass("SparkDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+Spark <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("SparkDriver")
+}
+setClass("BigQueryDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+BigQuery <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("BigQueryDriver")
+}
+
+setClass("RSQLiteDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character", extended_types = "boolean"))
+
+RSQLite <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), extended_types = TRUE) {
+  new("RSQLiteDriver")
+}
+
 
 
 

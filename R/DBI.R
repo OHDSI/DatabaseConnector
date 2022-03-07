@@ -93,9 +93,8 @@ setClass("Spark", contains = "DatabaseConnectorJdbcConnection")
 #' @export
 #' @import DBI
 setClass("DatabaseConnectorRSQLiteConnection",
-  contains = c("DatabaseConnectorConnection", "SQLiteConnection"),
+  contains = c("DatabaseConnectorConnection"),
   slots = list(
-    # TODO use the dbname slot from  RSQLiteConnection instead of a new server slot.
     server = "character"
   )
 )

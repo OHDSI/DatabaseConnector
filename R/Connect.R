@@ -125,7 +125,7 @@ createConnectionDetails <- function(dbms,
 #'   \item \code{connect(dbms, connectionString, pathToDriver))}
 #'   \item \code{connect(dbms, connectionString, user, password, pathToDriver)}
 #' }
-#'
+#' @include Drivers.R
 #' @usage
 #' NULL
 #'
@@ -323,6 +323,7 @@ connectUsingJdbcDriver <- function(jdbcDriver,
 #' }
 #'
 #' @export
+#' @include DBI.R
 setMethod("dbConnect", "DatabaseConnectorDriver", function(drv, ...) {
   NextMethod("dbConnect", drv, ...)
 })
@@ -544,7 +545,7 @@ setMethod("dbConnect", "PostgreSQLDriver", function(drv, user, port, password, e
   return(connection)
 })
 
-setMethod("dbConnnect", "RedshiftDriver", function(drv, user, port, password, extraSettings, connectionString) {
+setMethod("dbConnect", "RedshiftDriver", function(drv, user, port, password, extraSettings, connectionString) {
   inform("Connecting using Redshift driver")
   jarPath <- findPathToJar("^RedshiftJDBC.*\\.jar$", pathToDriver)
   if (grepl("RedshiftJDBC42", jarPath)) {
