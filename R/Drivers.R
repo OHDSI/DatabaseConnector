@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Driver helpers ---------------------------------------------------------------
+
 jdbcDrivers <- new.env()
 
 #' Download DatabaseConnector JDBC Jar files
@@ -188,3 +190,77 @@ findPathToJar <- function(name, pathToDriver) {
     return(files)
   }
 }
+
+# DBI Driver Classes------------------------------------------------------------
+
+#' DatabaseConnectorDriver class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+#' @import methods
+setClass("DatabaseConnectorDriver", contains = "DBIDriver")
+
+#' @inherit
+#' DBI::dbUnloadDriver title description params details references return seealso
+#' @export
+setMethod("dbUnloadDriver", "DatabaseConnectorDriver", function(drv, ...) {
+  TRUE
+})
+
+#' @inherit
+#' methods::show title description params details references return seealso
+#' @export
+setMethod("show", "DatabaseConnectorDriver", function(object) {
+  cat(paste0("<", class(object), ">\n"))
+})
+
+#' Create a DatabaseConnectorDriver object
+#'
+#' @export
+DatabaseConnectorDriver <- function() {
+  new("DatabaseConnectorDriver")
+}
+
+setClass("OracleDriver", contains = "DatabaseConnectorDriver")
+
+Oracle <- function() {
+  new("OracleDriver")
+}
+
+setClass("PostgreSQLDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+PostgreSQL <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("PostgreSQLDriver")
+}
+
+setClass("RedshiftDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+Redshift <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("RedshiftDriver")
+}
+
+setClass("SqlServerDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+SqlServer <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("MicrosoftSqlServerDriver")
+}
+
+setClass("PdwDriver", contains = "DatabaseConnectorDriver",
+         slots = list(pathToDriver = "character"))
+
+Pdw <- function(pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  new("PdwDriver")
+}
+
+
+
+
+
+
+
+
+

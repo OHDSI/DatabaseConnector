@@ -16,40 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Driver -----------------------------------------------------------------------------------------
 
-#' DatabaseConnectorDriver class.
-#'
-#' @keywords internal
-#' @export
-#' @import DBI
-#' @import methods
-setClass("DatabaseConnectorDriver", contains = "DBIDriver")
-
-#' @inherit
-#' DBI::dbUnloadDriver title description params details references return seealso
-#' @export
-setMethod("dbUnloadDriver", "DatabaseConnectorDriver", function(drv, ...) {
-  TRUE
-})
-
-#' @inherit
-#' methods::show title description params details references return seealso
-#' @export
-setMethod("show", "DatabaseConnectorDriver", function(object) {
-  cat("<DatabaseConnectorDriver>\n")
-})
-
-#' Create a DatabaseConnectorDriver object
-#'
-#' @export
-DatabaseConnectorDriver <- function() {
-  new("DatabaseConnectorDriver")
-}
-
-
-# Connection
-# -----------------------------------------------------------------------------------------
+# Connection classes------------------------------------------------------------
 
 #' DatabaseConnectorConnection class.
 #'
@@ -60,9 +28,13 @@ setClass("DatabaseConnectorConnection",
   contains = "DBIConnection",
   slots = list(
     identifierQuote = "character",
-    stringQuote = "character", dbms = "character", uuid = "character"
+    stringQuote = "character", 
+    dbms = "character", 
+    uuid = "character"
   )
 )
+
+## Internal driver connection classes ------------------------------------------
 
 #' DatabaseConnectorJdbcConnection class.
 #'
@@ -74,69 +46,142 @@ setClass("DatabaseConnectorJdbcConnection",
   slots = list(jConnection = "jobjRef")
 )
 
-
-#' Oracle connection class
-#' 
 #' @keywords internal
 #' @export
 setClass("Oracle", contains = "DatabaseConnectorJdbcConnection")
 
+#' @keywords internal
+#' @export
+setClass("PostgreSQL", contains = "DatabaseConnectorJdbcConnection")
 
-#' DatabaseConnectorDbiConnection class.
+#' @keywords internal
+#' @export
+setClass("Redshift", contains = "DatabaseConnectorJdbcConnection")
+
+#' @keywords internal
+#' @export
+setClass("Microsoft SQL Server", contains = "DatabaseConnectorJdbcConnection")
+
+#' @keywords internal
+#' @export
+setClass("PDW", contains = "DatabaseConnectorJdbcConnection")
+
+#' @keywords internal
+#' @export
+setClass("Netezza", contains = "DatabaseConnectorJdbcConnection")
+
+#' @keywords internal
+#' @export
+setClass("BigQuery", contains = "DatabaseConnectorJdbcConnection")
+
+#' @keywords internal
+#' @export
+setClass("Spark", contains = "DatabaseConnectorJdbcConnection")
+
+## External driver connection classes ------------------------------------------
+
+#' DatabaseConnectorRSQLiteConnection class.
 #'
+#' RSQLite connections using databaseConnector are different from other dbms
+#' in that DatabaseConnector does not provider the driver component for RSQLite.
+#' Instead it uses the driver from the RSQLite package. DatabaseConnector defines a
+#' new class that inherits from both DatabaseConnectorConnection and RSQLite::SQLiteConnection
+#' which allows DatabaseConnector to add new slots and methods for SQLite connections while still 
+#' using the methods defined for SQLiteConnection objects in the RSQLite and dbplyr packages.
+#' 
 #' @keywords internal
 #' @export
 #' @import DBI
-setClass("DatabaseConnectorDbiConnection",
-  contains = "DatabaseConnectorConnection",
+setClass("DatabaseConnectorRSQLiteConnection",
+  contains = c("DatabaseConnectorConnection", "SQLiteConnection"),
   slots = list(
-    dbiConnection = "DBIConnection",
+    # TODO use the dbname slot from  RSQLiteConnection instead of a new server slot.
     server = "character"
   )
 )
 
-#' Create a connection to a DBMS
-#'
-#' @description
-#' Connect to a database. This function is synonymous with the \code{\link{connect}} function. except
-#' a dummy driver needs to be specified
-#'
-#' @param drv   The result of the \code{link{DatabaseConnectorDriver}} function
-#' @param ...   Other parameters. These are the same as expected by the \code{\link{connect}} function.
-#'
-#' @return
-#' Returns a DatabaseConnectorConnection object that can be used with most of the other functions in
-#' this package.
-#'
-#' @examples
-#' \dontrun{
-#' conn <- dbConnect(DatabaseConnectorDriver(),
-#'   dbms = "postgresql",
-#'   server = "localhost/ohdsi",
-#'   user = "joe",
-#'   password = "secret"
-#' )
-#' querySql(conn, "SELECT * FROM cdm_synpuf.person;")
-#' dbDisconnect(conn)
-#' }
-#'
-#' @export
-setMethod("dbConnect", "DatabaseConnectorDriver", function(drv, ...) {
-  return(connect(...))
-})
+
+# setMethod("dbConnect", "OracleDriver", function(drv, ) {
+#   jarPath <- findPathToJar("^ojdbc.*\\.jar$", pathToDriver)
+#   driver <- getJbcDriverSingleton("oracle.jdbc.driver.OracleDriver", jarPath)
+#   if (missing(connectionString) || is.null(connectionString)) {
+#     # Build connection string from parts
+#     if (oracleDriver == "thin") {
+#       inform("- using THIN to connect")
+#       if (missing(port) || is.null(port)) {
+#         port <- "1521"
+#       }
+#       host <- "127.0.0.1"
+#       sid <- server
+#       if (grepl("/", server)) {
+#         parts <- unlist(strsplit(server, "/"))
+#         host <- parts[1]
+#         sid <- parts[2]
+#       }
+#       connectionString <- paste0("jdbc:oracle:thin:@", host, ":", port, ":", sid)
+#       if (!missing(extraSettings) && !is.null(extraSettings)) {
+#         connectionString <- paste0(connectionString, extraSettings)
+#       }
+#       result <- class(try(connection <- connectUsingJdbcDriver(driver,
+#                                                                connectionString,
+#                                                                user = user,
+#                                                                password = password,
+#                                                                oracle.jdbc.mapDateToTimestamp = "false",
+#                                                                dbms = dbms
+#       ), silent = FALSE))[1]
+# 
+#       # Try using TNSName instead:
+#       if (result == "try-error") {
+#         inform("- Trying using TNSName")
+#         connectionString <- paste0("jdbc:oracle:thin:@", server)
+#         connection <- connectUsingJdbcDriver(driver,
+#                                              connectionString,
+#                                              user = user,
+#                                              password = password,
+#                                              oracle.jdbc.mapDateToTimestamp = "false",
+#                                              dbms = dbms
+#         )
+#       }
+#     }
+#     if (oracleDriver == "oci") {
+#       inform("- using OCI to connect")
+#       connectionString <- paste0("jdbc:oracle:oci8:@", server)
+#       connection <- connectUsingJdbcDriver(driver,
+#                                            connectionString,
+#                                            user = user,
+#                                            password = password,
+#                                            oracle.jdbc.mapDateToTimestamp = "false",
+#                                            dbms = dbms
+#       )
+#     }
+#   } else {
+#     # User has provided the connection string:
+#     if (missing(user) || is.null(user)) {
+#       connection <- connectUsingJdbcDriver(driver,
+#                                            connectionString,
+#                                            oracle.jdbc.mapDateToTimestamp = "false",
+#                                            dbms = dbms
+#       )
+#     } else {
+#       connection <- connectUsingJdbcDriver(driver,
+#                                            connectionString,
+#                                            user = user,
+#                                            password = password,
+#                                            oracle.jdbc.mapDateToTimestamp = "false",
+#                                            dbms = dbms
+#       )
+#     }
+#   }
+#   attr(connection, "dbms") <- dbms
+#   return(connection)
+# })
+
 
 #' @exportMethod dbCanConnect
 NULL
 
 #' @exportMethod dbIsReadOnly
 NULL
-
-#' @inherit
-#' DBI::dbDisconnect title description params details references return seealso
-#' @export
-setMethod("dbDisconnect", "DatabaseConnectorConnection", function(conn) {
-  disconnect(conn)
-})
 
 #' @inherit
 #' methods::show title description params details references return seealso
@@ -162,8 +207,7 @@ setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
 #' @inherit
 #' DBI::dbQuoteIdentifier title description params details references return seealso
 #' @export
-setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn,
-                                                                                               x, ...) {
+setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn, x, ...) {
   if (length(x) == 0L) {
     return(DBI::SQL(character()))
   }
@@ -601,4 +645,4 @@ setMethod(
 
 #' @importFrom dbplyr dbplyr_edition
 #' @export
-dbplyr_edition.DatabaseConnectorConnection <- function(con) 2L
+dbplyr_edition.DatabaseConnectorJdbcConnection <- function(con) 2L
