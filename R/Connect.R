@@ -27,7 +27,8 @@ checkIfDbmsIsSupported <- function(dbms) {
     "bigquery",
     "sqlite",
     "sqlite extended",
-    "spark"
+    "spark",
+    "hive"
   )
   if (!dbms %in% supportedDbmss) {
     abort(sprintf(

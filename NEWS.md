@@ -1,3 +1,11 @@
+DatabaseConnector 5.0.3
+=======================
+
+Bugfixes:
+
+1. Fixing 'DBMS not supported' error when connecting to Hive.
+
+
 DatabaseConnector 5.0.2
 =======================
 
