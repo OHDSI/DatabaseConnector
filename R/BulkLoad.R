@@ -323,7 +323,7 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
     "\" -c \"\\copy", sqlTableName,
     headers,
     "FROM", shQuote(csvFileName),
-    "NULL 'NA' DELIMITER ',' CSV HEADER;\""
+    "NULL AS '' DELIMITER ',' CSV HEADER;\""
   )
 
   countBefore <- countRows(connection, sqlTableName)
