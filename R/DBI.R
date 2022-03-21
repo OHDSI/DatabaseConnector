@@ -17,21 +17,14 @@
 # limitations under the License.
 
 # Driver -----------------------------------------------------------------------------------------
+require(DBI) # why do I need this??
 
 #' DatabaseConnectorDriver class.
 #'
 #' @keywords internal
 #' @export
-#' @import DBI
-#' @import methods
+#' @import methods DBI
 setClass("DatabaseConnectorDriver", contains = "DBIDriver")
-
-#' @inherit
-#' DBI::dbUnloadDriver title description params details references return seealso
-#' @export
-setMethod("dbUnloadDriver", "DatabaseConnectorDriver", function(drv, ...) {
-  TRUE
-})
 
 #' @inherit
 #' methods::show title description params details references return seealso
@@ -82,6 +75,13 @@ setClass("DatabaseConnectorJdbcConnection",
 setClass("Oracle", contains = "DatabaseConnectorJdbcConnection")
 
 
+#' Sql server connection class
+#' 
+#' @keywords internal
+#' @export
+setClass("Microsoft SQL Server", contains = "DatabaseConnectorJdbcConnection")
+
+
 #' DatabaseConnectorDbiConnection class.
 #'
 #' @keywords internal
@@ -119,7 +119,6 @@ setClass("DatabaseConnectorDbiConnection",
 #' querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 #' dbDisconnect(conn)
 #' }
-#'
 #' @export
 setMethod("dbConnect", "DatabaseConnectorDriver", function(drv, ...) {
   return(connect(...))
@@ -598,6 +597,17 @@ setMethod(
     return(TRUE)
   }
 )
+
+#' @inherit
+#' DBI::dbGetInfo title description params details references return seealso
+#' @require
+#' @export
+setMethod("dbGetInfo", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
+  list(db.version = 11, dbname = NA, username = NA, port = NA)
+})
+
+# DBI::dbGetInfo(con)$db.version
+
 
 #' @importFrom dbplyr dbplyr_edition
 #' @export
