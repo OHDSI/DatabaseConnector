@@ -30,5 +30,4 @@ conn <- dbConnect(DatabaseConnectorDriver(),
 querySql(conn, "SELECT * FROM cdm_synpuf.person;")
 dbDisconnect(conn)
 }
-
 }
