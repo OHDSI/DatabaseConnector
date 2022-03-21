@@ -1,3 +1,13 @@
+DatabaseConnector 5.0.3
+=======================
+
+Bugfixes:
+
+1. Fixing 'DBMS not supported' error when connecting to Hive.
+
+2. Fixing error when bulk uploading to Postgress with NULL values.
+
+
 DatabaseConnector 5.0.2
 =======================
 

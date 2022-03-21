@@ -26,9 +26,10 @@ checkIfDbmsIsSupported <- function(dbms) {
     "pdw",
     "netezza",
     "bigquery",
-    # "sqlite",
-    # "sqlite extended",
-    "spark"
+    "sqlite",
+    "sqlite extended",
+    "spark",
+    "hive"
   )
   if (!dbms %in% supportedDbmss) {
     abort(sprintf(
