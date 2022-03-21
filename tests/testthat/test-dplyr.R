@@ -50,6 +50,7 @@ details$redshift <- createConnectionDetails(
 # databases using lower case names
 test_that("dplyr verbs work on redshift", {
   con <- connect(details[["redshift"]])
+  expect_s4_class(con, "Redshift")
   person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
   
   df <- person %>% 
@@ -68,6 +69,7 @@ test_that("dplyr verbs work on redshift", {
 # Postgresql --------------------------------------------------
 test_that("dplyr verbs work on postgresql", {
   con <- connect(details[["postgresql"]])
+  expect_s4_class(con, "PostgreSQL")
   person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
   
   df <- person %>% 
@@ -87,6 +89,7 @@ test_that("dplyr verbs work on postgresql", {
 # Oracle --------------------------------------------------
 test_that("dplyr verbs work with oracle", {
   con <- connect(details[["oracle"]])
+  expect_s4_class(con, "Oracle")
   person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"), "PERSON"))
   
   df <- person %>% 

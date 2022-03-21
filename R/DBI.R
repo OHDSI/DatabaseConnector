@@ -74,8 +74,19 @@ setClass("DatabaseConnectorJdbcConnection",
 #' @export
 setClass("Oracle", contains = "DatabaseConnectorJdbcConnection")
 
+#' Postgresql connection class
+#' 
+#' @keywords internal
+#' @export
+setClass("PostgreSQL", contains = "DatabaseConnectorJdbcConnection")
 
-#' Sql server connection class
+#' Redshift connection class
+#' 
+#' @keywords internal
+#' @export
+setClass("Redshift", contains = "DatabaseConnectorJdbcConnection")
+
+#' MS SQL Server connection class
 #' 
 #' @keywords internal
 #' @export

@@ -620,6 +620,8 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   connectionClass <- switch (dbms,
     "oracle" = "Oracle",
     "sql server" = "Microsoft SQL Server",
+    "redshift" = "Redshift",
+    "postgresql" = "PostgreSQL",
     "DatabaseConnectorJdbcConnection"
   )
   
