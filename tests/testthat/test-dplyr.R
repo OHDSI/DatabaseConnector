@@ -15,10 +15,9 @@ test_that("dplyr tbl reference works", {
   disconnect(con)
 })
 
-
+# Connection details -------------------------------------------
 details <- list()
 
-# Postgresql --------------------------------------------------
 details$postgresql <- createConnectionDetails(
   dbms = "postgresql",
   user = Sys.getenv("CDM5_POSTGRESQL_USER"),
@@ -26,7 +25,6 @@ details$postgresql <- createConnectionDetails(
   server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
 )
 
-# SQL Server --------------------------------------------------
 details$sql_server <- createConnectionDetails(
   dbms = "sql server",
   user = Sys.getenv("CDM5_SQL_SERVER_USER"),
@@ -34,7 +32,6 @@ details$sql_server <- createConnectionDetails(
   server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
 )
 
-# Oracle --------------------------------------------------
 details$oracle <- createConnectionDetails(
   dbms = "oracle",
   user = Sys.getenv("CDM5_ORACLE_USER"),
@@ -42,7 +39,6 @@ details$oracle <- createConnectionDetails(
   server = Sys.getenv("CDM5_ORACLE_SERVER")
 )
 
-# RedShift  --------------------------------------------------
 details$redshift <- createConnectionDetails(
   dbms = "redshift",
   user = Sys.getenv("CDM5_REDSHIFT_USER"),
@@ -50,6 +46,7 @@ details$redshift <- createConnectionDetails(
   server = Sys.getenv("CDM5_REDSHIFT_SERVER")
 )
 
+# RedShift  --------------------------------------------------
 # databases using lower case names
 test_that("dplyr verbs work on redshift", {
   con <- connect(details[["redshift"]])
@@ -68,6 +65,7 @@ test_that("dplyr verbs work on redshift", {
   disconnect(con)
 })
 
+# Postgresql --------------------------------------------------
 test_that("dplyr verbs work on postgresql", {
   con <- connect(details[["postgresql"]])
   person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
@@ -86,6 +84,7 @@ test_that("dplyr verbs work on postgresql", {
 })
 
 # databases using uppercase names
+# Oracle --------------------------------------------------
 test_that("dplyr verbs work with oracle", {
   con <- connect(details[["oracle"]])
   person <- tbl(con, dbplyr::in_schema(Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"), "PERSON"))
@@ -100,6 +99,26 @@ test_that("dplyr verbs work with oracle", {
   expect_s3_class(df, "data.frame")
   expect_equal(nrow(df), 5)
 
+  disconnect(con)
+  
+})
+
+# SQL Server --------------------------------------------------
+test_that("dplyr verbs work with sql server", {
+  con <- connect(details[["sql_server"]])
+  schema <- paste0(Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"), ".dbo")
+  person <- tbl(con, dbplyr::in_schema(dbplyr::sql(schema), dbplyr::sql("PERSON")))
+  
+  df <- person %>% 
+    group_by(year_of_birth) %>% 
+    summarise(n = n()) %>% 
+    arrange(desc(n)) %>% 
+    head(5) %>% 
+    collect()
+  
+  expect_s3_class(df, "data.frame")
+  expect_equal(nrow(df), 5)
+  
   disconnect(con)
   
 })
