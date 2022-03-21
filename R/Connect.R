@@ -617,23 +617,19 @@ connectUsingJdbcDriver <- function(jdbcDriver,
     }
   }
   
-  if (dbms == "oracle") {
-    connection <- new("Oracle",
+  connectionClass <- switch (dbms,
+    "oracle" = "Oracle",
+    "sql server" = "Microsoft SQL Server",
+    "DatabaseConnectorJdbcConnection"
+  )
+  
+    connection <- new(connectionClass,
                       jConnection = jConnection,
                       identifierQuote = identifierQuote,
                       stringQuote = stringQuote,
                       dbms = dbms,
                       uuid = generateRandomString()
     )
-  } else {
-    connection <- new("DatabaseConnectorJdbcConnection",
-                      jConnection = jConnection,
-                      identifierQuote = identifierQuote,
-                      stringQuote = stringQuote,
-                      dbms = dbms,
-                      uuid = generateRandomString()
-    )
-  }
   registerWithRStudio(connection)
   return(connection)
 }
