@@ -625,7 +625,6 @@ sqlServerVersion <- {function() {
 
 #' @inherit
 #' DBI::dbGetInfo title description params details references return seealso
-#' @require
 #' @export
 setMethod("dbGetInfo", "DatabaseConnectorConnection", function(dbObj, ...) {
   if (dbObj@dbms == "sql server") {
