@@ -609,16 +609,32 @@ setMethod(
   }
 )
 
+# A function that returns the version for a sql server connection and caches its value
+sqlServerVersion <- {function() {
+  version <- NA_character_
+  function(conn) {
+    stopifnot(is(conn, "Microsoft SQL Server"))
+    if(is.na(version)) {
+      message("fetching version")
+      versionString <- dbGetQuery(conn, "SELECT @@VERSION AS 'version';")
+      version <<- stringr::str_extract(versionString, "\\d+\\.\\d+")
+    }
+    version
+  }
+}}()
+
 #' @inherit
 #' DBI::dbGetInfo title description params details references return seealso
 #' @require
 #' @export
-setMethod("dbGetInfo", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
-  list(db.version = 11, dbname = NA, username = NA, port = NA)
+setMethod("dbGetInfo", "DatabaseConnectorConnection", function(dbObj, ...) {
+  if (dbObj@dbms == "sql server") {
+    info <- list(db.version = sqlServerVersion(dbObj), dbname = NA, username = NA, port = NA)
+  } else {
+    info <- list(db.version = NA, dbname = NA, username = NA, port = NA)
+  }
+  info
 })
-
-# DBI::dbGetInfo(con)$db.version
-
 
 #' @importFrom dbplyr dbplyr_edition
 #' @export
