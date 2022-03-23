@@ -19,6 +19,7 @@
 checkIfDbmsIsSupported <- function(dbms) {
   supportedDbmss <- c(
     "oracle",
+    "hive",
     "postgresql",
     "redshift",
     "sql server",
