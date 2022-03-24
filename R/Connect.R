@@ -515,7 +515,7 @@ connect <- function(connectionDetails = NULL,
     driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
     
     if (missing(connectionString) || is.null(connectionString)) {
-      connectionString <- paste0("jdbc:hive2://", server, ":", port)
+      connectionString <- paste0("jdbc:hive2://", server, ":", port, "/")
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, ";", extraSettings)
       }
