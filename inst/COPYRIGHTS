@@ -55,3 +55,12 @@ The package DatabaseConnector includes other software components. The following 
 
    Related JARs: SparkJDBC42.jar
    
+** Snowflake JDBC driver
+
+   Copyright © 2013-2018 Snowflake Computing, Inc.
+
+   Project Website: https://docs.snowflake.com/en/user-guide/jdbc-download.html
+   License Information: https://github.com/snowflakedb/snowflake-jdbc/blob/master/LICENSE.txt
+
+   Related JARs: snowflake-jdbc-3.13.14.jar
+   

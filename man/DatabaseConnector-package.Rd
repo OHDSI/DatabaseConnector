@@ -6,7 +6,7 @@
 \alias{DatabaseConnector-package}
 \title{DatabaseConnector: Connecting to Various Database Platforms}
 \description{
-An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Spark', and 'SQLite'). Also includes support for fetching data as 'Andromeda' objects. Uses 'Java Database Connectivity' ('JDBC') to connect to databases (except SQLite).
+An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Spark', 'Snowflake', and 'SQLite'). Also includes support for fetching data as 'Andromeda' objects. Uses 'Java Database Connectivity' ('JDBC') to connect to databases (except SQLite).
 }
 \seealso{
 Useful links:
@@ -30,8 +30,8 @@ Other contributors:
   \item Observational Health Data Science and Informatics [copyright holder]
   \item Microsoft Inc. (SQL Server JDBC driver) [copyright holder]
   \item PostgreSQL Global Development Group (PostgreSQL JDBC driver) [copyright holder]
-  \item Oracle Inc. (Oracle JDBC driver) [copyright holder]
-  \item Amazon Inc. (RedShift JDBC driver) [copyright holder]
+  \item Oracle Inc. (Oracle  JDBC driver) [copyright holder]
+  \item Amazon Inc. (RedShift  JDBC driver) [copyright holder]
 }
 
 }
