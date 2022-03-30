@@ -31,6 +31,7 @@ jdbcDrivers <- new.env()
 #'          \item{"sql server" or "pdw" for Microsoft SQL Server}
 #'          \item{"oracle" for Oracle}
 #'          \item{"spark" for Spark}
+#'          \item{"snowflake" for Snowflake}
 #'      }
 #' @param method The method used for downloading files. See \code{?download.file} for details and options.
 #' @param ... Further arguments passed on to \code{download.file}
@@ -43,6 +44,7 @@ jdbcDrivers <- new.env()
 #'   \item{SQL Server}{V8.4.1.zip}
 #'   \item{Oracle}{V19.8}
 #'   \item{Spark}{V2.6.21}
+#'   \item{Snowflake}{V3.13.14}
 #' }
 #'
 #' @return Invisibly returns the destination if the download was successful.
@@ -78,7 +80,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     dir.create(pathToDriver, recursive = TRUE)
   }
 
-  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "spark"))
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark"))
 
   if (dbms == "pdw") {
     dbms <- "sql server"
@@ -91,7 +93,8 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     "redshift" = "redShiftV1.2.27.1051.zip",
     "sql server" = "sqlServerV9.2.0.zip",
     "oracle" = "oracleV19.8.zip",
-    "spark" = "SimbaSparkV2.6.21.zip"
+    "spark" = "SimbaSparkV2.6.21.zip",
+    "snowflake" = "SnowflakeV3.13.14.zip"
   )
 
   if (dbms == "all") {

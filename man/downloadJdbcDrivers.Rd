@@ -19,6 +19,7 @@ downloadJdbcDrivers(
     \item{"sql server" or "pdw" for Microsoft SQL Server}
     \item{"oracle" for Oracle}
     \item{"spark" for Spark}
+    \item{"snowflake" for Snowflake}
 }}
 
 \item{pathToDriver}{The full path to the folder where the JDBC driver .jar files should be downloaded to.
@@ -42,6 +43,7 @@ The following versions of the JDBC drivers are currently used:
   \item{SQL Server}{V8.4.1.zip}
   \item{Oracle}{V19.8}
   \item{Spark}{V2.6.21}
+  \item{Snowflake}{V3.13.14}
 }
 }
 \examples{
