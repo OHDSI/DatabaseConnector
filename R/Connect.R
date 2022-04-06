@@ -25,6 +25,7 @@ checkIfDbmsIsSupported <- function(dbms) {
     "sql server",
     "pdw",
     "netezza",
+    "impala",
     "bigquery",
     "sqlite",
     "sqlite extended",
