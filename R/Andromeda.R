@@ -226,7 +226,7 @@ querySqlToAndromeda <- function(connection,
   }
   tryCatch(
     {
-      lowLevelQuerySqlToAndromeda(
+      andromeda <- lowLevelQuerySqlToAndromeda(
         connection = connection,
         query = sqlStatements[1],
         andromeda = andromeda,

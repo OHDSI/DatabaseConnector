@@ -1,11 +1,18 @@
 DatabaseConnector 5.0.3
 =======================
 
+Changes:
+
+1. Ensuring Andromeda works with different backends (e.g. arrow).
+
+
 Bugfixes:
 
 1. Fixing 'DBMS not supported' error when connecting to Hive.
 
 2. Fixing error when bulk uploading to Postgress with NULL values.
+
+3. Fixing warning when automatically converting `Integer64` to `numeric` in R 4.2.0.
 
 
 DatabaseConnector 5.0.2
