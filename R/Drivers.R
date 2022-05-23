@@ -28,7 +28,7 @@ jdbcDrivers <- new.env()
 #'      \itemize{
 #'          \item{"postgresql" for PostgreSQL}
 #'          \item{"redshift" for Amazon Redshift}
-#'          \item{"sql server" or "pdw" for Microsoft SQL Server}
+#'          \item{"sql server", "pdw" or "synapse" for Microsoft SQL Server}
 #'          \item{"oracle" for Oracle}
 #'          \item{"spark" for Spark}
 #'      }
@@ -80,7 +80,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
 
   stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "spark"))
 
-  if (dbms == "pdw") {
+  if (dbms == "pdw" || dbms == "synapse") {
     dbms <- "sql server"
   }
 
