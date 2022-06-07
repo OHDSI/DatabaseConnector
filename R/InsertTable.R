@@ -19,9 +19,9 @@
 getSqlDataTypes <- function(column) {
   if (is.integer(column)) {
     return("INTEGER")
-  } else if (identical(class(column), c("POSIXct", "POSIXt"))) {
+  } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
     return("DATETIME2")
-  } else if (class(column) == "Date") {
+  } else if (is(column, "Date")) {
     return("DATE")
   } else if (bit64::is.integer64(column)) {
     return("BIGINT")
@@ -361,9 +361,9 @@ insertTable.default <- function(connection,
             rJava::.jcall(batchedInsert, "V", "setBigint", i, column)
           } else if (is.numeric(column)) {
             rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
-          } else if (identical(class(column), c("POSIXct", "POSIXt"))) {
+          } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
             rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
-          } else if (class(column) == "Date") {
+          } else if (is(column, "Date")) {
             rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
           } else {
             rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))

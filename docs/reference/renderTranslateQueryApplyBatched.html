@@ -20,7 +20,7 @@ The batch sizes are determined by the java virtual machine and will depend on th
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@ The batch sizes are determined by the java virtual machine and will depend on th
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -155,7 +155,7 @@ calling <code><a href="querySql.html">querySql</a></code>.</p>
 <span class="r-in"><span class="co"># (Alternative to querySqlToAndromeda if some local computation needs to be applied)</span></span>
 <span class="r-in"><span class="va">bigResults</span> <span class="op">&lt;-</span> <span class="fu">Andromeda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">writeBatchesToAndromeda</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">position</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">  <span class="va">data</span><span class="op">$</span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">EmpiricalCalibration</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/EmpiricalCalibration/man/computeTraditionalP.html" class="external-link">computeTraditionalP</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">logRr</span>, <span class="va">data</span><span class="op">$</span><span class="va">logSeRr</span><span class="op">)</span></span>
+<span class="r-in">  <span class="va">data</span><span class="op">$</span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">EmpiricalCalibration</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/EmpiricalCalibration/reference/computeTraditionalP.html" class="external-link">computeTraditionalP</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">logRr</span>, <span class="va">data</span><span class="op">$</span><span class="va">logSeRr</span><span class="op">)</span></span>
 <span class="r-in">  <span class="kw">if</span> <span class="op">(</span><span class="va">position</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in">    <span class="va">bigResults</span><span class="op">$</span><span class="va">rrs</span> <span class="op">&lt;-</span> <span class="va">data</span></span>
 <span class="r-in">  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
@@ -188,7 +188,7 @@ calling <code><a href="querySql.html">querySql</a></code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

@@ -28,7 +28,7 @@ DatabaseConnector::dbSendQuery("DatabaseConnectorJdbcConnection", "character")
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
       </span>
     </div>
 
@@ -37,7 +37,7 @@ DatabaseConnector::dbSendQuery("DatabaseConnectorJdbcConnection", "character")
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -78,10 +78,10 @@ DatabaseConnector::dbSendQuery("DatabaseConnectorJdbcConnection", "character")
     <div class="ref-description">
     <p>The <code>dbSendQuery()</code> method only submits and synchronously executes the
 SQL query to the database engine.  It does <em>not</em> extract any
-records --- for that you need to use the <code><a href="https://rdrr.io/pkg/DBI/man/dbFetch.html" class="external-link">dbFetch()</a></code> method, and
-then you must call <code><a href="https://rdrr.io/pkg/DBI/man/dbClearResult.html" class="external-link">dbClearResult()</a></code> when you finish fetching the
+records --- for that you need to use the <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">dbFetch()</a></code> method, and
+then you must call <code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult()</a></code> when you finish fetching the
 records you need. For interactive use, you should almost always prefer
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetQuery.html" class="external-link">dbGetQuery()</a></code>.</p>
+<code><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery()</a></code>.</p>
 <p></p><div class="section">
 <h3 id="methods-in-other-packages">Methods in other packages<a class="anchor" aria-label="anchor" href="#methods-in-other-packages"></a></h3><ul><li><p><code><a href="dbSendQuery-DatabaseConnectorDbiConnection-character-method.html">DatabaseConnector::dbSendQuery("DatabaseConnectorDbiConnection", "character")</a></code></p></li>
 <li><p><code>DatabaseConnector::dbSendQuery("DatabaseConnectorJdbcConnection", "character")</code></p></li>
@@ -97,7 +97,7 @@ records you need. For interactive use, you should almost always prefer
     <h2>Arguments</h2>
     <dl><dt>conn</dt>
 <dd><p>A DBIConnection object, as returned by
-<code><a href="https://rdrr.io/pkg/DBI/man/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+<code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
 <dt>statement</dt>
 <dd><p>a character string containing SQL.</p></dd>
 <dt>...</dt>
@@ -107,9 +107,9 @@ records you need. For interactive use, you should almost always prefer
     <h2>Value</h2>
     <p><code>dbSendQuery()</code> returns
 an S4 object that inherits from DBIResult.
-The result set can be used with <code><a href="https://rdrr.io/pkg/DBI/man/dbFetch.html" class="external-link">dbFetch()</a></code> to extract records.
+The result set can be used with <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">dbFetch()</a></code> to extract records.
 Once you have finished using a result, make sure to clear it
-with <code><a href="https://rdrr.io/pkg/DBI/man/dbClearResult.html" class="external-link">dbClearResult()</a></code>.
+with <code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult()</a></code>.
 An error is raised when issuing a query over a closed
 or invalid connection,
 or if the query is not a non-<code>NA</code> string.
@@ -122,7 +122,7 @@ or the <code>immediate</code> argument is set to <code>TRUE</code>.</p>
     <p>This method is for <code>SELECT</code> queries only.  Some backends may
 support data manipulation queries through this method for compatibility
 reasons.  However, callers are strongly encouraged to use
-<code><a href="https://rdrr.io/pkg/DBI/man/dbSendStatement.html" class="external-link">dbSendStatement()</a></code> for data manipulation statements.</p>
+<code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code> for data manipulation statements.</p>
 <p>The query is submitted to the database server and the DBMS executes it,
 possibly generating vast amounts of data. Where these data live
 is driver-specific: some drivers may choose to leave the output on the server
@@ -132,28 +132,28 @@ drivers' <code>dbSendQuery()</code> documentation for details.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p>For updates: <code><a href="https://rdrr.io/pkg/DBI/man/dbSendStatement.html" class="external-link">dbSendStatement()</a></code> and <code><a href="https://rdrr.io/pkg/DBI/man/dbExecute.html" class="external-link">dbExecute()</a></code>.</p>
+    <div class="dont-index"><p>For updates: <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code> and <code><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute()</a></code>.</p>
 <p>Other DBIConnection generics: 
-<code><a href="https://rdrr.io/pkg/DBI/man/DBIConnection-class.html" class="external-link">DBIConnection-class</a></code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbAppendTable.html" class="external-link">dbAppendTable</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbCreateTable.html" class="external-link">dbCreateTable</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbDataType.html" class="external-link">dbDataType</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbDisconnect.html" class="external-link">dbDisconnect</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbExecute.html" class="external-link">dbExecute</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbExistsTable.html" class="external-link">dbExistsTable</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetException.html" class="external-link">dbGetException</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetQuery.html" class="external-link">dbGetQuery</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbListFields.html" class="external-link">dbListFields</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbListObjects.html" class="external-link">dbListObjects</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbListResults.html" class="external-link">dbListResults</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbListTables.html" class="external-link">dbListTables</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbReadTable.html" class="external-link">dbReadTable</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbRemoveTable.html" class="external-link">dbRemoveTable</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbSendStatement.html" class="external-link">dbSendStatement</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbWriteTable.html" class="external-link">dbWriteTable</a>()</code></p></div>
+<code><a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBIConnection-class</a></code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbAppendTable.html" class="external-link">dbAppendTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbCreateTable.html" class="external-link">dbCreateTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbDataType.html" class="external-link">dbDataType</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbExistsTable.html" class="external-link">dbExistsTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetException.html" class="external-link">dbGetException</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListFields.html" class="external-link">dbListFields</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListObjects.html" class="external-link">dbListObjects</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListResults.html" class="external-link">dbListResults</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListTables.html" class="external-link">dbListTables</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbReadTable.html" class="external-link">dbReadTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbRemoveTable.html" class="external-link">dbRemoveTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable</a>()</code></p></div>
     </div>
 
   </div>
@@ -168,7 +168,7 @@ drivers' <code>dbSendQuery()</code> documentation for details.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

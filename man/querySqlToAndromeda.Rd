@@ -41,8 +41,6 @@ values? If FALSE 64-bit integers will be represented using
 \code{bit64::integer64}.}
 }
 \value{
-
-
 Invisibly returns the andromeda. The Andromeda object will have a table added with the query
 results.
 }

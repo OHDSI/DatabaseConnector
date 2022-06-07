@@ -25,7 +25,7 @@ DatabaseConnector::dbQuoteIdentifier("DatabaseConnectorConnection", "character")
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
       </span>
     </div>
 
@@ -34,7 +34,7 @@ DatabaseConnector::dbQuoteIdentifier("DatabaseConnectorConnection", "character")
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +76,7 @@ DatabaseConnector::dbQuoteIdentifier("DatabaseConnectorConnection", "character")
     <p>Call this method to generate a string that is suitable for
 use in a query as a column or table name, to make sure that you
 generate valid SQL and protect against SQL injection attacks. The inverse
-operation is <code><a href="https://rdrr.io/pkg/DBI/man/dbUnquoteIdentifier.html" class="external-link">dbUnquoteIdentifier()</a></code>.</p>
+operation is <code><a href="https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html" class="external-link">dbUnquoteIdentifier()</a></code>.</p>
 <p></p><div class="section">
 <h3 id="methods-in-other-packages">Methods in other packages<a class="anchor" aria-label="anchor" href="#methods-in-other-packages"></a></h3><ul><li><p><code>DatabaseConnector::dbQuoteIdentifier("DatabaseConnectorConnection", "character")</code></p></li>
 </ul></div>
@@ -91,9 +91,9 @@ operation is <code><a href="https://rdrr.io/pkg/DBI/man/dbUnquoteIdentifier.html
     <h2>Arguments</h2>
     <dl><dt>conn</dt>
 <dd><p>A DBIConnection object, as returned by
-<code><a href="https://rdrr.io/pkg/DBI/man/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+<code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
 <dt>x</dt>
-<dd><p>A character vector, <a href="https://rdrr.io/pkg/DBI/man/SQL.html" class="external-link">SQL</a> or <a href="https://rdrr.io/pkg/DBI/man/Id.html" class="external-link">Id</a> object to quote as identifier.</p></dd>
+<dd><p>A character vector, <a href="https://dbi.r-dbi.org/reference/SQL.html" class="external-link">SQL</a> or <a href="https://dbi.r-dbi.org/reference/Id.html" class="external-link">Id</a> object to quote as identifier.</p></dd>
 <dt>...</dt>
 <dd><p>Other arguments passed on to methods.</p></dd>
 </dl></div>
@@ -104,8 +104,8 @@ of the same length as the input.
 For an empty character vector this function returns a length-0 object.
 The names of the input argument are preserved in the output.
 When passing the returned object again to <code>dbQuoteIdentifier()</code>as <code>x</code>argument, it is returned unchanged.
-Passing objects of class <a href="https://rdrr.io/pkg/DBI/man/SQL.html" class="external-link">SQL</a> should also return them unchanged.
-(For backends it may be most convenient to return <a href="https://rdrr.io/pkg/DBI/man/SQL.html" class="external-link">SQL</a> objects
+Passing objects of class <a href="https://dbi.r-dbi.org/reference/SQL.html" class="external-link">SQL</a> should also return them unchanged.
+(For backends it may be most convenient to return <a href="https://dbi.r-dbi.org/reference/SQL.html" class="external-link">SQL</a> objects
 to achieve this behavior, but this is not required.)
 An error is raised if the input contains <code>NA</code>,
 but not for an empty string.</p>
@@ -113,21 +113,21 @@ but not for an empty string.</p>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other DBIResult generics: 
-<code><a href="https://rdrr.io/pkg/DBI/man/DBIResult-class.html" class="external-link">DBIResult-class</a></code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbBind.html" class="external-link">dbBind</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbClearResult.html" class="external-link">dbClearResult</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbColumnInfo.html" class="external-link">dbColumnInfo</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbFetch.html" class="external-link">dbFetch</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetRowCount.html" class="external-link">dbGetRowCount</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetRowsAffected.html" class="external-link">dbGetRowsAffected</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetStatement.html" class="external-link">dbGetStatement</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbHasCompleted.html" class="external-link">dbHasCompleted</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbQuoteLiteral.html" class="external-link">dbQuoteLiteral</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbQuoteString.html" class="external-link">dbQuoteString</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbUnquoteIdentifier.html" class="external-link">dbUnquoteIdentifier</a>()</code></p></div>
+<code><a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult-class</a></code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbBind.html" class="external-link">dbBind</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbColumnInfo.html" class="external-link">dbColumnInfo</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">dbFetch</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetRowCount.html" class="external-link">dbGetRowCount</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetRowsAffected.html" class="external-link">dbGetRowsAffected</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetStatement.html" class="external-link">dbGetStatement</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbHasCompleted.html" class="external-link">dbHasCompleted</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbQuoteLiteral.html" class="external-link">dbQuoteLiteral</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbQuoteString.html" class="external-link">dbQuoteString</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html" class="external-link">dbUnquoteIdentifier</a>()</code></p></div>
     </div>
 
   </div>
@@ -142,7 +142,7 @@ but not for an empty string.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

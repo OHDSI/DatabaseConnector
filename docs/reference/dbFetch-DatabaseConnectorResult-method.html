@@ -23,7 +23,7 @@ DatabaseConnector::dbFetch("DatabaseConnectorResult")
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@ DatabaseConnector::dbFetch("DatabaseConnectorResult")
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -87,7 +87,7 @@ as a data.frame.</p>
     <h2>Arguments</h2>
     <dl><dt>res</dt>
 <dd><p>An object inheriting from DBIResult, created by
-<code><a href="https://rdrr.io/pkg/DBI/man/dbSendQuery.html" class="external-link">dbSendQuery()</a></code>.</p></dd>
+<code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery()</a></code>.</p></dd>
 <dt>n</dt>
 <dd><p>maximum number of records to retrieve per fetch. Use <code>n = -1</code>
 or <code>n = Inf</code>
@@ -108,7 +108,7 @@ If the <code>n</code> argument is not an atomic whole number
 greater or equal to -1 or Inf, an error is raised,
 but a subsequent call to <code>dbFetch()</code> with proper <code>n</code> argument succeeds.
 Calling <code>dbFetch()</code> on a result set from a data manipulation query
-created by <code><a href="https://rdrr.io/pkg/DBI/man/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>can be fetched and return an empty data frame, with a warning.</p>
+created by <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>can be fetched and return an empty data frame, with a warning.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -119,24 +119,24 @@ existing code. Modern backends should implement for <code>dbFetch()</code> only.
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p>Close the result set with <code><a href="https://rdrr.io/pkg/DBI/man/dbClearResult.html" class="external-link">dbClearResult()</a></code> as soon as you
+    <div class="dont-index"><p>Close the result set with <code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult()</a></code> as soon as you
 finish retrieving the records you want.</p>
 <p>Other DBIResult generics: 
-<code><a href="https://rdrr.io/pkg/DBI/man/DBIResult-class.html" class="external-link">DBIResult-class</a></code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbBind.html" class="external-link">dbBind</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbClearResult.html" class="external-link">dbClearResult</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbColumnInfo.html" class="external-link">dbColumnInfo</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetRowCount.html" class="external-link">dbGetRowCount</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetRowsAffected.html" class="external-link">dbGetRowsAffected</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbGetStatement.html" class="external-link">dbGetStatement</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbHasCompleted.html" class="external-link">dbHasCompleted</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbQuoteLiteral.html" class="external-link">dbQuoteLiteral</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbQuoteString.html" class="external-link">dbQuoteString</a>()</code>,
-<code><a href="https://rdrr.io/pkg/DBI/man/dbUnquoteIdentifier.html" class="external-link">dbUnquoteIdentifier</a>()</code></p></div>
+<code><a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult-class</a></code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbBind.html" class="external-link">dbBind</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbColumnInfo.html" class="external-link">dbColumnInfo</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetRowCount.html" class="external-link">dbGetRowCount</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetRowsAffected.html" class="external-link">dbGetRowsAffected</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetStatement.html" class="external-link">dbGetStatement</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbHasCompleted.html" class="external-link">dbHasCompleted</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbQuoteLiteral.html" class="external-link">dbQuoteLiteral</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbQuoteString.html" class="external-link">dbQuoteString</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html" class="external-link">dbUnquoteIdentifier</a>()</code></p></div>
     </div>
 
   </div>
@@ -151,7 +151,7 @@ finish retrieving the records you want.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
