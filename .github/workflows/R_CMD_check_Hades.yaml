@@ -66,10 +66,11 @@ jobs:
       - name: Install system requirements
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install -y make
-          sudo apt-get install -y default-jdk
-          sudo apt-get install -y libcurl4-openssl-dev
-          sudo apt-get install -y libssl-dev
+          Rscript -e 'install.packages("remotes")'
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
