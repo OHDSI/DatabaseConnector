@@ -26,7 +26,7 @@ jobs:
       RSPM: ${{ matrix.config.rspm }}
 
     steps:
-      - uses: ohdsi/check-hades-package
+      - uses: ohdsi/actions/check-hades-package@main
 
 
   Release:
