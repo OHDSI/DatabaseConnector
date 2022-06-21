@@ -112,6 +112,31 @@ createConnectionDetails <- function(dbms,
   return(result)
 }
 
+#' Store information needed to connection to a DBMS 
+#'
+#' @param drv an object that inherits from DBIDriver, or an existing DBIConnection object.
+#' @param ... authentication arguments needed by the DBMS instance; these typically include user, password, host, port, dbname, etc. For details see the appropriate DBIDriver.
+#'
+#' @return a dbConnectDetails object containing the connection details
+#' @export
+dbConnectDetails <- function(drv, ...) {
+  result <- list(drv = drv, ...)
+  class(result) <- c("dbConnectDetails")
+  result
+}
+
+#' @export
+disconnect <-  DBI::dbDisconnect
+
+dbms <- function(connection) {
+  switch (class(connection),
+          'case' = 'sql server',
+          'case' = 'posrgresql',
+          'case' = 'redshift'
+  )
+}
+
+
 #' @title
 #' connect
 #'
@@ -173,7 +198,19 @@ createConnectionDetails <- function(dbms,
 #' disconnect(conn)
 #' }
 #' @export
-connect <- function(connectionDetails = NULL,
+connect <- function(connectionDetails) UseMethod("connect")
+
+#' @export
+#' @importFrom DBI dbConnect
+#' @importFrom rlang !!!
+connect.dbConnectDetails <- function(connectionDetails) {
+  conn <- rlang::inject(DBI::dbConnect(!!!connectionDetails))
+  attr(conn, "dbms") <- dbms(conn)
+  conn
+}
+
+#' @export
+connect.dbConnectDetails <- function(connectionDetails = NULL,
                     dbms = NULL,
                     user = NULL,
                     password = NULL,
