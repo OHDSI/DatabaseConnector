@@ -219,7 +219,7 @@ connect <- function(connectionDetails = NULL,
       inform("Connecting using SQL Server driver using Windows integrated security")
       setPathToDll()
       
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
@@ -232,7 +232,7 @@ connect <- function(connectionDetails = NULL,
     } else {
       # Using regular user authentication
       inform("Connecting using SQL Server driver")
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, sep = "")
         if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
@@ -259,7 +259,7 @@ connect <- function(connectionDetails = NULL,
       # Using Windows integrated security
       setPathToDll()
       
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
@@ -270,7 +270,7 @@ connect <- function(connectionDetails = NULL,
       }
       connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://",
                                   server,
                                   ";integratedSecurity=false",
@@ -302,7 +302,7 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Oracle driver")
     jarPath <- findPathToJar("^ojdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("oracle.jdbc.driver.OracleDriver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       # Build connection string from parts
       if (oracleDriver == "thin") {
         inform("- using THIN to connect")
@@ -377,7 +377,7 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using PostgreSQL driver")
     jarPath <- findPathToJar("^postgresql-.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.postgresql.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
       }
@@ -424,7 +424,7 @@ connect <- function(connectionDetails = NULL,
     } else {
       driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
     }
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
       }
@@ -457,7 +457,7 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Netezza driver")
     jarPath <- findPathToJar("^nzjdbc\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.netezza.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for Netezza. Please specify server as <host>/<database>")
       }
@@ -489,7 +489,7 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Impala driver")
     jarPath <- findPathToJar("^ImpalaJDBC42\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       if (missing(port) || is.null(port)) {
         port <- "21050"
       }
@@ -516,7 +516,7 @@ connect <- function(connectionDetails = NULL,
     jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
     
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       connectionString <- paste0("jdbc:hive2://", server, ":", port, "/")
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, ";", extraSettings)
@@ -542,7 +542,7 @@ connect <- function(connectionDetails = NULL,
     
     jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       connectionString <- paste0("jdbc:BQDriver:", server)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, "?", extraSettings)
@@ -568,7 +568,7 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Spark driver")
     jarPath <- findPathToJar("^SparkJDBC42\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       abort("Error: Connection string required for connecting to Spark.")
     }
     if (missing(user) || is.null(user)) {

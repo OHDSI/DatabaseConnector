@@ -18,7 +18,15 @@
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
-\item{name}{A character string specifying a DBMS table name.}
+\item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
+\itemize{
+\item a character string with the unquoted DBMS table name,
+e.g. \code{"table_name"},
+\item a call to \code{\link[DBI:Id]{Id()}} with components to the fully qualified table name,
+e.g. \code{Id(schema = "my_schema", table = "table_name")}
+\item a call to \code{\link[DBI:SQL]{SQL()}} with the quoted and fully qualified table name
+given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
+}}
 
 \item{database}{Name of the database.}
 
@@ -34,14 +42,6 @@ can be created.}
 }
 \value{
 \code{dbRemoveTable()} returns \code{TRUE}, invisibly.
-If the table does not exist, an error is raised.
-An attempt to remove a view with this function may result in an error.
-
-An error is raised when calling this method for a closed
-or invalid connection.
-An error is also raised
-if \code{name} cannot be processed with \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}
-or if this results in a non-scalar.
 }
 \description{
 Remove a remote table (e.g., created by \code{\link[DBI:dbWriteTable]{dbWriteTable()}})

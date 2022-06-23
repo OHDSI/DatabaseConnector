@@ -28,8 +28,6 @@ For data manipulation statements issued with
 \code{\link[DBI:dbSendStatement]{dbSendStatement()}},
 zero is returned before
 and after calling \code{dbFetch()}.
-Attempting to get the row count for a result set cleared with
-\code{\link[DBI:dbClearResult]{dbClearResult()}} gives an error.
 }
 \description{
 Returns the total number of rows actually fetched with calls to \code{\link[DBI:dbFetch]{dbFetch()}}

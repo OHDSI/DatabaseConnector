@@ -1,3 +1,11 @@
+DatabaseConnector 5.0.4
+=======================
+
+Bugfixes:
+
+1. Prevent error when `connectionString` is empty string (instead of `NULL`).
+
+
 DatabaseConnector 5.0.3
 =======================
 
