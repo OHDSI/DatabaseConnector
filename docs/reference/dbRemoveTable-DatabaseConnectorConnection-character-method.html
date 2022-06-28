@@ -23,7 +23,7 @@ DatabaseConnector::dbRemoveTable("DatabaseConnectorConnection", "character")
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -79,16 +79,16 @@ from the database.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S4 method for DatabaseConnectorConnection,character</span>
-<span class="fu">dbRemoveTable</span><span class="op">(</span>
-  <span class="va">conn</span>,
-  <span class="va">name</span>,
-  database <span class="op">=</span> <span class="cn">NULL</span>,
-  schema <span class="op">=</span> <span class="cn">NULL</span>,
-  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,
-  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbRemoveTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  database <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  schema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -96,30 +96,50 @@ from the database.</p>
     <dl><dt>conn</dt>
 <dd><p>A DBIConnection object, as returned by
 <code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+
+
 <dt>name</dt>
 <dd><p>A character string specifying a DBMS table name.</p></dd>
+
+
 <dt>database</dt>
 <dd><p>Name of the database.</p></dd>
+
+
 <dt>schema</dt>
 <dd><p>Name of the schema.</p></dd>
+
+
 <dt>oracleTempSchema</dt>
 <dd><p>DEPRECATED: use <code>tempEmulationSchema</code> instead.</p></dd>
+
+
 <dt>tempEmulationSchema</dt>
 <dd><p>Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other parameters passed on to methods.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>dbRemoveTable()</code> returns <code>TRUE</code>, invisibly.
+    
+
+<p><code>dbRemoveTable()</code> returns <code>TRUE</code>, invisibly.
 If the table does not exist, an error is raised.
-An attempt to remove a view with this function may result in an error.
-An error is raised when calling this method for a closed
+An attempt to remove a view with this function may result in an error.</p>
+
+
+<p>An error is raised when calling this method for a closed
 or invalid connection.
 An error is also raised
-if <code>name</code> cannot be processed with <code><a href="https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier()</a></code>or if this results in a non-scalar.</p>
+if <code>name</code> cannot be processed with <code><a href="https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier()</a></code></p>
+
+
+<p>or if this results in a non-scalar.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -158,7 +178,7 @@ if <code>name</code> cannot be processed with <code><a href="https://dbi.r-dbi.o
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

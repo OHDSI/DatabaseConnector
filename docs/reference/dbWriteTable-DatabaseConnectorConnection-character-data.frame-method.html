@@ -24,7 +24,7 @@ DatabaseConnector::dbWriteTable("DatabaseConnectorConnection", "character", "dat
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -81,18 +81,18 @@ New code should prefer <code><a href="https://dbi.r-dbi.org/reference/dbCreateTa
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S4 method for DatabaseConnectorConnection,character,data.frame</span>
-<span class="fu">dbWriteTable</span><span class="op">(</span>
-  <span class="va">conn</span>,
-  <span class="va">name</span>,
-  <span class="va">value</span>,
-  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,
-  append <span class="op">=</span> <span class="cn">FALSE</span>,
-  temporary <span class="op">=</span> <span class="cn">FALSE</span>,
-  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,
-  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for DatabaseConnectorConnection,character,data.frame</span></span>
+<span><span class="fu">dbWriteTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">value</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  append <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  temporary <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -100,39 +100,66 @@ New code should prefer <code><a href="https://dbi.r-dbi.org/reference/dbCreateTa
     <dl><dt>conn</dt>
 <dd><p>A DBIConnection object, as returned by
 <code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+
+
 <dt>name</dt>
 <dd><p>A character string specifying the unquoted DBMS table name,
 or the result of a call to <code><a href="https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier()</a></code>.</p></dd>
+
+
 <dt>value</dt>
 <dd><p>a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> (or coercible to data.frame).</p></dd>
+
+
 <dt>overwrite</dt>
 <dd><p>Overwrite an existing table (if exists)?</p></dd>
+
+
 <dt>append</dt>
 <dd><p>Append to existing table?</p></dd>
+
+
 <dt>temporary</dt>
 <dd><p>Should the table created as a temp table?</p></dd>
+
+
 <dt>oracleTempSchema</dt>
 <dd><p>DEPRECATED: use <code>tempEmulationSchema</code> instead.</p></dd>
+
+
 <dt>tempEmulationSchema</dt>
 <dd><p>Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other parameters passed on to methods.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>dbWriteTable()</code> returns <code>TRUE</code>, invisibly.
+    
+
+<p><code>dbWriteTable()</code> returns <code>TRUE</code>, invisibly.
 If the table exists, and both <code>append</code> and <code>overwrite</code> arguments are unset,
 or <code>append = TRUE</code> and the data frame with the new data has different
 column names,
-an error is raised; the remote table remains unchanged.
-An error is raised when calling this method for a closed
+an error is raised; the remote table remains unchanged.</p>
+
+
+<p>An error is raised when calling this method for a closed
 or invalid connection.
 An error is also raised
-if <code>name</code> cannot be processed with <code><a href="https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier()</a></code>or if this results in a non-scalar.
+if <code>name</code> cannot be processed with <code><a href="https://dbi.r-dbi.org/reference/dbQuoteIdentifier.html" class="external-link">dbQuoteIdentifier()</a></code></p>
+
+
+<p>or if this results in a non-scalar.
 Invalid values for the additional arguments <code>row.names</code>,
-<code>overwrite</code>, <code>append</code>, <code>field.types</code>, and <code>temporary</code>(non-scalars,
+<code>overwrite</code>, <code>append</code>, <code>field.types</code>, and <code>temporary</code></p>
+
+
+<p>(non-scalars,
 unsupported data types,
 <code>NA</code>,
 incompatible values,
@@ -178,7 +205,7 @@ also raise an error.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

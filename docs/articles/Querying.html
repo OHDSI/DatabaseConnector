@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
                         <h4 data-toc-skip class="author">Martijn J.
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2022-06-07</h4>
+            <h4 data-toc-skip class="date">2022-06-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/Querying.Rmd" class="external-link"><code>vignettes/Querying.Rmd</code></a></small>
       <div class="hidden name"><code>Querying.Rmd</code></div>
@@ -116,19 +116,19 @@ expect data to be returned, and accepts multiple SQL statements in a
 single SQL string.</p>
 <p>Some examples:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"postgresql"</span>,
-                server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,
-                user <span class="op">=</span> <span class="st">"joe"</span>,
-                password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Connecting using PostgreSQL driver</span></code></pre>
+<code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
+<span>                server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span>
+<span>                user <span class="op">=</span> <span class="st">"joe"</span>,</span>
+<span>                password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Connecting using PostgreSQL driver</span></span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT TOP 3 * FROM person"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH</span>
-<span class="co">## 1         1              8507          1975</span>
-<span class="co">## 2         2              8507          1976</span>
-<span class="co">## 3         3              8507          1977</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT TOP 3 * FROM person"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH</span></span>
+<span><span class="co">## 1         1              8507          1975</span></span>
+<span><span class="co">## 2         2              8507          1976</span></span>
+<span><span class="co">## 3         3              8507          1977</span></span></code></pre>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/executeSql.html">executeSql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/executeSql.html">executeSql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"</span><span class="op">)</span></span></code></pre></div>
 <p>Both function provide extensive error reporting: When an error is
 thrown by the server, the error message and the offending piece of SQL
 are written to a text file to allow better debugging. The
@@ -146,12 +146,12 @@ package to store R data objects on file, and use them as if they are
 available in memory. <code>DatabaseConnector</code> can download data
 directly into Andromeda objects:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/OHDSI/Andromeda" class="external-link">Andromeda</a></span><span class="op">)</span>
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></span><span class="op">(</span><span class="op">)</span>
-<span class="fu"><a href="../reference/querySqlToAndromeda.html">querySqlToAndromeda</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">conn</span>, 
-                    sql <span class="op">=</span> <span class="st">"SELECT * FROM person"</span>, 
-                    andromeda <span class="op">=</span> <span class="va">x</span>, 
-                    andromedaTableName <span class="op">=</span> <span class="st">"person"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/OHDSI/Andromeda" class="external-link">Andromeda</a></span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/querySqlToAndromeda.html">querySqlToAndromeda</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">conn</span>, </span>
+<span>                    sql <span class="op">=</span> <span class="st">"SELECT * FROM person"</span>, </span>
+<span>                    andromeda <span class="op">=</span> <span class="va">x</span>, </span>
+<span>                    andromedaTableName <span class="op">=</span> <span class="st">"person"</span><span class="op">)</span></span></code></pre></div>
 <p>Where <code>x</code> is now an <code>Andromeda</code> object with
 table <code>person</code>.</p>
 </div>
@@ -170,9 +170,9 @@ functions in <code>SqlRender</code>:
 <code><a href="../reference/renderTranslateQuerySql.html">renderTranslateQuerySql()</a></code>,
 <code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code>. For example:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">persons</span> <span class="op">&lt;-</span> <span class="fu">renderTranslatequerySql</span><span class="op">(</span><span class="va">conn</span>, 
-                                   sql <span class="op">=</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,
-                                   schema <span class="op">=</span> <span class="st">"cdm_synpuf"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">persons</span> <span class="op">&lt;-</span> <span class="fu">renderTranslatequerySql</span><span class="op">(</span><span class="va">conn</span>, </span>
+<span>                                   sql <span class="op">=</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,</span>
+<span>                                   schema <span class="op">=</span> <span class="st">"cdm_synpuf"</span><span class="op">)</span></span></code></pre></div>
 <p>Note that the SQL Server-specific ‘TOP 10’ syntax will be translated
 to for example ‘LIMIT 10’ on PostgreSQL, and that the SQL parameter
 <code>@schema</code> will be instantiated with the provided value
@@ -191,8 +191,8 @@ sending SQL statements using the <code><a href="../reference/executeSql.html">ex
 is often convenient and faster to use the <code><a href="../reference/insertTable.html">insertTable()</a></code>
 function:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>
-<span class="fu"><a href="../reference/insertTable.html">insertTable</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"mtcars"</span>, <span class="va">mtcars</span>, createTable <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/insertTable.html">insertTable</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"mtcars"</span>, <span class="va">mtcars</span>, createTable <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>In this example, we’re uploading the mtcars data frame to a table
 called ‘mtcars’ on the server, that will be automatically created.</p>
 </div>
@@ -203,28 +203,28 @@ called ‘mtcars’ on the server, that will be automatically created.</p>
 compatibility with other R packages. One can use the DBI functions
 instead of the ones described before, for example:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu">dbConnect</span><span class="op">(</span><span class="fu"><a href="../reference/DatabaseConnectorDriver.html">DatabaseConnectorDriver</a></span><span class="op">(</span><span class="op">)</span>, 
-                  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,
-                  server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,
-                  user <span class="op">=</span> <span class="st">"joe"</span>,
-                  password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Connecting using PostgreSQL driver</span></code></pre>
+<code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu">dbConnect</span><span class="op">(</span><span class="fu"><a href="../reference/DatabaseConnectorDriver.html">DatabaseConnectorDriver</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>                  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
+<span>                  server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span>
+<span>                  user <span class="op">=</span> <span class="st">"joe"</span>,</span>
+<span>                  password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Connecting using PostgreSQL driver</span></span></code></pre>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">dbIsValid</span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] TRUE</span></code></pre>
+<code class="sourceCode R"><span><span class="fu">dbIsValid</span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] TRUE</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">dbSendQuery</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT TOP 3 * FROM person"</span><span class="op">)</span>
-<span class="fu">dbFetch</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH</span>
-<span class="co">## 1         1              8507          1975</span>
-<span class="co">## 2         2              8507          1976</span>
-<span class="co">## 3         3              8507          1977</span></code></pre>
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">dbSendQuery</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT TOP 3 * FROM person"</span><span class="op">)</span></span>
+<span><span class="fu">dbFetch</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH</span></span>
+<span><span class="co">## 1         1              8507          1975</span></span>
+<span><span class="co">## 2         2              8507          1976</span></span>
+<span><span class="co">## 3         3              8507          1977</span></span></code></pre>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">dbHasCompleted</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] TRUE</span></code></pre>
+<code class="sourceCode R"><span><span class="fu">dbHasCompleted</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] TRUE</span></span></code></pre>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">dbClearResult</span><span class="op">(</span><span class="va">res</span><span class="op">)</span>
-<span class="fu">dbDisconnect</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">dbClearResult</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="fu">dbDisconnect</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
 
@@ -245,7 +245,7 @@ instead of the ones described before, for example:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

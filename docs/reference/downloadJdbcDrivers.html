@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -69,12 +69,12 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">downloadJdbcDrivers</span><span class="op">(</span>
-  <span class="va">dbms</span>,
-  pathToDriver <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATABASECONNECTOR_JAR_FOLDER"</span><span class="op">)</span>,
-  method <span class="op">=</span> <span class="st">"auto"</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">downloadJdbcDrivers</span><span class="op">(</span></span>
+<span>  <span class="va">dbms</span>,</span>
+<span>  pathToDriver <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATABASECONNECTOR_JAR_FOLDER"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -86,17 +86,26 @@
 <li><p>"oracle" for Oracle</p></li>
 <li><p>"spark" for Spark</p></li>
 </ul></dd>
+
+
 <dt>pathToDriver</dt>
 <dd><p>The full path to the folder where the JDBC driver .jar files should be downloaded to.
 By default the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" is used.</p></dd>
+
+
 <dt>method</dt>
 <dd><p>The method used for downloading files. See <code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">?download.file</a></code> for details and options.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Further arguments passed on to <code>download.file</code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Invisibly returns the destination if the download was successful.</p>
+    
+
+<p>Invisibly returns the destination if the download was successful.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -109,9 +118,9 @@ By default the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" 
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">downloadJdbcDrivers</span><span class="op">(</span><span class="st">"redshift"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">downloadJdbcDrivers</span><span class="op">(</span><span class="st">"redshift"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -126,7 +135,7 @@ By default the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" 
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

@@ -25,7 +25,7 @@ DatabaseConnector::dbQuoteIdentifier("DatabaseConnectorConnection", "character")
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -83,8 +83,8 @@ operation is <code><a href="https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S4 method for DatabaseConnectorConnection,character</span>
-<span class="fu">dbQuoteIdentifier</span><span class="op">(</span><span class="va">conn</span>, <span class="va">x</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbQuoteIdentifier</span><span class="op">(</span><span class="va">conn</span>, <span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -92,22 +92,37 @@ operation is <code><a href="https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.
     <dl><dt>conn</dt>
 <dd><p>A DBIConnection object, as returned by
 <code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+
+
 <dt>x</dt>
 <dd><p>A character vector, <a href="https://dbi.r-dbi.org/reference/SQL.html" class="external-link">SQL</a> or <a href="https://dbi.r-dbi.org/reference/Id.html" class="external-link">Id</a> object to quote as identifier.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other arguments passed on to methods.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>dbQuoteIdentifier()</code> returns an object that can be coerced to <a href="https://rdrr.io/r/base/character.html" class="external-link">character</a>,
+    
+
+<p><code>dbQuoteIdentifier()</code> returns an object that can be coerced to <a href="https://rdrr.io/r/base/character.html" class="external-link">character</a>,
 of the same length as the input.
 For an empty character vector this function returns a length-0 object.
 The names of the input argument are preserved in the output.
-When passing the returned object again to <code>dbQuoteIdentifier()</code>as <code>x</code>argument, it is returned unchanged.
+When passing the returned object again to <code>dbQuoteIdentifier()</code></p>
+
+
+<p>as <code>x</code></p>
+
+
+<p>argument, it is returned unchanged.
 Passing objects of class <a href="https://dbi.r-dbi.org/reference/SQL.html" class="external-link">SQL</a> should also return them unchanged.
 (For backends it may be most convenient to return <a href="https://dbi.r-dbi.org/reference/SQL.html" class="external-link">SQL</a> objects
-to achieve this behavior, but this is not required.)
-An error is raised if the input contains <code>NA</code>,
+to achieve this behavior, but this is not required.)</p>
+
+
+<p>An error is raised if the input contains <code>NA</code>,
 but not for an empty string.</p>
     </div>
     <div id="see-also">
@@ -142,7 +157,7 @@ but not for an empty string.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

@@ -21,6 +21,13 @@ columns as fields in the result set,
 even if the result is a single value
 or has one
 or zero rows.
+An error is raised when issuing a query over a closed
+or invalid connection,
+if the syntax of the query is invalid,
+or if the query is not a non-\code{NA} string.
+If the \code{n} argument is not an atomic whole number
+greater or equal to -1 or Inf, an error is raised,
+but a subsequent call to \code{dbGetQuery()} with proper \code{n} argument succeeds.
 }
 \description{
 Returns the result of a query as a data frame.
@@ -28,16 +35,14 @@ Returns the result of a query as a data frame.
 (which should work with most backends) that calls
 \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, then \code{\link[DBI:dbFetch]{dbFetch()}}, ensuring that
 the result is always free-d by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
-For retrieving chunked/paged results or for passing query parameters,
-see \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, in particular the "The data retrieval flow" section.
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only
 (incl. other SQL statements that return a \code{SELECT}-alike result,
-e. g. execution of a stored procedure or data manipulation queries
-like \verb{INSERT INTO ... RETURNING ...}).
+e. g. execution of a stored procedure).
+
 To execute a stored procedure that does not return a result set,
 use \code{\link[DBI:dbExecute]{dbExecute()}}.
 

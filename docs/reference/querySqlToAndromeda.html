@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -69,48 +69,65 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">querySqlToAndromeda</span><span class="op">(</span>
-  <span class="va">connection</span>,
-  <span class="va">sql</span>,
-  <span class="va">andromeda</span>,
-  <span class="va">andromedaTableName</span>,
-  errorReportFile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"errorReportSql.txt"</span><span class="op">)</span>,
-  snakeCaseToCamelCase <span class="op">=</span> <span class="cn">FALSE</span>,
-  integerAsNumeric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"databaseConnectorIntegerAsNumeric"</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-  integer64AsNumeric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"databaseConnectorInteger64AsNumeric"</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">querySqlToAndromeda</span><span class="op">(</span></span>
+<span>  <span class="va">connection</span>,</span>
+<span>  <span class="va">sql</span>,</span>
+<span>  <span class="va">andromeda</span>,</span>
+<span>  <span class="va">andromedaTableName</span>,</span>
+<span>  errorReportFile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"errorReportSql.txt"</span><span class="op">)</span>,</span>
+<span>  snakeCaseToCamelCase <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  integerAsNumeric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"databaseConnectorIntegerAsNumeric"</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  integer64AsNumeric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"databaseConnectorInteger64AsNumeric"</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>connection</dt>
 <dd><p>The connection to the database server.</p></dd>
+
+
 <dt>sql</dt>
 <dd><p>The SQL to be sent.</p></dd>
+
+
 <dt>andromeda</dt>
 <dd><p>An open connection to a Andromeda object, for example as created
 using <code><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></code>.</p></dd>
+
+
 <dt>andromedaTableName</dt>
 <dd><p>The name of the table in the local Andromeda object where the
 results of the query will be stored.</p></dd>
+
+
 <dt>errorReportFile</dt>
 <dd><p>The file where an error report will be written if an error occurs.
 Defaults to 'errorReportSql.txt' in the current working directory.</p></dd>
+
+
 <dt>snakeCaseToCamelCase</dt>
 <dd><p>If true, field names are assumed to use snake_case, and are converted
 to camelCase.</p></dd>
+
+
 <dt>integerAsNumeric</dt>
 <dd><p>Logical: should 32-bit integers be converted to numeric (double)
 values? If FALSE 32-bit integers will be represented using R's native
 <code>Integer</code> class.</p></dd>
+
+
 <dt>integer64AsNumeric</dt>
 <dd><p>Logical: should 64-bit integers be converted to numeric (double)
 values? If FALSE 64-bit integers will be represented using
 <code><a href="https://rdrr.io/pkg/bit64/man/bit64-package.html" class="external-link">bit64::integer64</a></code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Invisibly returns the andromeda. The Andromeda object will have a table added with the query
+    
+
+<p>Invisibly returns the andromeda. The Andromeda object will have a table added with the query
 results.</p>
     </div>
     <div id="details">
@@ -124,26 +141,26 @@ object it is replaced.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">andromeda</span> <span class="op">&lt;-</span> <span class="fu">Andromeda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span>
-<span class="r-in">  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
-<span class="r-in">  server <span class="op">=</span> <span class="st">"localhost"</span>,</span>
-<span class="r-in">  user <span class="op">=</span> <span class="st">"root"</span>,</span>
-<span class="r-in">  password <span class="op">=</span> <span class="st">"blah"</span>,</span>
-<span class="r-in">  schema <span class="op">=</span> <span class="st">"cdm_v4"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">querySqlToAndromeda</span><span class="op">(</span></span>
-<span class="r-in">  connection <span class="op">=</span> <span class="va">conn</span>,</span>
-<span class="r-in">  sql <span class="op">=</span> <span class="st">"SELECT * FROM person;"</span>,</span>
-<span class="r-in">  andromeda <span class="op">=</span> <span class="va">andromeda</span>,</span>
-<span class="r-in">  andromedaTableName <span class="op">=</span> <span class="st">"foo"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">andromeda</span><span class="op">$</span><span class="va">foo</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">andromeda</span> <span class="op">&lt;-</span> <span class="fu">Andromeda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span></span>
+<span class="r-in"><span>  server <span class="op">=</span> <span class="st">"localhost"</span>,</span></span>
+<span class="r-in"><span>  user <span class="op">=</span> <span class="st">"root"</span>,</span></span>
+<span class="r-in"><span>  password <span class="op">=</span> <span class="st">"blah"</span>,</span></span>
+<span class="r-in"><span>  schema <span class="op">=</span> <span class="st">"cdm_v4"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">querySqlToAndromeda</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  connection <span class="op">=</span> <span class="va">conn</span>,</span></span>
+<span class="r-in"><span>  sql <span class="op">=</span> <span class="st">"SELECT * FROM person;"</span>,</span></span>
+<span class="r-in"><span>  andromeda <span class="op">=</span> <span class="va">andromeda</span>,</span></span>
+<span class="r-in"><span>  andromedaTableName <span class="op">=</span> <span class="st">"foo"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">andromeda</span><span class="op">$</span><span class="va">foo</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -158,7 +175,7 @@ object it is replaced.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

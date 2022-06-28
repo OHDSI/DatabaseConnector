@@ -1,8 +1,8 @@
 pandoc: 2.17.1.1
-pkgdown: 2.0.3
+pkgdown: 2.0.5
 pkgdown_sha: ~
 articles:
   Connecting: Connecting.html
   Querying: Querying.html
-last_built: 2022-06-07T11:58Z
+last_built: 2022-06-28T13:16Z
 

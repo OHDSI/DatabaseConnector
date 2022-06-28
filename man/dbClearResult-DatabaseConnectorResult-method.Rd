@@ -15,11 +15,13 @@
 \code{dbClearResult()} returns \code{TRUE}, invisibly, for result sets obtained from
 both \code{dbSendQuery()}
 and \code{dbSendStatement()}.
+An attempt to close an already closed result set issues a warning
+in both cases.
 }
 \description{
-Frees all resources (local and remote) associated with a result set.
-This step is mandatory for all objects obtained by calling
-\code{\link[DBI:dbSendQuery]{dbSendQuery()}} or \code{\link[DBI:dbSendStatement]{dbSendStatement()}}.
+Frees all resources (local and remote) associated with a result set.  In some
+cases (e.g., very large result sets) this can be a critical step to avoid
+exhausting resources (memory, file descriptors, etc.)
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbClearResult")}
 }

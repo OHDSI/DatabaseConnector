@@ -25,7 +25,7 @@ DatabaseConnector::dbListTables("DatabaseConnectorConnection")
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -83,8 +83,8 @@ This should include views and temporary objects, but not all database backends
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S4 method for DatabaseConnectorConnection</span>
-<span class="fu">dbListTables</span><span class="op">(</span><span class="va">conn</span>, database <span class="op">=</span> <span class="cn">NULL</span>, schema <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for DatabaseConnectorConnection</span></span>
+<span><span class="fu">dbListTables</span><span class="op">(</span><span class="va">conn</span>, database <span class="op">=</span> <span class="cn">NULL</span>, schema <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -92,24 +92,43 @@ This should include views and temporary objects, but not all database backends
     <dl><dt>conn</dt>
 <dd><p>A DBIConnection object, as returned by
 <code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+
+
 <dt>database</dt>
 <dd><p>Name of the database.</p></dd>
+
+
 <dt>schema</dt>
 <dd><p>Name of the schema.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other parameters passed on to methods.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>dbListTables()</code>returns a character vector
+    
+
+<p><code>dbListTables()</code></p>
+
+
+<p>returns a character vector
 that enumerates all tables
 and views
 in the database.
-Tables added with <code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable()</a></code>are part of the list.
+Tables added with <code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable()</a></code></p>
+
+
+<p>are part of the list.
 As soon a table is removed from the database,
-it is also removed from the list of database tables.
-The same applies to temporary tables if supported by the database.
-The returned names are suitable for quoting with <code>dbQuoteIdentifier()</code>.
+it is also removed from the list of database tables.</p>
+
+
+<p>The same applies to temporary tables if supported by the database.</p>
+
+
+<p>The returned names are suitable for quoting with <code>dbQuoteIdentifier()</code>.
 An error is raised when calling this method for a closed
 or invalid connection.</p>
     </div>
@@ -150,7 +169,7 @@ or invalid connection.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

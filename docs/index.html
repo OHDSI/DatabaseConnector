@@ -35,7 +35,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -132,14 +132,14 @@
 <h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h1>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span>dbms<span class="op">=</span><span class="st">"postgresql"</span>, 
-                                             server<span class="op">=</span><span class="st">"localhost"</span>,
-                                             user<span class="op">=</span><span class="st">"root"</span>,
-                                             password<span class="op">=</span><span class="st">"blah"</span>,
-                                             schema<span class="op">=</span><span class="st">"cdm_v4"</span><span class="op">)</span>
-<span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span>
-<span class="fu"><a href="reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>,<span class="st">"SELECT COUNT(*) FROM person"</span><span class="op">)</span>
-<span class="fu"><a href="reference/disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span>dbms<span class="op">=</span><span class="st">"postgresql"</span>, </span>
+<span>                                             server<span class="op">=</span><span class="st">"localhost"</span>,</span>
+<span>                                             user<span class="op">=</span><span class="st">"root"</span>,</span>
+<span>                                             password<span class="op">=</span><span class="st">"blah"</span>,</span>
+<span>                                             schema<span class="op">=</span><span class="st">"cdm_v4"</span><span class="op">)</span></span>
+<span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>,<span class="st">"SELECT COUNT(*) FROM person"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level1">
 <h1 id="technology">Technology<a class="anchor" aria-label="anchor" href="#technology"></a>
@@ -159,7 +159,7 @@
 <li><p>To install the latest stable version, install from CRAN:</p></li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"DatabaseConnector"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"DatabaseConnector"</span><span class="op">)</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li><p>Download the database drivers as described <a href="http://ohdsi.github.io/DatabaseConnector/articles/Connecting.html#obtaining-drivers" class="external-link">here</a>.</p></li>
 <li><p>(Optionally) To use Windows Authentication for SQL Server, download the authentication DDL file as described <a href="http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1" class="external-link">here</a>.</p></li>
@@ -274,7 +274,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

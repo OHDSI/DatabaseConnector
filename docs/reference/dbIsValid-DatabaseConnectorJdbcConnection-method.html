@@ -24,7 +24,7 @@ DatabaseConnector::dbIsValid(&quot;DatabaseConnectorJdbcConnection&quot;)
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -81,8 +81,8 @@ been disconnected or cleared).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S4 method for DatabaseConnectorJdbcConnection</span>
-<span class="fu">dbIsValid</span><span class="op">(</span><span class="va">dbObj</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for DatabaseConnectorJdbcConnection</span></span>
+<span><span class="fu">dbIsValid</span><span class="op">(</span><span class="va">dbObj</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -91,12 +91,17 @@ been disconnected or cleared).</p>
 <dd><p>An object inheriting from DBIObject,
 i.e. DBIDriver, DBIConnection,
 or a DBIResult</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other arguments to methods.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>dbIsValid()</code> returns a logical scalar,
+    
+
+<p><code>dbIsValid()</code> returns a logical scalar,
 <code>TRUE</code> if the object specified by <code>dbObj</code> is valid,
 <code>FALSE</code> otherwise.
 A DBIConnection object is initially valid,
@@ -175,7 +180,7 @@ connectivity problems, server failure, etc.), <code>dbIsValid()</code> should re
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

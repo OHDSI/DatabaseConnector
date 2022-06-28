@@ -24,7 +24,7 @@ createConnectionDetails(dbms, connectionString, user, password, pathToDriver)
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -95,34 +95,53 @@ database. There are three ways to call this function:</p><ul><li><p><code>create
         DATETIME)</p></li>
 <li><p>"spark" for Spark</p></li>
 </ul></dd>
+
+
 <dt>user</dt>
 <dd><p>The user name used to access the server.</p></dd>
+
+
 <dt>password</dt>
 <dd><p>The password for that user.</p></dd>
+
+
 <dt>server</dt>
 <dd><p>The name of the server.</p></dd>
+
+
 <dt>port</dt>
 <dd><p>(optional) The port on the server to connect to.</p></dd>
+
+
 <dt>extraSettings</dt>
 <dd><p>(optional) Additional configuration settings specific to the database
 provider to configure things as security for SSL. These must follow the
 format for the JDBC connection for the RDBMS specified in dbms.</p></dd>
+
+
 <dt>oracleDriver</dt>
 <dd><p>Specify which Oracle drive you want to use. Choose between <code>"thin"</code>
 or <code>"oci"</code>.</p></dd>
+
+
 <dt>connectionString</dt>
 <dd><p>The JDBC connection string. If specified, the <code>server</code>, <code>port</code>,
 <code>extraSettings</code>, and <code>oracleDriver</code> fields are ignored. If
 <code>user</code> and <code>password</code> are not specified, they are assumed to
 already be included in the connection string.</p></dd>
+
+
 <dt>pathToDriver</dt>
 <dd><p>Path to a folder containing the JDBC driver JAR files. See
 <code><a href="downloadJdbcDrivers.html">downloadJdbcDrivers</a></code> for instructions on how to download the
 relevant drivers.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list with all the details needed to connect to a database.</p>
+    
+
+<p>A list with all the details needed to connect to a database.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -219,17 +238,17 @@ set before calling <code>connect</code> for the first time.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu">createConnectionDetails</span><span class="op">(</span></span>
-<span class="r-in">  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
-<span class="r-in">  server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span>
-<span class="r-in">  user <span class="op">=</span> <span class="st">"root"</span>,</span>
-<span class="r-in">  password <span class="op">=</span> <span class="st">"blah"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">dbGetQuery</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT COUNT(*) FROM person"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu">createConnectionDetails</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span></span>
+<span class="r-in"><span>  server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span></span>
+<span class="r-in"><span>  user <span class="op">=</span> <span class="st">"root"</span>,</span></span>
+<span class="r-in"><span>  password <span class="op">=</span> <span class="st">"blah"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">dbGetQuery</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT COUNT(*) FROM person"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -244,7 +263,7 @@ set before calling <code>connect</code> for the first time.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
