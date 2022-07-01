@@ -422,11 +422,12 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   if (connection@dbms == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {
-      if (inherits(data[, i], "Date")) {
-        data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
+      column <- data[[i]]
+      if (inherits(column, "Date")) {
+        data[, i] <- as.numeric(as.POSIXct(as.character(column), origin = "1970-01-01", tz = "GMT"))
       }
-      if (inherits(data[, i], "POSIXct")) {
-        data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
+      if (inherits(column, "POSIXct")) {
+        data[, i] <- as.numeric(as.POSIXct(column, origin = "1970-01-01", tz = "GMT"))
       }
     }
   }

@@ -21,14 +21,14 @@ of the R columns of the data frame that is returned from \code{\link[DBI:dbFetch
 The \code{"type"} column is of type \code{character} and only for information.
 Do not compute on the \code{"type"} column, instead use \code{dbFetch(res, n = 0)}
 to create a zero-row data frame initialized with the correct data types.
-
-An attempt to query columns for a closed result set raises an error.
 }
 \description{
 Produces a data.frame that describes the output of a query. The data.frame
 should have as many rows as there are output fields in the result set, and
 each column in the data.frame describes an aspect of the result set
 field (field name, type, etc.)
+
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbColumnInfo")}
 }
 \seealso{
 Other DBIResult generics: 

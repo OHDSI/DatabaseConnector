@@ -20,8 +20,15 @@
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
-\item{name}{A character string specifying the unquoted DBMS table name,
-or the result of a call to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}.}
+\item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
+\itemize{
+\item a character string with the unquoted DBMS table name,
+e.g. \code{"table_name"},
+\item a call to \code{\link[DBI:Id]{Id()}} with components to the fully qualified table name,
+e.g. \code{Id(schema = "my_schema", table = "table_name")}
+\item a call to \code{\link[DBI:SQL]{SQL()}} with the quoted and fully qualified table name
+given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
+}}
 
 \item{value}{a \link{data.frame} (or coercible to data.frame).}
 
@@ -41,33 +48,23 @@ can be created.}
 }
 \value{
 \code{dbWriteTable()} returns \code{TRUE}, invisibly.
-If the table exists, and both \code{append} and \code{overwrite} arguments are unset,
-or \code{append = TRUE} and the data frame with the new data has different
-column names,
-an error is raised; the remote table remains unchanged.
-
-An error is raised when calling this method for a closed
-or invalid connection.
-An error is also raised
-if \code{name} cannot be processed with \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}
-or if this results in a non-scalar.
-Invalid values for the additional arguments \code{row.names},
-\code{overwrite}, \code{append}, \code{field.types}, and \code{temporary}
-(non-scalars,
-unsupported data types,
-\code{NA},
-incompatible values,
-duplicate
-or missing names,
-incompatible columns)
-also raise an error.
 }
 \description{
 Writes, overwrites or appends a data frame to a database table, optionally
 converting row names to a column and specifying SQL data types for fields.
-New code should prefer \code{\link[DBI:dbCreateTable]{dbCreateTable()}} and \code{\link[DBI:dbAppendTable]{dbAppendTable()}}.
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbWriteTable")}
+}
+\details{
+This function is useful if you want to create and load a table at the same time.
+Use \code{\link[DBI:dbAppendTable]{dbAppendTable()}} for appending data to a table,
+and \code{\link[DBI:dbCreateTable]{dbCreateTable()}}, \code{\link[DBI:dbExistsTable]{dbExistsTable()}} and \code{\link[DBI:dbRemoveTable]{dbRemoveTable()}}
+for more control over the individual operations.
+
+DBI only standardizes writing data frames.
+Some backends might implement methods that can consume CSV files
+or other data formats.
+For details, see the documentation for the individual methods.
 }
 \seealso{
 Other DBIConnection generics: 

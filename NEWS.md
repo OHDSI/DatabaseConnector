@@ -1,3 +1,11 @@
+DatabaseConnector 5.0.5
+=======================
+
+Bugfixes:
+
+1. Fix erroneous dates when inserting dates in a tibble into a SQLite database.
+
+
 DatabaseConnector 5.0.4
 =======================
 
