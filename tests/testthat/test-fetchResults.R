@@ -79,10 +79,35 @@ test_that("Fetch results", {
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
 
   # Fetch types correctly:
-  x <- querySql(connection, "SELECT CAST(1 AS INT) AS my_int, CAST(1 AS FLOAT) AS my_float, 1/10 AS my_numeric FROM dual;", integerAsNumeric = FALSE)
-  expect_is(x$MY_INT, "integer")
-  expect_is(x$MY_FLOAT, "numeric")
-  expect_is(x$MY_NUMERIC, "numeric")
+  x <- querySql(connection, "
+    SELECT
+        1/10 as A,
+        X1,
+        X2,
+        X1 / X2 as B,
+        CAST(1 AS INT) as C,
+        CAST(1.1 AS NUMBER(1,0)) as D,
+        CAST(1.1 AS FLOAT) as E,
+        0.1 as F
+    FROM (
+        SELECT
+          1 as X1,
+          10 as X2
+        FROM
+          DUAL
+      )
+  ", integerAsNumeric = FALSE)
+  
+  expect_identical(x, data.frame(
+    A = 0.1,
+    X1 = 1,
+    X2 = 10,
+    B = 0.1,
+    C = as.integer(1),
+    D = as.integer(1),
+    E = 1.1,
+    F = 0.1
+  ))
 
   # Fetch data.frame:
   count <- querySql(connection, renderedSql)
