@@ -88,7 +88,8 @@ test_that("Fetch results", {
         CAST(1 AS INT) as C,
         CAST(1.1 AS NUMBER(1,0)) as D,
         CAST(1.1 AS FLOAT) as E,
-        0.1 as F
+        0.1 as F,
+        CAST(9223372036854775807 as NUMBER(19)) as G
     FROM (
         SELECT
           1 as X1,
@@ -96,7 +97,7 @@ test_that("Fetch results", {
         FROM
           DUAL
       )
-  ", integerAsNumeric = FALSE)
+  ", integerAsNumeric = FALSE, integer64AsNumeric = FALSE)
   
   expect_identical(x, data.frame(
     A = 0.1,
@@ -106,7 +107,8 @@ test_that("Fetch results", {
     C = as.integer(1),
     D = as.integer(1),
     E = 1.1,
-    F = 0.1
+    F = 0.1,
+    G = bit64::as.integer64("9223372036854775807")
   ))
 
   # Fetch data.frame:

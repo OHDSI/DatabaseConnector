@@ -113,9 +113,10 @@ public class BatchedQuery {
 			int precision = metaData.getPrecision(columnIndex + 1);
 			int scale = metaData.getScale(columnIndex + 1);
 			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
-					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && scale == 0))
+					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && precision != 19 && scale == 0))
 				columnTypes[columnIndex] = INTEGER;
-			else if (type == Types.BIGINT)
+			else if (type == Types.BIGINT
+					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && scale == 0))
 				columnTypes[columnIndex] = INTEGER64;
 			else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
 				columnTypes[columnIndex] = NUMERIC;
