@@ -233,12 +233,11 @@ querySqlToAndromeda <- function(connection,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      columnNames <- colnames(andromeda[[andromedaTableName]])
-      newColumnNames <- toupper(columnNames)
       if (snakeCaseToCamelCase) {
-        newColumnNames <- SqlRender::snakeCaseToCamelCase(newColumnNames)
+        andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], SqlRender::snakeCaseToCamelCase)
+      } else {
+        andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
       }
-      names(andromeda[[andromedaTableName]]) <- newColumnNames
       invisible(andromeda)
     },
     error = function(err) {

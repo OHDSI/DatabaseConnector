@@ -30,7 +30,7 @@ test_that("Fetch results", {
     snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
-  Andromeda::close(andromeda)
+  close(andromeda)
 
   disconnect(connection)
 
@@ -63,7 +63,7 @@ test_that("Fetch results", {
     snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-  Andromeda::close(andromeda)
+  close(andromeda)
 
   disconnect(connection)
 
@@ -129,7 +129,7 @@ test_that("Fetch results", {
     snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-  Andromeda::close(andromeda)
+  close(andromeda)
 
   disconnect(connection)
 
@@ -162,7 +162,7 @@ test_that("Fetch results", {
     snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 91)
-  Andromeda::close(andromeda)
+  close(andromeda)
 
   disconnect(connection)
 })
