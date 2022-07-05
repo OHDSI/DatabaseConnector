@@ -28,7 +28,8 @@ Imports:
     utils,
     DBI (>= 1.0.0),
     urltools,
-    bit64
+    bit64,
+    checkmate
 Suggests:
     aws.s3,
     R.utils,
