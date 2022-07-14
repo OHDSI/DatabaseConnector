@@ -372,9 +372,11 @@ insertTable.default <- function(connection,
         }
         lapply(1:ncol(data), setColumn, start = start, end = end)
         if (attr(connection, "dbms") == "bigquery") {
-          rJava::.jcall(batchedInsert, "V", "executeBigQueryBatch")
+          if (!rJava::.jcall(batchedInsert, "Z", "executeBigQueryBatch"))
+            stop("Error uploading data")
         } else {
-          rJava::.jcall(batchedInsert, "V", "executeBatch")
+          if (!rJava::.jcall(batchedInsert, "Z", "executeBatch"))
+            stop("Error uploading data")
         }
       }
       if (progressBar) {

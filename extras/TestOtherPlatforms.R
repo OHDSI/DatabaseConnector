@@ -4,27 +4,9 @@ library(testthat)
 
 # Download drivers -----------------------------------------------
 
-downloadJdbcDrivers("pdw")
-downloadJdbcDrivers("redshift")
+downloadJdbcDrivers("bigquery")
 
 # Open and close connection -----------------------------------------------
-
-# PDW
-details <- createConnectionDetails(dbms = "pdw",
-                                   server = keyring::key_get("pdwServer"),
-                                   port = keyring::key_get("pdwPort"))
-connection <- connect(details)
-expect_true(inherits(connection, "DatabaseConnectorConnection"))
-expect_true(disconnect(connection))
-
-# RedShift
-details <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
-                                                      connectionString = keyring::key_get("redShiftConnectionStringCcae"),
-                                                      user = keyring::key_get("redShiftUserName"),
-                                                      password = keyring::key_get("redShiftPassword"))
-connection <- connect(details)
-expect_true(inherits(connection, "DatabaseConnectorConnection"))
-expect_true(disconnect(connection))
 
 # BigQuery
 details <- createConnectionDetails(dbms = "bigquery",
