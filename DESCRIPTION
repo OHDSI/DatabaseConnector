@@ -28,8 +28,7 @@ Imports:
     utils,
     DBI (>= 1.0.0),
     urltools,
-    bit64,
-    checkmate
+    bit64
 Suggests:
     aws.s3,
     R.utils,
@@ -40,10 +39,8 @@ Suggests:
     rmarkdown,
     RSQLite,
     ssh,
-    Andromeda (>= 1.0.0),
+    Andromeda,
     dplyr
-Remotes:
-    ohdsi/Andromeda@arrow
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

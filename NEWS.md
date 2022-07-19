@@ -1,6 +1,10 @@
 DatabaseConnector 5.0.5
 =======================
 
+Changes:
+
+1. Supporting upcoming version of `Andromeda` using `arrow` backend.
+
 Bugfixes:
 
 1. Fix erroneous dates when inserting dates in a tibble into a SQLite database.

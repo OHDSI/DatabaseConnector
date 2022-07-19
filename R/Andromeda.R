@@ -52,10 +52,10 @@ lowLevelQuerySqlToAndromeda <- function(connection,
                                         andromedaTableName,
                                         datesAsString = FALSE,
                                         integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                          default = TRUE
+                                                                     default = TRUE
                                         ),
                                         integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                          default = TRUE
+                                                                       default = TRUE
                                         )) {
   UseMethod("lowLevelQuerySqlToAndromeda", connection)
 }
@@ -67,24 +67,24 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                                 andromedaTableName,
                                                 datesAsString = FALSE,
                                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                                  default = TRUE
+                                                                             default = TRUE
                                                 ),
                                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                  default = TRUE
+                                                                               default = TRUE
                                                 )) {
   if (rJava::is.jnull(connection@jConnection)) {
     stop("Connection is closed")
   }
-
+  
   batchedQuery <- rJava::.jnew(
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
     query,
     connection@dbms
   )
-
+  
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
-
+  
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
   if (length(columnTypes) == 0) {
     stop("No columns found")
@@ -96,12 +96,12 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
     batch <- parseJdbcColumnData(batchedQuery,
-      columnTypes = columnTypes,
-      datesAsString = datesAsString,
-      integer64AsNumeric = integer64AsNumeric,
-      integerAsNumeric = integerAsNumeric
+                                 columnTypes = columnTypes,
+                                 datesAsString = datesAsString,
+                                 integer64AsNumeric = integer64AsNumeric,
+                                 integerAsNumeric = integerAsNumeric
     )
-
+    
     if (first) {
       andromeda[[andromedaTableName]] <- batch
     } else {
@@ -119,17 +119,17 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                        andromedaTableName,
                                                                        datesAsString = FALSE,
                                                                        integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                                                         default = TRUE
+                                                                                                    default = TRUE
                                                                        ),
                                                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                                         default = TRUE
+                                                                                                      default = TRUE
                                                                        )) {
   results <- lowLevelQuerySql(connection,
-    query,
-    integerAsNumeric = integerAsNumeric,
-    integer64AsNumeric = integer64AsNumeric
+                              query,
+                              integerAsNumeric = integerAsNumeric,
+                              integer64AsNumeric = integer64AsNumeric
   )
-
+  
   andromeda[[andromedaTableName]] <- results
   invisible(andromeda)
 }
@@ -196,10 +196,10 @@ querySqlToAndromeda <- function(connection,
                                 errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                 snakeCaseToCamelCase = FALSE,
                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                  default = TRUE
+                                                             default = TRUE
                                 ),
                                 integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                  default = TRUE
+                                                               default = TRUE
                                 )) {
   if (inherits(
     connection,
@@ -213,7 +213,7 @@ querySqlToAndromeda <- function(connection,
   if (packageVersion("Andromeda") < "0.6.0") {
     stop(sprintf("Andromeda version 0.6.0 or higher required, but version %s found", packageVersion("Andromeda")))
   }
-
+  
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {
@@ -233,10 +233,20 @@ querySqlToAndromeda <- function(connection,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      if (snakeCaseToCamelCase) {
-        andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], SqlRender::snakeCaseToCamelCase)
+      if (inherits(andromeda, "SQLiteConnection")) {
+        columnNames <- colnames(andromeda[[andromedaTableName]])
+        if (snakeCaseToCamelCase) {
+          newColumnNames <- SqlRender::snakeCaseToCamelCase(columnNames)
+        } else {
+          newColumnNames <- toupper(columnNames)
+        }
+        names(andromeda[[andromedaTableName]]) <- newColumnNames
       } else {
-        andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
+        if (snakeCaseToCamelCase) {
+          andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], SqlRender::snakeCaseToCamelCase)
+        } else {
+          andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
+        }
       }
       invisible(andromeda)
     },
@@ -312,23 +322,23 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                oracleTempSchema = NULL,
                                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
-                                                 default = TRUE
+                                                                            default = TRUE
                                                ),
                                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
-                                                 default = TRUE
+                                                                              default = TRUE
                                                ),
                                                ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-      .frequency = "regularly",
-      .frequency_id = "oracleTempSchema"
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema"
     )
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql,
-    targetDialect = connection@dbms,
-    tempEmulationSchema = tempEmulationSchema
+                              targetDialect = connection@dbms,
+                              tempEmulationSchema = tempEmulationSchema
   )
   return(querySqlToAndromeda(
     connection = connection,
