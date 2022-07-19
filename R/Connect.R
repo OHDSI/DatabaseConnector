@@ -695,3 +695,36 @@ setPathToDll <- function() {
     rJava::J("org.ohdsi.databaseConnector.Authentication")$addPathToJavaLibrary(pathToDll)
   }
 }
+
+#' Get the database platform from a connection
+#' 
+#' The SqlRender package provides functions that translate SQL from OHDSISQL to 
+#' a target SQL dialect. These function need the name of the database platform to 
+#' translate to. The `dbms` function returns the dbms for any DBI 
+#' connection that can be passed along to SqlRender translation functions (see example).
+#'
+#' @param connection A DBI (or DatabaseConnector) connection
+#'
+#' @return The name of the database (dbms) used by SqlRender
+#' @export
+#'
+#' @examples
+#' library(DatabaseConnector)
+#' con <- connect(dbms = "sqlite", server = ":memory:")
+#' dbms(con)
+#' #> [1] "sqlite"
+#' SqlRender::translate("DATEADD(d, 365, dateColumn)", targetDialect = dbms(con))
+#' #> "CAST(STRFTIME('%s', DATETIME(dateColumn, 'unixepoch', (365)||' days')) AS REAL)"
+#' disconnect(con)
+dbms <- function(connection) {
+  if(!is.null(attr(connection, "dbms"))) return(attr(connection, "dbms"))
+  
+  switch (class(connection),
+          'Microsoft SQL Server' = 'sql server',
+          'PqConnection' = 'postgresql',
+          'RedshiftConnection' = 'redshift',
+          'BigQueryConnection' = 'bigquery',
+          'duckdb_connection'  = 'duckdb'
+          # add mappings from various connection classes to dbms here
+  )
+}
