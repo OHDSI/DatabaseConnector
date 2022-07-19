@@ -5,6 +5,8 @@ Bugfixes:
 
 1. Fix erroneous dates when inserting dates in a tibble into a SQLite database.
 
+2. Ensuring errors when inserting data turn into R errors.
+
 
 DatabaseConnector 5.0.4
 =======================
