@@ -717,6 +717,8 @@ setPathToDll <- function() {
 #' #> "CAST(STRFTIME('%s', DATETIME(dateColumn, 'unixepoch', (365)||' days')) AS REAL)"
 #' disconnect(con)
 dbms <- function(connection) {
+  if(!inherits(connection, "DBIConnection")) abort("connection must be a DBIConnection")
+  
   if(!is.null(attr(connection, "dbms"))) return(attr(connection, "dbms"))
   
   switch (class(connection),
