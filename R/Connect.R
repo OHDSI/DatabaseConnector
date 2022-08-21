@@ -698,7 +698,7 @@ setPathToDll <- function() {
 
 #' Get the database platform from a connection
 #' 
-#' The SqlRender package provides functions that translate SQL from OHDSISQL to 
+#' The SqlRender package provides functions that translate SQL from OHDSI-SQL to 
 #' a target SQL dialect. These function need the name of the database platform to 
 #' translate to. The `dbms` function returns the dbms for any DBI 
 #' connection that can be passed along to SqlRender translation functions (see example).
@@ -726,7 +726,8 @@ dbms <- function(connection) {
           'PqConnection' = 'postgresql',
           'RedshiftConnection' = 'redshift',
           'BigQueryConnection' = 'bigquery',
+          'SQLiteConnection' = 'sqlite',
           'duckdb_connection'  = 'duckdb'
-          # add mappings from various connection classes to dbms here
+          # add mappings from various DBI connection classes to SqlRender dbms here
   )
 }
