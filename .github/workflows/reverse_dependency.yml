@@ -1,0 +1,87 @@
+on: workflow_dispatch
+
+name: Reverse-deps-check
+
+jobs:
+  Reverse-deps-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macOS-latest, r: 'release'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: ${{ matrix.config.rspm }}
+      CDM5_ORACLE_CDM_SCHEMA: ${{ secrets.CDM5_ORACLE_CDM_SCHEMA }}
+      CDM5_ORACLE_OHDSI_SCHEMA: ${{ secrets.CDM5_ORACLE_OHDSI_SCHEMA }}
+      CDM5_ORACLE_PASSWORD: ${{ secrets.CDM5_ORACLE_PASSWORD }}
+      CDM5_ORACLE_SERVER: ${{ secrets.CDM5_ORACLE_SERVER }}
+      CDM5_ORACLE_USER: ${{ secrets.CDM5_ORACLE_USER }}
+      CDM5_POSTGRESQL_CDM_SCHEMA: ${{ secrets.CDM5_POSTGRESQL_CDM_SCHEMA }}
+      CDM5_POSTGRESQL_OHDSI_SCHEMA: ${{ secrets.CDM5_POSTGRESQL_OHDSI_SCHEMA }}
+      CDM5_POSTGRESQL_PASSWORD: ${{ secrets.CDM5_POSTGRESQL_PASSWORD }}
+      CDM5_POSTGRESQL_SERVER: ${{ secrets.CDM5_POSTGRESQL_SERVER }}
+      CDM5_POSTGRESQL_USER: ${{ secrets.CDM5_POSTGRESQL_USER }}
+      CDM5_SQL_SERVER_CDM_SCHEMA: ${{ secrets.CDM5_SQL_SERVER_CDM_SCHEMA }}
+      CDM5_SQL_SERVER_OHDSI_SCHEMA: ${{ secrets.CDM5_SQL_SERVER_OHDSI_SCHEMA }}
+      CDM5_SQL_SERVER_PASSWORD: ${{ secrets.CDM5_SQL_SERVER_PASSWORD }}
+      CDM5_SQL_SERVER_SERVER: ${{ secrets.CDM5_SQL_SERVER_SERVER }}
+      CDM5_SQL_SERVER_USER: ${{ secrets.CDM5_SQL_SERVER_USER }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+
+      - uses: r-lib/actions/setup-tinytex@v2
+
+      - uses: r-lib/actions/setup-pandoc@v2
+      
+      - name: Install system requirements
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y make
+          sudo apt-get install -y default-jdk
+          sudo apt-get install -y libcurl4-openssl-dev
+          sudo apt-get install -y libssl-dev
+
+       
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck 
+            any::remotes
+          needs: check
+        
+      - name: Install main package develop version
+        run: |
+          remotes::install_local(build_opts = c("--no-resave-data", "--no-manual", "--no-build-vignettes", "--no-multiarch"))
+        shell: Rscript {0}
+      
+      - name: Get reverse dependencies script
+        run: |
+          utils::download.file("https://raw.githubusercontent.com/OHDSI/.github/main/ReverseDependencyCheckFunctions.R", "ReverseDependencyCheckFunctions.R", method = "curl")
+        shell: Rscript {0}
+      
+      - name: Install reverse dependencies
+        run: |
+          source("ReverseDependencyCheckFunctions.R")
+          saveRDS(prepareForReverseDependencyCheck(), ".github/reverseDependencies.rds")
+        shell: Rscript {0}
+
+      - name: Check reverse dependencies
+        run: |
+          source("ReverseDependencyCheckFunctions.R")
+          reverseDependencies <- readRDS(".github/reverseDependencies.rds")
+          if (nrow(reverseDependencies) > 0)
+            for (i in 1:nrow(reverseDependencies))
+              checkPackage(package = reverseDependencies$name[i], inCran = reverseDependencies$inCran[i])
+        shell: Rscript {0}

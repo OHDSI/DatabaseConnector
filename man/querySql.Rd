@@ -9,6 +9,7 @@ querySql(
   sql,
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
+  integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
 )
 }
@@ -21,6 +22,9 @@ querySql(
 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
+
+\item{integerAsNumeric}{Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+32-bit integers will be represented using R's native \code{Integer} class.}
 
 \item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 64-bit integers will be represented using \code{bit64::integer64}.}
@@ -38,11 +42,13 @@ to NA values in R.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 conn <- connect(connectionDetails)
 count <- querySql(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)

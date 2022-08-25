@@ -20,12 +20,6 @@ an S4 object that inherits from \linkS4class{DBIResult}.
 The result set can be used with \code{\link[DBI:dbFetch]{dbFetch()}} to extract records.
 Once you have finished using a result, make sure to clear it
 with \code{\link[DBI:dbClearResult]{dbClearResult()}}.
-An error is raised when issuing a query over a closed
-or invalid connection,
-or if the query is not a non-\code{NA} string.
-An error is also raised if the syntax of the query is invalid
-and all query parameters are given (by passing the \code{params} argument)
-or the \code{immediate} argument is set to \code{TRUE}.
 }
 \description{
 The \code{dbSendQuery()} method only submits and synchronously executes the

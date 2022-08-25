@@ -6,10 +6,10 @@
 \description{
 Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
 use the \code{pathToDriver} argument in the \code{\link{connect}} or \code{\link{createConnectionDetails}}
-functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental 
+functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 variable, for example in your .Renviron file (recommended).
 }
-\section{SQL Server, Oracle, PostgreSQL, PDW, RedShift}{
+\section{SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift}{
  Use the \code{\link{downloadJdbcDrivers}} function to download these drivers
 from the OHDSI GitHub pages.
 }

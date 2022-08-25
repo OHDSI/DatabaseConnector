@@ -1,0 +1,168 @@
+---
+title: "Connecting to a database"
+author: "Martijn J. Schuemie"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+  html_document:
+    number_sections: yes
+    toc: yes
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Connecting to a database}
+  %\VignetteEncoding{UTF-8}    
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(DatabaseConnector)
+```
+
+# Introduction
+
+This vignette describes how you can use the `DatabaseConnector` package to connect to a database.
+
+`DatabaseConnector` supports these database platforms:
+
+* Microsoft SQL Server
+* Oracle
+* PostgresSql
+* Microsoft Parallel Data Warehouse (PDW, a.k.a. Analytics Platform System)
+* Amazon Redshift
+* Apache Impala
+* Google BigQuery
+* IBM Netezza
+* SQLite
+* Spark
+
+# Obtaining drivers 
+
+Before `DatabaseConnector` can be used to connect to a database, the drivers for your platform need to be downloaded to a location in the local file system, which we'll refer to as the JAR folder.
+
+## The JAR folder
+
+The JAR folder is just a folder in the local file system where the database drivers are stored. It is highly recommended to use the `DATABASECONNECTOR_JAR_FOLDER` environmental variable to point to this folder, which you can for example set using:
+
+```{r eval=FALSE}
+Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "c:/temp/jdbcDrivers")
+```
+
+Even better would be to add this entry to your `.Renviron` file:
+
+```
+DATABASECONNECTOR_JAR_FOLDER = 'c:/temp/jdbcDrivers'
+```
+
+That way, the environmental variable will be automatically set whenever you start R. A convenient way to edit your `.Renviron` file is by using `usethis`:
+
+```{r eval=FALSE}
+install.packages("usethis")
+usethis::edit_r_environ()
+```
+
+If you don't use the `DATABASECONNECTOR_JAR_FOLDER` environmental variable, you will need to provide the `pathToDriver` argument every time you call the `downloadJdbcDrivers`, `connect`, `dbConnect`, or `createConnectionDetails` functions.
+
+
+## Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift
+
+For your convenience these JDBC drivers are hosted on the OHDSI GitHub pages, and can be downloaded using the `downloadJdbcDrivers` function. You'll first need to specify the JAR folder as described in the previous section, for example using
+
+```{r eval=FALSE}
+Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "c:/temp/jdbcDrivers")
+```
+
+And next download the driver. For example, for PostgreSQL:
+
+```{r eval=FALSE}
+downloadJdbcDrivers("postgresql")
+```
+```{r echo=FALSE}
+writeLines("DatabaseConnector JDBC drivers downloaded to 'c:/temp/jdbcDrivers'.")
+```
+
+Note that if we hadn't specified the `DATABASECONNECTOR_JAR_FOLDER` environmental variable, we would have to specify the `pathToDriver` argument when calling `downloadJdbcDrivers`.
+
+
+## Obtaining drivers for BigQuery, Netezza and Impala
+
+Because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. see [these instructions on how to download these drivers](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html), which you can also see by typing `?jdbcDrivers`.
+
+
+##  Obtaining drivers for SQLite
+
+For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed using 
+
+```{r eval=FALSE}
+install.packages("RSQLite")
+```
+
+
+# Creating a connection
+
+To connect to a database a number of details need to be specified, such as the database platform, the location of the server, the user name, password, and path to the driver. We can call the `connect()` function and specify these details directly:
+
+```{r eval=FALSE}
+conn <- connect(dbms = "postgresql",
+                server = "localhost/postgres",
+                user = "joe",
+                password = "secret")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+See [this webpage](http://ohdsi.github.io/DatabaseConnector/reference/connect.html) or type `?connect` for information on which details are required for each platform. Note that we did not need to specify the `pathToDriver` argument because we previously already set the `DATABASECONNECTOR_JAR_FOLDER` environmental variable.
+
+Don't forget to close any connection afterwards:
+
+```{r eval=FALSE}
+disconnect(conn)
+```  
+
+Instead of providing the server name, it is also possible to provide the JDBC connection string if this is more convenient:
+
+```{r eval=FALSE}
+conn <- connect(dbms = "postgresql",
+                connectionString = "jdbc:postgresql://localhost:5432/postgres",
+                user = "joe",
+                password = "secret")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+Sometimes we may want to first specify the connection details, and defer connecting until later. This may be convenient for example when the connection is established inside a function, and the details need to be passed as an argument. We can use the `createConnectionDetails` function for this purpose:
+
+```{r eval=FALSE}
+details <- createConnectionDetails(dbms = "postgresql",
+                                   server = "localhost/postgres",
+                                   user = "joe",
+                                   password = "secret")
+conn <- connect(details)
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+
+# Using Windows Authentication for SQL Server
+
+In some organizations using Microsoft SQL Server and Windows, it is possible to use Windows Authentication to connect to the server, meaning you won't have to provide a user name and password, since your Windows credentials will be used. This will require downloading the SQL Server authentication DLL file, and placing it somewhere on your system path. If you don't have rights to add files to a place on your system path, you can place it anywhere, and set the `PATH_TO_AUTH_DLL` environmental variable, either using the `Sys.setenv()`, or by adding it to your `.Renviron` file. See [this webpage](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1) or type `?connect` for details on where to get the DLL (and what specific version).
+
+# Connecting to a SQLite database
+
+`DatabaseConnector` also supports SQLite through the [RSQLite package](https://cran.r-project.org/web/packages/RSQLite/index.html), mainly for testing and demonstration purposes. Provide the path to the SQLite file as the `server` argument when connecting. If no file exists it will be created:
+
+```{r}
+conn <- connect(dbms = "sqlite", server = tempfile())
+
+# Upload cars dataset as table:
+insertTable(connection = conn, 
+            tableName = "cars", 
+            data = cars)
+
+querySql(conn, "SELECT COUNT(*) FROM main.cars;")
+
+disconnect(conn)
+```

@@ -18,8 +18,15 @@
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
-\item{name}{A character string specifying the unquoted DBMS table name,
-or the result of a call to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}.}
+\item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
+\itemize{
+\item a character string with the unquoted DBMS table name,
+e.g. \code{"table_name"},
+\item a call to \code{\link[DBI:Id]{Id()}} with components to the fully qualified table name,
+e.g. \code{Id(schema = "my_schema", table = "table_name")}
+\item a call to \code{\link[DBI:SQL]{SQL()}} with the quoted and fully qualified table name
+given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
+}}
 
 \item{database}{Name of the database.}
 
@@ -37,20 +44,21 @@ can be created.}
 \code{dbReadTable()} returns a data frame that contains the complete data
 from the remote table, effectively the result of calling \code{\link[DBI:dbGetQuery]{dbGetQuery()}}
 with \verb{SELECT * FROM <name>}.
-An error is raised if the table does not exist.
+
 An empty table is returned as a data frame with zero rows.
 
 The presence of \link[DBI]{rownames} depends on the \code{row.names} argument,
-see \code{\link[DBI:rownames]{sqlColumnToRownames()}} for details:
+see \code{\link[DBI:sqlColumnToRownames]{sqlColumnToRownames()}} for details:
 \itemize{
 \item If \code{FALSE} or \code{NULL}, the returned data frame doesn't have row names.
-\item If \code{TRUE}, a column named "row_names" is converted to row names,
-an error is raised if no such column exists.
+\item If \code{TRUE}, a column named "row_names" is converted to row names.
+}
+
+\itemize{
 \item If \code{NA}, a column named "row_names" is converted to row names if it exists,
 otherwise no translation occurs.
 \item If a string, this specifies the name of the column in the remote table
-that contains the row names,
-an error is raised if no such column exists.
+that contains the row names.
 }
 
 The default is \code{row.names = FALSE}.
@@ -60,17 +68,6 @@ the columns in the returned data frame are converted to valid R
 identifiers
 if the \code{check.names} argument is \code{TRUE},
 If \code{check.names = FALSE}, the returned table has non-syntactic column names without quotes.
-
-An error is raised when calling this method for a closed
-or invalid connection.
-An error is raised
-if \code{name} cannot be processed with \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}
-or if this results in a non-scalar.
-Unsupported values for \code{row.names} and \code{check.names}
-(non-scalars,
-unsupported data types,
-\code{NA} for \code{check.names})
-also raise an error.
 }
 \description{
 Reads a database table to a data frame, optionally converting

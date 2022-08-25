@@ -1,3 +1,106 @@
+DatabaseConnector 5.0.5
+=======================
+
+Changes:
+
+1. Supporting upcoming version of `Andromeda` using `arrow` backend.
+
+Bugfixes:
+
+1. Fix erroneous dates when inserting dates in a tibble into a SQLite database.
+
+2. Ensuring errors when inserting data turn into R errors.
+
+
+DatabaseConnector 5.0.4
+=======================
+
+Bugfixes:
+
+1. Prevent error when `connectionString` is empty string (instead of `NULL`).
+
+
+DatabaseConnector 5.0.3
+=======================
+
+Changes:
+
+1. Ensuring Andromeda works with different backends (e.g. arrow).
+
+
+Bugfixes:
+
+1. Fixing 'DBMS not supported' error when connecting to Hive.
+
+2. Fixing error when bulk uploading to Postgress with NULL values.
+
+3. Fixing warning when automatically converting `Integer64` to `numeric` in R 4.2.0.
+
+
+DatabaseConnector 5.0.2
+=======================
+
+Changes:
+
+1. Updating Spark JDBC driver in response to Log4J vulnerability.
+
+2. Using new Andromeda functions for better abstraction.
+
+3. More informative error messages when user forgets to provide a connection property (like a password).
+
+4. Also deprecating `oracleTempSchema` in DBI functions.
+
+5. Adding `existsTable()` function.
+
+6. Splitting vignette into two, because many users will only need to now how to connect to their database.
+
+7. Improved error messaging related to the driver folder.
+
+Bugfixes:
+
+1. Fixing `getTableNames()` when the database or schema name contains escaped characters.
+
+
+DatabaseConnector 5.0.1
+=======================
+
+Changes:
+
+1. Added `dropEmulatedTempTables()` function.
+
+Bugfixes:
+
+1. Fixed R-Studio connection panel for BigQuery.
+
+
+DatabaseConnector 5.0.0
+=======================
+
+Changes:
+
+1. 32-bit integers are also converted to numeric by default because (a) the output of some SQL functions (e.g. DATEDIFF) is INT on some platforms, BIG_INT on others, and (b) dplyr often throws errors when working with both integer and numeric vectors.
+
+2. Reusing byte buffer when passing 64-bit integers from Java to R for efficiency.
+
+3. Adding support for connecting to Spark.
+
+4. Adding `renderTranslateQueryApplyBatched()` function.
+
+5. Throw informative error when provided `dbms` argument does not match any of the expected values.
+
+6. Adding `getAvailableJavaHeapSpace()` function for debugging purposes.
+
+Bugfixes: 
+
+1. Fixing field type of numeric fields on Oracle when fetching data.
+
+2. Fixing issues when fetching dates from SQLite (needed casting to numeric in some scenarios before conversion to date in R).
+
+3. Fixing `insertTable()` when using a `databaseSchema` argument on SQLite.
+
+4. Fixing `insertTable()` for inserting into temp table on RedShift when table name does not start with '#'.
+
+
 DatabaseConnector 4.0.2
 =======================
 

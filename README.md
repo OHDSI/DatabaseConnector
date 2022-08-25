@@ -2,14 +2,16 @@ DatabaseConnector
 =================
 
 [![Build Status](https://github.com/OHDSI/DatabaseConnector/workflows/R-CMD-check/badge.svg)](https://github.com/OHDSI/DatabaseConnector/actions?query=workflow%3AR-CMD-check)
-[![codecov.io](https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=master)](https://codecov.io/github/OHDSI/DatabaseConnector?branch=master)
+[![codecov.io](https://codecov.io/github/OHDSI/DatabaseConnector/coverage.svg?branch=main)](https://codecov.io/github/OHDSI/DatabaseConnector?branch=main)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
 [![CRAN_Status_Badge](http://cranlogs.r-pkg.org/badges/DatabaseConnector)](https://cran.r-project.org/package=DatabaseConnector)
 
 DatabaseConnector is part of [HADES](https://ohdsi.github.io/Hades/).
 
+
 Introduction
 ============
+
 This R package provides function for connecting to various DBMSs. Together with the `SqlRender` package, the main goal of `DatabaseConnector` is to provide a uniform interface across database platforms: the same code should run and produce equivalent results, regardless of the database back end.
 
 Features
@@ -24,6 +26,7 @@ Features
   - Google BigQuery
   - IBM Netezza
   - SQLite
+  - Spark
 - Statements for executing queries with 
   - Error reporting to file
   - Progress reporting
@@ -33,8 +36,10 @@ Features
 - Supports the DBI interface
 - Integrates with RStudio's Connections tab
 
+
 Examples
 ========
+
 ```r
 connectionDetails <- createConnectionDetails(dbms="postgresql", 
                                              server="localhost",
@@ -46,13 +51,18 @@ querySql(conn,"SELECT COUNT(*) FROM person")
 disconnect(conn)
 ```
 
+
 Technology
 ============
+
 DatabaseConnector is an R package using Java's JDBC drivers. 
+
 
 System Requirements
 ===================
+
 Running the package requires R with the package rJava installed. Also requires Java 1.8 or higher.
+
 
 Installation
 ============
@@ -65,40 +75,52 @@ Installation
 install.packages("DatabaseConnector")
 ```
 
+3. Download the database drivers as described [here](http://ohdsi.github.io/DatabaseConnector/articles/Connecting.html#obtaining-drivers).
 
-To download and use the JDBC drivers for Oracle, SQL Server, PDW, PostgreSQL, or RedShift, you can use the `downloadJdbcDrivers()` function. For BigQuery, Impala, or Netezza, see [these instructions](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html).
-
-To be able to use Windows authentication for SQL Server, you have to install the JDBC driver. Download the .zip from [Microsoft](https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15) and extract its contents to a folder. In the extracted folder you will find the file sqljdbc_9.2/enu/auth/x64/mssql-jdbc_auth-9.2.0.x64.dll (64-bits) or ssqljdbc_9.2/enu/auth/x86/mssql-jdbc_auth-9.2.0.x86.dll (32-bits), which needs to be moved to location on the system path, for example to c:/windows/system32. If you not have write access to any folder in the system path, you can also specify the path to the folder containing the dll by setting the environmental variable `PATH_TO_AUTH_DLL`, so for example `Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")`.
+4. (Optionally) To use Windows Authentication for SQL Server, download the authentication DDL file as described  [here](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1).
 
 User Documentation
 ==================
 Documentation can be found on the [package website](https://ohdsi.github.io/DatabaseConnector/).
 
 PDF versions of the documentation are also available:
-* Vignette: [Using DatabaseConnector](https://github.com/OHDSI/DatabaseConnector/raw/master/inst/doc/UsingDatabaseConnector.pdf)
-* Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/extras/DatabaseConnector.pdf) 
+
+* Vignette: [Connecting to a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Connecting.pdf)
+* Vignette: [Querying a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Querying.pdf)
+* Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf) 
+
 
 Support
 =======
+
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
 * We use the <a href="https://github.com/OHDSI/DatabaseConnector/issues">GitHub issue tracker</a> for all bugs/issues/enhancements
 
+
 Contributing
 ============
+
 Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribute to this package.
+
 
 License
 =======
-DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers [fall under their own respective licenses](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/master/inst/COPYRIGHTS).
+
+DatabaseConnector is licensed under Apache License 2.0. The JDBC drivers [fall under their own respective licenses](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/inst/COPYRIGHTS).
+
 
 Development
 ===========
+
 DatabaseConnector is being developed in R Studio.
+
 
 ### Development status
 
 Stable. The code is actively being used in several projects.
 
-# Acknowledgements
-- This project is supported in part through the National Science Foundation grant IIS 1251151.
 
+Acknowledgements
+================
+
+- This project is supported in part through the National Science Foundation grant IIS 1251151.

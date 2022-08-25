@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -17,14 +17,14 @@
 # limitations under the License.
 
 #' Compress files and/or folders into a single zip file
-#' 
-#' @details 
+#'
+#' @details
 #' Uses Java's compression library to create a zip file. It is similar to \code{utils::zip}, except
 #' that it does not require an external zip tool to be available on the system path.
 #'
 #' @param zipFile The path to the zip file to be created.
 #' @param files   The files and/or folders to be included in the zip file. Folders will be included recursively.
-#' @param rootFolder  The root folder. All files will be stored with relative paths relative to this folder. 
+#' @param rootFolder  The root folder. All files will be stored with relative paths relative to this folder.
 #' @param compressionLevel A number between 1 and 9. 9 compresses best, but it also takes the longest.
 #'
 #' @export
@@ -33,8 +33,10 @@ createZipFile <- function(zipFile, files, rootFolder = getwd(), compressionLevel
   suppressWarnings(zipFile <- normalizePath(as.character(zipFile), mustWork = FALSE))
   rootFolder <- normalizePath(as.character(rootFolder))
   compressionLevel <- as.integer(compressionLevel)
-  rJava::J("org.ohdsi.databaseConnector.Compression")$createZipFile(files,  
-                                                                    rootFolder, 
-                                                                    zipFile, 
-                                                                    compressionLevel)
+  rJava::J("org.ohdsi.databaseConnector.Compression")$createZipFile(
+    files,
+    rootFolder,
+    zipFile,
+    compressionLevel
+  )
 }

@@ -8,6 +8,7 @@ lowLevelQuerySql(
   connection,
   query,
   datesAsString = FALSE,
+  integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
 )
 }
@@ -18,6 +19,9 @@ lowLevelQuerySql(
 
 \item{datesAsString}{Logical: Should dates be imported as character vectors, our should they be converted
 to R's date format?}
+
+\item{integerAsNumeric}{Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+32-bit integers will be represented using R's native \code{Integer} class.}
 
 \item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 64-bit integers will be represented using \code{bit64::integer64}.}

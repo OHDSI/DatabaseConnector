@@ -1,15 +1,15 @@
 # @file Drivers.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
 jdbcDrivers <- new.env()
 
 #' Download DatabaseConnector JDBC Jar files
-#' 
+#'
 #' Download the DatabaseConnector JDBC drivers from https://ohdsi.github.io/DatabaseConnectorJars/
 #'
 #' @param pathToDriver The full path to the folder where the JDBC driver .jar files should be downloaded to.
@@ -30,19 +30,21 @@ jdbcDrivers <- new.env()
 #'          \item{"redshift" for Amazon Redshift}
 #'          \item{"sql server" or "pdw" for Microsoft SQL Server}
 #'          \item{"oracle" for Oracle}
+#'          \item{"spark" for Spark}
 #'      }
 #' @param method The method used for downloading files. See \code{?download.file} for details and options.
-#' @param ... Further arguments passed on to \code{download.file} 
-#' 
-#' @details 
+#' @param ... Further arguments passed on to \code{download.file}
+#'
+#' @details
 #' The following versions of the JDBC drivers are currently used:
 #' \itemize{
 #'   \item{PostgreSQL}{V42.2.18}
 #'   \item{RedShift}{V1.2.27.1051}
 #'   \item{SQL Server}{V8.4.1.zip}
 #'   \item{Oracle}{V19.8}
+#'   \item{Spark}{V2.6.21}
 #' }
-#' 
+#'
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
 #'
@@ -50,22 +52,24 @@ jdbcDrivers <- new.env()
 #' \dontrun{
 #' downloadJdbcDrivers("redshift")
 #' }
-downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), method = "auto", ...){
-  
-  if (is.null(pathToDriver) || is.na(pathToDriver) || pathToDriver == "") 
+downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"), method = "auto", ...) {
+  if (is.null(pathToDriver) || is.na(pathToDriver) || pathToDriver == "") {
     abort("The pathToDriver argument must be specified. Consider setting the DATABASECONNECTOR_JAR_FOLDER environment variable, for example in the .Renviron file.")
-  
+  }
+
   if (pathToDriver != Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
     if (Sys.getenv("DATABASECONNECTOR_JAR_FOLDER") != pathToDriver) {
-      inform(paste0("Consider adding `DATABASECONNECTOR_JAR_FOLDER='", 
-                    pathToDriver,
-                    "'` to ", 
-                    path.expand("~/.Renviron"), " and restarting R."))
+      inform(paste0(
+        "Consider adding `DATABASECONNECTOR_JAR_FOLDER='",
+        pathToDriver,
+        "'` to ",
+        path.expand("~/.Renviron"), " and restarting R."
+      ))
     }
   }
-  
+
   pathToDriver <- path.expand(pathToDriver)
-  
+
   if (!dir.exists(pathToDriver)) {
     if (file.exists(pathToDriver)) {
       abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
@@ -73,44 +77,56 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     warn(paste0("The folder location '", pathToDriver, "' does not exist. Attempting to create."))
     dir.create(pathToDriver, recursive = TRUE)
   }
-  
-  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw"))
-  
+
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "spark"))
+
   if (dbms == "pdw") {
     dbms <- "sql server"
   }
-  
+
   baseUrl <- "https://ohdsi.github.io/DatabaseConnectorJars/"
-  
-  jdbcDriverNames <- c("postgresql" = "postgresqlV42.2.18.zip",
-                       "redshift" = "redShiftV1.2.27.1051.zip",
-                       "sql server" = "sqlServerV9.2.0.zip",
-                       "oracle" = "oracleV19.8.zip")
-  
-  driverName <- jdbcDriverNames[[dbms]]
-  result <- download.file(url = paste0(baseUrl, driverName),
-                          destfile = paste(pathToDriver, driverName, sep = "/"),
-                          method = method)
-  
-  extractedFilename <- unzip(file.path(pathToDriver, driverName), exdir = pathToDriver)
-  unzipSuccess <- is.character(extractedFilename)
-  
-  if (unzipSuccess) {
-    file.remove(file.path(pathToDriver, driverName))
+
+  jdbcDriverNames <- c(
+    "postgresql" = "postgresqlV42.2.18.zip",
+    "redshift" = "redShiftV1.2.27.1051.zip",
+    "sql server" = "sqlServerV9.2.0.zip",
+    "oracle" = "oracleV19.8.zip",
+    "spark" = "SimbaSparkV2.6.21.zip"
+  )
+
+  if (dbms == "all") {
+    dbms <- names(jdbcDriverNames)
   }
-  if (unzipSuccess && result == 0) { 
-    inform(paste0("DatabaseConnector JDBC drivers downloaded to '", pathToDriver, "'."))
-  } else {
-    abort(paste0("Downloading and unzipping of JDBC drivers to '", pathToDriver, "' has failed."))
+
+  for (db in dbms) {
+    driverName <- jdbcDriverNames[[db]]
+    result <- download.file(
+      url = paste0(baseUrl, driverName),
+      destfile = paste(pathToDriver, driverName, sep = "/"),
+      method = method
+    )
+
+    extractedFilename <- unzip(file.path(pathToDriver, driverName), exdir = pathToDriver)
+    unzipSuccess <- is.character(extractedFilename)
+
+    if (unzipSuccess) {
+      file.remove(file.path(pathToDriver, driverName))
+    }
+    if (unzipSuccess && result == 0) {
+      inform(paste0("DatabaseConnector ", db, " JDBC driver downloaded to '", pathToDriver, "'."))
+    } else {
+      abort(paste0("Downloading and unzipping of ", db, " JDBC driver to '", pathToDriver, "' has failed."))
+    }
   }
-  
+
   invisible(pathToDriver)
 }
 
 loadJdbcDriver <- function(driverClass, classPath) {
   rJava::.jaddClassPath(classPath)
-  if (nchar(driverClass) && rJava::is.jnull(rJava::.jfindClass(as.character(driverClass)[1])))
+  if (nchar(driverClass) && rJava::is.jnull(rJava::.jfindClass(as.character(driverClass)[1]))) {
     abort("Cannot find JDBC driver class ", driverClass)
+  }
   jdbcDriver <- rJava::.jnew(driverClass, check = FALSE)
   rJava::.jcheck(TRUE)
   return(jdbcDriver)
@@ -132,23 +148,42 @@ getJbcDriverSingleton <- function(driverClass = "", classPath = "") {
   driver
 }
 
-findPathToJar <- function(name, pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
-  if (missing(pathToDriver) || is.null(pathToDriver) || is.na(pathToDriver)) {
-    abort("The pathToDriver argument must be provided")
-  } else if (!dir.exists(pathToDriver)) {
+checkPathToDriver <- function(pathToDriver, dbms) {
+  if (!is.null(dbms) && dbms %in% c("sqlite", "sqlite extended")) {
+    return()
+  }
+  if (pathToDriver == "") {
+    abort(paste(
+      "The `pathToDriver` argument hasn't been specified.",
+      "Please set the path to the location containing the JDBC driver.",
+      "See `?jdbcDrivers` for instructions on downloading the drivers."
+    ))
+  }
+  if (!dir.exists(pathToDriver)) {
     if (file.exists(pathToDriver)) {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
+      abort(sprintf(
+        "The folder location pathToDriver = '%s' points to a file, but should point to a folder.",
+        pathToDriver
+      ))
     } else {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                   "Please set the folder to the location containing the JDBC driver.",
-                   "You can download most drivers using the `downloadJdbcDrivers()` function."))
+      abort(paste(
+        "The folder location pathToDriver = '", pathToDriver, "' does not exist.",
+        "Please set the path to the location containing the JDBC driver.",
+        "See `?jdbcDrivers` for instructions on downloading the drivers."
+      ))
     }
-  } 
+  }
+}
+
+findPathToJar <- function(name, pathToDriver) {
+  checkPathToDriver(pathToDriver, NULL)
   files <- list.files(path = pathToDriver, pattern = name, full.names = TRUE)
   if (length(files) == 0) {
-    abort(paste("No drives matching pattern", name, "found in folder", pathToDriver, ".",
-                "\nPlease download the JDBC drivers for your database to the folder.",
-                "You can download most drivers using the `downloadJdbcDrivers()` function."))
+    abort(paste(
+      sprintf("No drivers matching pattern '%s'found in folder '%s'.", name, pathToDriver),
+      "\nPlease download the JDBC drivers for your database to the folder.",
+      "See `?jdbcDrivers` for instructions on downloading the drivers."
+    ))
   } else {
     return(files)
   }

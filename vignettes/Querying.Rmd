@@ -1,0 +1,133 @@
+---
+title: "Querying a database"
+author: "Martijn J. Schuemie"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+  html_document:
+    number_sections: yes
+    toc: yes
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Querying a database}
+  %\VignetteEncoding{UTF-8}    
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(DatabaseConnector)
+```
+
+# Introduction
+
+This vignette describes how to use the `DatabaseConnector` package to query a database. It assumes you  already know how to create a connection as described in the 'Connecting to a database' vignette.
+
+
+# Querying
+
+The main functions for querying database are the `querySql()` and `executeSql()` functions. The difference between these functions is that `querySql()` expects data to be returned by the database, and can handle only one SQL statement at a time. In contrast, `executeSql()` does not expect data to be returned, and accepts multiple SQL statements in a single SQL string. 
+
+Some examples:
+
+```{r eval=FALSE}
+conn <- connect(dbms = "postgresql",
+                server = "localhost/postgres",
+                user = "joe",
+                password = "secret")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+
+```{r eval=FALSE}
+querySql(conn, "SELECT TOP 3 * FROM person")
+```
+```{r echo=FALSE}
+data.frame(PERSON_ID = c(1,2,3), GENDER_CONCEPT_ID = c(8507, 8507, 8507), YEAR_OF_BIRTH = c(1975, 1976, 1977))
+```
+
+```{r eval=FALSE}
+executeSql(conn, "TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);")
+```
+
+Both function provide extensive error reporting: When an error is thrown by the server, the error message and the offending piece of SQL are written to a text file to allow better debugging. The `executeSql()` function also by default shows a progress bar, indicating the percentage of SQL statements that has been executed. If those attributes are not desired, the package also offers the `lowLevelQuerySql()` and `lowLevelExecuteSql()` functions.
+
+
+## Querying using Andromeda objects
+
+Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the `Andromeda` package to store R data objects on file, and use them as if they are available in memory. `DatabaseConnector` can download data directly into Andromeda objects:
+
+```{r eval=FALSE}
+library(Andromeda)
+x <- andromeda()
+querySqlToAndromeda(connection = conn, 
+                    sql = "SELECT * FROM person", 
+                    andromeda = x, 
+                    andromedaTableName = "person")
+```
+
+Where `x` is now an `Andromeda` object with table `person`. 
+
+## Querying different platforms using the same SQL
+
+One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the [SqlRender package](https://ohdsi.github.io/SqlRender/) was developed. `SqlRender` can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the `render()` and `translate()` functions in `SqlRender`: `renderTranslateExecuteSql()`, `renderTranslateQuerySql()`, `renderTranslateQuerySqlToAndromeda()`. For example:
+
+```{r eval=FALSE}
+persons <- renderTranslatequerySql(conn, 
+                                   sql = "SELECT TOP 10 * FROM @schema.person",
+                                   schema = "cdm_synpuf")
+```
+Note that the SQL Server-specific 'TOP 10' syntax will be translated to for example 'LIMIT 10' on PostgreSQL, and that the SQL parameter `@schema` will be instantiated with the provided value 'cdm_synpuf'.
+
+Note that, on some platforms like Oracle, when using temp tables, it might be required to provide the `tempEmulationSchema` argument, since these platforms do not support tables the way other platforms do. 
+
+# Inserting tables
+
+Although it is also possible to insert data in the database by sending SQL statements using the `executeSql()` function, it is often convenient and faster to use the `insertTable()` function:
+
+```{r eval=FALSE}
+data(mtcars)
+insertTable(conn, "mtcars", mtcars, createTable = TRUE)
+```
+
+In this example, we're uploading the mtcars data frame to a table called 'mtcars' on the server, that will be automatically created.
+
+# DBI interface
+
+`DatabaseConnector` implements the DBI interface for compatibility with other R packages. One can use the DBI functions instead of the ones described before, for example:
+
+```{r eval=FALSE}
+conn <- dbConnect(DatabaseConnectorDriver(), 
+                  dbms = "postgresql",
+                  server = "localhost/postgres",
+                  user = "joe",
+                  password = "secret")
+```
+```{r echo=FALSE}
+writeLines("Connecting using PostgreSQL driver")
+```
+```{r eval=FALSE}
+dbIsValid(conn)
+```
+```{r echo=FALSE}
+TRUE
+```
+```{r eval=FALSE}
+res <- dbSendQuery(conn, "SELECT TOP 3 * FROM person")
+dbFetch(res)
+```
+```{r echo=FALSE}
+data.frame(PERSON_ID = c(1,2,3), GENDER_CONCEPT_ID = c(8507, 8507, 8507), YEAR_OF_BIRTH = c(1975, 1976, 1977))
+```
+```{r eval=FALSE}
+dbHasCompleted(res)
+```
+```{r echo=FALSE}
+TRUE
+```
+```{r eval=FALSE}
+dbClearResult(res)
+dbDisconnect(res)
+```
+

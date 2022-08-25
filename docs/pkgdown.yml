@@ -1,7 +1,8 @@
-pandoc: '2.11'
-pkgdown: 1.6.1
+pandoc: 2.17.1.1
+pkgdown: 2.0.5
 pkgdown_sha: ~
 articles:
-  UsingDatabaseConnector: UsingDatabaseConnector.html
-last_built: 2021-04-12T13:02Z
+  Connecting: Connecting.html
+  Querying: Querying.html
+last_built: 2022-06-28T13:16Z
 

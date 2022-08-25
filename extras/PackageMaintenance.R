@@ -1,6 +1,6 @@
 # @file PackageMaintenance
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -25,7 +25,7 @@ unlink(folder, recursive = TRUE, force = TRUE)
 file.exists(folder)
 
 # Format and check code:
-OhdsiRTools::formatRFolder()
+styler::style_pkg()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
@@ -35,12 +35,24 @@ unlink("extras/DatabaseConnector.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
 dir.create("inst/doc")
-rmarkdown::render("vignettes/UsingDatabaseConnector.Rmd",
-                  output_file = "../inst/doc/UsingDatabaseConnector.pdf",
+rmarkdown::render("vignettes/Connecting.Rmd",
+                  output_file = "../inst/doc/Connecting.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
-unlink("inst/doc/UsingDatabaseConnector.tex")
+unlink("inst/doc/Connecting.tex")
+
+rmarkdown::render("vignettes/Querying.Rmd",
+                  output_file = "../inst/doc/Querying.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+unlink("inst/doc/Querying.tex")
+
+# DBI 1.1.2 and 1.1.3 are causing errors when building the package website, so downgrading to 1.1.1 for now:
+require(devtools)
+install_version("DBI", version = "1.1.1", repos = "http://cran.us.r-project.org")
+roxygen2::roxygenize('.', roclets = c('rd', 'collate', 'namespace'))
 
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()

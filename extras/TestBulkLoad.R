@@ -77,7 +77,7 @@ system.time(
               camelCaseToSnakeCase = TRUE,
               bulkLoad = TRUE)
 )
-data2 <- querySql(connection, "SELECT * FROM scratch.insert_test;", snakeCaseToCamelCase = TRUE)
+data2 <- querySql(connection, "SELECT * FROM scratch.insert_test;", snakeCaseToCamelCase = TRUE, integer64AsNumeric = FALSE)
 
 all.equal(data, data2)
 
@@ -85,19 +85,9 @@ renderTranslateExecuteSql(connection, "DROP TABLE scratch.insert_test;")
 disconnect(connection)
 
 # RedShift ------------------------------------------------------------------------------
-Sys.setenv("AWS_OBJECT_KEY" = "bulk")
-Sys.setenv("AWS_ACCESS_KEY_ID" = Sys.getenv("bulkUploadS3Key"))
-Sys.setenv("AWS_SECRET_ACCESS_KEY" = Sys.getenv("bulkUploadS3Secret"))
-Sys.setenv("AWS_BUCKET_NAME" = Sys.getenv("bulkUploadS3Bucket"))
-Sys.setenv("AWS_DEFAULT_REGION" = "us-east-1")
-Sys.setenv("AWS_SSE_TYPE" = "AES256")
-
-# connectionDetails <- createConnectionDetails(dbms = 'redshift', 
-#                                              user = Sys.getenv('CDM5_REDSHIFT_USER'), 
-#                                              password = URLdecode(Sys.getenv('CDM5_REDSHIFT_PASSWORD')),
-#                                              server = Sys.getenv('CDM5_REDSHIFT_SERVER'))
+# Assumes AWS environmental variables have been set
 connectionDetails <- createConnectionDetails(dbms = "redshift",
-                                             connectionString = keyring::key_get("redShiftConnectionStringMdcd"),
+                                             connectionString = keyring::key_get("redShiftConnectionStringOhdaMdcd"),
                                              user = keyring::key_get("redShiftUserName"),
                                              password = keyring::key_get("redShiftPassword"))
 
@@ -105,7 +95,7 @@ connectionDetails <- createConnectionDetails(dbms = "redshift",
 connection <- connect(connectionDetails)
 system.time(
   insertTable(connection = connection,
-              tableName = "scratch_mschuemi2.insert_test",
+              tableName = "scratch_mschuemi.insert_test",
               data = data,
               dropTableIfExists = TRUE,
               createTable = TRUE,
@@ -114,7 +104,7 @@ system.time(
               camelCaseToSnakeCase = TRUE,
               bulkLoad = TRUE)
 )
-data2 <- querySql(connection, "SELECT * FROM scratch_mschuemi2.insert_test;", snakeCaseToCamelCase = TRUE)
+data2 <- querySql(connection, "SELECT * FROM scratch_mschuemi.insert_test;", snakeCaseToCamelCase = TRUE, integer64AsNumeric = FALSE)
 
 data <- data[order(data$id), ]
 data2 <- data2[order(data2$id), ]
@@ -122,5 +112,5 @@ row.names(data) <- NULL
 row.names(data2) <- NULL
 all.equal(data, data2)
 
-renderTranslateExecuteSql(connection, "DROP TABLE scratch_mschuemi2.insert_test;")
+renderTranslateExecuteSql(connection, "DROP TABLE scratch_mschuemi.insert_test;")
 disconnect(connection)

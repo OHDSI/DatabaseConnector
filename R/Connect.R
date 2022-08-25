@@ -1,20 +1,45 @@
 # @file Connect.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+checkIfDbmsIsSupported <- function(dbms) {
+  supportedDbmss <- c(
+    "oracle",
+    "hive",
+    "postgresql",
+    "redshift",
+    "sql server",
+    "pdw",
+    "netezza",
+    "impala",
+    "bigquery",
+    "sqlite",
+    "sqlite extended",
+    "spark",
+    "hive"
+  )
+  if (!dbms %in% supportedDbmss) {
+    abort(sprintf(
+      "DBMS '%s' not supported. Please use one of these values: '%s'",
+      dbms,
+      paste(supportedDbmss, collapse = "', '")
+    ))
+  }
+}
 
 #' @title
 #' createConnectionDetails
@@ -46,10 +71,12 @@
 #' A list with all the details needed to connect to a database.
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
-#'                                              server = "localhost/postgres",
-#'                                              user = "root",
-#'                                              password = "blah")
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost/postgres",
+#'   user = "root",
+#'   password = "blah"
+#' )
 #' conn <- connect(connectionDetails)
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
@@ -64,21 +91,16 @@ createConnectionDetails <- function(dbms,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
                                     pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+  checkIfDbmsIsSupported(dbms)
   pathToDriver <- path.expand(pathToDriver)
-  if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
-    if (file.exists(pathToDriver)) {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
-    } else {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                  "Please set the folder to the location containing the JDBC driver.",
-                  "You can download most drivers using the `downloadJdbcDrivers()` function."))
-    }
-  }
+  checkPathToDriver(pathToDriver, dbms)
   
-  result <- list(dbms = dbms,
-                 extraSettings = extraSettings,
-                 oracleDriver = oracleDriver,
-                 pathToDriver = pathToDriver)
+  result <- list(
+    dbms = dbms,
+    extraSettings = extraSettings,
+    oracleDriver = oracleDriver,
+    pathToDriver = pathToDriver
+  )
   
   userExpression <- rlang::enquo(user)
   result$user <- function() rlang::eval_tidy(userExpression)
@@ -129,10 +151,12 @@ createConnectionDetails <- function(dbms,
 #'
 #' @examples
 #' \dontrun{
-#' conn <- connect(dbms = "postgresql",
-#'                 server = "localhost/postgres",
-#'                 user = "root",
-#'                 password = "xxx")
+#' conn <- connect(
+#'   dbms = "postgresql",
+#'   server = "localhost/postgres",
+#'   user = "root",
+#'   password = "xxx"
+#' )
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #'
@@ -140,19 +164,22 @@ createConnectionDetails <- function(dbms,
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM concept")
 #' disconnect(conn)
 #'
-#' conn <- connect(dbms = "oracle",
-#'                 server = "127.0.0.1/xe",
-#'                 user = "system",
-#'                 password = "xxx",
-#'                 pathToDriver = "c:/temp")
+#' conn <- connect(
+#'   dbms = "oracle",
+#'   server = "127.0.0.1/xe",
+#'   user = "system",
+#'   password = "xxx",
+#'   pathToDriver = "c:/temp"
+#' )
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM test_table")
 #' disconnect(conn)
 #'
-#' conn <- connect(dbms = "postgresql",
-#'                 connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database")
+#' conn <- connect(
+#'   dbms = "postgresql",
+#'   connectionString = "jdbc:postgresql://127.0.0.1:5432/cmd_database"
+#' )
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
-#'
 #' }
 #' @export
 connect <- function(connectionDetails = NULL,
@@ -166,29 +193,23 @@ connect <- function(connectionDetails = NULL,
                     connectionString = NULL,
                     pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   if (!missing(connectionDetails) && !is.null(connectionDetails)) {
-    connection <- connect(dbms = connectionDetails$dbms,
-                          user = connectionDetails$user(),
-                          password = connectionDetails$password(),
-                          server = connectionDetails$server(),
-                          port = connectionDetails$port(),
-                          extraSettings = connectionDetails$extraSettings,
-                          oracleDriver = connectionDetails$oracleDriver,
-                          connectionString = connectionDetails$connectionString(),
-                          pathToDriver = connectionDetails$pathToDriver)
+    connection <- connect(
+      dbms = connectionDetails$dbms,
+      user = connectionDetails$user(),
+      password = connectionDetails$password(),
+      server = connectionDetails$server(),
+      port = connectionDetails$port(),
+      extraSettings = connectionDetails$extraSettings,
+      oracleDriver = connectionDetails$oracleDriver,
+      connectionString = connectionDetails$connectionString(),
+      pathToDriver = connectionDetails$pathToDriver
+    )
     
     return(connection)
   }
-  
+  checkIfDbmsIsSupported(dbms)
   pathToDriver <- path.expand(pathToDriver)
-  if (!dir.exists(pathToDriver) && dbms != "sqlite") { 
-    if (file.exists(pathToDriver)) {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' points to a file, but should point to a folder."))
-    } else {
-      abort(paste0("The folder location pathToDriver = '", pathToDriver, "' does not exist.",
-                  "Please set the folder to the location containing the JDBC driver.",
-                  "You can download most drivers using the `downloadJdbcDrivers()` function."))
-    }
-  }
+  checkPathToDriver(pathToDriver, dbms)
   
   if (dbms == "sql server") {
     jarPath <- findPathToJar("^mssql-jdbc.*.jar$|^sqljdbc.*\\.jar$", pathToDriver)
@@ -198,29 +219,34 @@ connect <- function(connectionDetails = NULL,
       inform("Connecting using SQL Server driver using Windows integrated security")
       setPathToDll()
       
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
-        if (!missing(port) && !is.null(port))
+        if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
-        if (!missing(extraSettings) && !is.null(extraSettings))
+        }
+        if (!missing(extraSettings) && !is.null(extraSettings)) {
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+        }
       }
       connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
       # Using regular user authentication
       inform("Connecting using SQL Server driver")
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, sep = "")
-        if (!missing(port) && !is.null(port))
+        if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
-        if (!missing(extraSettings) && !is.null(extraSettings))
+        }
+        if (!missing(extraSettings) && !is.null(extraSettings)) {
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+        }
       }
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms)
+                                           dbms = dbms
+      )
     }
     attr(connection, "dbms") <- dbms
     return(connection)
@@ -233,30 +259,36 @@ connect <- function(connectionDetails = NULL,
       # Using Windows integrated security
       setPathToDll()
       
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
-        if (!missing(port) && !is.null(port))
+        if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
-        if (!missing(extraSettings) && !is.null(extraSettings))
+        }
+        if (!missing(extraSettings) && !is.null(extraSettings)) {
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+        }
       }
       connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
     } else {
-      if (missing(connectionString) || is.null(connectionString)) {
+      if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://",
                                   server,
                                   ";integratedSecurity=false",
-                                  sep = "")
-        if (!missing(port) && !is.null(port))
+                                  sep = ""
+        )
+        if (!missing(port) && !is.null(port)) {
           connectionString <- paste(connectionString, ";port=", port, sep = "")
-        if (!missing(extraSettings) && !is.null(extraSettings))
+        }
+        if (!missing(extraSettings) && !is.null(extraSettings)) {
           connectionString <- paste(connectionString, ";", extraSettings, sep = "")
+        }
       }
       connection <- connectUsingJdbcDriver(driver,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms)
+                                           dbms = dbms
+      )
     }
     attr(connection, "dbms") <- dbms
     # Used for bulk upload:
@@ -270,12 +302,13 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Oracle driver")
     jarPath <- findPathToJar("^ojdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("oracle.jdbc.driver.OracleDriver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       # Build connection string from parts
       if (oracleDriver == "thin") {
         inform("- using THIN to connect")
-        if (missing(port) || is.null(port))
+        if (missing(port) || is.null(port)) {
           port <- "1521"
+        }
         host <- "127.0.0.1"
         sid <- server
         if (grepl("/", server)) {
@@ -284,14 +317,16 @@ connect <- function(connectionDetails = NULL,
           sid <- parts[2]
         }
         connectionString <- paste0("jdbc:oracle:thin:@", host, ":", port, ":", sid)
-        if (!missing(extraSettings) && !is.null(extraSettings))
+        if (!missing(extraSettings) && !is.null(extraSettings)) {
           connectionString <- paste0(connectionString, extraSettings)
+        }
         result <- class(try(connection <- connectUsingJdbcDriver(driver,
                                                                  connectionString,
                                                                  user = user,
                                                                  password = password,
                                                                  oracle.jdbc.mapDateToTimestamp = "false",
-                                                                 dbms = dbms), silent = FALSE))[1]
+                                                                 dbms = dbms
+        ), silent = FALSE))[1]
         
         # Try using TNSName instead:
         if (result == "try-error") {
@@ -302,7 +337,8 @@ connect <- function(connectionDetails = NULL,
                                                user = user,
                                                password = password,
                                                oracle.jdbc.mapDateToTimestamp = "false",
-                                               dbms = dbms)
+                                               dbms = dbms
+          )
         }
       }
       if (oracleDriver == "oci") {
@@ -313,7 +349,8 @@ connect <- function(connectionDetails = NULL,
                                              user = user,
                                              password = password,
                                              oracle.jdbc.mapDateToTimestamp = "false",
-                                             dbms = dbms)
+                                             dbms = dbms
+        )
       }
     } else {
       # User has provided the connection string:
@@ -321,14 +358,16 @@ connect <- function(connectionDetails = NULL,
         connection <- connectUsingJdbcDriver(driver,
                                              connectionString,
                                              oracle.jdbc.mapDateToTimestamp = "false",
-                                             dbms = dbms)
+                                             dbms = dbms
+        )
       } else {
         connection <- connectUsingJdbcDriver(driver,
                                              connectionString,
                                              user = user,
                                              password = password,
                                              oracle.jdbc.mapDateToTimestamp = "false",
-                                             dbms = dbms)
+                                             dbms = dbms
+        )
       }
     }
     attr(connection, "dbms") <- dbms
@@ -338,9 +377,10 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using PostgreSQL driver")
     jarPath <- findPathToJar("^postgresql-.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.postgresql.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
-      if (!grepl("/", server))
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
+      if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
+      }
       
       parts <- unlist(strsplit(server, "/"))
       host <- parts[1]
@@ -349,8 +389,9 @@ connect <- function(connectionDetails = NULL,
         port <- "5432"
       }
       connectionString <- paste0("jdbc:postgresql://", host, ":", port, "/", database)
-      if (!missing(extraSettings) && !is.null(extraSettings))
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
+      }
     }
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
@@ -359,7 +400,8 @@ connect <- function(connectionDetails = NULL,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms)
+                                           dbms = dbms
+      )
     }
     attr(connection, "dbms") <- dbms
     # Used for bulk upload:
@@ -382,9 +424,10 @@ connect <- function(connectionDetails = NULL,
     } else {
       driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
     }
-    if (missing(connectionString) || is.null(connectionString)) {
-      if (!grepl("/", server))
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
+      if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
+      }
       parts <- unlist(strsplit(server, "/"))
       host <- parts[1]
       database <- parts[2]
@@ -393,8 +436,9 @@ connect <- function(connectionDetails = NULL,
       }
       connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
       
-      if (!missing(extraSettings) && !is.null(extraSettings))
+      if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
+      }
     }
     if (missing(user) || is.null(user)) {
       connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
@@ -403,7 +447,8 @@ connect <- function(connectionDetails = NULL,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms)
+                                           dbms = dbms
+      )
     }
     attr(connection, "dbms") <- dbms
     return(connection)
@@ -412,14 +457,16 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Netezza driver")
     jarPath <- findPathToJar("^nzjdbc\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.netezza.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
-      if (!grepl("/", server))
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
+      if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for Netezza. Please specify server as <host>/<database>")
+      }
       parts <- unlist(strsplit(server, "/"))
       host <- parts[1]
       database <- parts[2]
-      if (missing(port) || is.null(port))
+      if (missing(port) || is.null(port)) {
         port <- "5480"
+      }
       connectionString <- paste0("jdbc:netezza://", host, ":", port, "/", database)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, "?", extraSettings)
@@ -432,16 +479,17 @@ connect <- function(connectionDetails = NULL,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms)
+                                           dbms = dbms
+      )
     }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
   if (dbms == "impala") {
     inform("Connecting using Impala driver")
-    jarPath <- findPathToJar("\\.jar$", pathToDriver)
-    driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc4.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    jarPath <- findPathToJar("^ImpalaJDBC42\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc.Driver", jarPath)
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       if (missing(port) || is.null(port)) {
         port <- "21050"
       }
@@ -457,18 +505,19 @@ connect <- function(connectionDetails = NULL,
                                            connectionString,
                                            user = user,
                                            password = password,
-                                           dbms = dbms)
+                                           dbms = dbms
+      )
     }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
   if (dbms == "hive") {
     inform("Connecting using Hive driver")
-    jarPath <- findPathToJar("^hive-jdbc-standalone\\.jar$", pathToDriver)
+    jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
     
-    if (missing(connectionString) || is.null(connectionString)) {
-      connectionString <- paste0("jdbc:hive2://", server, ":", port)
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
+      connectionString <- paste0("jdbc:hive2://", server, ":", port, "/")
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, ";", extraSettings)
       }
@@ -477,7 +526,8 @@ connect <- function(connectionDetails = NULL,
                                          connectionString,
                                          user = user,
                                          password = password,
-                                         dbms = dbms)
+                                         dbms = dbms
+    )
     
     attr(connection, "dbms") <- dbms
     return(connection)
@@ -492,7 +542,7 @@ connect <- function(connectionDetails = NULL,
     
     jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
-    if (missing(connectionString) || is.null(connectionString)) {
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       connectionString <- paste0("jdbc:BQDriver:", server)
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste0(connectionString, "?", extraSettings)
@@ -502,14 +552,35 @@ connect <- function(connectionDetails = NULL,
                                          connectionString,
                                          user = user,
                                          password = password,
-                                         dbms = dbms)
+                                         dbms = dbms
+    )
     attr(connection, "dbms") <- dbms
     return(connection)
   }
-  if (dbms == "sqlite") {
+  if (dbms %in% c("sqlite", "sqlite extended")) {
     inform("Connecting using SQLite driver")
     ensure_installed("RSQLite")
-    connection <- connectUsingRsqLite(server = server)
+    connection <- connectUsingRsqLite(server = server, extended = (dbms == "sqlite extended"))
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
+  if (dbms == "spark") {
+    inform("Connecting using Spark driver")
+    jarPath <- findPathToJar("^SparkJDBC42\\.jar$", pathToDriver)
+    driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
+    if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
+      abort("Error: Connection string required for connecting to Spark.")
+    }
+    if (missing(user) || is.null(user)) {
+      connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms)
+    } else {
+      connection <- connectUsingJdbcDriver(driver,
+                                           connectionString,
+                                           user = user,
+                                           password = password,
+                                           dbms = dbms
+      )
+    }
     attr(connection, "dbms") <- dbms
     return(connection)
   }
@@ -525,11 +596,16 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   p <- rJava::.jnew("java/util/Properties")
   if (length(properties) > 0) {
     for (i in 1:length(properties)) {
-      rJava::.jcall(p,
-                    "Ljava/lang/Object;",
-                    "setProperty",
-                    names(properties)[i],
-                    as.character(properties[[i]])[1])
+      if (is.null(properties[[i]])) {
+        abort(sprintf("Connection propery '%s' is NULL.", names(properties)[i]))
+      }
+      rJava::.jcall(
+        p,
+        "Ljava/lang/Object;",
+        "setProperty",
+        names(properties)[i],
+        as.character(properties[[i]])[1]
+      )
     }
   }
   jConnection <- rJava::.jcall(jdbcDriver, "Ljava/sql/Connection;", "connect", as.character(url), p)
@@ -546,21 +622,22 @@ connectUsingJdbcDriver <- function(jdbcDriver,
                     identifierQuote = identifierQuote,
                     stringQuote = stringQuote,
                     dbms = dbms,
-                    uuid = generateRandomString())
+                    uuid = generateRandomString()
+  )
   registerWithRStudio(connection)
   return(connection)
 }
 
-connectUsingRsqLite <- function(server) {
-  
-  dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server)
+connectUsingRsqLite <- function(server, extended) {
+  dbiConnection <- DBI::dbConnect(RSQLite::SQLite(), server, extended_types = extended)
   connection <- new("DatabaseConnectorDbiConnection",
                     server = server,
                     dbiConnection = dbiConnection,
                     identifierQuote = "'",
                     stringQuote = "'",
-                    dbms = "sqlite",
-                    uuid = generateRandomString())
+                    dbms = ifelse(extended, "sqlite extended", "sqlite"),
+                    uuid = generateRandomString()
+  )
   registerWithRStudio(connection)
   return(connection)
 }
@@ -578,17 +655,19 @@ generateRandomString <- function(length = 20) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
-#'                                              server = "localhost",
-#'                                              user = "root",
-#'                                              password = "blah")
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost",
+#'   user = "root",
+#'   password = "blah"
+#' )
 #' conn <- connect(connectionDetails)
 #' count <- querySql(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #' }
 #' @export
 disconnect <- function(connection) {
-  UseMethod("disconnect", connection) 
+  UseMethod("disconnect", connection)
 }
 
 #' @export
@@ -610,7 +689,7 @@ disconnect.DatabaseConnectorDbiConnection <- function(connection) {
 }
 
 setPathToDll <- function() {
-  pathToDll <- Sys.getenv("PATH_TO_AUTH_DLL") 
+  pathToDll <- Sys.getenv("PATH_TO_AUTH_DLL")
   if (pathToDll != "") {
     inform(paste("Looking for authentication DLL in path specified in PATH_TO_AUTH_DLL:", pathToDll))
     rJava::J("org.ohdsi.databaseConnector.Authentication")$addPathToJavaLibrary(pathToDll)

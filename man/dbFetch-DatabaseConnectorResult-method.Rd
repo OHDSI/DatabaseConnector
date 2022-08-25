@@ -4,13 +4,16 @@
 \alias{dbFetch,DatabaseConnectorResult-method}
 \title{Fetch records from a previously executed query}
 \usage{
-\S4method{dbFetch}{DatabaseConnectorResult}(res, datesAsString = FALSE, ...)
+\S4method{dbFetch}{DatabaseConnectorResult}(res, n = -1, ...)
 }
 \arguments{
 \item{res}{An object inheriting from \linkS4class{DBIResult}, created by
 \code{\link[DBI:dbSendQuery]{dbSendQuery()}}.}
 
-\item{datesAsString}{Should dates be represented as strings? (instead of Date objects)}
+\item{n}{maximum number of records to retrieve per fetch. Use \code{n = -1}
+or \code{n = Inf}
+to retrieve all pending records.  Some implementations may recognize other
+special values.}
 
 \item{...}{Other arguments passed on to methods.}
 }
@@ -21,13 +24,6 @@ columns as fields in the result set,
 even if the result is a single value
 or has one
 or zero rows.
-An attempt to fetch from a closed result set raises an error.
-If the \code{n} argument is not an atomic whole number
-greater or equal to -1 or Inf, an error is raised,
-but a subsequent call to \code{dbFetch()} with proper \code{n} argument succeeds.
-Calling \code{dbFetch()} on a result set from a data manipulation query
-created by \code{\link[DBI:dbSendStatement]{dbSendStatement()}}
-can be fetched and return an empty data frame, with a warning.
 }
 \description{
 Fetch the next \code{n} elements (rows) from the result set and return them

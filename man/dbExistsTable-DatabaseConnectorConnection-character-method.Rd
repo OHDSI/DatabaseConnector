@@ -10,7 +10,15 @@
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
-\item{name}{A character string specifying a DBMS table name.}
+\item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
+\itemize{
+\item a character string with the unquoted DBMS table name,
+e.g. \code{"table_name"},
+\item a call to \code{\link[DBI:Id]{Id()}} with components to the fully qualified table name,
+e.g. \code{Id(schema = "my_schema", table = "table_name")}
+\item a call to \code{\link[DBI:SQL]{SQL()}} with the quoted and fully qualified table name
+given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
+}}
 
 \item{database}{Name of the database.}
 
@@ -23,12 +31,6 @@
 specified by the \code{name} argument exists, \code{FALSE} otherwise.
 
 This includes temporary tables if supported by the database.
-
-An error is raised when calling this method for a closed
-or invalid connection.
-An error is also raised
-if \code{name} cannot be processed with \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}
-or if this results in a non-scalar.
 }
 \description{
 Returns if a table given by name exists in the database.

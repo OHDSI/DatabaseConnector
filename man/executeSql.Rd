@@ -31,9 +31,9 @@ all statements.}
 \item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
 'errorReportSql.txt' in the current working directory.}
 
-\item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and 
+\item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and
 executed there. This will be faster if you have many small SQL statements, but
-there will be no progress bar, and no per-statement error messages. If the 
+there will be no progress bar, and no per-statement error messages. If the
 database platform does not support batched updates the query is executed without
 batching.}
 }
@@ -49,11 +49,13 @@ shown to aid in detecting performance issues.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 conn <- connect(connectionDetails)
 executeSql(conn, "CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
 disconnect(conn)

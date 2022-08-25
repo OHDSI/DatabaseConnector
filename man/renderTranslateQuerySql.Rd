@@ -11,6 +11,7 @@ renderTranslateQuerySql(
   snakeCaseToCamelCase = FALSE,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
   ...
 )
@@ -31,6 +32,9 @@ renderTranslateQuerySql(
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
+\item{integerAsNumeric}{Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+32-bit integers will be represented using R's native \code{Integer} class.}
+
 \item{integer64AsNumeric}{Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
 64-bit integers will be represented using \code{bit64::integer64}.}
 
@@ -43,20 +47,23 @@ A data frame.
 This function renders, and translates SQL, sends it to the server, and returns the results as a data.frame.
 }
 \details{
-This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+This function calls the \code{render} and \code{translate} functions in the SqlRender package before
 calling \code{\link{querySql}}.
 }
 \examples{
 \dontrun{
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost",
-                                             user = "root",
-                                             password = "blah",
-                                             schema = "cdm_v4")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost",
+  user = "root",
+  password = "blah",
+  schema = "cdm_v4"
+)
 conn <- connect(connectionDetails)
-persons <- renderTranslatequerySql(conn, 
-                                   sql = "SELECT TOP 10 * FROM @schema.person",
-                                   schema = "cdm_synpuf")
+persons <- renderTranslatequerySql(conn,
+  sql = "SELECT TOP 10 * FROM @schema.person",
+  schema = "cdm_synpuf"
+)
 disconnect(conn)
 }
 }

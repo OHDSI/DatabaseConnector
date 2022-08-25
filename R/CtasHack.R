@@ -1,6 +1,6 @@
 # @file CtasHack.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -17,22 +17,26 @@
 # limitations under the License.
 
 
-mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, tempEmulationSchema) {
+mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, tempTable, tempEmulationSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", sqlFieldNames, " FROM ", sep = "")
   valueString <- paste(sourceNames, collapse = unionString)
   sql <- paste(distribution,
-               "\n",
-               "SELECT ",
-               sqlFieldNames,
-               " INTO ",
-               tableName,
-               " FROM ",
-               valueString,
-               ";",
-               sep = "")
+    "\n",
+    "SELECT ",
+    sqlFieldNames,
+    " INTO ",
+    tableName,
+    " FROM ",
+    valueString,
+    ";",
+    sep = ""
+  )
   sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  if (tempTable && connection@dbms == "redshift") {
+    sql <- gsub("CREATE TABLE", "CREATE TEMP TABLE", sql)
+  }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-  
+
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
@@ -54,7 +58,7 @@ toStrings <- function(data, sqlDataTypes) {
   } else {
     result <- sapply(data, as.character)
     if (any(intIdx)) {
-      result[ ,intIdx] <- sapply(data[ ,intIdx], format, scientific = FALSE)
+      result[, intIdx] <- sapply(data[, intIdx], format, scientific = FALSE)
     }
     result <- apply(result, FUN = function(x) paste("'", gsub("'", "''", x), "'", sep = ""), MARGIN = 2)
     result[is.na(data)] <- "NULL"
@@ -80,7 +84,7 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
     batchSize <- 1000
   }
   mergeSize <- 300
-  
+
   if (any(tolower(names(data)) == "subject_id")) {
     distribution <- "--HINT DISTRIBUTE_ON_KEY(SUBJECT_ID)\n"
   } else if (any(tolower(names(data)) == "person_id")) {
@@ -88,7 +92,7 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
   } else {
     distribution <- ""
   }
-  
+
   # Insert data in batches in temp tables using CTAS:
   if (progressBar) {
     pb <- txtProgressBar(style = 3)
@@ -96,42 +100,53 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
   tempNames <- c()
   for (start in seq(1, nrow(data), by = batchSize)) {
     if (progressBar) {
-      setTxtProgressBar(pb, start/nrow(data))
+      setTxtProgressBar(pb, start / nrow(data))
     }
     if (length(tempNames) == mergeSize) {
       mergedName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
-      mergeTempTables(connection, mergedName, sqlFieldNames, tempNames, distribution, tempEmulationSchema)
+      mergeTempTables(
+        connection = connection,
+        tableName = mergedName,
+        sqlFieldNames = sqlFieldNames,
+        sourceNames = tempNames,
+        distribution = distribution,
+        tempTable = TRUE,
+        tempEmulationSchema = tempEmulationSchema
+      )
       tempNames <- c(mergedName)
     }
     end <- min(start + batchSize - 1, nrow(data))
     batch <- toStrings(data[start:end, , drop = FALSE], sqlDataTypes)
-    
+
     varAliases <- strsplit(sqlFieldNames, ",")[[1]]
     # First line gets type information:
     valueString <- formatRow(batch[1, , drop = FALSE], varAliases, castValues = TRUE, sqlDataTypes = sqlDataTypes)
     if (end > start) {
       # Other lines only get type information if BigQuery:
       valueString <- paste(c(valueString, apply(batch[2:nrow(batch), , drop = FALSE],
-                                                MARGIN = 1,
-                                                FUN = formatRow,
-                                                aliases = varAliases,
-                                                castValues = attr(connection, "dbms") %in% c("bigquery", "hive"),
-                                                sqlDataTypes = sqlDataTypes)), 
-                           collapse = "\nUNION ALL\nSELECT ")
+        MARGIN = 1,
+        FUN = formatRow,
+        aliases = varAliases,
+        castValues = attr(connection, "dbms") %in% c("bigquery", "hive"),
+        sqlDataTypes = sqlDataTypes
+      )),
+      collapse = "\nUNION ALL\nSELECT "
+      )
     }
     tempName <- paste("#", paste(sample(letters, 20, replace = TRUE), collapse = ""), sep = "")
     tempNames <- c(tempNames, tempName)
     sql <- paste(distribution,
-                 "WITH data (",
-                 sqlFieldNames,
-                 ") AS (SELECT ",
-                 valueString,
-                 " ) SELECT ",
-                 sqlFieldNames,
-                 " INTO ",
-                 tempName,
-                 " FROM data;",
-                 sep = "")
+      "WITH data (",
+      sqlFieldNames,
+      ") AS (SELECT ",
+      valueString,
+      " ) SELECT ",
+      sqlFieldNames,
+      " INTO ",
+      tempName,
+      " FROM data;",
+      sep = ""
+    )
     sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
@@ -139,5 +154,13 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
     setTxtProgressBar(pb, 1)
     close(pb)
   }
-  mergeTempTables(connection, sqlTableName, sqlFieldNames, tempNames, distribution, tempEmulationSchema)
+  mergeTempTables(
+    connection = connection,
+    tableName = sqlTableName,
+    sqlFieldNames = sqlFieldNames,
+    sourceNames = tempNames,
+    distribution = distribution,
+    tempTable = tempTable,
+    tempEmulationSchema = tempEmulationSchema
+  )
 }

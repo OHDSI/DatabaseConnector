@@ -1,6 +1,6 @@
 # @file Sql.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -16,6 +16,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Get available Java heap space
+#'
+#' @description
+#' For debugging purposes: get the available Java heap space.
+#'
+#' @return
+#' The Java heap space (in bytes).
+#'
+#' @export
+getAvailableJavaHeapSpace <- function() {
+  availableSpace <- rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$getAvailableHeapSpace()
+  return(availableSpace)
+}
+
 .systemInfo <- function() {
   si <- sessionInfo()
   lines <- c()
@@ -29,8 +43,12 @@
   lines <- c(lines, paste("-", si$basePkgs))
   lines <- c(lines, "")
   lines <- c(lines, "Other attached packages:")
-  for (pkg in si$otherPkgs) lines <- c(lines,
-                                       paste("- ", pkg$Package, " (", pkg$Version, ")", sep = ""))
+  for (pkg in si$otherPkgs) {
+    lines <- c(
+      lines,
+      paste("- ", pkg$Package, " (", pkg$Version, ")", sep = "")
+    )
+  }
   return(paste(lines, collapse = "\n"))
 }
 
@@ -42,7 +60,8 @@
   abort(paste("Error executing SQL:",
               message,
               paste("An error report has been created at ", fileName),
-              sep = "\n"), call. = FALSE)
+              sep = "\n"
+  ), call. = FALSE)
 }
 
 validateInt64Query <- function() {
@@ -59,10 +78,88 @@ convertInteger64ToNumeric <- function(x) {
     return(numeric(0))
   }
   maxInt64 <- bit64::as.integer64(2)^53
-  if (any(x >= maxInt64 || x <= -maxInt64, na.rm = TRUE)) {
+  if (any(x >= maxInt64 | x <= -maxInt64, na.rm = TRUE)) {
     abort("The data contains integers >= 2^53, and converting those to R's numeric type leads to precision loss. Consider using smaller integers, converting the integers to doubles on the database side, or using `options(databaseConnectorInteger64AsNumeric = FALSE)`.")
   }
   return(bit64::as.double.integer64(x))
+}
+
+parseJdbcColumnData <- function(content,
+                                columnTypes = NULL,
+                                datesAsString = FALSE,
+                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
+                                                             default = TRUE
+                                ),
+                                integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
+                                                               default = TRUE
+                                )) {
+  if (is.null(columnTypes)) {
+    columnTypes <- rJava::.jcall(content, "[I", "getColumnTypes")
+  }
+  
+  columns <- vector("list", length(columnTypes))
+  
+  for (i in seq.int(length(columnTypes))) {
+    if (columnTypes[i] == 1) {
+      column <- rJava::.jcall(
+        content,
+        "[D",
+        "getNumeric",
+        as.integer(i)
+      )
+      # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
+      column[is.nan(column)] <- NA
+      columns[[i]] <- c(columns[[i]], column)
+    } else if (columnTypes[i] == 5) {
+      column <- rJava::.jcall(
+        content,
+        "[D",
+        "getInteger64",
+        as.integer(i)
+      )
+      oldClass(column) <- "integer64"
+      if (is.null(columns[[i]])) {
+        columns[[i]] <- column
+      } else {
+        columns[[i]] <- c(columns[[i]], column)
+      }
+      
+      if (integer64AsNumeric) {
+        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
+      }
+    } else if (columnTypes[i] == 6) {
+      columns[[i]] <- c(
+        columns[[i]],
+        rJava::.jcall(
+          content,
+          "[I",
+          "getInteger",
+          as.integer(i)
+        )
+      )
+      if (integerAsNumeric) {
+        columns[[i]] <- as.numeric(columns[[i]])
+      }
+    } else {
+      columns[[i]] <- c(
+        columns[[i]],
+        rJava::.jcall(content, "[Ljava/lang/String;", "getString", i)
+      )
+      
+      if (!datesAsString) {
+        if (columnTypes[i] == 3) {
+          columns[[i]] <- as.Date(columns[[i]])
+        } else if (columnTypes[i] == 4) {
+          columns[[i]] <- as.POSIXct(columns[[i]])
+        }
+      }
+    }
+  }
+  
+  names(columns) <- rJava::.jcall(content, "[Ljava/lang/String;", "getColumnNames")
+  # More efficient than as.data.frame, as it avoids converting row.names to character:
+  columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
+  return(columns)
 }
 
 #' Low level function for retrieving data to a data frame
@@ -75,8 +172,10 @@ convertInteger64ToNumeric <- function(x) {
 #' @param query           The SQL statement to retrieve the data
 #' @param datesAsString   Logical: Should dates be imported as character vectors, our should they be converted
 #'                        to R's date format?
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class.
 #' @param integer64AsNumeric Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                          64-bit integers will be represented using \code{bit64::integer64}. 
+#'                          64-bit integers will be represented using \code{bit64::integer64}.
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a data frame. Null values in the database are converted
@@ -86,26 +185,30 @@ convertInteger64ToNumeric <- function(x) {
 #' A data frame containing the data retrieved from the server
 #'
 #' @export
-lowLevelQuerySql <- function(connection, 
-                             query, 
-                             datesAsString = FALSE, 
+lowLevelQuerySql <- function(connection,
+                             query,
+                             datesAsString = FALSE,
+                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                              integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   UseMethod("lowLevelQuerySql", connection)
 }
 
 #' @export
-lowLevelQuerySql.default <- function(connection, 
-                                     query, 
-                                     datesAsString = FALSE, 
+lowLevelQuerySql.default <- function(connection,
+                                     query,
+                                     datesAsString = FALSE,
+                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
-  if (rJava::is.jnull(connection@jConnection))
+  if (rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
+  }
   
-  
-  batchedQuery <- rJava::.jnew("org.ohdsi.databaseConnector.BatchedQuery",
-                               connection@jConnection,
-                               query,
-                               connection@dbms)
+  batchedQuery <- rJava::.jnew(
+    "org.ohdsi.databaseConnector.BatchedQuery",
+    connection@jConnection,
+    query,
+    connection@dbms
+  )
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
   
@@ -113,74 +216,40 @@ lowLevelQuerySql.default <- function(connection,
   if (any(columnTypes == 5)) {
     validateInt64Query()
   }
-  columns <- vector("list", length(columnTypes))
+  columns <- data.frame()
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 1) {
-        column <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getNumeric",
-                                as.integer(i))
-        # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
-        column[is.nan(column)] <- NA
-        columns[[i]] <- c(columns[[i]], column)
-      } else if (columnTypes[i] == 5) {
-        column <- rJava::.jcall(batchedQuery,
-                                "[D",
-                                "getInteger64",
-                                as.integer(i)) 
-        oldClass(column) <- "integer64"
-        if (is.null(columns[[i]])) {
-          columns[[i]] <- column
-        } else {
-          columns[[i]] <- c(columns[[i]], column)
-        }
-      } else if (columnTypes[i] == 6) {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery,
-                                        "[I",
-                                        "getInteger",
-                                        as.integer(i)))
-      } else {
-        columns[[i]] <- c(columns[[i]],
-                          rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i))
-      }
-    }
+    batch <- parseJdbcColumnData(batchedQuery,
+                                 columnTypes = columnTypes,
+                                 datesAsString = datesAsString,
+                                 integer64AsNumeric = integer64AsNumeric,
+                                 integerAsNumeric = integerAsNumeric
+    )
+    
+    columns <- rbind(columns, batch)
   }
-  if (!datesAsString) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 3) {
-        columns[[i]] <- as.Date(columns[[i]])
-      } else if (columnTypes[i] == 4) {
-        columns[[i]] <- as.POSIXct(columns[[i]])
-      }
-    }
-  }
-  if (integer64AsNumeric) {
-    for (i in seq.int(length(columnTypes))) {
-      if (columnTypes[i] == 5) {
-        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
-      } 
-    }
-  }
-  names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
-  attr(columns, "row.names") <- c(NA_integer_, length(columns[[1]]))
-  class(columns) <- "data.frame"
   return(columns)
 }
 
 #' @export
-lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection, 
-                                                            query, 
-                                                            datesAsString = FALSE, 
+lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection,
+                                                            query,
+                                                            datesAsString = FALSE,
+                                                            integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
   columns <- DBI::dbGetQuery(connection@dbiConnection, query)
+  if (integerAsNumeric) {
+    for (i in seq.int(ncol(columns))) {
+      if (is(columns[[i]], "integer")) {
+        columns[[i]] <- as.numeric(columns[[i]])
+      }
+    }
+  }
   if (integer64AsNumeric) {
     for (i in seq.int(ncol(columns))) {
       if (is(columns[[i]], "integer64")) {
         columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
-      } 
+      }
     }
   }
   return(columns)
@@ -203,7 +272,7 @@ delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
   regexGroups <- stringr::str_match(sql, stringr::regex(regex, ignore_case = TRUE))
   tableName <- regexGroups[3]
   if (!is.na(tableName) && !is.null(tableName)) {
-    currentTime <- Sys.time();
+    currentTime <- Sys.time()
     lastExecutedTime <- executionTimeList[[tableName]]
     if (!is.na(lastExecutedTime) && !is.null(lastExecutedTime)) {
       delta <- currentTime - lastExecutedTime
@@ -212,7 +281,7 @@ delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
       }
     }
     
-    executionTimeList[[tableName]] = currentTime
+    executionTimeList[[tableName]] <- currentTime
   }
   return(executionTimeList)
 }
@@ -223,8 +292,8 @@ delayIfNecessaryForDdl <- function(sql) {
     ddlList <- list()
   }
   
-  regexForDdl = "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5);
+  regexForDdl <- "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
+  updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5)
   options(ddlList = updatedList)
 }
 
@@ -234,8 +303,8 @@ delayIfNecessaryForInsert <- function(sql) {
     insetList <- list()
   }
   
-  regexForInsert = "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5);
+  regexForInsert <- "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
+  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5)
   options(insetList = updatedList)
 }
 
@@ -267,20 +336,23 @@ supportsBatchUpdates <- function(connection) {
   if (!inherits(connection, "DatabaseConnectorJdbcConnection")) {
     return(FALSE)
   }
-  tryCatch({
-    dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
-    if (!is.jnull(dbmsMeta)) {
-      if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
-        # inform("JDBC driver supports batch updates")
-        return(TRUE);
-      } else {
-        inform("JDBC driver does not support batch updates. Sending updates one at a time.")
+  tryCatch(
+    {
+      dbmsMeta <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
+      if (!is.jnull(dbmsMeta)) {
+        if (rJava::.jcall(dbmsMeta, "Z", "supportsBatchUpdates")) {
+          # inform("JDBC driver supports batch updates")
+          return(TRUE)
+        } else {
+          inform("JDBC driver does not support batch updates. Sending updates one at a time.")
+        }
       }
+    },
+    error = function(err) {
+      inform(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
     }
-  }, error = function(err) {
-    inform(paste("JDBC driver 'supportsBatchUpdates' threw exception", err$message))
-  })
-  return(FALSE);
+  )
+  return(FALSE)
 }
 
 #' Execute SQL code
@@ -298,9 +370,9 @@ supportsBatchUpdates <- function(connection) {
 #'                            all statements.
 #' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
 #'                            'errorReportSql.txt' in the current working directory.
-#' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and 
+#' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and
 #'                            executed there. This will be faster if you have many small SQL statements, but
-#'                            there will be no progress bar, and no per-statement error messages. If the 
+#'                            there will be no progress bar, and no per-statement error messages. If the
 #'                            database platform does not support batched updates the query is executed without
 #'                            batching.
 #'
@@ -313,11 +385,13 @@ supportsBatchUpdates <- function(connection) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
-#'                                              server = "localhost",
-#'                                              user = "root",
-#'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost",
+#'   user = "root",
+#'   password = "blah",
+#'   schema = "cdm_v4"
+#' )
 #' conn <- connect(connectionDetails)
 #' executeSql(conn, "CREATE TABLE x (k INT); CREATE TABLE y (k INT);")
 #' disconnect(conn)
@@ -327,15 +401,16 @@ executeSql <- function(connection,
                        sql,
                        profile = FALSE,
                        progressBar = TRUE,
-                       reportOverallTime = TRUE, 
+                       reportOverallTime = TRUE,
                        errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                        runAsBatch = FALSE) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
+  }
   
   startTime <- Sys.time()
   
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && 
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") &&
       connection@dbms == "redshift" &&
       rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
@@ -362,14 +437,20 @@ executeSql <- function(connection,
       if (profile) {
         SqlRender::writeSql(paste(batchSql, collapse = "\n\n"), sprintf("statements_%s_%s.sql", start, end))
       }
-      tryCatch({
-        startQuery <- Sys.time()
-        rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
-        delta <- Sys.time() - startQuery
-        inform(paste("Statements", start, "through", end,  "took", delta, attr(delta, "units")))
-      }, error = function(err) {
-        .createErrorReport(connection@dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
-      }, finally = {rJava::.jcall(statement, "V", "close")})
+      tryCatch(
+        {
+          startQuery <- Sys.time()
+          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+          delta <- Sys.time() - startQuery
+          inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
+        },
+        error = function(err) {
+          .createErrorReport(connection@dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
+        },
+        finally = {
+          rJava::.jcall(statement, "V", "close")
+        }
+      )
     }
   } else {
     if (progressBar) {
@@ -383,18 +464,21 @@ executeSql <- function(connection,
         writeChar(sqlStatement, fileConn, eos = NULL)
         close(fileConn)
       }
-      tryCatch({
-        startQuery <- Sys.time()
-        lowLevelExecuteSql(connection, sqlStatement)
-        if (profile) {
-          delta <- Sys.time() - startQuery
-          inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
+      tryCatch(
+        {
+          startQuery <- Sys.time()
+          lowLevelExecuteSql(connection, sqlStatement)
+          if (profile) {
+            delta <- Sys.time() - startQuery
+            inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
+          }
+        },
+        error = function(err) {
+          .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
         }
-      }, error = function(err) {
-        .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
-      })
+      )
       if (progressBar) {
-        setTxtProgressBar(pb, i/length(sqlStatements))
+        setTxtProgressBar(pb, i / length(sqlStatements))
       }
     }
     if (progressBar) {
@@ -426,22 +510,21 @@ convertFields <- function(dbms, result) {
   if (dbms == "sqlite") {
     for (colname in colnames(result)) {
       if (grepl("DATE$", colname)) {
-        result[[colname]] <- as.Date(as.POSIXct(result[[colname]], origin = "1970-01-01", tz = "GMT"))
+        result[[colname]] <- as.Date(as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT"))
       }
       if (grepl("DATETIME$", colname)) {
-        result[[colname]] <- as.POSIXct(result[[colname]], origin = "1970-01-01", tz = "GMT")
+        result[[colname]] <- as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT")
       }
-      
     }
-  } 
+  }
   if (dbms %in% c("bigquery")) {
     # BigQuery doesn't have INT fields, only INT64. For more consistent behavior with other
     # platforms, if it fits in an integer, convert it to an integer:
     if (ncol(result) > 0) {
       for (i in 1:ncol(result)) {
-        if (bit64::is.integer64(result[[i]]) && 
+        if (bit64::is.integer64(result[[i]]) &&
             (all(is.na(result[[i]])) || (
-              min(result[[i]], na.rm = TRUE) > -.Machine$integer.max && 
+              min(result[[i]], na.rm = TRUE) > -.Machine$integer.max &&
               max(result[[i]], na.rm = TRUE) < .Machine$integer.max))) {
           result[[i]] <- as.integer(result[[i]])
         }
@@ -452,11 +535,14 @@ convertFields <- function(dbms, result) {
 }
 
 trySettingAutoCommit <- function(connection, value) {
-  tryCatch({
-    rJava::.jcall(connection@jConnection, "V", "setAutoCommit", value)
-  }, error = function(cond) {
-    # do nothing
-  })
+  tryCatch(
+    {
+      rJava::.jcall(connection@jConnection, "V", "setAutoCommit", value)
+    },
+    error = function(cond) {
+      # do nothing
+    }
+  )
 }
 
 #' Retrieve data to a data.frame
@@ -468,9 +554,11 @@ trySettingAutoCommit <- function(connection, value) {
 #' @param sql                  The SQL to be send.
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class.
 #' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                             64-bit integers will be represented using \code{bit64::integer64}. 
+#'                             64-bit integers will be represented using \code{bit64::integer64}.
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
@@ -482,40 +570,55 @@ trySettingAutoCommit <- function(connection, value) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
-#'                                              server = "localhost",
-#'                                              user = "root",
-#'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost",
+#'   user = "root",
+#'   password = "blah",
+#'   schema = "cdm_v4"
+#' )
 #' conn <- connect(connectionDetails)
 #' count <- querySql(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #' }
 #' @export
-querySql <- function(connection, 
-                     sql, 
-                     errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
-                     snakeCaseToCamelCase = FALSE, 
+querySql <- function(connection,
+                     sql,
+                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                     snakeCaseToCamelCase = FALSE,
+                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection))
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
+  }
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
-  if (length(sqlStatements) > 1)
-    abort(paste("A query that returns a result can only consist of one SQL statement, but",
-                length(sqlStatements),
-                "statements were found"))
-  tryCatch({
-    result <- lowLevelQuerySql(connection, sqlStatements[1], integer64AsNumeric = integer64AsNumeric)
-    colnames(result) <- toupper(colnames(result))
-    result <- convertFields(connection@dbms, result)
-    if (snakeCaseToCamelCase) {
-      colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
+  if (length(sqlStatements) > 1) {
+    abort(paste(
+      "A query that returns a result can only consist of one SQL statement, but",
+      length(sqlStatements),
+      "statements were found"
+    ))
+  }
+  tryCatch(
+    {
+      result <- lowLevelQuerySql(
+        connection = connection,
+        query = sqlStatements[1],
+        integerAsNumeric = integerAsNumeric,
+        integer64AsNumeric = integer64AsNumeric
+      )
+      colnames(result) <- toupper(colnames(result))
+      result <- convertFields(connection@dbms, result)
+      if (snakeCaseToCamelCase) {
+        colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
+      }
+      return(result)
+    },
+    error = function(err) {
+      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
     }
-    return(result)
-  }, error = function(err) {
-    .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
-  })
+  )
 }
 
 #' Render, translate, execute SQL code
@@ -533,32 +636,32 @@ querySql <- function(connection,
 #'                            all statements.
 #' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
 #'                            'errorReportSql.txt' in the current working directory.
-#' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and 
+#' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and
 #'                            executed there. This will be faster if you have many small SQL statements, but
-#'                            there will be no progress bar, and no per-statement error messages. If the 
-#'                            database platform does not support batched updates the query is executed as 
+#'                            there will be no progress bar, and no per-statement error messages. If the
+#'                            database platform does not support batched updates the query is executed as
 #'                            ordinarily.
-#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                            emulate temp tables, provide a schema with write privileges where temp tables
-#'                            can be created.
+#' @template TempEmulationSchema
 #' @param ...                 Parameters that will be used to render the SQL.
 #'
 #' @details
-#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
 #' calling \code{\link{executeSql}}.
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
-#'                                              server = "localhost",
-#'                                              user = "root",
-#'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost",
+#'   user = "root",
+#'   password = "blah",
+#'   schema = "cdm_v4"
+#' )
 #' conn <- connect(connectionDetails)
-#' renderTranslateExecuteSql(connection, 
-#'                           sql = "SELECT * INTO #temp FROM @@schema.person;",
-#'                           schema = "cdm_synpuf")
+#' renderTranslateExecuteSql(connection,
+#'   sql = "SELECT * INTO #temp FROM @@schema.person;",
+#'   schema = "cdm_synpuf"
+#' )
 #' disconnect(conn)
 #' }
 #' @export
@@ -566,7 +669,7 @@ renderTranslateExecuteSql <- function(connection,
                                       sql,
                                       profile = FALSE,
                                       progressBar = TRUE,
-                                      reportOverallTime = TRUE, 
+                                      reportOverallTime = TRUE,
                                       errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                       runAsBatch = FALSE,
                                       oracleTempSchema = NULL,
@@ -575,18 +678,21 @@ renderTranslateExecuteSql <- function(connection,
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
-         .frequency_id = "oracleTempSchema")
+         .frequency_id = "oracleTempSchema"
+    )
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
-  executeSql(connection = connection,
-             sql = sql,
-             profile = profile,
-             progressBar = progressBar,
-             reportOverallTime = reportOverallTime,
-             errorReportFile = errorReportFile,
-             runAsBatch = runAsBatch)
+  executeSql(
+    connection = connection,
+    sql = sql,
+    profile = profile,
+    progressBar = progressBar,
+    reportOverallTime = reportOverallTime,
+    errorReportFile = errorReportFile,
+    runAsBatch = runAsBatch
+  )
 }
 
 #' Render, translate, and query to data.frame
@@ -598,17 +704,16 @@ renderTranslateExecuteSql <- function(connection,
 #' @param sql                  The SQL to be send.
 #' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
 #'                             'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.  
-#' @param oracleTempSchema    DEPRECATED: use \code{tempEmulationSchema} instead.
-#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                            emulate temp tables, provide a schema with write privileges where temp tables
-#'                            can be created.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @template TempEmulationSchema
+#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                          32-bit integers will be represented using R's native \code{Integer} class.
 #' @param integer64AsNumeric  Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                            64-bit integers will be represented using \code{bit64::integer64}. 
+#'                            64-bit integers will be represented using \code{bit64::integer64}.
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
-#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before 
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
 #' calling \code{\link{querySql}}.
 #'
 #' @return
@@ -616,55 +721,64 @@ renderTranslateExecuteSql <- function(connection,
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
-#'                                              server = "localhost",
-#'                                              user = "root",
-#'                                              password = "blah",
-#'                                              schema = "cdm_v4")
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost",
+#'   user = "root",
+#'   password = "blah",
+#'   schema = "cdm_v4"
+#' )
 #' conn <- connect(connectionDetails)
-#' persons <- renderTranslatequerySql(conn, 
-#'                                    sql = "SELECT TOP 10 * FROM @@schema.person",
-#'                                    schema = "cdm_synpuf")
+#' persons <- renderTranslatequerySql(conn,
+#'   sql = "SELECT TOP 10 * FROM @@schema.person",
+#'   schema = "cdm_synpuf"
+#' )
 #' disconnect(conn)
 #' }
 #' @export
-renderTranslateQuerySql <- function(connection, 
-                                    sql, 
-                                    errorReportFile = file.path(getwd(), "errorReportSql.txt"), 
+renderTranslateQuerySql <- function(connection,
+                                    sql,
+                                    errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                     snakeCaseToCamelCase = FALSE,
                                     oracleTempSchema = NULL,
-                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), 
+                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                    integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                     ...) {
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
-         .frequency_id = "oracleTempSchema")
+         .frequency_id = "oracleTempSchema"
+    )
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
-  return(querySql(connection = connection,
-                  sql = sql,
-                  errorReportFile = errorReportFile,
-                  snakeCaseToCamelCase = snakeCaseToCamelCase,
-                  integer64AsNumeric = integer64AsNumeric))
+  return(querySql(
+    connection = connection,
+    sql = sql,
+    errorReportFile = errorReportFile,
+    snakeCaseToCamelCase = snakeCaseToCamelCase,
+    integerAsNumeric = integerAsNumeric,
+    integer64AsNumeric = integer64AsNumeric
+  ))
 }
 
 
 #' Test a character vector of SQL names for SQL reserved words
-#' 
+#'
 #' This function checks a character vector against a predefined list of reserved SQL words.
 #'
 #' @param sqlNames A character vector containing table or field names to check.
 #' @param warn (logical) Should a warn be thrown if invalid SQL names are found?
 #'
 #' @return A logical vector with length equal to sqlNames that is TRUE for each name that is reserved and FALSE otherwise
-#' 
+#'
 #' @export
-isSqlReservedWord <- function(sqlNames, warn = FALSE){
-  if (!is.character(sqlNames)) 
+isSqlReservedWord <- function(sqlNames, warn = FALSE) {
+  if (!is.character(sqlNames)) {
     abort("sqlNames should be a character vector")
+  }
   sqlNames <- gsub("^#", "", sqlNames)
   sqlReservedWords <- read.csv(system.file("csv", "sqlReservedWords.csv", package = "DatabaseConnector"), stringsAsFactors = FALSE)
   nameIsReserved <- toupper(sqlNames) %in% sqlReservedWords$reservedWords
@@ -673,6 +787,234 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE){
     warn(paste(badSqlNames, "is a reserved keyword in SQL and should not be used as a table or field name."))
   } else if (length(badSqlNames) > 1 & warn) {
     warn(paste(paste(badSqlNames, collapse = ","), "are reserved keywords in SQL and should not be used as table or field names."))
-  } 
+  }
   return(nameIsReserved)
+}
+
+#' Render, translate, and perform process to batches of data.
+#'
+#' @description
+#' This function renders, and translates SQL, sends it to the server, processes the data in batches with a call back
+#' function. Note that this function should perform a row-wise operation. This is designed to work with massive data
+#' that won't fit in to memory.
+#'
+#' The batch sizes are determined by the java virtual machine and will depend on the data.
+#'
+#' @param connection           The connection to the database server.
+#' @param sql                  The SQL to be send.
+#' @param fun                  Function to apply to batch. Must take data.frame and integer position as parameters.
+#' @param args                 List of arguments to be passed to function call.
+#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
+#'                             'errorReportSql.txt' in the current working directory.
+#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @param tempEmulationSchema  Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                             emulate temp tables, provide a schema with write privileges where temp tables
+#'                             can be created.
+#' @param integerAsNumeric     Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
+#'                             32-bit integers will be represented using R's native \code{Integer} class.
+#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
+#'                             64-bit integers will be represented using \code{bit64::integer64}.
+#' @param ...                  Parameters that will be used to render the SQL.
+#'
+#' @details
+#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
+#' calling \code{\link{querySql}}.
+#'
+#' @return
+#' Invisibly returns a list of outputs from each call to the provided function.
+#'
+#' @examples
+#' \dontrun{
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "postgresql",
+#'   server = "localhost",
+#'   user = "root",
+#'   password = "blah",
+#'   schema = "cdm_v4"
+#' )
+#' connection <- connect(connectionDetails)
+#'
+#' # First example: write data to a large CSV file:
+#' filepath <- "myBigFile.csv"
+#' writeBatchesToCsv <- function(data, position, ...) {
+#'   write.csv(data, filepath, append = position != 1)
+#'   return(NULL)
+#' }
+#' renderTranslateQueryApplyBatched(connection,
+#'   "SELECT * FROM @schema.person;",
+#'   schema = "cdm_synpuf",
+#'   fun = writeBatchesToCsv
+#' )
+#'
+#' # Second example: write data to Andromeda
+#' # (Alternative to querySqlToAndromeda if some local computation needs to be applied)
+#' bigResults <- Andromeda::andromeda()
+#' writeBatchesToAndromeda <- function(data, position, ...) {
+#'   data$p <- EmpiricalCalibration::computeTraditionalP(data$logRr, data$logSeRr)
+#'   if (position == 1) {
+#'     bigResults$rrs <- data
+#'   } else {
+#'     Andromeda::appendToTable(bigResults$rrs, data)
+#'   }
+#'   return(NULL)
+#' }
+#' sql <- "SELECT target_id, comparator_id, log_rr, log_se_rr FROM @schema.my_results;"
+#' renderTranslateQueryApplyBatched(connection,
+#'   sql,
+#'   fun = writeBatchesToAndromeda,
+#'   schema = "my_results",
+#'   snakeCaseToCamelCase = TRUE
+#' )
+#'
+#' disconnect(connection)
+#' }
+#'
+#' @export
+renderTranslateQueryApplyBatched <- function(connection,
+                                             sql,
+                                             fun,
+                                             args = list(),
+                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                             snakeCaseToCamelCase = FALSE,
+                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                             ...) {
+  UseMethod("renderTranslateQueryApplyBatched", connection)
+}
+
+#' @export
+renderTranslateQueryApplyBatched.default <- function(connection,
+                                                     sql,
+                                                     fun,
+                                                     args = list(),
+                                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                                     snakeCaseToCamelCase = FALSE,
+                                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                                     ...) {
+  if (!is.function(fun)) {
+    abort("fun argument must be a function")
+  }
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  sql <- SqlRender::splitSql(sql)
+  if (length(sql) > 1) {
+    abort(paste(
+      "A query that returns a result can only consist of one SQL statement, but",
+      length(sql),
+      "statements were found"
+    ))
+  }
+  tryCatch(
+    {
+      queryResult <- dbSendQuery(connection, sql)
+    },
+    error = function(err) {
+      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+    }
+  )
+  on.exit(dbClearResult(queryResult))
+  
+  columnTypes <- rJava::.jcall(queryResult@content, "[I", "getColumnTypes")
+  if (any(columnTypes == 5)) {
+    validateInt64Query()
+  }
+  
+  results <- list()
+  position <- 1
+  while (!rJava::.jcall(queryResult@content, "Z", "isDone")) {
+    batch <- dbFetch(queryResult,
+                     columnTypes = columnTypes,
+                     integerAsNumeric = integerAsNumeric,
+                     integer64AsNumeric = integer64AsNumeric
+    )
+    if (snakeCaseToCamelCase) {
+      colnames(batch) <- SqlRender::snakeCaseToCamelCase(colnames(batch))
+    }
+    rowCount <- nrow(batch)
+    if (rowCount > 0) {
+      result <- do.call(fun, append(list(batch, position), args))
+      results[[length(results) + 1]] <- result
+    }
+    position <- position + rowCount
+  }
+  invisible(results)
+}
+
+
+#' @export
+renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(connection,
+                                                                            sql,
+                                                                            fun,
+                                                                            args = list(),
+                                                                            errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                                                            snakeCaseToCamelCase = FALSE,
+                                                                            tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                                            integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
+                                                                            integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
+                                                                            ...) {
+  if (!is.function(fun)) {
+    abort("fun argument must be a function")
+  }
+  
+  sql <- SqlRender::render(sql, ...)
+  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  sql <- SqlRender::splitSql(sql)
+  if (length(sql) > 1) {
+    abort(paste(
+      "A query that returns a result can only consist of one SQL statement, but",
+      length(sql),
+      "statements were found"
+    ))
+  }
+  results <- lowLevelQuerySql(connection,
+                              sql,
+                              integerAsNumeric = integerAsNumeric,
+                              integer64AsNumeric = integer64AsNumeric
+  )
+  if (snakeCaseToCamelCase) {
+    colnames(results) <- SqlRender::snakeCaseToCamelCase(colnames(results))
+  }
+  
+  # Note that the DBI connection implementation only ever processes a single batch
+  position <- 1
+  results <- list(do.call(fun, append(list(results, position), args)))
+  invisible(results)
+}
+
+
+#' Drop all emulated temp tables.
+#'
+#' @description
+#' On some DBMSs, like Oracle and BigQuery, \code{DatabaseConnector} through \code{SqlRender} emulates temp tables
+#' in a schema provided by the user. Ideally, these tables are deleted by the application / R script creating them,
+#' but for various reasons orphan temp tables may remain. This function drops all emulated temp tables created in this
+#' session only.
+#'
+#' @param connection           The connection to the database server.
+#' @param tempEmulationSchema  Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                             emulate temp tables, provide a schema with write privileges where temp tables
+#'                             can be created.
+#'
+#' @return
+#' Invisibly returns the list of deleted emulated temp tables.
+#'
+#' @export
+dropEmulatedTempTables <- function(connection,
+                                   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (is.null(tempEmulationSchema))
+    abort("The `tempEmulationSchema` must be specified.")
+  prefix <- SqlRender::getTempTablePrefix()
+  tableNames <- getTableNames(connection, tempEmulationSchema)
+  tableNames <- tableNames[grepl(sprintf("^%s", prefix), tableNames, ignore.case = TRUE)]
+  if (length(tableNames) > 0) {
+    inform(sprintf("Dropping tables '%s' from schema '%s'.", paste(tableNames, collapse = "', '"), tempEmulationSchema))
+    tableNames <- tolower(paste(tempEmulationSchema, tableNames, sep = "."))
+    sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    sql <- SqlRender::translate(sql, connection@dbms)
+    executeSql(connection, sql)
+  }
+  return(tableNames)
 }
