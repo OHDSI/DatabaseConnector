@@ -30,7 +30,6 @@ checkIfDbmsIsSupported <- function(dbms) {
     "sqlite",
     "sqlite extended",
     "spark",
-    "hive",
     "snowflake",
     "synapse"
   )
