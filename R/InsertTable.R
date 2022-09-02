@@ -29,11 +29,17 @@ getSqlDataTypes <- function(column) {
     return("FLOAT")
   } else {
     if (is.factor(column)) {
-      maxLength <- max(nchar(levels(column)), na.rm = TRUE)
+      maxLength <-
+        max(suppressWarnings(nchar(
+          stringr::str_conv(string = as.character(column), encoding = "UTF-8")
+        )), na.rm = TRUE)
     } else if (all(is.na(column))) {
       maxLength <- NA
     } else {
-      maxLength <- max(nchar(as.character(column)), na.rm = TRUE)
+      maxLength <-
+        max(suppressWarnings(nchar(
+          stringr::str_conv(string = as.character(column), encoding = "UTF-8")
+        )), na.rm = TRUE)
     }
     if (is.na(maxLength) || maxLength <= 255) {
       return("VARCHAR(255)")
