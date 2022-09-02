@@ -10,6 +10,7 @@ test_that("Open and close connection", {
   )
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_equal(dbms(connection), "postgresql")
   expect_true(disconnect(connection))
 
   # SQL Server --------------------------------------------------
@@ -21,6 +22,7 @@ test_that("Open and close connection", {
   )
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_equal(dbms(connection), "sql server")
   expect_true(disconnect(connection))
 
   # Oracle --------------------------------------------------
@@ -32,6 +34,7 @@ test_that("Open and close connection", {
   )
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_equal(dbms(connection), "oracle")
   expect_true(disconnect(connection))
 
   # RedShift  --------------------------------------------------
@@ -43,6 +46,7 @@ test_that("Open and close connection", {
   )
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_equal(dbms(connection), "redshift")
   expect_true(disconnect(connection))
 })
 
@@ -243,6 +247,7 @@ test_that("Open and close connection using connection strings with separate user
   )
   connection <- connect(details)
   expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_equal(dbms(connection), "spark")
   expect_true(disconnect(connection))
 
   # Snowflake --------------------------------------------------
@@ -273,4 +278,28 @@ test_that("Error is thrown when forgetting password", {
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
   expect_error(connection <- connect(details), "Connection propery 'password' is NULL")
+})
+
+
+test_that("dbms function maps DBI connections to correct SQL dialect", {
+  
+  mappings <- c(
+    'Microsoft SQL Server' = 'sql server',
+    'PqConnection' = 'postgresql',
+    'RedshiftConnection' = 'redshift',
+    'BigQueryConnection' = 'bigquery',
+    'SQLiteConnection' = 'sqlite',
+    'duckdb_connection'  = 'duckdb')
+  
+  
+  for(i in seq_along(mappings)) {
+    driver <- names(mappings)[i]
+    dialect <- unname(mappings)[i]
+    mockConstructor <- setClass(driver, contains = "DBIConnection")
+    mockConnection <- mockConstructor()
+    expect_equal(dbms(mockConnection), dialect)
+    
+    # duckdb is not yet supported in the current release of SqlRender
+    if(dialect != "duckdb") expect_error(checkIfDbmsIsSupported(dbms(mockConnection)), NA)
+  }
 })

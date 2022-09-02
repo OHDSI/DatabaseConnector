@@ -19,9 +19,9 @@
 getSqlDataTypes <- function(column) {
   if (is.integer(column)) {
     return("INTEGER")
-  } else if (identical(class(column), c("POSIXct", "POSIXt"))) {
+  } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
     return("DATETIME2")
-  } else if (class(column) == "Date") {
+  } else if (is(column, "Date")) {
     return("DATE")
   } else if (bit64::is.integer64(column)) {
     return("BIGINT")
@@ -29,11 +29,17 @@ getSqlDataTypes <- function(column) {
     return("FLOAT")
   } else {
     if (is.factor(column)) {
-      maxLength <- max(nchar(levels(column)), na.rm = TRUE)
+      maxLength <-
+        max(suppressWarnings(nchar(
+          stringr::str_conv(string = as.character(column), encoding = "UTF-8")
+        )), na.rm = TRUE)
     } else if (all(is.na(column))) {
       maxLength <- NA
     } else {
-      maxLength <- max(nchar(as.character(column)), na.rm = TRUE)
+      maxLength <-
+        max(suppressWarnings(nchar(
+          stringr::str_conv(string = as.character(column), encoding = "UTF-8")
+        )), na.rm = TRUE)
     }
     if (is.na(maxLength) || maxLength <= 255) {
       return("VARCHAR(255)")
@@ -361,9 +367,9 @@ insertTable.default <- function(connection,
             rJava::.jcall(batchedInsert, "V", "setBigint", i, column)
           } else if (is.numeric(column)) {
             rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
-          } else if (identical(class(column), c("POSIXct", "POSIXt"))) {
+          } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
             rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
-          } else if (class(column) == "Date") {
+          } else if (is(column, "Date")) {
             rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
           } else {
             rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
@@ -372,9 +378,11 @@ insertTable.default <- function(connection,
         }
         lapply(1:ncol(data), setColumn, start = start, end = end)
         if (attr(connection, "dbms") == "bigquery") {
-          rJava::.jcall(batchedInsert, "V", "executeBigQueryBatch")
+          if (!rJava::.jcall(batchedInsert, "Z", "executeBigQueryBatch"))
+            stop("Error uploading data")
         } else {
-          rJava::.jcall(batchedInsert, "V", "executeBatch")
+          if (!rJava::.jcall(batchedInsert, "Z", "executeBatch"))
+            stop("Error uploading data")
         }
       }
       if (progressBar) {
@@ -422,11 +430,12 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   if (connection@dbms == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {
-      if (inherits(data[, i], "Date")) {
-        data[, i] <- as.numeric(as.POSIXct(as.character(data[, i]), origin = "1970-01-01", tz = "GMT"))
+      column <- data[[i]]
+      if (inherits(column, "Date")) {
+        data[, i] <- as.numeric(as.POSIXct(as.character(column), origin = "1970-01-01", tz = "GMT"))
       }
-      if (inherits(data[, i], "POSIXct")) {
-        data[, i] <- as.numeric(as.POSIXct(data[, i], origin = "1970-01-01", tz = "GMT"))
+      if (inherits(column, "POSIXct")) {
+        data[, i] <- as.numeric(as.POSIXct(column, origin = "1970-01-01", tz = "GMT"))
       }
     }
   }

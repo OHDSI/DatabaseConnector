@@ -1,7 +1,6 @@
 package org.ohdsi.databaseConnector;
 
 import java.nio.ByteBuffer;
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -101,7 +100,7 @@ public class BatchedInsert {
 		}
 	}
 	
-	public void executeBatch() {
+	public boolean executeBatch() throws SQLException {
 		checkColumns();
 		try {
 			trySettingAutoCommit(connection, false);
@@ -116,24 +115,21 @@ public class BatchedInsert {
 			statement.close();
 			connection.clearWarnings();
 			trySettingAutoCommit(connection, true);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			if (e instanceof BatchUpdateException) {
-				System.err.println(((BatchUpdateException) e).getNextException().getMessage());
-			}
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
 				columns[i] = null;
 			}
 			rowCount = 0;
 		}
+		return true;
 	}
 	
 	/**
 	 * Not all drivers support batch operations, for example GoogleBigQueryJDBC42.jar. In order to save data most efficiently, we implement saving through an
 	 * insert with multiple values.
+	 * @throws SQLException 
 	 */
-	public void executeBigQueryBatch() {
+	public boolean executeBigQueryBatch() throws SQLException {
 		checkColumns();
 		try {
 			trySettingAutoCommit(connection, false);
@@ -160,17 +156,13 @@ public class BatchedInsert {
 				trySettingAutoCommit(connection, true);
 				offset += BIG_DATA_BATCH_INSERT_LIMIT;
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			if (e instanceof BatchUpdateException) {
-				System.err.println(((BatchUpdateException) e).getNextException().getMessage());
-			}
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
 				columns[i] = null;
 			}
 			rowCount = 0;
 		}
+		return true;
 	}
 	
 	private static long[] convertFromInteger64ToLong(double[] value) {

@@ -20,8 +20,6 @@ and does not change after calling \code{\link[DBI:dbFetch]{dbFetch()}}.
 For queries issued with \code{\link[DBI:dbSendQuery]{dbSendQuery()}},
 zero is returned before
 and after the call to \code{dbFetch()}.
-Attempting to get the rows affected for a result set cleared with
-\code{\link[DBI:dbClearResult]{dbClearResult()}} gives an error.
 }
 \description{
 This method returns the number of rows that were added, deleted, or updated

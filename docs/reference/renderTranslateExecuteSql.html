@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -26,7 +26,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -69,52 +69,71 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">renderTranslateExecuteSql</span><span class="op">(</span>
-  <span class="va">connection</span>,
-  <span class="va">sql</span>,
-  profile <span class="op">=</span> <span class="cn">FALSE</span>,
-  progressBar <span class="op">=</span> <span class="cn">TRUE</span>,
-  reportOverallTime <span class="op">=</span> <span class="cn">TRUE</span>,
-  errorReportFile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"errorReportSql.txt"</span><span class="op">)</span>,
-  runAsBatch <span class="op">=</span> <span class="cn">FALSE</span>,
-  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,
-  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">renderTranslateExecuteSql</span><span class="op">(</span></span>
+<span>  <span class="va">connection</span>,</span>
+<span>  <span class="va">sql</span>,</span>
+<span>  profile <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  progressBar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  reportOverallTime <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  errorReportFile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"errorReportSql.txt"</span><span class="op">)</span>,</span>
+<span>  runAsBatch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>connection</dt>
 <dd><p>The connection to the database server.</p></dd>
+
+
 <dt>sql</dt>
 <dd><p>The SQL to be executed</p></dd>
+
+
 <dt>profile</dt>
 <dd><p>When true, each separate statement is written to file prior to sending to
 the server, and the time taken to execute a statement is displayed.</p></dd>
+
+
 <dt>progressBar</dt>
 <dd><p>When true, a progress bar is shown based on the statements in the SQL
 code.</p></dd>
+
+
 <dt>reportOverallTime</dt>
 <dd><p>When true, the function will display the overall time taken to execute
 all statements.</p></dd>
+
+
 <dt>errorReportFile</dt>
 <dd><p>The file where an error report will be written if an error occurs. Defaults to
 'errorReportSql.txt' in the current working directory.</p></dd>
+
+
 <dt>runAsBatch</dt>
 <dd><p>When true the SQL statements are sent to the server as a single batch, and
 executed there. This will be faster if you have many small SQL statements, but
 there will be no progress bar, and no per-statement error messages. If the
 database platform does not support batched updates the query is executed as
 ordinarily.</p></dd>
+
+
 <dt>oracleTempSchema</dt>
 <dd><p>DEPRECATED: use <code>tempEmulationSchema</code> instead.</p></dd>
+
+
 <dt>tempEmulationSchema</dt>
 <dd><p>Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Parameters that will be used to render the SQL.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -124,21 +143,21 @@ calling <code><a href="executeSql.html">executeSql</a></code>.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span>
-<span class="r-in">  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
-<span class="r-in">  server <span class="op">=</span> <span class="st">"localhost"</span>,</span>
-<span class="r-in">  user <span class="op">=</span> <span class="st">"root"</span>,</span>
-<span class="r-in">  password <span class="op">=</span> <span class="st">"blah"</span>,</span>
-<span class="r-in">  schema <span class="op">=</span> <span class="st">"cdm_v4"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">renderTranslateExecuteSql</span><span class="op">(</span><span class="va">connection</span>,</span>
-<span class="r-in">  sql <span class="op">=</span> <span class="st">"SELECT * INTO #temp FROM @schema.person;"</span>,</span>
-<span class="r-in">  schema <span class="op">=</span> <span class="st">"cdm_synpuf"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span></span>
+<span class="r-in"><span>  server <span class="op">=</span> <span class="st">"localhost"</span>,</span></span>
+<span class="r-in"><span>  user <span class="op">=</span> <span class="st">"root"</span>,</span></span>
+<span class="r-in"><span>  password <span class="op">=</span> <span class="st">"blah"</span>,</span></span>
+<span class="r-in"><span>  schema <span class="op">=</span> <span class="st">"cdm_v4"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">renderTranslateExecuteSql</span><span class="op">(</span><span class="va">connection</span>,</span></span>
+<span class="r-in"><span>  sql <span class="op">=</span> <span class="st">"SELECT * INTO #temp FROM @schema.person;"</span>,</span></span>
+<span class="r-in"><span>  schema <span class="op">=</span> <span class="st">"cdm_synpuf"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -153,7 +172,7 @@ calling <code><a href="executeSql.html">executeSql</a></code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

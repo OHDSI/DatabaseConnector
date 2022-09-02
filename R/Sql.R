@@ -78,7 +78,7 @@ convertInteger64ToNumeric <- function(x) {
     return(numeric(0))
   }
   maxInt64 <- bit64::as.integer64(2)^53
-  if (any(x >= maxInt64 || x <= -maxInt64, na.rm = TRUE)) {
+  if (any(x >= maxInt64 | x <= -maxInt64, na.rm = TRUE)) {
     abort("The data contains integers >= 2^53, and converting those to R's numeric type leads to precision loss. Consider using smaller integers, converting the integers to doubles on the database side, or using `options(databaseConnectorInteger64AsNumeric = FALSE)`.")
   }
   return(bit64::as.double.integer64(x))

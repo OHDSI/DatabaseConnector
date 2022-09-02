@@ -18,7 +18,7 @@ is created, or the data is appended to an existing table."><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
       </span>
     </div>
 
@@ -27,7 +27,7 @@ is created, or the data is appended to an existing table."><!-- mathjax --><scri
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -71,57 +71,82 @@ is created, or the data is appended to an existing table.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">insertTable</span><span class="op">(</span>
-  <span class="va">connection</span>,
-  databaseSchema <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">tableName</span>,
-  <span class="va">data</span>,
-  dropTableIfExists <span class="op">=</span> <span class="cn">TRUE</span>,
-  createTable <span class="op">=</span> <span class="cn">TRUE</span>,
-  tempTable <span class="op">=</span> <span class="cn">FALSE</span>,
-  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,
-  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,
-  bulkLoad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATABASE_CONNECTOR_BULK_UPLOAD"</span><span class="op">)</span>,
-  useMppBulkLoad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"USE_MPP_BULK_LOAD"</span><span class="op">)</span>,
-  progressBar <span class="op">=</span> <span class="cn">FALSE</span>,
-  camelCaseToSnakeCase <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">insertTable</span><span class="op">(</span></span>
+<span>  <span class="va">connection</span>,</span>
+<span>  databaseSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">tableName</span>,</span>
+<span>  <span class="va">data</span>,</span>
+<span>  dropTableIfExists <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  createTable <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  tempTable <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  bulkLoad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATABASE_CONNECTOR_BULK_UPLOAD"</span><span class="op">)</span>,</span>
+<span>  useMppBulkLoad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"USE_MPP_BULK_LOAD"</span><span class="op">)</span>,</span>
+<span>  progressBar <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  camelCaseToSnakeCase <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>connection</dt>
 <dd><p>The connection to the database server.</p></dd>
+
+
 <dt>databaseSchema</dt>
 <dd><p>(Optional) The name of the database schema where the table should
 be located.</p></dd>
+
+
 <dt>tableName</dt>
 <dd><p>The name of the table where the data should be inserted.</p></dd>
+
+
 <dt>data</dt>
 <dd><p>The data frame containing the data to be inserted.</p></dd>
+
+
 <dt>dropTableIfExists</dt>
 <dd><p>Drop the table if the table already exists before writing?</p></dd>
+
+
 <dt>createTable</dt>
 <dd><p>Create a new table? If false, will append to existing table.</p></dd>
+
+
 <dt>tempTable</dt>
 <dd><p>Should the table created as a temp table?</p></dd>
+
+
 <dt>oracleTempSchema</dt>
 <dd><p>DEPRECATED: use <code>tempEmulationSchema</code> instead.</p></dd>
+
+
 <dt>tempEmulationSchema</dt>
 <dd><p>Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.</p></dd>
+
+
 <dt>bulkLoad</dt>
 <dd><p>If using Redshift, PDW, Hive or Postgres, use more performant bulk loading
 techniques. Does not work for temp tables (except for HIVE). See Details for
 requirements for the various platforms.</p></dd>
+
+
 <dt>useMppBulkLoad</dt>
 <dd><p>DEPRECATED. Use <code>bulkLoad</code> instead.</p></dd>
+
+
 <dt>progressBar</dt>
 <dd><p>Show a progress bar when uploading?</p></dd>
+
+
 <dt>camelCaseToSnakeCase</dt>
 <dd><p>If TRUE, the data frame column names are assumed to use camelCase and
 are converted to snake_case before uploading.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -148,39 +173,39 @@ binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span>
-<span class="r-in">  dbms <span class="op">=</span> <span class="st">"mysql"</span>,</span>
-<span class="r-in">  server <span class="op">=</span> <span class="st">"localhost"</span>,</span>
-<span class="r-in">  user <span class="op">=</span> <span class="st">"root"</span>,</span>
-<span class="r-in">  password <span class="op">=</span> <span class="st">"blah"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">insertTable</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"my_schema"</span>, <span class="st">"my_table"</span>, <span class="va">data</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## bulk data insert with Redshift or PDW</span></span>
-<span class="r-in"><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span>
-<span class="r-in">  dbms <span class="op">=</span> <span class="st">"redshift"</span>,</span>
-<span class="r-in">  server <span class="op">=</span> <span class="st">"localhost"</span>,</span>
-<span class="r-in">  user <span class="op">=</span> <span class="st">"root"</span>,</span>
-<span class="r-in">  password <span class="op">=</span> <span class="st">"blah"</span>,</span>
-<span class="r-in">  schema <span class="op">=</span> <span class="st">"cdm_v5"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">insertTable</span><span class="op">(</span></span>
-<span class="r-in">  connection <span class="op">=</span> <span class="va">connection</span>,</span>
-<span class="r-in">  databaseSchema <span class="op">=</span> <span class="st">"scratch"</span>,</span>
-<span class="r-in">  tableName <span class="op">=</span> <span class="st">"somedata"</span>,</span>
-<span class="r-in">  data <span class="op">=</span> <span class="va">data</span>,</span>
-<span class="r-in">  dropTableIfExists <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">  createTable <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">  tempTable <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span class="r-in">  bulkLoad <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in"><span class="op">)</span> <span class="co"># or, Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dbms <span class="op">=</span> <span class="st">"mysql"</span>,</span></span>
+<span class="r-in"><span>  server <span class="op">=</span> <span class="st">"localhost"</span>,</span></span>
+<span class="r-in"><span>  user <span class="op">=</span> <span class="st">"root"</span>,</span></span>
+<span class="r-in"><span>  password <span class="op">=</span> <span class="st">"blah"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">insertTable</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"my_schema"</span>, <span class="st">"my_table"</span>, <span class="va">data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## bulk data insert with Redshift or PDW</span></span></span>
+<span class="r-in"><span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dbms <span class="op">=</span> <span class="st">"redshift"</span>,</span></span>
+<span class="r-in"><span>  server <span class="op">=</span> <span class="st">"localhost"</span>,</span></span>
+<span class="r-in"><span>  user <span class="op">=</span> <span class="st">"root"</span>,</span></span>
+<span class="r-in"><span>  password <span class="op">=</span> <span class="st">"blah"</span>,</span></span>
+<span class="r-in"><span>  schema <span class="op">=</span> <span class="st">"cdm_v5"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="connect.html">connect</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">insertTable</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  connection <span class="op">=</span> <span class="va">connection</span>,</span></span>
+<span class="r-in"><span>  databaseSchema <span class="op">=</span> <span class="st">"scratch"</span>,</span></span>
+<span class="r-in"><span>  tableName <span class="op">=</span> <span class="st">"somedata"</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">data</span>,</span></span>
+<span class="r-in"><span>  dropTableIfExists <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  createTable <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  tempTable <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  bulkLoad <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span> <span class="co"># or, Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -195,7 +220,7 @@ binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
