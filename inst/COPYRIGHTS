@@ -57,7 +57,7 @@ The package DatabaseConnector includes other software components. The following 
    
 ** Snowflake JDBC driver
 
-   Copyright © 2022 Snowflake Inc.
+   Copyright © 2013-2018 Snowflake Computing, Inc.
 
    Project Website: https://docs.snowflake.com/en/user-guide/jdbc-download.html
    License Information: https://github.com/snowflakedb/snowflake-jdbc/blob/master/LICENSE.txt
