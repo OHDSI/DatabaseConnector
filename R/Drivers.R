@@ -44,7 +44,7 @@ jdbcDrivers <- new.env()
 #'   \item{SQL Server}{V8.4.1.zip}
 #'   \item{Oracle}{V19.8}
 #'   \item{Spark}{V2.6.21}
-#'   \item{Snowflake}{V3.13.14}
+#'   \item{Snowflake}{V3.13.22}
 #' }
 #'
 #' @return Invisibly returns the destination if the download was successful.
@@ -94,7 +94,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     "sql server" = "sqlServerV9.2.0.zip",
     "oracle" = "oracleV19.8.zip",
     "spark" = "SimbaSparkV2.6.21.zip",
-    "snowflake" = "SnowflakeV3.13.14.zip"
+    "snowflake" = "SnowflakeV3.13.22.zip"
   )
 
   if (dbms == "all") {

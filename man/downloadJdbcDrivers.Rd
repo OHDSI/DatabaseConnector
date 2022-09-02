@@ -43,7 +43,7 @@ The following versions of the JDBC drivers are currently used:
   \item{SQL Server}{V8.4.1.zip}
   \item{Oracle}{V19.8}
   \item{Spark}{V2.6.21}
-  \item{Snowflake}{V3.13.14}
+  \item{Snowflake}{V3.13.22}
 }
 }
 \examples{
