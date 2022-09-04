@@ -30,7 +30,8 @@ checkIfDbmsIsSupported <- function(dbms) {
     "sqlite",
     "sqlite extended",
     "spark",
-    "snowflake"
+    "snowflake",
+    "synapse"
   )
   if (!dbms %in% supportedDbmss) {
     abort(sprintf(
@@ -211,7 +212,7 @@ connect <- function(connectionDetails = NULL,
   pathToDriver <- path.expand(pathToDriver)
   checkPathToDriver(pathToDriver, dbms)
 
-  if (dbms == "sql server") {
+  if (dbms == "sql server" || dbms == "synapse") {
     jarPath <- findPathToJar("^mssql-jdbc.*.jar$|^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
     if (missing(user) || is.null(user)) {

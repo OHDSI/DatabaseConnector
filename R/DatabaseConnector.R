@@ -40,7 +40,7 @@ NULL
 #' variable, for example in your .Renviron file (recommended).
 #'
 #' @section
-#' SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift: Use the \code{\link{downloadJdbcDrivers}} function to download these drivers
+#' SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark RedShift, Azure Synapse: Use the \code{\link{downloadJdbcDrivers}} function to download these drivers
 #' from the OHDSI GitHub pages.
 #'
 #' @section
