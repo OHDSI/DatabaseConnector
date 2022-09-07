@@ -259,6 +259,9 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
     }
   }
+  if (connection@dbms == "bigquery" && is.null(tempEmulationSchema)) {
+    abort("tempEmulationSchema is required to use insertTable with bigquery")
+  }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   useBulkLoad <- (bulkLoad && connection@dbms %in% c("hive", "redshift") && createTable) ||
     (bulkLoad && connection@dbms %in% c("pdw", "postgresql") && !tempTable)
