@@ -11,6 +11,8 @@ Bugfixes:
 
 2. Ensuring errors when inserting data turn into R errors.
 
+3. Throwing informative error when using `insertTable()` on BigQuery without specifying the `tempEmulationSchema`.
+
 
 DatabaseConnector 5.0.4
 =======================

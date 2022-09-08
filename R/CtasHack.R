@@ -16,6 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The CTAS hack is used for platforms where INSERT statements are extremely slow, and we
+# are inserting into a new table. Rather than creating the table and then inserting the data, we 
+# create the table using a CTAS statement. Because there are limits to the number of rows that 
+# can be added in a single CTAS statement, we use recursive CTAS statements, each no larger than
+# some number specified per platform.
 
 mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, distribution, tempTable, tempEmulationSchema) {
   unionString <- paste("\nUNION ALL\nSELECT ", sqlFieldNames, " FROM ", sep = "")

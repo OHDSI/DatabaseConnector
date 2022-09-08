@@ -259,14 +259,14 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
     }
   }
-  if (connection@dbms == "bigquery" && is.null(tempEmulationSchema)) {
-    abort("tempEmulationSchema is required to use insertTable with bigquery")
-  }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   useBulkLoad <- (bulkLoad && connection@dbms %in% c("hive", "redshift") && createTable) ||
     (bulkLoad && connection@dbms %in% c("pdw", "postgresql") && !tempTable)
   useCtasHack <- connection@dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
-
+  if (connection@dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
+    abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
+  }
+  
   sqlDataTypes <- sapply(data, getSqlDataTypes)
   sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), sqlDataTypes, collapse = ", ")
   sqlTableName <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
