@@ -28,7 +28,9 @@ Imports:
     utils,
     DBI (>= 1.0.0),
     urltools,
-    bit64
+    bit64,
+    checkmate,
+    digest
 Suggests:
     aws.s3,
     R.utils,
@@ -46,5 +48,5 @@ VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Encoding: UTF-8

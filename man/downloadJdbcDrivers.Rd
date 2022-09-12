@@ -16,7 +16,7 @@ downloadJdbcDrivers(
 \itemize{
     \item{"postgresql" for PostgreSQL}
     \item{"redshift" for Amazon Redshift}
-    \item{"sql server" or "pdw" for Microsoft SQL Server}
+    \item{"sql server", "pdw" or "synapse" for Microsoft SQL Server}
     \item{"oracle" for Oracle}
     \item{"spark" for Spark}
     \item{"snowflake" for Snowflake}

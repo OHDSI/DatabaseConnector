@@ -132,3 +132,16 @@ insertTable(connection = connection,
 droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = "synpuf_2m_results")
 expect_equal(droppedTables, sprintf("%s.%stemp", tempEmulationSchema, SqlRender::getTempTablePrefix()))
 disconnect(connection)
+
+
+# Testhash computation ----------------------------------------------
+# BigQuery
+details <- createConnectionDetails(dbms = "bigquery",
+                                   connectionString = keyring::key_get("bigQueryConnString"),
+                                   user = "",
+                                   password = "")
+connection <- connect(details)
+hash <- computeDataHash(connection = connection,
+                        databaseSchema = "synpuf_2m")
+expect_true(is.character(hash))
+disconnect(connection)
