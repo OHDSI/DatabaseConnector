@@ -207,7 +207,7 @@ lowLevelQuerySql.default <- function(connection,
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
     query,
-    connection@dbms
+    dbms(connection)
   )
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
@@ -314,7 +314,7 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   on.exit(rJava::.jcall(statement, "V", "close"))
   hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
   
-  if (connection@dbms == "bigquery") {
+  if (dbms(connection) == "bigquery") {
     delayIfNecessaryForDdl(sql)
     delayIfNecessaryForInsert(sql)
   }
@@ -411,7 +411,7 @@ executeSql <- function(connection,
   startTime <- Sys.time()
   
   if (inherits(connection, "DatabaseConnectorJdbcConnection") &&
-      connection@dbms == "redshift" &&
+      dbms(connection) == "redshift" &&
       rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
     # https://github.com/OHDSI/DatabaseConnector/issues/90
@@ -445,7 +445,7 @@ executeSql <- function(connection,
           inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
         },
         error = function(err) {
-          .createErrorReport(connection@dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
+          .createErrorReport(dbms(connection), err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
         },
         finally = {
           rJava::.jcall(statement, "V", "close")
@@ -474,7 +474,7 @@ executeSql <- function(connection,
           }
         },
         error = function(err) {
-          .createErrorReport(connection@dbms, err$message, sqlStatement, errorReportFile)
+          .createErrorReport(dbms(connection), err$message, sqlStatement, errorReportFile)
         }
       )
       if (progressBar) {
@@ -609,14 +609,14 @@ querySql <- function(connection,
         integer64AsNumeric = integer64AsNumeric
       )
       colnames(result) <- toupper(colnames(result))
-      result <- convertFields(connection@dbms, result)
+      result <- convertFields(dbms(connection), result)
       if (snakeCaseToCamelCase) {
         colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
       }
       return(result)
     },
     error = function(err) {
-      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+      .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
     }
   )
 }
@@ -683,7 +683,7 @@ renderTranslateExecuteSql <- function(connection,
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
   executeSql(
     connection = connection,
     sql = sql,
@@ -753,7 +753,7 @@ renderTranslateQuerySql <- function(connection,
     tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
   return(querySql(
     connection = connection,
     sql = sql,
@@ -898,7 +898,7 @@ renderTranslateQueryApplyBatched.default <- function(connection,
     abort("fun argument must be a function")
   }
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
   sql <- SqlRender::splitSql(sql)
   if (length(sql) > 1) {
     abort(paste(
@@ -912,7 +912,7 @@ renderTranslateQueryApplyBatched.default <- function(connection,
       queryResult <- dbSendQuery(connection, sql)
     },
     error = function(err) {
-      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+      .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
     }
   )
   on.exit(dbClearResult(queryResult))
@@ -960,7 +960,7 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
   }
   
   sql <- SqlRender::render(sql, ...)
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+  sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
   sql <- SqlRender::splitSql(sql)
   if (length(sql) > 1) {
     abort(paste(
@@ -1013,7 +1013,7 @@ dropEmulatedTempTables <- function(connection,
     inform(sprintf("Dropping tables '%s' from schema '%s'.", paste(tableNames, collapse = "', '"), tempEmulationSchema))
     tableNames <- tolower(paste(tempEmulationSchema, tableNames, sep = "."))
     sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
-    sql <- SqlRender::translate(sql, connection@dbms)
+    sql <- SqlRender::translate(sql, dbms(connection))
     executeSql(connection, sql)
   }
   return(tableNames)

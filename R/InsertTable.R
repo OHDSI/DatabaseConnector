@@ -235,7 +235,7 @@ insertTable.default <- function(connection,
   if (dropTableIfExists) {
     createTable <- TRUE
   }
-  if (tempTable & substr(tableName, 1, 1) != "#" & attr(connection, "dbms") != "redshift") {
+  if (tempTable & substr(tableName, 1, 1) != "#" & dbms(connection) != "redshift") {
     tableName <- paste("#", tableName, sep = "")
   }
   if (!is.null(databaseSchema)) {
@@ -260,10 +260,10 @@ insertTable.default <- function(connection,
     }
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
-  useBulkLoad <- (bulkLoad && connection@dbms %in% c("hive", "redshift") && createTable) ||
-    (bulkLoad && connection@dbms %in% c("pdw", "postgresql") && !tempTable)
-  useCtasHack <- connection@dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
-  if (connection@dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
+  useBulkLoad <- (bulkLoad && dbms(connection) %in% c("hive", "redshift") && createTable) ||
+    (bulkLoad && dbms(connection) %in% c("pdw", "postgresql") && !tempTable)
+  useCtasHack <- dbms(connection) %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
+  if (dbms(connection) == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
     abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
   }
   
@@ -273,11 +273,7 @@ insertTable.default <- function(connection,
   sqlFieldNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
 
   if (dropTableIfExists) {
-    if (tempTable) {
-      sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
-    } else {
-      sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
-    }
+    sql <- "DROP TABLE IF EXISTS @tableName;"
     renderTranslateExecuteSql(
       connection = connection,
       sql = sql,
@@ -288,7 +284,7 @@ insertTable.default <- function(connection,
     )
   }
 
-  if (createTable && !useCtasHack && !(bulkLoad && connection@dbms == "hive")) {
+  if (createTable && !useCtasHack && !(bulkLoad && dbms(connection) == "hive")) {
     sql <- paste("CREATE TABLE ", sqlTableName, " (", sqlTableDefinition, ");", sep = "")
     renderTranslateExecuteSql(
       connection = connection,
@@ -305,13 +301,13 @@ insertTable.default <- function(connection,
       abort("Bulk load credentials could not be confirmed. Please review them or set 'bulkLoad' to FALSE")
     }
     inform("Attempting to use bulk loading...")
-    if (connection@dbms == "redshift") {
+    if (dbms(connection) == "redshift") {
       bulkLoadRedshift(connection, sqlTableName, data)
-    } else if (connection@dbms == "pdw") {
+    } else if (dbms(connection) == "pdw") {
       bulkLoadPdw(connection, sqlTableName, sqlDataTypes, data)
-    } else if (connection@dbms == "hive") {
+    } else if (dbms(connection) == "hive") {
       bulkLoadHive(connection, sqlTableName, sqlFieldNames, data)
-    } else if (connection@dbms == "postgresql") {
+    } else if (dbms(connection) == "postgresql") {
       bulkLoadPostgres(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data)
     }
   } else if (useCtasHack) {
@@ -333,7 +329,7 @@ insertTable.default <- function(connection,
       ")"
     )
     insertSql <- SqlRender::translate(insertSql,
-      targetDialect = connection@dbms,
+      targetDialect = dbms(connection),
       tempEmulationSchema = tempEmulationSchema
     )
     batchSize <- 10000
@@ -380,7 +376,7 @@ insertTable.default <- function(connection,
           return(NULL)
         }
         lapply(1:ncol(data), setColumn, start = start, end = end)
-        if (attr(connection, "dbms") == "bigquery") {
+        if (dbms(connection) == "bigquery") {
           if (!rJava::.jcall(batchedInsert, "Z", "executeBigQueryBatch"))
             stop("Error uploading data")
         } else {
@@ -421,7 +417,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
 
   tableName <- gsub("^#", "", tableName)
   if (!is.null(databaseSchema)) {
-    if (connection@dbms %in% c("sqlite", "sqlite extended")) {
+    if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
       if (tolower(databaseSchema) != "main") {
         abort("Only the 'main' schema exists on SQLite")
       }
@@ -430,7 +426,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }
   }
 
-  if (connection@dbms == "sqlite") {
+  if (dbms(connection) == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {
       column <- data[[i]]

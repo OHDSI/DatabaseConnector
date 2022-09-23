@@ -163,6 +163,7 @@ Snowflake:
   \item \code{user}. The user name used to access the server.
   \item \code{password}. The password for that user.
 }
+}
 
 \section{Windows authentication for SQL Server}{
 

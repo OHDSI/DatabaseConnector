@@ -57,11 +57,11 @@ DatabaseConnectorDriver <- function() {
 #' @export
 #' @import DBI
 setClass("DatabaseConnectorConnection",
-  contains = "DBIConnection",
-  slots = list(
-    identifierQuote = "character",
-    stringQuote = "character", dbms = "character", uuid = "character"
-  )
+         contains = "DBIConnection",
+         slots = list(
+           identifierQuote = "character",
+           stringQuote = "character", dbms = "character", uuid = "character"
+         )
 )
 
 #' DatabaseConnectorJdbcConnection class.
@@ -70,8 +70,8 @@ setClass("DatabaseConnectorConnection",
 #' @export
 #' @import rJava
 setClass("DatabaseConnectorJdbcConnection",
-  contains = "DatabaseConnectorConnection",
-  slots = list(jConnection = "jobjRef")
+         contains = "DatabaseConnectorConnection",
+         slots = list(jConnection = "jobjRef")
 )
 
 #' DatabaseConnectorDbiConnection class.
@@ -80,11 +80,11 @@ setClass("DatabaseConnectorJdbcConnection",
 #' @export
 #' @import DBI
 setClass("DatabaseConnectorDbiConnection",
-  contains = "DatabaseConnectorConnection",
-  slots = list(
-    dbiConnection = "DBIConnection",
-    server = "character"
-  )
+         contains = "DatabaseConnectorConnection",
+         slots = list(
+           dbiConnection = "DBIConnection",
+           server = "character"
+         )
 )
 
 #' Create a connection to a DBMS
@@ -123,36 +123,31 @@ NULL
 #' @exportMethod dbIsReadOnly
 NULL
 
-#' @inherit
-#' DBI::dbDisconnect title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod("dbDisconnect", "DatabaseConnectorConnection", function(conn) {
   disconnect(conn)
 })
 
-#' @inherit
-#' methods::show title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod("show", "DatabaseConnectorConnection", function(object) {
   cat("<DatabaseConnectorConnection>", getServer(object))
 })
 
-#' @inherit
-#' DBI::dbIsValid title description params details references return seealso
+#' @rdname DatabaseConnectorJdbcConnection-class
 #' @export
 setMethod("dbIsValid", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
   return(!rJava::is.jnull(dbObj@jConnection))
 })
 
-#' @inherit
-#' DBI::dbIsValid title description params details references return seealso
+#' @rdname DatabaseConnectorDbiConnection-class
 #' @export
 setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
   return(DBI::dbIsValid(dbObj@dbiConnection))
 })
 
-#' @inherit
-#' DBI::dbQuoteIdentifier title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn,
                                                                                                x, ...) {
@@ -171,8 +166,7 @@ setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "charact
   return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
 })
 
-#' @inherit
-#' DBI::dbQuoteString title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod(
   "dbQuoteString",
@@ -199,15 +193,14 @@ setMethod(
 #' @import rJava
 #' @export
 setClass("DatabaseConnectorResult",
-  contains = "DBIResult",
-  slots = list(
-    content = "jobjRef", type = "character",
-    statement = "character"
-  )
+         contains = "DBIResult",
+         slots = list(
+           content = "jobjRef", type = "character",
+           statement = "character"
+         )
 )
 
-#' @inherit
-#' DBI::dbSendQuery title description params details references return seealso
+#' @rdname DatabaseConnectorJdbcConnection-class
 #' @export
 setMethod(
   "dbSendQuery",
@@ -221,19 +214,18 @@ setMethod(
       "org.ohdsi.databaseConnector.BatchedQuery",
       conn@jConnection,
       statement,
-      conn@dbms
+      dbms(conn)
     )
     result <- new("DatabaseConnectorResult",
-      content = batchedQuery,
-      type = "batchedQuery",
-      statement = statement
+                  content = batchedQuery,
+                  type = "batchedQuery",
+                  statement = statement
     )
     return(result)
   }
 )
 
-#' @inherit
-#' DBI::dbSendQuery title description params details references return seealso
+#' @rdname DatabaseConnectorDbiConnection-class
 #' @export
 setMethod(
   "dbSendQuery",
@@ -244,8 +236,7 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbHasCompleted title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbHasCompleted", "DatabaseConnectorResult", function(res, ...) {
   if (res@type == "rowsAffected") {
@@ -255,8 +246,7 @@ setMethod("dbHasCompleted", "DatabaseConnectorResult", function(res, ...) {
   }
 })
 
-#' @inherit
-#' DBI::dbColumnInfo title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbColumnInfo", "DatabaseConnectorResult", function(res, ...) {
   columnTypeIds <- rJava::.jcall(res@content, "[I", "getColumnTypes")
@@ -269,22 +259,19 @@ setMethod("dbColumnInfo", "DatabaseConnectorResult", function(res, ...) {
   return(data.frame(name = columnNames, field.type = columnSqlTypes, data.type = columnTypes))
 })
 
-#' @inherit
-#' DBI::dbGetStatement title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbGetStatement", "DatabaseConnectorResult", function(res, ...) {
   return(res@statement)
 })
 
-#' @inherit
-#' DBI::dbGetRowCount title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbGetRowCount", "DatabaseConnectorResult", function(res, ...) {
   return(rJava::.jcall(res@content, "I", "getTotalRowCount"))
 })
 
-#' @inherit
-#' DBI::dbFetch title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbFetch", "DatabaseConnectorResult", function(res, ...) {
   rJava::.jcall(res@content, "V", "fetchBatch")
@@ -292,8 +279,7 @@ setMethod("dbFetch", "DatabaseConnectorResult", function(res, ...) {
   return(columns)
 })
 
-#' @inherit
-#' DBI::dbClearResult title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbClearResult", "DatabaseConnectorResult", function(res, ...) {
   if (res@type == "batchedQuery") {
@@ -302,8 +288,7 @@ setMethod("dbClearResult", "DatabaseConnectorResult", function(res, ...) {
   return(TRUE)
 })
 
-#' @inherit
-#' DBI::dbGetQuery title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod(
   "dbGetQuery",
@@ -314,8 +299,7 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbSendStatement title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod(
   "dbSendStatement",
@@ -325,15 +309,14 @@ setMethod(
     rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
     rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
     result <- new("DatabaseConnectorResult",
-      content = rowsAffected,
-      type = "rowsAffected",
-      statement = statement
+                  content = rowsAffected,
+                  type = "rowsAffected",
+                  statement = statement
     )
   }
 )
 
-#' @inherit
-#' DBI::dbGetRowsAffected title description params details references return seealso
+#' @rdname DatabaseConnectorResult-class
 #' @export
 setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
   if (res@type != "rowsAffected") {
@@ -342,8 +325,7 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
   return(rJava::.jsimplify(res@content))
 })
 
-#' @inherit
-#' DBI::dbExecute title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod(
   "dbExecute",
@@ -357,8 +339,8 @@ setMethod(
 
 # Misc ----------------------------------------------------------------------
 
-#' @inherit
-#' DBI::dbListFields title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param database   Name of the database.
 #' @param schema     Name of the schema.
 #'
@@ -378,8 +360,8 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbListTables title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param database   Name of the database.
 #' @param schema     Name of the schema.
 #'
@@ -398,10 +380,11 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbExistsTable title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param database   Name of the database.
 #' @param schema     Name of the schema.
+#' 
 #' @export
 setMethod(
   "dbExistsTable",
@@ -422,8 +405,8 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbWriteTable title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param overwrite          Overwrite an existing table (if exists)?
 #' @param append             Append to existing table?
 #' @param temporary          Should the table created as a temp table?
@@ -432,7 +415,7 @@ setMethod(
 #' @export
 setMethod(
   "dbWriteTable",
-  signature("DatabaseConnectorConnection", "character", "data.frame"),
+  "DatabaseConnectorConnection",
   function(conn,
            name, value, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
@@ -458,15 +441,15 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbAppendTable title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param temporary          Should the table created as a temp table?
 #' @template TempEmulationSchema
 #
 #' @export
 setMethod(
   "dbAppendTable",
-  signature("DatabaseConnectorConnection", "character", "data.frame"),
+  signature("DatabaseConnectorConnection", "character"),
   function(conn,
            name, value, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
@@ -489,15 +472,11 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbCreateTable title description params details references return seealso
-#' @param temporary          Should the table created as a temp table?
-#' @template TempEmulationSchema
-#
+#' @rdname DatabaseConnectorConnection-class
 #' @export
 setMethod(
   "dbCreateTable",
-  signature("DatabaseConnectorConnection", "character", "data.frame"),
+  "DatabaseConnectorConnection",
   function(conn,
            name, fields, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL, temporary = FALSE) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
@@ -515,45 +494,47 @@ setMethod(
   }
 )
 
-#' @inherit
-#' DBI::dbReadTable title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param database              Name of the database.
 #' @param schema                Name of the schema.
 #' @template TempEmulationSchema
 #'
 #' @export
-setMethod("dbReadTable", signature("DatabaseConnectorConnection", "character"), function(conn, 
-                                                                                         name,
-                                                                                         database = NULL, 
-                                                                                         schema = NULL, 
-                                                                                         oracleTempSchema = NULL, 
-                                                                                         tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-                                                                                         ...) {
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-      .frequency = "regularly",
-      .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
-  }
-  if (!is.null(schema)) {
-    name <- paste(schema, name, sep = ".")
-  }
-  if (!is.null(database)) {
-    name <- paste(database, name, sep = ".")
-  }
-  sql <- "SELECT * FROM @table;"
-  sql <- SqlRender::render(sql = sql, table = name)
-  sql <- SqlRender::translate(
-    sql = sql,
-    targetDialect = conn@dbms,
-    tempEmulationSchema = tempEmulationSchema
-  )
-  return(lowLevelQuerySql(conn, sql))
-})
+setMethod("dbReadTable", 
+          signature("DatabaseConnectorConnection", "character"), 
+          function(conn, 
+                   name,
+                   database = NULL, 
+                   schema = NULL, 
+                   oracleTempSchema = NULL, 
+                   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                   ...) {
+            if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+              warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+                   .frequency = "regularly",
+                   .frequency_id = "oracleTempSchema"
+              )
+              tempEmulationSchema <- oracleTempSchema
+            }
+            if (!is.null(schema)) {
+              name <- paste(schema, name, sep = ".")
+            }
+            if (!is.null(database)) {
+              name <- paste(database, name, sep = ".")
+            }
+            sql <- "SELECT * FROM @table;"
+            sql <- SqlRender::render(sql = sql, table = name)
+            sql <- SqlRender::translate(
+              sql = sql,
+              targetDialect = dbms(conn),
+              tempEmulationSchema = tempEmulationSchema
+            )
+            return(lowLevelQuerySql(conn, sql))
+          })
 
-#' @inherit
-#' DBI::dbRemoveTable title description params details references return seealso
+#' @rdname DatabaseConnectorConnection-class
+#' 
 #' @param database           Name of the database.
 #' @param schema             Name of the schema.
 #' @template TempEmulationSchema
@@ -561,7 +542,7 @@ setMethod("dbReadTable", signature("DatabaseConnectorConnection", "character"), 
 #' @export
 setMethod(
   "dbRemoveTable",
-  signature("DatabaseConnectorConnection", "character"),
+  "DatabaseConnectorConnection",
   function(conn, name,
            database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
@@ -581,7 +562,7 @@ setMethod(
     sql <- SqlRender::render(sql = sql, table = name)
     sql <- SqlRender::translate(
       sql = sql,
-      targetDialect = conn@dbms,
+      targetDialect = dbms(conn),
       tempEmulationSchema = tempEmulationSchema
     )
     for (statement in SqlRender::splitSql(sql)) {

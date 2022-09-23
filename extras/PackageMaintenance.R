@@ -49,11 +49,6 @@ rmarkdown::render("vignettes/Querying.Rmd",
                                           number_sections = TRUE))
 unlink("inst/doc/Querying.tex")
 
-# DBI 1.1.2 and 1.1.3 are causing errors when building the package website, so downgrading to 1.1.1 for now:
-require(devtools)
-install_version("DBI", version = "1.1.1", repos = "http://cran.us.r-project.org")
-roxygen2::roxygenize('.', roclets = c('rd', 'collate', 'namespace'))
-
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 

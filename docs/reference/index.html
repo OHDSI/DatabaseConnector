@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
       </span>
     </div>
 
@@ -83,113 +83,17 @@
         </td>
         <td><p>Create a DatabaseConnectorDriver object</p></td>
       </tr><tr><td>
-          <p><code><a href="dbAppendTable-DatabaseConnectorConnection-character-data.frame-method.html">dbAppendTable(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>,<i>&lt;data.frame&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Insert rows into a table</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbClearResult-DatabaseConnectorResult-method.html">dbClearResult(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Clear a result set</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbColumnInfo-DatabaseConnectorResult-method.html">dbColumnInfo(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Information about result types</p></td>
-      </tr><tr><td>
           <p><code><a href="dbConnect-DatabaseConnectorDriver-method.html">dbConnect(<i>&lt;DatabaseConnectorDriver&gt;</i>)</a></code> </p>
         </td>
         <td><p>Create a connection to a DBMS</p></td>
       </tr><tr><td>
-          <p><code><a href="dbCreateTable-DatabaseConnectorConnection-character-data.frame-method.html">dbCreateTable(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>,<i>&lt;data.frame&gt;</i>)</a></code> </p>
+          <p><code><a href="dbms.html">dbms()</a></code> </p>
         </td>
-        <td><p>Create a table in the database</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbDisconnect-DatabaseConnectorConnection-method.html">dbDisconnect(<i>&lt;DatabaseConnectorConnection&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Disconnect (close) a connection</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbExecute-DatabaseConnectorConnection-character-method.html">dbExecute(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Execute an update statement, query number of rows affected, and then close result set</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbExistsTable-DatabaseConnectorConnection-character-method.html">dbExistsTable(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Does a table exist?</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbFetch-DatabaseConnectorResult-method.html">dbFetch(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Fetch records from a previously executed query</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbGetQuery-DatabaseConnectorConnection-character-method.html">dbGetQuery(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Send query, retrieve results and then clear result set</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbGetRowCount-DatabaseConnectorResult-method.html">dbGetRowCount(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>The number of rows fetched so far</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbGetRowsAffected-DatabaseConnectorResult-method.html">dbGetRowsAffected(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>The number of rows affected</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbGetStatement-DatabaseConnectorResult-method.html">dbGetStatement(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Get the statement associated with a result set</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbHasCompleted-DatabaseConnectorResult-method.html">dbHasCompleted(<i>&lt;DatabaseConnectorResult&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Completion status</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbIsValid-DatabaseConnectorDbiConnection-method.html">dbIsValid(<i>&lt;DatabaseConnectorDbiConnection&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Is this DBMS object still valid?</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbIsValid-DatabaseConnectorJdbcConnection-method.html">dbIsValid(<i>&lt;DatabaseConnectorJdbcConnection&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Is this DBMS object still valid?</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbListFields-DatabaseConnectorConnection-character-method.html">dbListFields(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>List field names of a remote table</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbListTables-DatabaseConnectorConnection-method.html">dbListTables(<i>&lt;DatabaseConnectorConnection&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>List remote tables</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbQuoteIdentifier-DatabaseConnectorConnection-character-method.html">dbQuoteIdentifier(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Quote identifiers</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbQuoteString-DatabaseConnectorConnection-character-method.html">dbQuoteString(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Quote literal strings</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbReadTable-DatabaseConnectorConnection-character-method.html">dbReadTable(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Copy data frames from database tables</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbRemoveTable-DatabaseConnectorConnection-character-method.html">dbRemoveTable(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Remove a table from the database</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbSendQuery-DatabaseConnectorDbiConnection-character-method.html">dbSendQuery(<i>&lt;DatabaseConnectorDbiConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Execute a query on a given database connection</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbSendQuery-DatabaseConnectorJdbcConnection-character-method.html">dbSendQuery(<i>&lt;DatabaseConnectorJdbcConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Execute a query on a given database connection</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbSendStatement-DatabaseConnectorConnection-character-method.html">dbSendStatement(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Execute a data manipulation statement on a given database connection</p></td>
+        <td><p>Get the database platform from a connection</p></td>
       </tr><tr><td>
           <p><code><a href="dbUnloadDriver-DatabaseConnectorDriver-method.html">dbUnloadDriver(<i>&lt;DatabaseConnectorDriver&gt;</i>)</a></code> </p>
         </td>
         <td><p>Load and unload database drivers</p></td>
-      </tr><tr><td>
-          <p><code><a href="dbWriteTable-DatabaseConnectorConnection-character-data.frame-method.html">dbWriteTable(<i>&lt;DatabaseConnectorConnection&gt;</i>,<i>&lt;character&gt;</i>,<i>&lt;data.frame&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Copy data frames to database tables</p></td>
       </tr><tr><td>
           <p><code><a href="disconnect.html">disconnect()</a></code> </p>
         </td>
@@ -267,10 +171,6 @@
         </td>
         <td><p>Render, translate, and query to local Andromeda</p></td>
       </tr><tr><td>
-          <p><code><a href="show-DatabaseConnectorConnection-method.html">show(<i>&lt;DatabaseConnectorConnection&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Show an Object</p></td>
-      </tr><tr><td>
           <p><code><a href="show-DatabaseConnectorDriver-method.html">show(<i>&lt;DatabaseConnectorDriver&gt;</i>)</a></code> </p>
         </td>
         <td><p>Show an Object</p></td>
@@ -287,7 +187,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

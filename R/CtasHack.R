@@ -36,8 +36,8 @@ mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, d
     ";",
     sep = ""
   )
-  sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
-  if (tempTable && connection@dbms == "redshift") {
+  sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
+  if (tempTable && dbms(connection) == "redshift") {
     sql <- gsub("CREATE TABLE", "CREATE TEMP TABLE", sql)
   }
   executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
@@ -45,7 +45,7 @@ mergeTempTables <- function(connection, tableName, sqlFieldNames, sourceNames, d
   # Drop source tables:
   for (sourceName in sourceNames) {
     sql <- paste("DROP TABLE", sourceName)
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+    sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
 }
@@ -83,7 +83,7 @@ formatRow <- function(data, aliases = c(), castValues, sqlDataTypes) {
 }
 
 ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema) {
-  if (connection@dbms == "hive") {
+  if (dbms(connection) == "hive") {
     batchSize <- 750
   } else {
     batchSize <- 1000
@@ -132,7 +132,7 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
         MARGIN = 1,
         FUN = formatRow,
         aliases = varAliases,
-        castValues = attr(connection, "dbms") %in% c("bigquery", "hive"),
+        castValues = dbms(connection) %in% c("bigquery", "hive"),
         sqlDataTypes = sqlDataTypes
       )),
       collapse = "\nUNION ALL\nSELECT "
@@ -152,7 +152,7 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
       " FROM data;",
       sep = ""
     )
-    sql <- SqlRender::translate(sql, targetDialect = connection@dbms, tempEmulationSchema = tempEmulationSchema)
+    sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
     executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   }
   if (progressBar) {

@@ -30,7 +30,7 @@
 #'
 #' @export
 getTableNames <- function(connection, databaseSchema) {
-  if (connection@dbms %in% c("sqlite", "sqlite extended")) {
+  if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
     tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
     return(toupper(tables))
   }
@@ -39,15 +39,15 @@ getTableNames <- function(connection, databaseSchema) {
     database <- rJava::.jnull("java/lang/String")
     schema <- rJava::.jnull("java/lang/String")
   } else {
-    if (connection@dbms == "oracle") {
+    if (dbms(connection) == "oracle") {
       databaseSchema <- toupper(databaseSchema)
     }
-    if (connection@dbms == "redshift") {
+    if (dbms(connection) == "redshift") {
       databaseSchema <- tolower(databaseSchema)
     }
     databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
     if (length(databaseSchema) == 1) {
-      if (connection@dbms %in% c("sql server", "pdw")) {
+      if (dbms(connection) %in% c("sql server", "pdw")) {
         database <- cleanDatabaseName(databaseSchema)
         schema <- "dbo"
       } else {

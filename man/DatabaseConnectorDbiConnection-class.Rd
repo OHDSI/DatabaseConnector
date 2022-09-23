@@ -3,7 +3,14 @@
 \docType{class}
 \name{DatabaseConnectorDbiConnection-class}
 \alias{DatabaseConnectorDbiConnection-class}
+\alias{dbIsValid,DatabaseConnectorDbiConnection-method}
+\alias{dbSendQuery,DatabaseConnectorDbiConnection,character-method}
 \title{DatabaseConnectorDbiConnection class.}
+\usage{
+\S4method{dbIsValid}{DatabaseConnectorDbiConnection}(dbObj, ...)
+
+\S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, ...)
+}
 \description{
 DatabaseConnectorDbiConnection class.
 }

@@ -17,13 +17,13 @@
 # limitations under the License.
 
 checkBulkLoadCredentials <- function(connection) {
-  if (connection@dbms == "pdw" && tolower(Sys.info()["sysname"]) == "windows") {
+  if (dbms(connection) == "pdw" && tolower(Sys.info()["sysname"]) == "windows") {
     if (Sys.getenv("DWLOADER_PATH") == "") {
       inform("Please set environment variable DWLOADER_PATH to DWLoader binary path.")
       return(FALSE)
     }
     return(TRUE)
-  } else if (connection@dbms == "redshift") {
+  } else if (dbms(connection) == "redshift") {
     envSet <- FALSE
     bucket <- FALSE
 
@@ -40,7 +40,7 @@ checkBulkLoadCredentials <- function(connection) {
       warn("Not using Server Side Encryption for AWS S3")
     }
     return(envSet & bucket)
-  } else if (connection@dbms == "hive") {
+  } else if (dbms(connection) == "hive") {
     if (Sys.getenv("HIVE_NODE_HOST") == "") {
       inform("Please set environment variable HIVE_NODE_HOST to the Hive Node's host:port")
       return(FALSE)
@@ -56,7 +56,7 @@ checkBulkLoadCredentials <- function(connection) {
       warn("Using ssh password authentication, it's recommended to use keyfile instead")
     }
     return(TRUE)
-  } else if (connection@dbms == "postgresql") {
+  } else if (dbms(connection) == "postgresql") {
     if (Sys.getenv("POSTGRES_PATH") == "") {
       inform("Please set environment variable POSTGRES_PATH to Postgres binary path (e.g. 'C:/Program Files/PostgreSQL/11/bin'.")
       return(FALSE)

@@ -1,9 +1,16 @@
-DatabaseConnector 5.0.5
+DatabaseConnector 5.1.0
 =======================
 
 Changes:
 
 1. Supporting upcoming version of `Andromeda` using `arrow` backend.
+
+2. Adding new `dbms()` function, which is the preferred way to establish the dbms of a connection.
+
+3. Adding support for Snowflake.
+
+4. Updating RedShift driver to V2.1.0.9. Fixes error when uploading data.
+
 
 Bugfixes:
 

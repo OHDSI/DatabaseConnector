@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
       </span>
     </div>
 
@@ -64,7 +64,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="5.0.4" id="databaseconnector-504">DatabaseConnector 5.0.4<a class="anchor" aria-label="anchor" href="#databaseconnector-504"></a></h2>
+<h2 class="page-header" data-toc-text="5.1.0" id="databaseconnector-510">DatabaseConnector 5.1.0<a class="anchor" aria-label="anchor" href="#databaseconnector-510"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Supporting upcoming version of <code>Andromeda</code> using <code>arrow</code> backend.</p></li>
+<li><p>Adding new <code><a href="../reference/dbms.html">dbms()</a></code> function, which is the preferred way to establish the dbms of a connection.</p></li>
+<li><p>Adding support for Snowflake.</p></li>
+<li><p>Updating RedShift driver to V2.1.0.9. Fixes error when uploading data.</p></li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li><p>Fix erroneous dates when inserting dates in a tibble into a SQLite database.</p></li>
+<li><p>Ensuring errors when inserting data turn into R errors.</p></li>
+<li><p>Throwing informative error when using <code><a href="../reference/insertTable.html">insertTable()</a></code> on BigQuery without specifying the <code>tempEmulationSchema</code>.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="5.0.4" id="databaseconnector-504">DatabaseConnector 5.0.4<small>2022-06-28</small><a class="anchor" aria-label="anchor" href="#databaseconnector-504"></a></h2>
 <p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li>Prevent error when <code>connectionString</code> is empty string (instead of <code>NULL</code>).</li>
 </ol></div>
@@ -251,7 +263,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

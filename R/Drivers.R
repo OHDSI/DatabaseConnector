@@ -40,7 +40,7 @@ jdbcDrivers <- new.env()
 #' The following versions of the JDBC drivers are currently used:
 #' \itemize{
 #'   \item{PostgreSQL}{V42.2.18}
-#'   \item{RedShift}{V1.2.27.1051}
+#'   \item{RedShift}{V2.1.0.9}
 #'   \item{SQL Server}{V8.4.1.zip}
 #'   \item{Oracle}{V19.8}
 #'   \item{Spark}{V2.6.21}
@@ -90,18 +90,28 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
 
   jdbcDriverNames <- c(
     "postgresql" = "postgresqlV42.2.18.zip",
-    "redshift" = "redShiftV1.2.27.1051.zip",
+    "redshift" = "redShiftV2.1.0.9.zip",
     "sql server" = "sqlServerV9.2.0.zip",
     "oracle" = "oracleV19.8.zip",
     "spark" = "SimbaSparkV2.6.21.zip",
     "snowflake" = "SnowflakeV3.13.22.zip"
   )
-
+  
   if (dbms == "all") {
     dbms <- names(jdbcDriverNames)
   }
 
   for (db in dbms) {
+    if (db == "redshift") {
+      oldFiles <- list.files(pathToDriver, "Redshift")
+      if (length(oldFiles) > 0) {
+        message(sprintf("Prior JAR files have already been detected: '%s'. Do you want to delete them?", paste(oldFiles, collapse = "', '")))
+        if (utils::menu(c("Yes", "No")) == 1) {
+          unlink(file.path(pathToDriver, oldFiles))
+        }
+      }
+    }
+    
     driverName <- jdbcDriverNames[[db]]
     result <- download.file(
       url = paste0(baseUrl, driverName),
