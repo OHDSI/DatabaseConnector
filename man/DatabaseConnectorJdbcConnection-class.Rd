@@ -3,7 +3,14 @@
 \docType{class}
 \name{DatabaseConnectorJdbcConnection-class}
 \alias{DatabaseConnectorJdbcConnection-class}
+\alias{dbIsValid,DatabaseConnectorJdbcConnection-method}
+\alias{dbSendQuery,DatabaseConnectorJdbcConnection,character-method}
 \title{DatabaseConnectorJdbcConnection class.}
+\usage{
+\S4method{dbIsValid}{DatabaseConnectorJdbcConnection}(dbObj, ...)
+
+\S4method{dbSendQuery}{DatabaseConnectorJdbcConnection,character}(conn, statement, ...)
+}
 \description{
 DatabaseConnectorJdbcConnection class.
 }

@@ -80,7 +80,7 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
     query,
-    connection@dbms
+    dbms(connection)
   )
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
@@ -251,7 +251,7 @@ querySqlToAndromeda <- function(connection,
       invisible(andromeda)
     },
     error = function(err) {
-      .createErrorReport(connection@dbms, err$message, sql, errorReportFile)
+      .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
     }
   )
 }
@@ -337,7 +337,7 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql,
-                              targetDialect = connection@dbms,
+                              targetDialect = dbms(connection),
                               tempEmulationSchema = tempEmulationSchema
   )
   return(querySqlToAndromeda(

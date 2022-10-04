@@ -3,7 +3,114 @@
 \docType{class}
 \name{DatabaseConnectorConnection-class}
 \alias{DatabaseConnectorConnection-class}
+\alias{dbDisconnect,DatabaseConnectorConnection-method}
+\alias{show,DatabaseConnectorConnection-method}
+\alias{dbQuoteIdentifier,DatabaseConnectorConnection,character-method}
+\alias{dbQuoteString,DatabaseConnectorConnection,character-method}
+\alias{dbGetQuery,DatabaseConnectorConnection,character-method}
+\alias{dbSendStatement,DatabaseConnectorConnection,character-method}
+\alias{dbExecute,DatabaseConnectorConnection,character-method}
+\alias{dbListFields,DatabaseConnectorConnection,character-method}
+\alias{dbListTables,DatabaseConnectorConnection-method}
+\alias{dbExistsTable,DatabaseConnectorConnection,character-method}
+\alias{dbWriteTable,DatabaseConnectorConnection,ANY-method}
+\alias{dbAppendTable,DatabaseConnectorConnection,character-method}
+\alias{dbCreateTable,DatabaseConnectorConnection-method}
+\alias{dbReadTable,DatabaseConnectorConnection,character-method}
+\alias{dbRemoveTable,DatabaseConnectorConnection,ANY-method}
 \title{DatabaseConnectorConnection class.}
+\usage{
+\S4method{dbDisconnect}{DatabaseConnectorConnection}(conn)
+
+\S4method{show}{DatabaseConnectorConnection}(object)
+
+\S4method{dbQuoteIdentifier}{DatabaseConnectorConnection,character}(conn, x, ...)
+
+\S4method{dbQuoteString}{DatabaseConnectorConnection,character}(conn, x, ...)
+
+\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, ...)
+
+\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, ...)
+
+\S4method{dbExecute}{DatabaseConnectorConnection,character}(conn, statement, ...)
+
+\S4method{dbListFields}{DatabaseConnectorConnection,character}(conn, name, database = NULL, schema = NULL, ...)
+
+\S4method{dbListTables}{DatabaseConnectorConnection}(conn, database = NULL, schema = NULL, ...)
+
+\S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, database = NULL, schema = NULL, ...)
+
+\S4method{dbWriteTable}{DatabaseConnectorConnection,ANY}(
+  conn,
+  name,
+  value,
+  overwrite = FALSE,
+  append = FALSE,
+  temporary = FALSE,
+  oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  ...
+)
+
+\S4method{dbAppendTable}{DatabaseConnectorConnection,character}(
+  conn,
+  name,
+  value,
+  temporary = FALSE,
+  oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  ...,
+  row.names = NULL
+)
+
+\S4method{dbCreateTable}{DatabaseConnectorConnection}(
+  conn,
+  name,
+  fields,
+  oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  ...,
+  row.names = NULL,
+  temporary = FALSE
+)
+
+\S4method{dbReadTable}{DatabaseConnectorConnection,character}(
+  conn,
+  name,
+  database = NULL,
+  schema = NULL,
+  oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  ...
+)
+
+\S4method{dbRemoveTable}{DatabaseConnectorConnection,ANY}(
+  conn,
+  name,
+  database = NULL,
+  schema = NULL,
+  oracleTempSchema = NULL,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  ...
+)
+}
+\arguments{
+\item{database}{Name of the database.}
+
+\item{schema}{Name of the schema.}
+
+\item{overwrite}{Overwrite an existing table (if exists)?}
+
+\item{append}{Append to existing table?}
+
+\item{temporary}{Should the table created as a temp table?}
+
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
+
+\item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
+emulate temp tables, provide a schema with write privileges where temp tables
+can be created.}
+}
 \description{
 DatabaseConnectorConnection class.
 }

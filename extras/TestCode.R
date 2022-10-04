@@ -1,28 +1,28 @@
 library(DatabaseConnector)
 
 Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "C:/Users/MSCHUEMI/jdbcDrivers")
-downloadJdbcDrivers("pdw")
+downloadJdbcDrivers("redshift")
 downloadJdbcDrivers("postgresql")
 
 
 
-# Test PDW with integrated security ----------------------------------------------
-connectionDetails <- createConnectionDetails(dbms = "pdw",
-                                             server = Sys.getenv("PDW_SERVER"),
-                                             port = Sys.getenv("PDW_PORT"))
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
+                                                                connectionString = keyring::key_get("redShiftConnectionStringOhdaMdcd"),
+                                                                user = keyring::key_get("redShiftUserName"),
+                                                                password = keyring::key_get("redShiftPassword"))
 conn <- connect(connectionDetails)
 conn2 <- connect(connectionDetails)
 disconnect(conn)
 disconnect(conn2)
-getTableNames(conn, "CDM_Truven_MDCR_V415.dbo")
+getTableNames(conn, "cdm_truven_mdcd_v2128")
 
 
 # DBI compatability
 dbIsValid(conn)
-dbListTables(conn, database = "CDM_Truven_MDCR_V415", schema = "dbo")
-dbListFields(conn, database = "CDM_Truven_MDCR_V415", schema = "dbo", name = "vocabulary")
-dbExistsTable(conn, database = "CDM_Truven_MDCR_V415", schema = "dbo", name = "vocabulary")
-res <- dbSendQuery(conn, "SELECT * FROM CDM_Truven_MDCR_V415.dbo.vocabulary")
+dbListTables(conn, database = "cdm_truven_mdcd_v2128")
+dbListFields(conn, database = "cdm_truven_mdcd_v2128", name = "vocabulary")
+dbExistsTable(conn, database = "cdm_truven_mdcd_v2128", name = "vocabulary")
+res <- dbSendQuery(conn, "SELECT * FROM cdm_truven_mdcd_v2128.vocabulary")
 dbColumnInfo(res)
 dbGetRowCount(res)
 dbHasCompleted(res)
@@ -33,7 +33,7 @@ dbGetStatement(res)
 dbClearResult(res)
 dbQuoteIdentifier(conn, "test results")
 dbQuoteString(conn, "one two three")
-dbGetQuery(conn, "SELECT * FROM CDM_Truven_MDCR_V415.dbo.vocabulary")
+dbGetQuery(conn, "SELECT * FROM cdm_truven_mdcd_v2128.vocabulary")
 
 res <- dbSendStatement(conn, "CREATE TABLE #temp(x int);")
 dbHasCompleted(res)
@@ -47,6 +47,8 @@ dbExecute(conn, "CREATE TABLE #temp(x int);")
 dbExistsTable(conn, name = "temp")
 dbRemoveTable(conn, "#temp")
 
+
+# Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = FALSE)
 data <- data.frame(name = c("john", "mary"), age = c(35, 26))
 dbWriteTable(conn, "#temp", data, temporary = TRUE)
 dbGetQuery(conn, "SELECT * FROM #temp")
@@ -60,7 +62,6 @@ dbRemoveTable(conn, "#temp")
 
 
 dbDisconnect(conn)
-
 
 # Test Oracle ---------------------------------------------------
 connectionDetails <- createConnectionDetails(dbms = "oracle",

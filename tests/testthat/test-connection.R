@@ -16,7 +16,7 @@ test_that("Open and close connection", {
   # SQL Server --------------------------------------------------
   details <- createConnectionDetails(
     dbms = "sql server",
-    user = Sys.getenv("CDM5_SQL_SERVER_USER"),
+    user = Sys.getenv("CDM5_SQL_SERVER_USER"),    
     password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
@@ -138,36 +138,38 @@ test_that("Open and close connection using connection strings with embedded user
   expect_true(disconnect(connection))
 
   # Spark --------------------------------------------------
-  connectionString <- sprintf(
-    "%s;UID=%s;PWD=%s",
-    Sys.getenv("CDM5_SPARK_CONNECTION_STRING"),
-    Sys.getenv("CDM5_SPARK_USER"),
-    URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD"))
-  )
-
-  details <- createConnectionDetails(
-    dbms = "spark",
-    connectionString = connectionString
-  )
-  connection <- connect(details)
-  expect_true(inherits(connection, "DatabaseConnectorConnection"))
-  expect_true(disconnect(connection))
+  # Disabling Spark unit tests until new testing server is up
+  # connectionString <- sprintf(
+  #   "%s;UID=%s;PWD=%s",
+  #   Sys.getenv("CDM5_SPARK_CONNECTION_STRING"),
+  #   Sys.getenv("CDM5_SPARK_USER"),
+  #   URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD"))
+  # )
+  # 
+  # details <- createConnectionDetails(
+  #   dbms = "spark",
+  #   connectionString = connectionString
+  # )
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  # expect_true(disconnect(connection))
 
   # Snowflake --------------------------------------------------
-  connectionString <- sprintf(
-    "%s;UID=%s;PWD=%s",
-    Sys.getenv("CDM5_SNOWFLAKE_CONNECTION_STRING"),
-    Sys.getenv("CDM5_SNOWFLAKE_USER"),
-    URLdecode(Sys.getenv("CDM5_SNOWFLAKE_PASSWORD"))
-  )
-
-  details <- createConnectionDetails(
-    dbms = "snowflake",
-    connectionString = connectionString
-  )
-  connection <- connect(details)
-  expect_true(inherits(connection, "DatabaseConnectorConnection"))
-  expect_true(disconnect(connection))
+  # Disable Snowflake unit tests until we have a testing server
+  # connectionString <- sprintf(
+  #   "%s;UID=%s;PWD=%s",
+  #   Sys.getenv("CDM5_SNOWFLAKE_CONNECTION_STRING"),
+  #   Sys.getenv("CDM5_SNOWFLAKE_USER"),
+  #   URLdecode(Sys.getenv("CDM5_SNOWFLAKE_PASSWORD"))
+  # )
+  # 
+  # details <- createConnectionDetails(
+  #   dbms = "snowflake",
+  #   connectionString = connectionString
+  # )
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  # expect_true(disconnect(connection))
 })
 
 test_that("Open and close connection using connection strings with separate user and pw", {
@@ -239,27 +241,29 @@ test_that("Open and close connection using connection strings with separate user
   expect_true(disconnect(connection))
 
   # Spark --------------------------------------------------
-  details <- createConnectionDetails(
-    dbms = "spark",
-    connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING"),
-    user = Sys.getenv("CDM5_SPARK_USER"),
-    password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD"))
-  )
-  connection <- connect(details)
-  expect_true(inherits(connection, "DatabaseConnectorConnection"))
-  expect_equal(dbms(connection), "spark")
-  expect_true(disconnect(connection))
+  # Disabling Spark unit tests until new testing server is up
+  # details <- createConnectionDetails(
+  #   dbms = "spark",
+  #   connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING"),
+  #   user = Sys.getenv("CDM5_SPARK_USER"),
+  #   password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD"))
+  # )
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  # expect_equal(dbms(connection), "spark")
+  # expect_true(disconnect(connection))
 
   # Snowflake --------------------------------------------------
-  details <- createConnectionDetails(
-    dbms = "snowflake",
-    connectionString = Sys.getenv("CDM5_SNOWFLAKE_CONNECTION_STRING"),
-    user = Sys.getenv("CDM5_SNOWFLAKE_USER"),
-    password = URLdecode(Sys.getenv("CDM5_SNOWFLAKE_PASSWORD"))
-  )
-  connection <- connect(details)
-  expect_true(inherits(connection, "DatabaseConnectorConnection"))
-  expect_true(disconnect(connection))
+  # Disable Snowflake unit tests until we have a testing server
+  # details <- createConnectionDetails(
+  #   dbms = "snowflake",
+  #   connectionString = Sys.getenv("CDM5_SNOWFLAKE_CONNECTION_STRING"),
+  #   user = Sys.getenv("CDM5_SNOWFLAKE_USER"),
+  #   password = URLdecode(Sys.getenv("CDM5_SNOWFLAKE_PASSWORD"))
+  # )
+  # connection <- connect(details)
+  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  # expect_true(disconnect(connection))
 })
 
 test_that("Error is thrown when using incorrect dbms argument", {

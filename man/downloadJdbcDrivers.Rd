@@ -39,7 +39,7 @@ Download the DatabaseConnector JDBC drivers from https://ohdsi.github.io/Databas
 The following versions of the JDBC drivers are currently used:
 \itemize{
   \item{PostgreSQL}{V42.2.18}
-  \item{RedShift}{V1.2.27.1051}
+  \item{RedShift}{V2.1.0.9}
   \item{SQL Server}{V8.4.1.zip}
   \item{Oracle}{V19.8}
   \item{Spark}{V2.6.21}

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
       </span>
     </div>
 
@@ -68,7 +68,129 @@
     <p>DatabaseConnectorConnection class.</p>
     </div>
 
+    <div id="ref-usage">
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for DatabaseConnectorConnection</span></span>
+<span><span class="fu">dbDisconnect</span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection</span></span>
+<span><span class="fu">show</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbQuoteIdentifier</span><span class="op">(</span><span class="va">conn</span>, <span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbQuoteString</span><span class="op">(</span><span class="va">conn</span>, <span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbGetQuery</span><span class="op">(</span><span class="va">conn</span>, <span class="va">statement</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbSendStatement</span><span class="op">(</span><span class="va">conn</span>, <span class="va">statement</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbExecute</span><span class="op">(</span><span class="va">conn</span>, <span class="va">statement</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbListFields</span><span class="op">(</span><span class="va">conn</span>, <span class="va">name</span>, database <span class="op">=</span> <span class="cn">NULL</span>, schema <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection</span></span>
+<span><span class="fu">dbListTables</span><span class="op">(</span><span class="va">conn</span>, database <span class="op">=</span> <span class="cn">NULL</span>, schema <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbExistsTable</span><span class="op">(</span><span class="va">conn</span>, <span class="va">name</span>, database <span class="op">=</span> <span class="cn">NULL</span>, schema <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,ANY</span></span>
+<span><span class="fu">dbWriteTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">value</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  append <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  temporary <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbAppendTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">value</span>,</span>
+<span>  temporary <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  row.names <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection</span></span>
+<span><span class="fu">dbCreateTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">fields</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  row.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  temporary <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,character</span></span>
+<span><span class="fu">dbReadTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  database <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  schema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DatabaseConnectorConnection,ANY</span></span>
+<span><span class="fu">dbRemoveTable</span><span class="op">(</span></span>
+<span>  <span class="va">conn</span>,</span>
+<span>  <span class="va">name</span>,</span>
+<span>  database <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  schema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+    </div>
 
+    <div id="arguments">
+    <h2>Arguments</h2>
+    <dl><dt>database</dt>
+<dd><p>Name of the database.</p></dd>
+
+
+<dt>schema</dt>
+<dd><p>Name of the schema.</p></dd>
+
+
+<dt>overwrite</dt>
+<dd><p>Overwrite an existing table (if exists)?</p></dd>
+
+
+<dt>append</dt>
+<dd><p>Append to existing table?</p></dd>
+
+
+<dt>temporary</dt>
+<dd><p>Should the table created as a temp table?</p></dd>
+
+
+<dt>oracleTempSchema</dt>
+<dd><p>DEPRECATED: use <code>tempEmulationSchema</code> instead.</p></dd>
+
+
+<dt>tempEmulationSchema</dt>
+<dd><p>Some database platforms like Oracle and Impala do not truly support temp tables. To
+emulate temp tables, provide a schema with write privileges where temp tables
+can be created.</p></dd>
+
+</dl></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -82,7 +204,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

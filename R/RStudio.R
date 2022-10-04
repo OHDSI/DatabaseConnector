@@ -61,7 +61,7 @@ registerWithRStudio <- function(connection) {
 }
 
 compileTypeLabel <- function(connection) {
-  return(paste0("DatabaseConnector (", connection@dbms, ")"))
+  return(paste0("DatabaseConnector (", dbms(connection), ")"))
 }
 
 unregisterWithRStudio <- function(connection) {
@@ -76,7 +76,7 @@ unregisterWithRStudio <- function(connection) {
 }
 
 hasCatalogs <- function(connection) {
-  return(connection@dbms %in% c("pdw", "sql server", "synapse", "postgresql", "redshift", "snowflake", "spark", "bigquery"))
+  return(dbms(connection) %in% c("pdw", "sql server", "synapse", "postgresql", "redshift", "snowflake", "spark", "bigquery"))
 }
 
 listDatabaseConnectorColumns <- function(connection,
@@ -92,7 +92,7 @@ listDatabaseConnectorColumns.default <- function(connection,
                                                  schema = NULL,
                                                  table = NULL,
                                                  ...) {
-  if (connection@dbms == "oracle") {
+  if (dbms(connection) == "oracle") {
     table <- toupper(table)
     if (!is.null(catalog)) {
       catalog <- toupper(catalog)
@@ -144,7 +144,7 @@ listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connecti
   res <- DBI::dbSendQuery(connection@dbiConnection, sprintf("SELECT * FROM %s LIMIT 0;", table))
   info <- dbColumnInfo(res)
   dbClearResult(res)
-  if (connection@dbms == "sqlite") {
+  if (dbms(connection) == "sqlite") {
     info$type[grepl("DATE$", info$name)] <- "date"
     info$type[grepl("DATETIME$", info$name)] <- "datetime"
   }
@@ -168,7 +168,7 @@ listDatabaseConnectorObjects <- function(connection, catalog = NULL, schema = NU
       stringsAsFactors = FALSE
     ))
   }
-  if (!hasCatalogs(connection) || connection@dbms %in% c("postgresql", "redshift", "sqlite", "sqlite extended", "bigquery")) {
+  if (!hasCatalogs(connection) || dbms(connection) %in% c("postgresql", "redshift", "sqlite", "sqlite extended", "bigquery")) {
     databaseSchema <- schema
   } else {
     databaseSchema <- paste(catalog, schema, sep = ".")
@@ -200,7 +200,7 @@ previewObject <- function(connection, rowLimit, catalog = NULL, table = NULL, sc
   }
   sql <- "SELECT TOP 1000 * FROM @databaseSchema.@table;"
   sql <- SqlRender::render(sql = sql, databaseSchema = databaseSchema, table = table)
-  sql <- SqlRender::translate(sql = sql, targetDialect = connection@dbms)
+  sql <- SqlRender::translate(sql = sql, targetDialect = dbms(connection))
   querySql(connection, sql)
 }
 
@@ -215,7 +215,7 @@ getServer <- function(connection) {
 }
 
 getServer.default <- function(connection) {
-  if (connection@dbms == "hive") {
+  if (dbms(connection) == "hive") {
     url <- connection@url
   } else {
     databaseMetaData <- rJava::.jcall(
@@ -243,7 +243,7 @@ compileReconnectCode.default <- function(connection) {
     "Ljava/sql/DatabaseMetaData;",
     "getMetaData"
   )
-  if (connection@dbms == "hive") {
+  if (dbms(connection) == "hive") {
     url <- connection@url
     user <- connection@user
   } else {
@@ -252,7 +252,7 @@ compileReconnectCode.default <- function(connection) {
   }
   code <- sprintf(
     "library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",
-    connection@dbms,
+    dbms(connection),
     url,
     user
   )
@@ -262,7 +262,7 @@ compileReconnectCode.default <- function(connection) {
 compileReconnectCode.DatabaseConnectorDbiConnection <- function(connection) {
   code <- sprintf(
     "library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", server = \"%s\")",
-    connection@dbms,
+    dbms(connection),
     connection@server
   )
   return(code)

@@ -1,12 +1,12 @@
-This update includes 1 bugfix (see NEWS.md)
+This update includes 4 changes and 3 bugfixes (see NEWS.md)
 
 ---
 
 ## Test environments
-* Ubuntu 20.04, R 4.2.0
-* Microsoft Windows Server 2019, R 4.2.0
-* MacOS, R 4.2.0
-* Windows 10, R 4.2.0
+* Ubuntu 20.04, R 4.2.1
+* Microsoft Windows Server 2019, R 4.2.1
+* MacOS, R 4.2.1
+* Windows 10, R 4.2.1
 
 ## R CMD check results
 
