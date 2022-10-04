@@ -84,6 +84,7 @@ countRows <- function(connection, sqlTableName) {
 
 bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
   ensure_installed("urltools")
+  logTrace(sprintf("Inserting %d rows into table '%s' using PDW bulk load", nrow(data), sqlTableName))
   start <- Sys.time()
   # Format integer fields to prevent scientific notation:
   for (i in 1:ncol(data)) {
@@ -165,6 +166,7 @@ bulkLoadPdw <- function(connection, sqlTableName, sqlDataTypes, data) {
 bulkLoadRedshift <- function(connection, sqlTableName, data) {
   ensure_installed("R.utils")
   ensure_installed("aws.s3")
+  logTrace(sprintf("Inserting %d rows into table '%s' using RedShift bulk load", nrow(data), sqlTableName))
   start <- Sys.time()
 
   csvFileName <- tempfile("redshift_insert_", fileext = ".csv")
@@ -220,6 +222,7 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
   if (tolower(Sys.info()["sysname"]) == "windows") {
     ensure_installed("ssh")
   }
+  logTrace(sprintf("Inserting %d rows into table '%s' using Hive bulk load", nrow(data), sqlTableName))
   start <- Sys.time()
   csvFileName <- tempfile("hive_insert_", fileext = ".csv")
   write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
@@ -285,6 +288,7 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
 
 
 bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data) {
+  logTrace(sprintf("Inserting %d rows into table '%s' using PostgreSQL bulk load", nrow(data), sqlTableName))
   startTime <- Sys.time()
 
   for (i in 1:ncol(data)) {

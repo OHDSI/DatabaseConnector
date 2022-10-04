@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 5.1.0
-Date: 2022-09-23
+Version: 5.2.0
+Date: 2022-10-04
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -42,7 +42,8 @@ Suggests:
     RSQLite,
     ssh,
     Andromeda,
-    dplyr
+    dplyr,
+    ParallelLogger
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

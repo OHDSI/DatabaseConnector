@@ -437,12 +437,16 @@ executeSql <- function(connection,
       if (profile) {
         SqlRender::writeSql(paste(batchSql, collapse = "\n\n"), sprintf("statements_%s_%s.sql", start, end))
       }
+      logTrace(paste("Executing SQL:", truncateSql(paste(batchSql, collapse = "\n\n"))))
       tryCatch(
         {
           startQuery <- Sys.time()
           rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
           delta <- Sys.time() - startQuery
-          inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
+          if (profile) {
+            inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
+          }
+          logTrace(paste("Statements took", delta, attr(delta, "units")))
         },
         error = function(err) {
           .createErrorReport(dbms(connection), err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
@@ -464,13 +468,19 @@ executeSql <- function(connection,
         writeChar(sqlStatement, fileConn, eos = NULL)
         close(fileConn)
       }
+      if (!isTRUE(globalVars$noLogging)) {
+        logTrace(paste("Executing SQL:", truncateSql(sqlStatement)))
+      }
       tryCatch(
         {
           startQuery <- Sys.time()
           lowLevelExecuteSql(connection, sqlStatement)
+          delta <- Sys.time() - startQuery
           if (profile) {
-            delta <- Sys.time() - startQuery
             inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
+          }
+          if (!isTRUE(globalVars$noLogging)) {
+            logTrace(paste("Statement took", delta, attr(delta, "units")))
           }
         },
         error = function(err) {
@@ -591,6 +601,8 @@ querySql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
+  startTime <- Sys.time()
+  
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {
@@ -600,6 +612,7 @@ querySql <- function(connection,
       "statements were found"
     ))
   }
+  logTrace(paste("Querying SQL:", truncateSql(sqlStatements[1])))
   tryCatch(
     {
       result <- lowLevelQuerySql(
@@ -619,6 +632,8 @@ querySql <- function(connection,
       .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
     }
   )
+  delta <- Sys.time() - startTime
+  logTrace(paste("Query took", delta, attr(delta, "units")))
 }
 
 #' Render, translate, execute SQL code

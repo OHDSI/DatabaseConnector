@@ -1,5 +1,11 @@
 library(testthat)
 
+if (DatabaseConnector:::is_installed("ParallelLogger")) {
+  logFileName <- tempfile(fileext = ".txt")
+  ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
+}
+
+
 test_that("insertTable", {
   set.seed(0)
   day.start <- "1960/01/01"
@@ -209,3 +215,14 @@ test_that("insertTable", {
 
   disconnect(connection)
 })
+
+test_that("Logging insertTable times", {
+  skip_if_not_installed("ParallelLogger")
+  log <- readLines(logFileName)
+  insertCount <- sum(grepl("Inserting [0-9]+ rows", log))
+  expect_gt(insertCount, 4)
+  # writeLines(log)
+  ParallelLogger::unregisterLogger("TEST_LOGGER")
+  unlink(logFileName)
+})
+

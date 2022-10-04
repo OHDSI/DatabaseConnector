@@ -1,3 +1,10 @@
+DatabaseConnector 5.2.0
+=======================
+
+Changes:
+
+1. Adding logging at 'TRACE' level for performance profiling. Logging is always on (if ParallelLogger is installed).
+
 DatabaseConnector 5.1.0
 =======================
 
