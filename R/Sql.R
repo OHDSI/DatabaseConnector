@@ -437,7 +437,7 @@ executeSql <- function(connection,
       if (profile) {
         SqlRender::writeSql(paste(batchSql, collapse = "\n\n"), sprintf("statements_%s_%s.sql", start, end))
       }
-      logTrace(paste("Executing SQL:", truncateSql(paste(batchSql, collapse = "\n\n"))))
+      logTrace(paste("Executing SQL:", truncateSql(batchSql)))
       tryCatch(
         {
           startQuery <- Sys.time()

@@ -21,10 +21,11 @@ logTrace <- function(message) {
 }
 
 truncateSql <- function(sql, maxLength = 150) {
+  sql <- paste(sql, collapse = "\n")
   if (nchar(sql) > maxLength) {
     sql <- paste0(substr(sql, 1, maxLength), "...")
   }
-  sql <- gsub("\n", "\\\\n", sql)
+  sql <- gsub("\r", "", gsub("\n", "\\\\n", sql))
   return(sql)
 }
 
