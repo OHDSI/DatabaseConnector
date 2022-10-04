@@ -1,7 +1,7 @@
 library(testthat)
 
 test_that("Compute data hash", {
-  # Postgresql --------------------------------------------------
+  # Postgresql -----------------------------------------------------------------
   details <- createConnectionDetails(
     dbms = "postgresql",
     user = Sys.getenv("CDM5_POSTGRESQL_USER"),
@@ -14,7 +14,7 @@ test_that("Compute data hash", {
 
   disconnect(connection)
 
-  # SQL Server --------------------------------------------------
+  # SQL Server -----------------------------------------------------------------
   details <- createConnectionDetails(
     dbms = "sql server",
     user = Sys.getenv("CDM5_SQL_SERVER_USER"),
@@ -27,7 +27,7 @@ test_that("Compute data hash", {
   
   disconnect(connection)
   
-  # Oracle --------------------------------------------------
+  # Oracle ---------------------------------------------------------------------
   details <- createConnectionDetails(
     dbms = "oracle",
     user = Sys.getenv("CDM5_ORACLE_USER"),
@@ -40,7 +40,7 @@ test_that("Compute data hash", {
   
   disconnect(connection)
   
-  # RedShift  --------------------------------------------------
+  # RedShift  ------------------------------------------------------------------
   details <- createConnectionDetails(
     dbms = "redshift",
     user = Sys.getenv("CDM5_REDSHIFT_USER"),
@@ -52,4 +52,31 @@ test_that("Compute data hash", {
   expect_true(is.character(hash))
   
   disconnect(connection)
+  
+  # RSQLite --------------------------------------------------------------------
+  dbFile <- tempfile(fileext = "sqlite")
+  details <- createConnectionDetails(
+    dbms = "sqlite",
+    server = dbFile
+  )
+  connection <- connect(details)
+  DatabaseConnector::insertTable(
+    connection = connection,
+    databaseSchema = "main",
+    tableName = "cars",
+    data = cars,
+    createTable = TRUE
+  )
+  DatabaseConnector::insertTable(
+    connection = connection,
+    databaseSchema = "main",
+    tableName = "iris",
+    data = iris,
+    createTable = TRUE
+  )
+  hash <- computeDataHash(connection, "main")
+  expect_true(is.character(hash))
+  
+  disconnect(connection)
+  unlink(dbFile)
 })

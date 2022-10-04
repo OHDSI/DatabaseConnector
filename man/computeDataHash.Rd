@@ -13,15 +13,16 @@ computeDataHash(connection, databaseSchema, tables = NULL, progressBar = TRUE)
 
 \item{tables}{(Optional) A list of tables to restrict to.}
 
-\item{progressBar}{When true, a progress bar is shown based on the number of tables 
+\item{progressBar}{When true, a progress bar is shown based on the number of tables
 in the database schema.}
 }
 \value{
 A string representing the MD5 hash code.
 }
 \description{
-Compute a hash of the data in the database schema. If the data changes, this 
-should produce a different hash code.
+Compute a hash of the data in the database schema. If the data changes, this
+should produce a different hash code. Specifically, the hash is based on the
+field names, field types, and table row counts.
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

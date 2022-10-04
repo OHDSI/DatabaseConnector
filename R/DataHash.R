@@ -15,20 +15,21 @@
 # limitations under the License.
 
 #' Compute hash of data
-#' 
-#' @description 
-#' Compute a hash of the data in the database schema. If the data changes, this 
-#' should produce a different hash code.
+#'
+#' @description
+#' Compute a hash of the data in the database schema. If the data changes, this
+#' should produce a different hash code. Specifically, the hash is based on the
+#' field names, field types, and table row counts.
 #'
 #' @param connection      The connection to the database server.
 #' @template DatabaseSchema
 #' @param tables          (Optional) A list of tables to restrict to.
-#' @param progressBar     When true, a progress bar is shown based on the number of tables 
+#' @param progressBar     When true, a progress bar is shown based on the number of tables
 #'                        in the database schema.
 #'
 #' @return
 #' A string representing the MD5 hash code.
-#' 
+#'
 #' @export
 computeDataHash <- function(connection, databaseSchema, tables = NULL, progressBar = TRUE) {
   errorMessages <- checkmate::makeAssertCollection()
@@ -36,23 +37,23 @@ computeDataHash <- function(connection, databaseSchema, tables = NULL, progressB
   checkmate::assertCharacter(databaseSchema, len = 1, add = errorMessages)
   checkmate::assertCharacter(tables, min.len = 1, null.ok = TRUE, add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
-  
+
   startQuery <- Sys.time()
-  tableNames  <- DatabaseConnector::getTableNames(connection, databaseSchema)
+  tableNames <- DatabaseConnector::getTableNames(connection, databaseSchema)
   if (!is.null(tables)) {
     tableNames <- tableNames[tableNames %in% tables]
   }
   if (progressBar) {
     pb <- txtProgressBar(style = 3)
   }
-  
-  strings <- vector(mode="character", length = length(tableNames))
+
+  strings <- vector(mode = "character", length = length(tableNames))
   for (i in seq_along(tableNames)) {
     strings[i] <- getTableString(
       tableName = tableNames[i],
-      connection = connection, 
+      connection = connection,
       databaseSchema = databaseSchema
-      )
+    )
     if (progressBar) {
       setTxtProgressBar(pb, i / length(tableNames))
     }
@@ -60,7 +61,7 @@ computeDataHash <- function(connection, databaseSchema, tables = NULL, progressB
   if (progressBar) {
     close(pb)
   }
-  
+
   hash <- digest::digest(strings, "md5")
   delta <- Sys.time() - startQuery
   writeLines(paste("Computing hash took", delta, attr(delta, "units")))
@@ -74,9 +75,9 @@ getTableString <- function(tableName, connection, databaseSchema) {
     sql = "SELECT TOP 1 * FROM @database_schema.@table_name;",
     database_schema = databaseSchema,
     table_name = tableName
-  ) 
+  )
   fieldNames <- names(row)
-  fieldClasses <- sapply(row, class) 
+  fieldClasses <- sapply(row, class)
   if (dbms(connection) == "postgresql") {
     # COUNT(*) is too slow on PostgreSQL. Using pg_catalog to get count from latest
     # VACUUM / ANALYSE, which is probably accurate enough:
@@ -87,20 +88,20 @@ getTableString <- function(tableName, connection, databaseSchema) {
       / pg_catalog.current_setting('block_size')::int)
        )::bigint
 FROM   pg_catalog.pg_class c
-WHERE  c.oid = '@database_schema.@table_name'::regclass;      -- schema-qualified table here" 
+WHERE  c.oid = '@database_schema.@table_name'::regclass;      -- schema-qualified table here"
     count <- renderTranslateQuerySql(
       connection = connection,
       sql = sql,
       database_schema = databaseSchema,
       table_name = tableName
-    ) [, 1]
+    )[, 1]
   } else {
     count <- renderTranslateQuerySql(
       connection = connection,
       sql = "SELECT COUNT(*) FROM @database_schema.@table_name;",
       database_schema = databaseSchema,
       table_name = tableName
-    ) [, 1]
+    )[, 1]
   }
-  return(paste(paste(paste(fieldNames, fieldClasses, sep = "="),collapse = ", "), sprintf("nrow=%d", count)))
+  return(paste(paste(paste(fieldNames, fieldClasses, sep = "="), collapse = ", "), sprintf("nrow=%d", count)))
 }
