@@ -400,7 +400,7 @@ supportsBatchUpdates <- function(connection) {
 executeSql <- function(connection,
                        sql,
                        profile = FALSE,
-                       progressBar = TRUE,
+                       progressBar = !Sys.getenv("TESTTHAT", unset = FALSE),
                        reportOverallTime = TRUE,
                        errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                        runAsBatch = FALSE) {
