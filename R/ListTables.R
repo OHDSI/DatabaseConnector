@@ -34,6 +34,11 @@ getTableNames <- function(connection, databaseSchema) {
     tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
     return(toupper(tables))
   }
+  
+  if (dbms(connection) == "duckdb") {
+    tables <- dbListTables(connection@dbiConnection)
+    return(toupper(tables))
+  }
 
   if (is.null(databaseSchema)) {
     database <- rJava::.jnull("java/lang/String")

@@ -422,7 +422,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
         abort("Only the 'main' schema exists on SQLite")
       }
     } else {
-      tableName <- paste(databaseSchema, tableName, sep = ".")
+      tableName <- DBI::SQL(paste(databaseSchema, tableName, sep = "."))
     }
   }
 

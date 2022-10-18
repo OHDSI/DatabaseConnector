@@ -31,7 +31,8 @@ checkIfDbmsIsSupported <- function(dbms) {
     "sqlite extended",
     "spark",
     "snowflake",
-    "synapse"
+    "synapse",
+    "duckdb"
   )
   if (!dbms %in% supportedDbmss) {
     abort(sprintf(
@@ -565,6 +566,13 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "dbms") <- dbms
     return(connection)
   }
+  if (dbms == "duckdb") {
+    inform("Connecting using duckdb driver")
+    ensure_installed("duckdb")
+    connection <- connectUsingDuckdb(server = server)
+    attr(connection, "dbms") <- dbms
+    return(connection)
+  }
   if (dbms == "spark") {
     inform("Connecting using Spark driver")
     jarPath <- findPathToJar("^SparkJDBC42\\.jar$", pathToDriver)
@@ -664,6 +672,20 @@ connectUsingRsqLite <- function(server, extended) {
   return(connection)
 }
 
+connectUsingDuckdb <- function(server) {
+  dbiConnection <- DBI::dbConnect(duckdb::duckdb(), dbdir = server)
+  connection <- new("DatabaseConnectorDbiConnection",
+                    server = server,
+                    dbiConnection = dbiConnection,
+                    identifierQuote = "'",
+                    stringQuote = "'",
+                    dbms = "duckdb",
+                    uuid = generateRandomString()
+  )
+  # registerWithRStudio(connection) # TODO
+  return(connection)
+}
+
 generateRandomString <- function(length = 20) {
   return(paste(sample(c(letters, 0:9), length, TRUE), collapse = ""))
 }
@@ -705,7 +727,11 @@ disconnect.default <- function(connection) {
 
 #' @export
 disconnect.DatabaseConnectorDbiConnection <- function(connection) {
-  DBI::dbDisconnect(connection@dbiConnection)
+  if (connection@dbms == "duckdb") {
+    DBI::dbDisconnect(connection@dbiConnection, shutdown = TRUE)
+  } else {
+    DBI::dbDisconnect(connection@dbiConnection)
+  }
   unregisterWithRStudio(connection)
   invisible(TRUE)
 }

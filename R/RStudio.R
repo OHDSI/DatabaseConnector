@@ -296,7 +296,11 @@ getSchemaNames.default <- function(conn, catalog = NULL) {
 }
 
 getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) {
-  return("main")
+  if (conn@dbms == "sqlite") {
+    return("main")
+  } else if (conn@dbms == "duckdb") {
+    return(dbGetQuery(con, "select schema_name from information_schema.schemata")$schema_name)
+  }
 }
 
 getCatalogs <- function(conn) {
