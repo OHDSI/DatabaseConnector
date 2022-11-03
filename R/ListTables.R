@@ -18,23 +18,20 @@
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
-#' @param database   Name of the database.
-#' @param schema     Name of the schema.
+#' @param databaseSchema Character string containing the name of the schema 
+#' or database and schema separated by period. (e.g. "schema", "dbo.schema")
+#' @param ... Not used
 #'
 #' @export
 setMethod(
   "dbListTables",
   "DatabaseConnectorConnection",
-  function(conn, database = NULL, schema = NULL,
-           ...) {
-    if (is.null(database)) {
-      databaseSchema <- schema
-    } else {
-      databaseSchema <- paste(database, schema, sep = ".")
-    }
+  function(conn, databaseSchema = NULL, ...) {
     
-    if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
-      tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
+    stopifnot(is.null(databaseSchema) || (is.character(databaseSchema) && length(databaseSchema) == 1))
+    
+    if (dbms(conn) %in% c("sqlite", "sqlite extended")) {
+      tables <- DBI::dbListTables(conn@dbiConnection)
       return(toupper(tables))
     }
     
@@ -42,15 +39,15 @@ setMethod(
       database <- rJava::.jnull("java/lang/String")
       schema <- rJava::.jnull("java/lang/String")
     } else {
-      if (dbms(connection) == "oracle") {
+      if (dbms(conn) == "oracle") {
         databaseSchema <- toupper(databaseSchema)
       }
-      if (dbms(connection) == "redshift") {
+      if (dbms(conn) == "redshift") {
         databaseSchema <- tolower(databaseSchema)
       }
       databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
       if (length(databaseSchema) == 1) {
-        if (dbms(connection) %in% c("sql server", "pdw")) {
+        if (dbms(conn) %in% c("sql server", "pdw")) {
           database <- cleanDatabaseName(databaseSchema)
           schema <- "dbo"
         } else {
@@ -62,7 +59,7 @@ setMethod(
         schema <- cleanSchemaName(databaseSchema[2])
       }
     }
-    metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+    metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
     types <- rJava::.jarray(c("TABLE", "VIEW"))
     resultSet <- rJava::.jcall(metaData,
                                "Ljava/sql/ResultSet;",
@@ -78,8 +75,7 @@ setMethod(
       tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
     }
     return(toupper(tables))
-  }
-)
+})
 
 #' List all tables in a database schema.
 #'
@@ -99,29 +95,25 @@ getTableNames <- function(connection, databaseSchema, cast = "upper") {
   stopifnot(is.character(databaseSchema), length(databaseSchema) == 1, DBI::dbIsValid(connection))
   stopifnot(is.character(cast), length(cast) == 1, cast %in% c("upper", "lower", "none"))
   
-  databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
-  if (!(length(databaseSchema) %in% 1:2)) rlang::abort("databaseSchema can contain at most one dot (.)")
+  databaseSchemaSplit <- strsplit(databaseSchema, "\\.")[[1]]
+  if (!(length(databaseSchemaSplit) %in% 1:2)) rlang::abort("databaseSchema can contain at most one dot (.)")
   
   if (is.null(databaseSchema)) {
     tableNames <- DBI::dbListTables(connection)
     
   } else if (is(connection, "DatabaseConnectorConnection")) {
-    if (length(databaseSchema) == 1) {
-      tableNames <- DBI::dbListTables(connection, schema = databaseSchema)
-    } else {
-      tableNames <- DBI::dbListTables(connection, database = databaseSchema[1], schema = databaseSchema[2])
-    }
+    tableNames <- DBI::dbListTables(conn = connection, databaseSchema = databaseSchema)
     
   } else if (is(connection, "PqConnection") || is(connection, "RedshiftConnection") || is(connection, "duckdb_connection")) {
-    stopifnot(length(databaseSchema) == 1)
+    stopifnot(length(databaseSchemaSplit) == 1)
     sql <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '", databaseSchema, "';")
     tableNames <- DBI::dbGetQuery(connection, sql)[["table_name"]]
     
   } else if (is(connection, "Microsoft SQL Server")) {
-    if (length(databaseSchema) == 1) {
-      tableNames <- DBI::dbListTables(connection, schema_name = databaseSchema)
+    if (length(databaseSchemaSplit) == 1) {
+      tableNames <- DBI::dbListTables(connection, schema_name = databaseSchemaSplit)
     } else {
-      tableNames <- DBI::dbListTables(connection, catalog_name = databaseSchema[[1]], schema_name = databaseSchema[[2]])
+      tableNames <- DBI::dbListTables(connection, catalog_name = databaseSchemaSplit[[1]], schema_name = databaseSchemaSplit[[2]])
     }
     
   } else if (is(connection, "SQLiteConnection")) {
