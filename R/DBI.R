@@ -360,25 +360,6 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
-#' 
-#' @param database   Name of the database.
-#' @param schema     Name of the schema.
-#'
-#' @export
-setMethod(
-  "dbListTables",
-  "DatabaseConnectorConnection",
-  function(conn, database = NULL, schema = NULL,
-           ...) {
-    if (is.null(database)) {
-      databaseSchema <- schema
-    } else {
-      databaseSchema <- paste(database, schema, sep = ".")
-    }
-    return(getTableNames(conn, databaseSchema))
-  }
-)
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
