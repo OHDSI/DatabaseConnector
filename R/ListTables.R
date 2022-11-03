@@ -16,65 +16,114 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @rdname DatabaseConnectorConnection-class
+#' 
+#' @param database   Name of the database.
+#' @param schema     Name of the schema.
+#'
+#' @export
+setMethod(
+  "dbListTables",
+  "DatabaseConnectorConnection",
+  function(conn, database = NULL, schema = NULL,
+           ...) {
+    if (is.null(database)) {
+      databaseSchema <- schema
+    } else {
+      databaseSchema <- paste(database, schema, sep = ".")
+    }
+    
+    if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
+      tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
+      return(toupper(tables))
+    }
+    
+    if (is.null(databaseSchema)) {
+      database <- rJava::.jnull("java/lang/String")
+      schema <- rJava::.jnull("java/lang/String")
+    } else {
+      if (dbms(connection) == "oracle") {
+        databaseSchema <- toupper(databaseSchema)
+      }
+      if (dbms(connection) == "redshift") {
+        databaseSchema <- tolower(databaseSchema)
+      }
+      databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
+      if (length(databaseSchema) == 1) {
+        if (dbms(connection) %in% c("sql server", "pdw")) {
+          database <- cleanDatabaseName(databaseSchema)
+          schema <- "dbo"
+        } else {
+          database <- rJava::.jnull("java/lang/String")
+          schema <- cleanSchemaName(databaseSchema)
+        }
+      } else {
+        database <- cleanDatabaseName(databaseSchema[1])
+        schema <- cleanSchemaName(databaseSchema[2])
+      }
+    }
+    metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+    types <- rJava::.jarray(c("TABLE", "VIEW"))
+    resultSet <- rJava::.jcall(metaData,
+                               "Ljava/sql/ResultSet;",
+                               "getTables",
+                               database,
+                               schema,
+                               rJava::.jnull("java/lang/String"),
+                               types,
+                               check = FALSE
+    )
+    tables <- character()
+    while (rJava::.jcall(resultSet, "Z", "next")) {
+      tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
+    }
+    return(toupper(tables))
+  }
+)
+
 #' List all tables in a database schema.
 #'
 #' @description
 #' This function returns a list of all tables in a database schema.
 #'
-#' @param connection       The connection to the database server.
+#' @param connection A DBI connection to the database server.
 #' @template DatabaseSchema
 #'
-#' @return
-#' A character vector of table names. To ensure consistency across platforms, these table names are in
-#' upper case.
+#' @return A character vector of table names. 
 #'
 #' @export
 getTableNames <- function(connection, databaseSchema) {
-  if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
-    tables <- dbListTables(connection@dbiConnection, schema = databaseSchema)
-    return(toupper(tables))
-  }
-
+ 
+  stopifnot(is.character(databaseSchema), length(databaseSchema) == 1, DBI::dbIsValid(connection))
+  
+  databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
+  if (!(length(databaseSchema) %in% 1:2)) rlang::abort("databaseSchema can contain at most one dot (.)")
+  
   if (is.null(databaseSchema)) {
-    database <- rJava::.jnull("java/lang/String")
-    schema <- rJava::.jnull("java/lang/String")
-  } else {
-    if (dbms(connection) == "oracle") {
-      databaseSchema <- toupper(databaseSchema)
-    }
-    if (dbms(connection) == "redshift") {
-      databaseSchema <- tolower(databaseSchema)
-    }
-    databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
+    DBI::dbListTables(connection)
+    
+  } else if (is(connection, "DatabaseConnectorConnection")) {
     if (length(databaseSchema) == 1) {
-      if (dbms(connection) %in% c("sql server", "pdw")) {
-        database <- cleanDatabaseName(databaseSchema)
-        schema <- "dbo"
-      } else {
-        database <- rJava::.jnull("java/lang/String")
-        schema <- cleanSchemaName(databaseSchema)
-      }
+      DBI::dbListTables(connection, schema = databaseSchema)
     } else {
-      database <- cleanDatabaseName(databaseSchema[1])
-      schema <- cleanSchemaName(databaseSchema[2])
+      DBI::dbListTables(connection, database = databaseSchema[1], schema = databaseSchema[2])
     }
+    
+  } else if (is(connection, "PqConnection") || is(connection, "RedshiftConnection" || is(connection, "duckdb_connection"))) {
+    stopifnot(length(databaseSchema) == 1)
+    sql <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = ", databaseSchema, ";")
+    DBI::dbGetQuery(connection, sql)[["table_name"]]
+    
+  } else if (is(connection, "Microsoft SQL Server")) {
+    if (length(databaseSchema) == 1) {
+      DBI::dbListTables(connection, schema_name = databaseSchema)
+    } else {
+      DBI::dbListTables(connection, catalog_name = databaseSchema[[1]], schema_name = databaseSchema[[2]])
+    }
+    
+  } else {
+    rlang::abort(paste(paste(class(connection), collapse = ", "), "connection not supported"))
   }
-  metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-  types <- rJava::.jarray(c("TABLE", "VIEW"))
-  resultSet <- rJava::.jcall(metaData,
-    "Ljava/sql/ResultSet;",
-    "getTables",
-    database,
-    schema,
-    rJava::.jnull("java/lang/String"),
-    types,
-    check = FALSE
-  )
-  tables <- character()
-  while (rJava::.jcall(resultSet, "Z", "next")) {
-    tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
-  }
-  return(toupper(tables))
 }
 
 #' Does the table exist?
