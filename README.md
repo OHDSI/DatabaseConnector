@@ -44,8 +44,7 @@ Examples
 connectionDetails <- createConnectionDetails(dbms="postgresql", 
                                              server="localhost",
                                              user="root",
-                                             password="blah",
-                                             schema="cdm_v4")
+                                             password="blah")
 conn <- connect(connectionDetails)
 querySql(conn,"SELECT COUNT(*) FROM person")
 disconnect(conn)
