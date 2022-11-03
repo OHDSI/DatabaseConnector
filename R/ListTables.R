@@ -88,42 +88,54 @@ setMethod(
 #'
 #' @param connection A DBI connection to the database server.
 #' @template DatabaseSchema
+#' @param cast Should the table names be cast to uppercase or lowercase before being returned? 
+#' Valid options are "upper" (default), "lower", "none" (no casting is done)
 #'
 #' @return A character vector of table names. 
 #'
 #' @export
-getTableNames <- function(connection, databaseSchema) {
+getTableNames <- function(connection, databaseSchema, cast = "upper") {
  
   stopifnot(is.character(databaseSchema), length(databaseSchema) == 1, DBI::dbIsValid(connection))
+  stopifnot(is.character(cast), length(cast) == 1, cast %in% c("upper", "lower", "none"))
   
   databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
   if (!(length(databaseSchema) %in% 1:2)) rlang::abort("databaseSchema can contain at most one dot (.)")
   
   if (is.null(databaseSchema)) {
-    DBI::dbListTables(connection)
+    tableNames <- DBI::dbListTables(connection)
     
   } else if (is(connection, "DatabaseConnectorConnection")) {
     if (length(databaseSchema) == 1) {
-      DBI::dbListTables(connection, schema = databaseSchema)
+      tableNames <- DBI::dbListTables(connection, schema = databaseSchema)
     } else {
-      DBI::dbListTables(connection, database = databaseSchema[1], schema = databaseSchema[2])
+      tableNames <- DBI::dbListTables(connection, database = databaseSchema[1], schema = databaseSchema[2])
     }
     
-  } else if (is(connection, "PqConnection") || is(connection, "RedshiftConnection" || is(connection, "duckdb_connection"))) {
+  } else if (is(connection, "PqConnection") || is(connection, "RedshiftConnection") || is(connection, "duckdb_connection")) {
     stopifnot(length(databaseSchema) == 1)
-    sql <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = ", databaseSchema, ";")
-    DBI::dbGetQuery(connection, sql)[["table_name"]]
+    sql <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '", databaseSchema, "';")
+    tableNames <- DBI::dbGetQuery(connection, sql)[["table_name"]]
     
   } else if (is(connection, "Microsoft SQL Server")) {
     if (length(databaseSchema) == 1) {
-      DBI::dbListTables(connection, schema_name = databaseSchema)
+      tableNames <- DBI::dbListTables(connection, schema_name = databaseSchema)
     } else {
-      DBI::dbListTables(connection, catalog_name = databaseSchema[[1]], schema_name = databaseSchema[[2]])
+      tableNames <- DBI::dbListTables(connection, catalog_name = databaseSchema[[1]], schema_name = databaseSchema[[2]])
     }
     
+  } else if (is(connection, "SQLiteConnection")) {
+    if (databaseSchema != "main") rlang::abort("The only schema supported on SQLite is 'main'")
+    tableNames <- DBI::dbListTables(connection)
   } else {
     rlang::abort(paste(paste(class(connection), collapse = ", "), "connection not supported"))
   }
+  
+  switch (cast,
+    "upper" = toupper(tableNames),
+    "lower" = tolower(tableNames),
+    "none" = tableNames
+  )
 }
 
 #' Does the table exist?
