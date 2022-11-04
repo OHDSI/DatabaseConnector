@@ -12,7 +12,7 @@
 \alias{dbExecute,DatabaseConnectorConnection,character-method}
 \alias{dbListFields,DatabaseConnectorConnection,character-method}
 \alias{dbExistsTable,DatabaseConnectorConnection,character-method}
-\alias{dbWriteTable,DatabaseConnectorConnection,ANY,ANY-method}
+\alias{dbWriteTable,DatabaseConnectorConnection,ANY-method}
 \alias{dbAppendTable,DatabaseConnectorConnection,character-method}
 \alias{dbCreateTable,DatabaseConnectorConnection-method}
 \alias{dbReadTable,DatabaseConnectorConnection,character-method}
@@ -38,7 +38,7 @@
 
 \S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, database = NULL, schema = NULL, ...)
 
-\S4method{dbWriteTable}{DatabaseConnectorConnection,ANY,ANY}(
+\S4method{dbWriteTable}{DatabaseConnectorConnection,ANY}(
   conn,
   name,
   value,
@@ -95,6 +95,9 @@
 \S4method{dbListTables}{DatabaseConnectorConnection}(conn, databaseSchema = NULL, ...)
 }
 \arguments{
+\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\code{\link[DBI:dbConnect]{dbConnect()}}.}
+
 \item{...}{Not used}
 
 \item{database}{Name of the database.}
@@ -116,7 +119,50 @@ can be created.}
 \item{databaseSchema}{Character string containing the name of the schema 
 or database and schema separated by period. (e.g. "schema", "dbo.schema")}
 }
+\value{
+\code{dbListTables()}
+returns a character vector
+that enumerates all tables
+and views
+in the database.
+Tables added with \code{\link[DBI:dbWriteTable]{dbWriteTable()}}
+are part of the list.
+As soon a table is removed from the database,
+it is also removed from the list of database tables.
+
+The same applies to temporary tables if supported by the database.
+
+The returned names are suitable for quoting with \code{dbQuoteIdentifier()}.
+}
 \description{
-DatabaseConnectorConnection class.
+Returns the unquoted names of remote tables accessible through this
+connection.
+This should include views and temporary objects, but not all database backends
+(in particular \pkg{RMariaDB} and \pkg{RMySQL}) support this.
+
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListTables")}
+}
+\seealso{
+Other DBIConnection generics: 
+\code{\link[DBI]{DBIConnection-class}},
+\code{\link[DBI]{dbAppendTable}()},
+\code{\link[DBI]{dbCreateTable}()},
+\code{\link[DBI]{dbDataType}()},
+\code{\link[DBI]{dbDisconnect}()},
+\code{\link[DBI]{dbExecute}()},
+\code{\link[DBI]{dbExistsTable}()},
+\code{\link[DBI]{dbGetException}()},
+\code{\link[DBI]{dbGetInfo}()},
+\code{\link[DBI]{dbGetQuery}()},
+\code{\link[DBI]{dbIsReadOnly}()},
+\code{\link[DBI]{dbIsValid}()},
+\code{\link[DBI]{dbListFields}()},
+\code{\link[DBI]{dbListObjects}()},
+\code{\link[DBI]{dbListResults}()},
+\code{\link[DBI]{dbReadTable}()},
+\code{\link[DBI]{dbRemoveTable}()},
+\code{\link[DBI]{dbSendQuery}()},
+\code{\link[DBI]{dbSendStatement}()},
+\code{\link[DBI]{dbWriteTable}()}
 }
 \keyword{internal}

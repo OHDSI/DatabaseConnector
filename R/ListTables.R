@@ -16,8 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @inherit
+#' DBI::dbListTables title description params details references return seealso
 #' @rdname DatabaseConnectorConnection-class
-#' 
 #' @param databaseSchema Character string containing the name of the schema 
 #' or database and schema separated by period. (e.g. "schema", "dbo.schema")
 #' @param ... Not used
