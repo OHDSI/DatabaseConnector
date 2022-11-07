@@ -4,16 +4,18 @@
 \alias{getTableNames}
 \title{List all tables in a database schema.}
 \usage{
-getTableNames(connection, databaseSchema)
+getTableNames(connection, databaseSchema, cast = "upper")
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{A DBI connection to the database server.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
+
+\item{cast}{Should the table names be cast to uppercase or lowercase before being returned? 
+Valid options are "upper" (default), "lower", "none" (no casting is done)}
 }
 \value{
-A character vector of table names. To ensure consistency across platforms, these table names are in
-upper case.
+A character vector of table names.
 }
 \description{
 This function returns a list of all tables in a database schema.
