@@ -52,6 +52,19 @@ unlink("inst/doc/Querying.tex")
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 
+# Drop all emulated temp tables that haven't been cleaned up:
+connection <- connect(
+  dbms = "oracle",
+  user = Sys.getenv("CDM5_ORACLE_USER"),
+  password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
+  server = Sys.getenv("CDM5_ORACLE_SERVER")
+)
+databaseSchema <- Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
+tables <- getTableNames(connection, databaseSchema)
+sql <- paste(sprintf("DROP TABLE %s.%s;", databaseSchema, tables), collapse= "\n")
+executeSql(connection, sql)
+disconnect(connection)
+
 # Release package:
 devtools::check_win_devel()
 

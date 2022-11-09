@@ -145,3 +145,78 @@ hash <- computeDataHash(connection = connection,
                         databaseSchema = "synpuf_2m")
 expect_true(is.character(hash))
 disconnect(connection)
+
+# Test dbplyr ------------------------------------------------------------------
+library(dplyr)
+# BigQuery
+details <- createConnectionDetails(dbms = "bigquery",
+                                   connectionString = keyring::key_get("bigQueryConnString"),
+                                   user = "",
+                                   password = "")
+cdmDatabaseSchema <- "synpuf_2m"
+options(sqlRenderTempEmulationSchema = "synpuf_2m_results")
+
+connection <- connect(details)
+person <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "person"))
+nMales <- person %>%
+  filter(gender_concept_id == 8507) %>%
+  count() %>%
+  pull()
+expect_equal(nMales, 1033995)
+
+observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
+nObsOverOneYear <- observationPeriod %>%
+  filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
+  count() %>%
+  pull()
+
+expect_equal(nObsOverOneYear, 2024135)
+
+tempTable <- person %>%
+  filter(gender_concept_id == 8507) %>%
+  compute()
+nMales2 <- tempTable %>%
+  count() %>%
+  pull()
+expect_equal(nMales2, 1033995)
+
+dropEmulatedTempTables(connection)
+disconnect(connection)
+
+# Spark
+details <- createConnectionDetails(dbms = "spark",
+                                   connectionString = keyring::key_get("sparkConnectionString"),
+                                   user = keyring::key_get("sparkUser"),
+                                   password = keyring::key_get("sparkPassword"))
+cdmDatabaseSchema <- "eunomia"
+options(sqlRenderTempEmulationSchema = "eunomia")
+
+connection <- connect(details)
+# Note: using partially loaded Eumomia data, so counts may not agree:
+person <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "person"))
+nMales <- person %>%
+  filter(gender_concept_id == 8507) %>%
+  count() %>%
+  pull()
+expect_equal(nMales, 1321)
+
+observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
+nObsOverOneYear <- observationPeriod %>%
+  filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
+  count() %>%
+  pull()
+
+expect_equal(nObsOverOneYear, 5268)
+
+tempTable <- person %>%
+  filter(gender_concept_id == 8507) %>%
+  compute()
+nMales2 <- tempTable %>%
+  count() %>%
+  pull()
+expect_equal(nMales2, 1321)
+
+dropEmulatedTempTables(connection)
+disconnect(connection)
+
+

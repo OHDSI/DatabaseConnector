@@ -364,7 +364,8 @@ setMethod(
   signature("DatabaseConnectorConnection", "character"),
   function(conn, statement,
            ...) {
-    if (isDbplyrSql(statement) && dbms(conn) == "oracle" && grepl("^UPDATE STATISTICS", statement)) {
+    if (isDbplyrSql(statement) && dbms(conn) %in% c("oracle", "bigquery", "spark") && grepl("^UPDATE STATISTICS", statement)) {
+      # These platforms don't support this, so SqlRender translates to an empty string, which causes errors down the line.
       return(0)
     }
     statement <- translateStatement(

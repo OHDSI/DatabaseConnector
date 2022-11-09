@@ -1012,9 +1012,13 @@ dropEmulatedTempTables <- function(connection,
   if (length(tableNames) > 0) {
     inform(sprintf("Dropping tables '%s' from schema '%s'.", paste(tableNames, collapse = "', '"), tempEmulationSchema))
     tableNames <- tolower(paste(tempEmulationSchema, tableNames, sep = "."))
-    sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    if (dbms(connection) == "spark") {
+      sql <- paste(sprintf("DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    } else {
+      sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    }
     sql <- SqlRender::translate(sql, dbms(connection))
     executeSql(connection, sql)
   }
-  return(tableNames)
+  invisible(tableNames)
 }
