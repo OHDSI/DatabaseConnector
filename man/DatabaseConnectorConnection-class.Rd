@@ -5,6 +5,7 @@
 \alias{DatabaseConnectorConnection-class}
 \alias{dbDisconnect,DatabaseConnectorConnection-method}
 \alias{show,DatabaseConnectorConnection-method}
+\alias{dbGetInfo,DatabaseConnectorConnection-method}
 \alias{dbQuoteIdentifier,DatabaseConnectorConnection,character-method}
 \alias{dbQuoteString,DatabaseConnectorConnection,character-method}
 \alias{dbGetQuery,DatabaseConnectorConnection,character-method}
@@ -23,6 +24,8 @@
 \S4method{dbDisconnect}{DatabaseConnectorConnection}(conn)
 
 \S4method{show}{DatabaseConnectorConnection}(object)
+
+\S4method{dbGetInfo}{DatabaseConnectorConnection}(dbObj, ...)
 
 \S4method{dbQuoteIdentifier}{DatabaseConnectorConnection,character}(conn, x, ...)
 

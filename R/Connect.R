@@ -641,8 +641,8 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   }
   connection <- new("DatabaseConnectorJdbcConnection",
                     jConnection = jConnection,
-                    identifierQuote = identifierQuote,
-                    stringQuote = stringQuote,
+                    identifierQuote = "",
+                    stringQuote = "'",
                     dbms = dbms,
                     uuid = generateRandomString()
   )
@@ -655,7 +655,7 @@ connectUsingRsqLite <- function(server, extended) {
   connection <- new("DatabaseConnectorDbiConnection",
                     server = server,
                     dbiConnection = dbiConnection,
-                    identifierQuote = "'",
+                    identifierQuote = "",
                     stringQuote = "'",
                     dbms = ifelse(extended, "sqlite extended", "sqlite"),
                     uuid = generateRandomString()

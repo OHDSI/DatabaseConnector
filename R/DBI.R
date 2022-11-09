@@ -51,13 +51,23 @@ DatabaseConnectorDriver <- function() {
 # Connection
 # -----------------------------------------------------------------------------------------
 
+#' Microsoft SQL Server class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+setClass("Microsoft SQL Server",
+         contains = "DBIConnection"
+)
+
+
 #' DatabaseConnectorConnection class.
 #'
 #' @keywords internal
 #' @export
 #' @import DBI
 setClass("DatabaseConnectorConnection",
-         contains = "DBIConnection",
+         contains = "Microsoft SQL Server",
          slots = list(
            identifierQuote = "character",
            stringQuote = "character", dbms = "character", uuid = "character"
@@ -149,6 +159,12 @@ setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
 
 #' @rdname DatabaseConnectorConnection-class
 #' @export
+setMethod("dbGetInfo", "DatabaseConnectorConnection", function(dbObj, ...) {
+  return(list(db.version = "15.0"))
+})
+
+#' @rdname DatabaseConnectorConnection-class
+#' @export
 setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn,
                                                                                                x, ...) {
   if (length(x) == 0L) {
@@ -210,6 +226,10 @@ setMethod(
     if (rJava::is.jnull(conn@jConnection)) {
       abort("Connection is closed")
     }
+    statement <- translateStatement(
+      sql = statement,
+      targetDialect = dbms(conn)
+    )
     batchedQuery <- rJava::.jnew(
       "org.ohdsi.databaseConnector.BatchedQuery",
       conn@jConnection,
@@ -232,6 +252,10 @@ setMethod(
   signature("DatabaseConnectorDbiConnection", "character"),
   function(conn, statement,
            ...) {
+    statement <- translateStatement(
+      sql = statement,
+      targetDialect = dbms(conn)
+    )
     return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
   }
 )
@@ -295,6 +319,10 @@ setMethod(
   signature("DatabaseConnectorConnection", "character"),
   function(conn, statement,
            ...) {
+    statement <- translateStatement(
+      sql = statement,
+      targetDialect = dbms(conn)
+    )
     lowLevelQuerySql(conn, statement)
   }
 )
@@ -308,6 +336,10 @@ setMethod(
            ...) {
     rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
     rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
+    statement <- translateStatement(
+      sql = statement,
+      targetDialect = dbms(conn)
+    )
     result <- new("DatabaseConnectorResult",
                   content = rowsAffected,
                   type = "rowsAffected",
@@ -332,6 +364,13 @@ setMethod(
   signature("DatabaseConnectorConnection", "character"),
   function(conn, statement,
            ...) {
+    if (isDbplyrSql(sql) && dbms(conn) == "oracle" && grepl("^UPDATE STATISTICS", statement)) {
+      return(0)
+    }
+    statement <- translateStatement(
+      sql = statement,
+      targetDialect = dbms(conn)
+    )
     rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
     return(rowsAffected)
   }
@@ -506,7 +545,7 @@ setMethod("dbReadTable",
             }
             sql <- "SELECT * FROM @table;"
             sql <- SqlRender::render(sql = sql, table = name)
-            sql <- SqlRender::translate(
+            sql <- translateStatement(
               sql = sql,
               targetDialect = dbms(conn),
               tempEmulationSchema = tempEmulationSchema
@@ -541,7 +580,7 @@ setMethod(
     }
     sql <- "TRUNCATE TABLE @table; DROP TABLE @table;"
     sql <- SqlRender::render(sql = sql, table = name)
-    sql <- SqlRender::translate(
+    sql <- translateStatement(
       sql = sql,
       targetDialect = dbms(conn),
       tempEmulationSchema = tempEmulationSchema
@@ -552,3 +591,40 @@ setMethod(
     return(TRUE)
   }
 )
+
+#' Refer to a table in a database schema
+#' 
+#' @description 
+#' Can be used with \code{dplyr::tbl()} to indicate a table in a specific database schema.
+#'
+#' @param databaseSchema 
+#' @param table 
+#'
+#' @return
+#' An object representing the table and database schema.
+#' 
+#' @export
+inDatabaseSchema <- function(databaseSchema, table) {
+  databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
+  if (length(databaseSchema) == 1) {
+    return(dbplyr::in_schema(databaseSchema[1], table))
+  } else {
+    return(dbplyr::in_catalog(databaseSchema[1], databaseSchema[2], table))
+  }
+}
+
+isDbplyrSql <- function(sql) {
+  return(is(sql, "sql"))
+}
+
+translateStatement <- function(sql, targetDialect) {
+  if (isDbplyrSql(sql) && !grepl(";\\s*$", sql)) {
+    # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
+    sql <- paste0(sql, ";")
+  }
+  sql <- SqlRender::translate(sql, targetDialect)
+  # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)
+  sql <- gsub(";\\s*$", "", sql)
+  return(sql)
+}
+
