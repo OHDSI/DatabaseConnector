@@ -364,7 +364,7 @@ setMethod(
   signature("DatabaseConnectorConnection", "character"),
   function(conn, statement,
            ...) {
-    if (isDbplyrSql(sql) && dbms(conn) == "oracle" && grepl("^UPDATE STATISTICS", statement)) {
+    if (isDbplyrSql(statement) && dbms(conn) == "oracle" && grepl("^UPDATE STATISTICS", statement)) {
       return(0)
     }
     statement <- translateStatement(
@@ -597,8 +597,9 @@ setMethod(
 #' @description 
 #' Can be used with \code{dplyr::tbl()} to indicate a table in a specific database schema.
 #'
-#' @param databaseSchema 
-#' @param table 
+#' @param databaseSchema The name of the database schema. For example, for SQL Server this can 
+#'                       be 'cdm.dbo'.
+#' @param table          The name of the table in the database schema.
 #'
 #' @return
 #' An object representing the table and database schema.

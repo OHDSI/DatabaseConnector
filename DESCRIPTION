@@ -30,7 +30,8 @@ Imports:
     urltools,
     bit64,
     checkmate,
-    digest
+    digest,
+    dbplyr
 Suggests:
     aws.s3,
     R.utils,

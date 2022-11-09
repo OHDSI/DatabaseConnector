@@ -7,9 +7,10 @@
 inDatabaseSchema(databaseSchema, table)
 }
 \arguments{
-\item{databaseSchema}{}
+\item{databaseSchema}{The name of the database schema. For example, for SQL Server this can 
+be 'cdm.dbo'.}
 
-\item{table}{}
+\item{table}{The name of the table in the database schema.}
 }
 \value{
 An object representing the table and database schema.
