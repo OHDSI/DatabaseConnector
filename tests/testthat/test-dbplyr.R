@@ -25,6 +25,14 @@ test_that("Get results using dbplyr", {
     pull()
   
   expect_equal(nObsOverOneYear, 955)
+  
+  longestObsPeriod <- observationPeriod %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    arrange(desc(duration)) %>%
+    head(1) %>%
+    collect()
+  
+  expect_equal(longestObsPeriod$duration, 1095)
 
   disconnect(connection)
   
@@ -52,6 +60,14 @@ test_that("Get results using dbplyr", {
   
   expect_equal(nObsOverOneYear, 955)
   
+  longestObsPeriod <- observationPeriod %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    arrange(desc(duration)) %>%
+    head(1) %>%
+    collect()
+  
+  expect_equal(longestObsPeriod$duration, 1095)
+  
   disconnect(connection)
   
   # Oracle ---------------------------------------
@@ -78,6 +94,14 @@ test_that("Get results using dbplyr", {
   
   expect_equal(nObsOverOneYear, 955)
   
+  longestObsPeriod <- observationPeriod %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    arrange(desc(duration)) %>%
+    head(1) %>%
+    collect()
+  
+  expect_equal(longestObsPeriod$duration, 1095)
+  
   disconnect(connection)
   
   # RedShift ----------------------------------------------
@@ -103,6 +127,14 @@ test_that("Get results using dbplyr", {
     pull()
   
   expect_equal(nObsOverOneYear, 963)
+  
+  longestObsPeriod <- observationPeriod %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    arrange(desc(duration)) %>%
+    head(1) %>%
+    collect()
+  
+  expect_equal(longestObsPeriod$duration, 1109)
   
   disconnect(connection)
   
@@ -141,6 +173,14 @@ test_that("Get results using dbplyr", {
     pull()
   
   expect_equal(nObsOverOneYear, 50)
+  
+  longestObsPeriod <- observationPeriod %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    arrange(desc(duration)) %>%
+    head(1) %>%
+    collect()
+  
+  expect_equal(longestObsPeriod$duration, 730)
   
   disconnect(connection)
   unlink(databaseFile)  

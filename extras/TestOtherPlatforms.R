@@ -180,6 +180,14 @@ nMales2 <- tempTable %>%
   pull()
 expect_equal(nMales2, 1033995)
 
+longestObsPeriod <- observationPeriod %>%
+  mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+  arrange(desc(duration)) %>%
+  head(1) %>%
+  collect()
+
+expect_equal(longestObsPeriod$duration, 1127)
+
 dropEmulatedTempTables(connection)
 disconnect(connection)
 
@@ -215,6 +223,14 @@ nMales2 <- tempTable %>%
   count() %>%
   pull()
 expect_equal(nMales2, 1321)
+
+longestObsPeriod <- observationPeriod %>%
+  mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+  arrange(desc(duration)) %>%
+  head(1) %>%
+  collect()
+
+expect_equal(longestObsPeriod$duration, 40348)
 
 dropEmulatedTempTables(connection)
 disconnect(connection)

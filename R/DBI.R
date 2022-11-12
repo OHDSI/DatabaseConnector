@@ -300,6 +300,7 @@ setMethod("dbGetRowCount", "DatabaseConnectorResult", function(res, ...) {
 setMethod("dbFetch", "DatabaseConnectorResult", function(res, ...) {
   rJava::.jcall(res@content, "V", "fetchBatch")
   columns <- parseJdbcColumnData(res@content, ...)
+  colnames(columns) <- tolower(colnames(columns))
   return(columns)
 })
 
@@ -323,7 +324,9 @@ setMethod(
       sql = statement,
       targetDialect = dbms(conn)
     )
-    lowLevelQuerySql(conn, statement)
+    result <- lowLevelQuerySql(conn, statement)
+    colnames(result) <- tolower(colnames(result))
+    return(result)
   }
 )
 
@@ -396,7 +399,7 @@ setMethod(
       schema = schema,
       table = name
     )
-    return(columns$name)
+    return(tolower(columns$name))
   }
 )
 
@@ -620,6 +623,7 @@ isDbplyrSql <- function(sql) {
 }
 
 translateStatement <- function(sql, targetDialect) {
+  # writeLines(paste("In:", sql))
   if (isDbplyrSql(sql) && !grepl(";\\s*$", sql)) {
     # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
     sql <- paste0(sql, ";")
@@ -627,6 +631,7 @@ translateStatement <- function(sql, targetDialect) {
   sql <- SqlRender::translate(sql, targetDialect)
   # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)
   sql <- gsub(";\\s*$", "", sql)
+  # writeLines(paste("Out:", sql))
   return(sql)
 }
 
