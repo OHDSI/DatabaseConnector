@@ -1004,6 +1004,10 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
 #' @export
 dropEmulatedTempTables <- function(connection,
                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (!dbms(connection) %in% c("oracle", "spark", "impala", "bigquery", "snowflake")) {
+    # No temp tables emulated: do nothing
+    return()
+  }
   if (is.null(tempEmulationSchema))
     abort("The `tempEmulationSchema` must be specified.")
   prefix <- SqlRender::getTempTablePrefix()

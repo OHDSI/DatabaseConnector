@@ -594,6 +594,25 @@ setMethod(
   }
 )
 
+setMethod("dbBegin",
+          signature(conn="DatabaseConnectorConnection"),
+          def = function(conn,  ...){
+            # Do nothing
+          }
+)
+setMethod("dbCommit",
+          signature(conn="DatabaseConnectorConnection"),
+          def = function(conn,  ...){
+            # Do nothing
+          }
+)
+setMethod("dbRollback",
+          signature(conn="DatabaseConnectorConnection"),
+          def = function(conn,  ...){
+            # Do nothing
+          }
+)
+
 #' Refer to a table in a database schema
 #' 
 #' @description 

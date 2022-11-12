@@ -164,6 +164,11 @@ nMales <- person %>%
   pull()
 expect_equal(nMales, 1033995)
 
+personSample <- person %>%
+  slice_sample(n = 10) %>%
+  collect()
+expect_equal(nrow(personSample), 10)
+
 observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
 nObsOverOneYear <- observationPeriod %>%
   filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
@@ -207,6 +212,11 @@ nMales <- person %>%
   count() %>%
   pull()
 expect_equal(nMales, 1321)
+
+personSample <- person %>%
+  slice_sample(n = 10) %>%
+  collect()
+expect_equal(nrow(personSample), 10)
 
 observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
 nObsOverOneYear <- observationPeriod %>%

@@ -18,6 +18,11 @@ test_that("Get results using dbplyr", {
     pull()
   expect_equal(nMales, 502)
   
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
+  
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
   nObsOverOneYear <- observationPeriod %>%
     filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
@@ -51,6 +56,11 @@ test_that("Get results using dbplyr", {
     count() %>%
     pull()
   expect_equal(nMales, 502)
+  
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
   
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
   nObsOverOneYear <- observationPeriod %>%
@@ -86,6 +96,11 @@ test_that("Get results using dbplyr", {
     pull()
   expect_equal(nMales, 502)
   
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
+  
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
   nObsOverOneYear <- observationPeriod %>%
     filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
@@ -119,6 +134,11 @@ test_that("Get results using dbplyr", {
     count() %>%
     pull()
   expect_equal(nMales, 461)
+  
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
   
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
   nObsOverOneYear <- observationPeriod %>%
@@ -165,6 +185,11 @@ test_that("Get results using dbplyr", {
     count() %>%
     pull()
   expect_equal(nMales, 50)
+  
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
   
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
   nObsOverOneYear <- observationPeriod %>%
