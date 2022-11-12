@@ -37,14 +37,15 @@
 
 \S4method{dbExecute}{DatabaseConnectorConnection,character}(conn, statement, ...)
 
-\S4method{dbListFields}{DatabaseConnectorConnection,character}(conn, name, database = NULL, schema = NULL, ...)
+\S4method{dbListFields}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
 
-\S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, database = NULL, schema = NULL, ...)
+\S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
 
 \S4method{dbWriteTable}{DatabaseConnectorConnection,ANY}(
   conn,
   name,
   value,
+  databaseSchema = NULL,
   overwrite = FALSE,
   append = FALSE,
   temporary = FALSE,
@@ -57,6 +58,7 @@
   conn,
   name,
   value,
+  databaseSchema = NULL,
   temporary = FALSE,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
@@ -68,6 +70,7 @@
   conn,
   name,
   fields,
+  databaseSchema = NULL,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...,
@@ -78,8 +81,7 @@
 \S4method{dbReadTable}{DatabaseConnectorConnection,character}(
   conn,
   name,
-  database = NULL,
-  schema = NULL,
+  databaseSchema = NULL,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...
@@ -88,8 +90,7 @@
 \S4method{dbRemoveTable}{DatabaseConnectorConnection,ANY}(
   conn,
   name,
-  database = NULL,
-  schema = NULL,
+  databaseSchema = NULL,
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...
@@ -103,9 +104,8 @@
 
 \item{...}{Not used}
 
-\item{database}{Name of the database.}
-
-\item{schema}{Name of the schema.}
+\item{databaseSchema}{Character string containing the name of the schema 
+or database and schema separated by period. (e.g. "schema", "dbo.schema")}
 
 \item{overwrite}{Overwrite an existing table (if exists)?}
 
@@ -118,9 +118,6 @@
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
-
-\item{databaseSchema}{Character string containing the name of the schema 
-or database and schema separated by period. (e.g. "schema", "dbo.schema")}
 }
 \value{
 \code{dbListTables()}
@@ -144,6 +141,49 @@ This should include views and temporary objects, but not all database backends
 (in particular \pkg{RMariaDB} and \pkg{RMySQL}) support this.
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListTables")}
+}
+\details{
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
 }
 \seealso{
 Other DBIConnection generics: 

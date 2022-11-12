@@ -1,5 +1,3 @@
-# @file DBI.R
-#
 # Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
@@ -384,19 +382,19 @@ setMethod(
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
-#' @param database   Name of the database.
-#' @param schema     Name of the schema.
+#' @template DatabaseSchema
 #'
 #' @export
 setMethod(
   "dbListFields",
   signature("DatabaseConnectorConnection", "character"),
   function(conn, name,
-           database = NULL, schema = NULL, ...) {
+           databaseSchema = NULL, ...) {
+    databaseSchemaSplit <- splitDatabaseSchema(databaseSchema, dbms(conn))
     columns <- listDatabaseConnectorColumns(
       connection = conn,
-      catalog = database,
-      schema = schema,
+      catalog = databaseSchemaSplit[[1]],
+      schema = databaseSchemaSplit[[2]],
       table = name
     )
     return(tolower(columns$name))
@@ -406,22 +404,16 @@ setMethod(
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
-#' @param database   Name of the database.
-#' @param schema     Name of the schema.
+#' @template DatabaseSchema
 #' 
 #' @export
 setMethod(
   "dbExistsTable",
   signature("DatabaseConnectorConnection", "character"),
   function(conn, name,
-           database = NULL, schema = NULL, ...) {
+           databaseSchema = NULL, ...) {
     if (length(name) != 1) {
       abort("Name should be a single string")
-    }
-    if (is.null(database)) {
-      databaseSchema <- schema
-    } else {
-      databaseSchema <- paste(database, schema, sep = ".")
     }
     return(existsTable(connection = conn,
                        databaseSchema = databaseSchema, 
@@ -431,6 +423,7 @@ setMethod(
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
+#' @template DatabaseSchema
 #' @param overwrite          Overwrite an existing table (if exists)?
 #' @param append             Append to existing table?
 #' @param temporary          Should the table created as a temp table?
@@ -441,7 +434,7 @@ setMethod(
   "dbWriteTable",
   "DatabaseConnectorConnection",
   function(conn,
-           name, value, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+           name, value, databaseSchema = NULL, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
       warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
            .frequency = "regularly",
@@ -454,6 +447,7 @@ setMethod(
     }
     insertTable(
       connection = conn,
+      databaseSchema = databaseSchema,
       tableName = name,
       data = value,
       dropTableIfExists = overwrite,
@@ -469,13 +463,14 @@ setMethod(
 #' 
 #' @param temporary          Should the table created as a temp table?
 #' @template TempEmulationSchema
+#' @template DatabaseSchema
 #
 #' @export
 setMethod(
   "dbAppendTable",
   signature("DatabaseConnectorConnection", "character"),
   function(conn,
-           name, value, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL) {
+           name, value, databaseSchema = NULL, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
       warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
            .frequency = "regularly",
@@ -485,6 +480,7 @@ setMethod(
     }
     insertTable(
       connection = conn,
+      databaseSchema = databaseSchema,
       tableName = name,
       data = value,
       dropTableIfExists = FALSE,
@@ -497,12 +493,17 @@ setMethod(
 )
 
 #' @rdname DatabaseConnectorConnection-class
+#' 
+#' @param temporary          Should the table created as a temp table?
+#' @template TempEmulationSchema
+#' @template DatabaseSchema
+#' 
 #' @export
 setMethod(
   "dbCreateTable",
   "DatabaseConnectorConnection",
   function(conn,
-           name, fields, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL, temporary = FALSE) {
+           name, fields, databaseSchema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL, temporary = FALSE) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
       warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
            .frequency = "regularly",
@@ -511,8 +512,14 @@ setMethod(
       tempEmulationSchema <- oracleTempSchema
     }
     insertTable(
-      connection = conn, tableName = name, data = fields[FALSE, ], dropTableIfExists = TRUE,
-      createTable = TRUE, tempTable = temporary, tempEmulationSchema = tempEmulationSchema
+      connection = conn, 
+      databaseSchema = databaseSchema,
+      tableName = name, 
+      data = fields[FALSE, ], 
+      dropTableIfExists = TRUE,
+      createTable = TRUE, 
+      tempTable = temporary, 
+      tempEmulationSchema = tempEmulationSchema
     )
     invisible(TRUE)
   }
@@ -520,8 +527,7 @@ setMethod(
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
-#' @param database              Name of the database.
-#' @param schema                Name of the schema.
+#' @template DatabaseSchema
 #' @template TempEmulationSchema
 #'
 #' @export
@@ -529,8 +535,7 @@ setMethod("dbReadTable",
           signature("DatabaseConnectorConnection", "character"), 
           function(conn, 
                    name,
-                   database = NULL, 
-                   schema = NULL, 
+                   databaseSchema = NULL, 
                    oracleTempSchema = NULL, 
                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                    ...) {
@@ -541,11 +546,8 @@ setMethod("dbReadTable",
               )
               tempEmulationSchema <- oracleTempSchema
             }
-            if (!is.null(schema)) {
-              name <- paste(schema, name, sep = ".")
-            }
-            if (!is.null(database)) {
-              name <- paste(database, name, sep = ".")
+            if (!is.null(databaseSchema)) {
+              name <- paste(databaseSchema, name, sep = ".")
             }
             sql <- "SELECT * FROM @table;"
             sql <- SqlRender::render(sql = sql, table = name)
@@ -559,8 +561,7 @@ setMethod("dbReadTable",
 
 #' @rdname DatabaseConnectorConnection-class
 #' 
-#' @param database           Name of the database.
-#' @param schema             Name of the schema.
+#' @template DatabaseSchema
 #' @template TempEmulationSchema
 #'
 #' @export
@@ -568,7 +569,7 @@ setMethod(
   "dbRemoveTable",
   "DatabaseConnectorConnection",
   function(conn, name,
-           database = NULL, schema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+           databaseSchema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
       warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
            .frequency = "regularly",
@@ -576,11 +577,8 @@ setMethod(
       )
       tempEmulationSchema <- oracleTempSchema
     }
-    if (!is.null(schema)) {
-      name <- paste(schema, name, sep = ".")
-    }
-    if (!is.null(database)) {
-      name <- paste(database, name, sep = ".")
+    if (!is.null(databaseSchema)) {
+      name <- paste(databaseSchema, name, sep = ".")
     }
     sql <- "TRUNCATE TABLE @table; DROP TABLE @table;"
     sql <- SqlRender::render(sql = sql, table = name)
@@ -622,16 +620,33 @@ isDbplyrSql <- function(sql) {
   return(is(sql, "sql"))
 }
 
-translateStatement <- function(sql, targetDialect) {
+translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
   # writeLines(paste("In:", sql))
   if (isDbplyrSql(sql) && !grepl(";\\s*$", sql)) {
     # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
     sql <- paste0(sql, ";")
   }
-  sql <- SqlRender::translate(sql, targetDialect)
+  sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
   # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)
   sql <- gsub(";\\s*$", "", sql)
   # writeLines(paste("Out:", sql))
   return(sql)
 }
 
+splitDatabaseSchema <- function(databaseSchema, dbms) {
+  if (is.null(databaseSchema)) {
+    return(list(NULL, NULL))
+  }
+  if (dbms %in% c("sql server", "pdw")) {
+    databaseSchemaSplit <- strsplit(databaseSchema, "\\.")[[1]]
+    if (length(databaseSchemaSplit) == 1) {
+      return(list(NULL, databaseSchema))
+    } else if (length(databaseSchemaSplit) == 2) {
+      return(list(databaseSchemaSplit[1], databaseSchemaSplit[2]))
+    } else {
+      rlang::abort("databaseSchema can contain at most one dot (.)")
+    }
+  } else {
+    return(list(NULL, databaseSchema))
+  }
+}
