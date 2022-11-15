@@ -1,0 +1,73 @@
+library(dplyr)
+
+
+testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
+  connection <- connect(connectionDetails)
+  on.exit(disconnect(connection))
+  
+  person <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "person"))
+  observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
+  
+  nMales <- person %>%
+    filter(gender_concept_id == 8507) %>%
+    count() %>%
+    pull()
+  expect_gt(nMales, 1)
+  
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
+  
+  cars2 <- copy_to(connection, cars, overwrite = TRUE)
+  cars2 <- cars2 %>% collect()
+  expect_equivalent(arrange(cars, speed, dist), arrange(cars2, speed, dist))
+  
+  nObsOverOneYear <- observationPeriod %>%
+    filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
+    count() %>%
+    pull()
+  
+  expect_gt(nObsOverOneYear, 1)
+  
+  tempTable <- person %>%
+    filter(gender_concept_id == 8507) %>%
+    compute()
+  nMales2 <- tempTable %>%
+    count() %>%
+    pull()
+  expect_gt(nMales2, 1)
+  
+  longestObsPeriod <- observationPeriod %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    arrange(desc(duration)) %>%
+    relocate(duration) %>%
+    head(1) %>%
+    collect()
+  expect_gt(longestObsPeriod$duration, 1)
+  expect_equal(which(names(longestObsPeriod) == "duration"), 1)
+  
+  topAges <- person %>%
+    inner_join(observationPeriod, by = "person_id") %>%
+    mutate(age = year(observation_period_start_date) - year_of_birth) %>%
+    distinct(age) %>%
+    rename(person_age = age) %>%
+    arrange(desc(person_age)) %>%
+    head(10) %>%
+    collect()
+  expect_equal(nrow(topAges), 10)
+  
+  durationDist <- person %>%
+    inner_join(observationPeriod, by = "person_id") %>%
+    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    group_by(gender_concept_id) %>%
+    summarize(mean_duration = mean(duration, na.rm = TRUE),
+              min_duration = min(duration, na.rm = TRUE),
+              max_duration = max(duration, na.rm = TRUE),
+              count_duration = n()) %>%
+    collect()
+  expect_equal(nrow(durationDist), 2)
+  
+  dropEmulatedTempTables(connection)
+  # disconnect(connection)
+}

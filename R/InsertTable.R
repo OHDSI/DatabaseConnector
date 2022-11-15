@@ -230,7 +230,7 @@ insertTable.default <- function(connection,
   }
   if (!tempTable & substr(tableName, 1, 1) == "#") {
     tempTable <- TRUE
-    warn("Temp table name detected, setting tempTable parameter to TRUE")
+    # warn("Temp table name detected, setting tempTable parameter to TRUE")
   }
   if (dropTableIfExists) {
     createTable <- TRUE
@@ -411,7 +411,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   }
   if (!tempTable & substr(tableName, 1, 1) == "#") {
     tempTable <- TRUE
-    warn("Temp table name detected, setting tempTable parameter to TRUE")
+    # warn("Temp table name detected, setting tempTable parameter to TRUE")
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
 

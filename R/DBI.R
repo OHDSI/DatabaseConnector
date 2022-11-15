@@ -365,7 +365,7 @@ setMethod(
   signature("DatabaseConnectorConnection", "character"),
   function(conn, statement,
            ...) {
-    if (isDbplyrSql(statement) && dbms(conn) %in% c("oracle", "bigquery", "spark") && grepl("^UPDATE STATISTICS", statement)) {
+    if (isDbplyrSql(statement) && dbms(conn) %in% c("oracle", "bigquery", "spark", "hive") && grepl("^UPDATE STATISTICS", statement)) {
       # These platforms don't support this, so SqlRender translates to an empty string, which causes errors down the line.
       return(0)
     }
@@ -640,7 +640,10 @@ isDbplyrSql <- function(sql) {
 }
 
 translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
-  # writeLines(paste("In:", sql))
+  debug <- isTRUE(getOption("DEBUG_DATABASECONNECTOR_DBPLYR"))
+  if (debug) {
+    message(paste("SQL in:", sql))
+  }
   if (isDbplyrSql(sql) && !grepl(";\\s*$", sql)) {
     # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
     sql <- paste0(sql, ";")
@@ -648,7 +651,9 @@ translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOpti
   sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
   # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)
   sql <- gsub(";\\s*$", "", sql)
-  # writeLines(paste("Out:", sql))
+  if (debug) {
+    message(paste("SQL out:", sql))
+  }
   return(sql)
 }
 
