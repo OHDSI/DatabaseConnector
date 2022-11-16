@@ -373,7 +373,12 @@ setMethod(
       sql = statement,
       targetDialect = dbms(conn)
     )
-    rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
+    rowsAffected <- 0
+    for (sql in SqlRender::splitSql(statement)) {
+      rowsAffected <- rowsAffected + lowLevelExecuteSql(conn, sql)
+    }
+    
+    # rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
     return(rowsAffected)
   }
 )

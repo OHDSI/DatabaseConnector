@@ -269,7 +269,7 @@ insertTable.default <- function(connection,
   
   sqlDataTypes <- sapply(data, getSqlDataTypes)
   sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE), sqlDataTypes, collapse = ", ")
-  sqlTableName <- .sql.qescape(tableName, TRUE)
+  sqlTableName <- .sql.qescape(tableName, TRUE, quote = "")
   sqlFieldNames <- paste(.sql.qescape(names(data), TRUE), collapse = ",")
 
   if (dropTableIfExists) {
