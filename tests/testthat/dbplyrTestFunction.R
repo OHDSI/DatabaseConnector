@@ -79,9 +79,11 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     ) %>%
     group_by(period_type_concept_id) %>%
     summarize(value_count = n()) %>%
+    mutate(rn = row_number(value_count)) %>%
     collect()
   expect_s3_class(resultOfAntiJoin, "data.frame")
   
+
   dropEmulatedTempTables(connection)
   # disconnect(connection)
 }
