@@ -52,16 +52,16 @@ getSqlDataTypes <- function(column) {
 .sql.qescape <- function(s, identifier = FALSE, quote = "\"") {
   s <- as.character(s)
   if (identifier) {
-    vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", s)
-    if (length(s[-vid])) {
+    validIdx <- grepl("^[A-Za-z]+([A-Za-z0-9_]*)$", s)
+    if (any(!validIdx)) {
       if (is.na(quote)) {
         abort(paste0(
           "The JDBC connection doesn't support quoted identifiers, but table/column name contains characters that must be quoted (",
-          paste(s[-vid], collapse = ","),
+          paste(s[!validIdx], collapse = ","),
           ")"
         ))
       }
-      s[-vid] <- .sql.qescape(s[-vid], FALSE, quote)
+      s[!validIdx] <- .sql.qescape(s[!validIdx], FALSE, quote)
     }
     return(s)
   }
@@ -268,9 +268,9 @@ insertTable.default <- function(connection,
   }
   
   sqlDataTypes <- sapply(data, getSqlDataTypes)
-  sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), sqlDataTypes, collapse = ", ")
-  sqlTableName <- .sql.qescape(tableName, TRUE, connection@identifierQuote)
-  sqlFieldNames <- paste(.sql.qescape(names(data), TRUE, connection@identifierQuote), collapse = ",")
+  sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE), sqlDataTypes, collapse = ", ")
+  sqlTableName <- .sql.qescape(tableName, TRUE)
+  sqlFieldNames <- paste(.sql.qescape(names(data), TRUE), collapse = ",")
 
   if (dropTableIfExists) {
     sql <- "DROP TABLE IF EXISTS @tableName;"

@@ -83,7 +83,10 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_s3_class(resultOfAntiJoin, "data.frame")
   
-
+  # dumbNameCars <- cars
+  # names(dumbNameCars) <- c("Car speed", "Dist. to Stop")
+  # copy_to(connection, dumbNameCars, name = "dn_cars")
+  
   dropEmulatedTempTables(connection)
   # disconnect(connection)
 }

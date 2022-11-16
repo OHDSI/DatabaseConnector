@@ -24,6 +24,8 @@ Bugfixes:
 
 3. Throwing informative error when using `insertTable()` on BigQuery without specifying the `tempEmulationSchema`.
 
+4. Fix error when calling `insertTable()` and all column names require quotes.
+
 
 DatabaseConnector 5.0.4
 =======================
