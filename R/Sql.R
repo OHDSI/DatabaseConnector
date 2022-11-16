@@ -1004,7 +1004,7 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
 #' @export
 dropEmulatedTempTables <- function(connection,
                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
-  if (!dbms(connection) %in% c("oracle", "spark", "impala", "bigquery", "snowflake")) {
+  if (!requiresTempEmulation(dbms(connection))) {
     # No temp tables emulated: do nothing
     return()
   }
@@ -1025,4 +1025,49 @@ dropEmulatedTempTables <- function(connection,
     executeSql(connection, sql)
   }
   invisible(tableNames)
+}
+
+#' Does the DBMS require temp table emulation?
+#'
+#' @param dbms The type of DBMS running on the server. See [connect()] or [createConnectionDetails()] for 
+#' valid values.
+#'
+#' @return
+#' TRUE if the DBMS requires temp table emulation, FALSE otherwise.
+#'
+#' @examples
+#' requiresTempEmulation("postgresql")
+#' requiresTempEmulation("oracle")
+#' 
+#' @export
+requiresTempEmulation <- function(dbms){
+  return(dbms %in% c("oracle", "spark", "impala", "bigquery", "snowflake"))
+}
+
+#' Assert the temp emulation schema is set
+#'
+#' @description 
+#' Asserts the temp emulation schema is set for DBMSs requiring temp table emulation. 
+#' 
+#' If you know your code uses temp tables, it is a good idea to call this function first,
+#' so it can throw an informative error if the user forgot to set the temp emulation schema.
+#' 
+#' @param dbms                The type of DBMS running on the server. See [connect()] or 
+#'                            [createConnectionDetails()] for valid values.
+#' @param tempEmulationSchema The temp emulation schema specified by the user. 
+#'
+#' @return
+#' Does not return anything. Throws an error if the DBMS requires temp emulation but the 
+#' temp emulation schema is not set.
+#' 
+#' @export
+assertTempEmulationSchemaSet <- function(dbms,
+                                         tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (requiresTempEmulation(dbms) && (is.null(tempEmulationSchema) || tempEmulationSchema == "")) {
+    rlang::abort(c(
+      sprintf("Temp table emulation is required for %s but the temp emulation schema is not set.", dbms),
+      "i" = "Please use options(sqlRenderTempEmulationSchema = \"some_schema\") to specify a schema where you have write access."
+    ))
+  }
+  invisible(NULL)
 }

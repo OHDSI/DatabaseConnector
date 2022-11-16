@@ -209,3 +209,12 @@ test_that("insertTable", {
 
   disconnect(connection)
 })
+
+test_that("Test temp emulation helper functions", {
+  expect_true(requiresTempEmulation("bigquery"))
+  expect_false(requiresTempEmulation("postgresql"))
+  
+  expect_error(assertTempEmulationSchemaSet("oracle", tempEmulationSchema = NULL), "emp emulation schema is not set")
+  expect_no_error(assertTempEmulationSchemaSet("oracle", tempEmulationSchema = "some_schema"))
+  expect_no_error(assertTempEmulationSchemaSet("sql server", tempEmulationSchema = NULL))
+})
