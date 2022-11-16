@@ -11,7 +11,9 @@ Changes:
 
 4. Updating RedShift driver to V2.1.0.9. Fixes error when uploading data.
 
-5. Adding `requiresTempEmulation()` and `assertTempEmulationSchemaSet()` function.
+5. Adding `requiresTempEmulation()` and `assertTempEmulationSchemaSet()` functions.
+
+6. Ensuring `dbms()`, `renderTranslateExecuteSql()`, `renderTranslateQuerySql()`, and `renderTranslateQuerySqlToAndromeda()` functions work with connection pool objects.
 
 
 Bugfixes:

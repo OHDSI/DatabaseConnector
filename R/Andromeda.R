@@ -328,6 +328,10 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                                               default = TRUE
                                                ),
                                                ...) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",

@@ -739,11 +739,16 @@ setPathToDll <- function() {
 #' #> "CAST(STRFTIME('%s', DATETIME(dateColumn, 'unixepoch', (365)||' days')) AS REAL)"
 #' disconnect(con)
 dbms <- function(connection) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
+  
   if(!inherits(connection, "DBIConnection")) abort("connection must be a DBIConnection")
   
   if(!is.null(attr(connection, "dbms"))) return(attr(connection, "dbms"))
   
-  switch (class(connection),
+  switch(class(connection),
           'Microsoft SQL Server' = 'sql server',
           'PqConnection' = 'postgresql',
           'RedshiftConnection' = 'redshift',

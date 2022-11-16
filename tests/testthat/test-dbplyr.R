@@ -68,6 +68,7 @@ test_that("Test dbplyr on SQLite", {
     tableName = "person",
     data = data.frame(person_id = seq_len(100), 
                       year_of_birth = round(runif(100, 1900, 2000)),
+                      race_concept_id = NA,
                       gender_concept_id = rep(c(8507, 8532), 50))
   )
   insertTable(
@@ -76,7 +77,8 @@ test_that("Test dbplyr on SQLite", {
     tableName = "observation_period",
     data = data.frame(person_id = seq_len(100), 
                       observation_period_start_date = rep(as.Date("2000-01-01"), 100),
-                      observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50))
+                      observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50),
+                      period_type_concept_id = rep(0, 100))
   )
   disconnect(connection)
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)

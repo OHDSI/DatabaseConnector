@@ -675,6 +675,10 @@ renderTranslateExecuteSql <- function(connection,
                                       oracleTempSchema = NULL,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
@@ -745,6 +749,10 @@ renderTranslateQuerySql <- function(connection,
                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                     ...) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
@@ -1004,6 +1012,10 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
 #' @export
 dropEmulatedTempTables <- function(connection,
                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!requiresTempEmulation(dbms(connection))) {
     # No temp tables emulated: do nothing
     return()

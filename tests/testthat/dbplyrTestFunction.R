@@ -1,7 +1,9 @@
 library(dplyr)
-
+# options("DEBUG_DATABASECONNECTOR_DBPLYR" = TRUE)
 
 testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
+  assertTempEmulationSchemaSet(connectionDetails$dbms)
+  
   connection <- connect(connectionDetails)
   on.exit(disconnect(connection))
   
@@ -66,7 +68,19 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
               max_duration = max(duration, na.rm = TRUE),
               count_duration = n()) %>%
     collect()
+  
   expect_equal(nrow(durationDist), 2)
+  
+  resultOfAntiJoin <- observationPeriod %>% 
+    anti_join(
+      person %>%
+        filter(!is.null(race_concept_id)),
+      by = "person_id"
+    ) %>%
+    group_by(period_type_concept_id) %>%
+    summarize(value_count = n()) %>%
+    collect()
+  expect_s3_class(resultOfAntiJoin, "data.frame")
   
   dropEmulatedTempTables(connection)
   # disconnect(connection)

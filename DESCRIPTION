@@ -46,7 +46,8 @@ Suggests:
     dplyr,
     RPostgres,
     odbc,
-    duckdb
+    duckdb,
+    pool
 Remotes:
     ohdsi/SqlRender@develop
 License: Apache License
