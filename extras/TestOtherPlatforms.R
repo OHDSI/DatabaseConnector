@@ -1,4 +1,4 @@
-# Tests for platforms not available to Travis
+# Tests for platforms not available to GitHub Actions
 library(DatabaseConnector)
 library(testthat)
 

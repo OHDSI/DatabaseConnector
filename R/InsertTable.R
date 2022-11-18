@@ -210,6 +210,10 @@ insertTable.default <- function(connection,
                                 useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                                 progressBar = FALSE,
                                 camelCaseToSnakeCase = FALSE) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!is.null(useMppBulkLoad) && useMppBulkLoad != "") {
     warn("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.",
       .frequency = "regularly",

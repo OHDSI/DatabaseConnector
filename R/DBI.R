@@ -38,6 +38,17 @@ setMethod("show", "DatabaseConnectorDriver", function(object) {
   cat("<DatabaseConnectorDriver>\n")
 })
 
+#' @inherit
+#' DBI::dbGetInfo title description params details references return seealso
+#' @export
+setMethod("dbGetInfo", "DatabaseConnectorDriver", function(dbObj, ...) {
+  return(list(
+    driver.version = utils::packageVersion(utils::packageName()),
+    client.version = 1,
+    max.connections = 999
+  ))
+})
+
 #' Create a DatabaseConnectorDriver object
 #'
 #' @export
