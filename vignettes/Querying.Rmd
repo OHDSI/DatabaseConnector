@@ -93,3 +93,21 @@ insertTable(conn, "mtcars", mtcars, createTable = TRUE)
 
 In this example, we're uploading the mtcars data frame to a table called 'mtcars' on the server, that will be automatically created.
 
+# Logging all queries
+
+For several reasons it might be helpful to log all queries sent to the server (and the time to completion), for example to understand performance issues. For this one can use the `ParallelLogger` package. If the `LOG_DATABASECONNECTOR_SQL` option is set to `TRUE`, each query will be logged at the 'trace' level. For example:
+
+```{r eval=FALSE}
+options(LOG_DATABASECONNECTOR_SQL = TRUE)
+ParallelLogger::addDefaultFileLogger("sqlLog.txt", name = "TEST_LOGGER")
+
+persons <- renderTranslatequerySql(conn, 
+                                   sql = "SELECT TOP 10 * FROM @schema.person",
+                                   schema = "cdm_synpuf")
+
+readLines("sqlLog.txt")
+```
+```
+[2] "2022-11-18 10:23:59\t[Main thread]\tTRACE\tDatabaseConnector\tlogTrace\tQuerying SQL: SELECT TOP 10 * FROM cdm_synpuf.person"
+[3] "2022-11-18 10:23:59\t[Main thread]\tTRACE\tDatabaseConnector\tlogTrace\tQuerying SQL took 0.105010032653809 secs"   
+```
