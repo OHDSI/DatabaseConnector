@@ -49,6 +49,13 @@ rmarkdown::render("vignettes/Querying.Rmd",
                                           number_sections = TRUE))
 unlink("inst/doc/Querying.tex")
 
+rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
+                  output_file = "../inst/doc/DbiAndDbplyr.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+unlink("inst/doc/DbiAndDbplyr.tex")
+
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 
