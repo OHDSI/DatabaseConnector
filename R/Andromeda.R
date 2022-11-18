@@ -75,6 +75,8 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
   if (rJava::is.jnull(connection@jConnection)) {
     stop("Connection is closed")
   }
+  logTrace(paste("Querying SQL:", truncateSql(query)))
+  startTime <- Sys.time()
   
   batchedQuery <- rJava::.jnew(
     "org.ohdsi.databaseConnector.BatchedQuery",
@@ -109,6 +111,9 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
     }
     first <- FALSE
   }
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
+  
   invisible(andromeda)
 }
 
@@ -124,6 +129,9 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                        integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
                                                                                                       default = TRUE
                                                                        )) {
+  logTrace(paste("Querying SQL:", truncateSql(query)))
+  startTime <- Sys.time()
+  
   results <- lowLevelQuerySql(connection,
                               query,
                               integerAsNumeric = integerAsNumeric,
@@ -131,6 +139,10 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
   )
   
   andromeda[[andromedaTableName]] <- results
+  
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
+  
   invisible(andromeda)
 }
 
@@ -223,10 +235,8 @@ querySqlToAndromeda <- function(connection,
       "statements were found"
     ))
   }
-  logTrace(paste("Querying SQL:", truncateSql(sqlStatements[1])))
   tryCatch(
     {
-      startTime <- Sys.time()
       andromeda <- lowLevelQuerySqlToAndromeda(
         connection = connection,
         query = sqlStatements[1],
@@ -250,8 +260,6 @@ querySqlToAndromeda <- function(connection,
           andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
         }
       }
-      delta <- Sys.time() - startTime
-      logTrace(paste("Query took", delta, attr(delta, "units")))
       invisible(andromeda)
     },
     error = function(err) {

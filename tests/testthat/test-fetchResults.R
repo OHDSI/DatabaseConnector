@@ -1,10 +1,10 @@
 library(testthat)
 
 if (DatabaseConnector:::is_installed("ParallelLogger")) {
+  options(LOG_DATABASECONNECTOR_SQL = TRUE)
   logFileName <- tempfile(fileext = ".txt")
   ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
 }
-
 
 test_that("Fetch results", {
   # Postgres ----------------------------------------------------------

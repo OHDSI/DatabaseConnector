@@ -203,6 +203,9 @@ lowLevelQuerySql.default <- function(connection,
     abort("Connection is closed")
   }
   
+  logTrace(paste("Querying SQL:", truncateSql(query)))
+  startTime <- Sys.time()
+
   batchedQuery <- rJava::.jnew(
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
@@ -228,6 +231,8 @@ lowLevelQuerySql.default <- function(connection,
     
     columns <- rbind(columns, batch)
   }
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
   return(columns)
 }
 
@@ -237,6 +242,9 @@ lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection,
                                                             datesAsString = FALSE,
                                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
+  logTrace(paste("Querying SQL:", truncateSql(query)))
+  startTime <- Sys.time()
+  
   columns <- DBI::dbGetQuery(connection@dbiConnection, query)
   if (integerAsNumeric) {
     for (i in seq.int(ncol(columns))) {
@@ -252,6 +260,8 @@ lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection,
       }
     }
   }
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
   return(columns)
 }
 
@@ -310,6 +320,9 @@ delayIfNecessaryForInsert <- function(sql) {
 
 #' @export
 lowLevelExecuteSql.default <- function(connection, sql) {
+  logTrace(paste("Executing SQL:", truncateSql(sql)))
+  startTime <- Sys.time()
+  
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
   hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
@@ -323,12 +336,22 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   if (!hasResultSet) {
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
   }
+  
+  delta <- Sys.time() - startTime
+  logTrace(paste("Executing SQL took", delta, attr(delta, "units")))
   invisible(rowsAffected)
 }
 
 #' @export
 lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
+  logTrace(paste("Executing SQL:", truncateSql(sql)))
+  startTime <- Sys.time()
+  
   rowsAffected <- DBI::dbExecute(connection@dbiConnection, sql)
+  
+  delta <- Sys.time() - startTime
+  logTrace(paste("Executing SQL took", delta, attr(delta, "units")))
+  
   invisible(rowsAffected)
 }
 
@@ -468,9 +491,6 @@ executeSql <- function(connection,
         writeChar(sqlStatement, fileConn, eos = NULL)
         close(fileConn)
       }
-      if (!isTRUE(globalVars$noLogging)) {
-        logTrace(paste("Executing SQL:", truncateSql(sqlStatement)))
-      }
       tryCatch(
         {
           startQuery <- Sys.time()
@@ -478,9 +498,6 @@ executeSql <- function(connection,
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
-          }
-          if (!isTRUE(globalVars$noLogging)) {
-            logTrace(paste("Statement took", delta, attr(delta, "units")))
           }
         },
         error = function(err) {
@@ -601,8 +618,7 @@ querySql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
-  startTime <- Sys.time()
-  
+
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {
@@ -612,7 +628,6 @@ querySql <- function(connection,
       "statements were found"
     ))
   }
-  logTrace(paste("Querying SQL:", truncateSql(sqlStatements[1])))
   tryCatch(
     {
       result <- lowLevelQuerySql(
@@ -632,8 +647,6 @@ querySql <- function(connection,
       .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
     }
   )
-  delta <- Sys.time() - startTime
-  logTrace(paste("Query took", delta, attr(delta, "units")))
 }
 
 #' Render, translate, execute SQL code

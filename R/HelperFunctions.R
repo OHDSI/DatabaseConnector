@@ -15,7 +15,7 @@
 # limitations under the License.
 
 logTrace <- function(message) {
-  if (is_installed("ParallelLogger")) {
+  if (isTRUE(getOption("LOG_DATABASECONNECTOR_SQL")) && !isTRUE(globalVars$noLogging) && is_installed("ParallelLogger")) {
     ParallelLogger::logTrace(message)
   }
 }

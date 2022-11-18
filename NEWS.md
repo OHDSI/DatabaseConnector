@@ -1,9 +1,25 @@
-DatabaseConnector 5.2.0
+DatabaseConnector 6.0.0
 =======================
 
 Changes:
 
-1. Adding logging at 'TRACE' level for performance profiling. Logging is always on (if ParallelLogger is installed).
+1. Complete overhaul of DBI interface. DBI functions now apply translation to all incoming SQL, thus making the DatabaseConnector DBI interface an interface to a virtual database platform speaking OHDSISql as defined in `SqlRender`. This should aid write once - execute everywhere code development. It also allows using `dbplyr` with `DatabaseConnector`.
+
+2. Adding `requiresTempEmulation()` and `assertTempEmulationSchemaSet()` functions.
+
+3. The `dropEmulatedTempTables()` function can be called on all platforms (it doesn't do anything on platforms not requiring temp table emulation).
+
+4. Ensuring `dbms()`, `insertTable()`, `renderTranslateExecuteSql()`, `renderTranslateQuerySql()`, and `renderTranslateQuerySqlToAndromeda()` functions work with connection pool objects.
+
+5. Adding logging at 'TRACE' level for performance profiling using the `ParallelLogger` package. Use `options(LOG_DATABASECONNECTOR_SQL = TRUE)` to enable.
+
+6. Adding the `computeDataHash()` function.
+
+
+Bugfixes:
+
+1. Fix error when calling `insertTable()` and all column names require quotes.
+
 
 DatabaseConnector 5.1.0
 =======================
@@ -18,10 +34,6 @@ Changes:
 
 4. Updating RedShift driver to V2.1.0.9. Fixes error when uploading data.
 
-5. Adding `requiresTempEmulation()` and `assertTempEmulationSchemaSet()` functions.
-
-6. Ensuring `dbms()`, `renderTranslateExecuteSql()`, `renderTranslateQuerySql()`, and `renderTranslateQuerySqlToAndromeda()` functions work with connection pool objects.
-
 
 Bugfixes:
 
@@ -30,8 +42,6 @@ Bugfixes:
 2. Ensuring errors when inserting data turn into R errors.
 
 3. Throwing informative error when using `insertTable()` on BigQuery without specifying the `tempEmulationSchema`.
-
-4. Fix error when calling `insertTable()` and all column names require quotes.
 
 
 DatabaseConnector 5.0.4

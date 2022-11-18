@@ -235,6 +235,9 @@ setMethod(
     if (rJava::is.jnull(conn@jConnection)) {
       abort("Connection is closed")
     }
+    logTrace(paste("Sending SQL:", truncateSql(statement)))
+    startTime <- Sys.time()
+    
     statement <- translateStatement(
       sql = statement,
       targetDialect = dbms(conn)
@@ -250,6 +253,8 @@ setMethod(
                   type = "batchedQuery",
                   statement = statement
     )
+    delta <- Sys.time() - startTime
+    logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
     return(result)
   }
 )
@@ -265,7 +270,14 @@ setMethod(
       sql = statement,
       targetDialect = dbms(conn)
     )
-    return(DBI::dbSendQuery(conn@dbiConnection, statement, ...))
+    logTrace(paste("Sending SQL:", truncateSql(statement)))
+    startTime <- Sys.time()
+    
+    result <- DBI::dbSendQuery(conn@dbiConnection, statement, ...)
+    
+    delta <- Sys.time() - startTime
+    logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
+    return(result)
   }
 )
 
@@ -346,12 +358,12 @@ setMethod(
   signature("DatabaseConnectorConnection", "character"),
   function(conn, statement,
            ...) {
-    rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
-    rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
     statement <- translateStatement(
       sql = statement,
       targetDialect = dbms(conn)
     )
+    rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
+    rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
     result <- new("DatabaseConnectorResult",
                   content = rowsAffected,
                   type = "rowsAffected",
@@ -388,8 +400,6 @@ setMethod(
     for (sql in SqlRender::splitSql(statement)) {
       rowsAffected <- rowsAffected + lowLevelExecuteSql(conn, sql)
     }
-    
-    # rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
     return(rowsAffected)
   }
 )
