@@ -86,6 +86,7 @@ PDF versions of the documentation are also available:
 
 * Vignette: [Connecting to a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Connecting.pdf)
 * Vignette: [Querying a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Querying.pdf)
+* Vignette: [Using DatabaseConnector through DBI and dbplyr](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/DbiAndDbplyr.pdf)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf) 
 
 
