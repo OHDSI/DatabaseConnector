@@ -1,5 +1,11 @@
 library(testthat)
 
+if (DatabaseConnector:::is_installed("ParallelLogger")) {
+  logFileName <- tempfile(fileext = ".txt")
+  ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
+}
+
+
 test_that("Fetch results", {
   # Postgres ----------------------------------------------------------
   connection <- connect(
@@ -238,7 +244,6 @@ test_that("dbFetch works", {
   
   disconnect(connection)
   
-  
   # RedShift ----------------------------------------------
   connection <- connect(
     dbms = "redshift",
@@ -256,4 +261,14 @@ test_that("dbFetch works", {
   dbClearResult(queryResult)
   
   disconnect(connection)
+})
+
+test_that("Logging query times", {
+  skip_if_not_installed("ParallelLogger")
+  log <- readLines(logFileName)
+  queryCount <- sum(grepl("Querying SQL:", log))
+  expect_gt(queryCount, 16)
+  # writeLines(log)
+  ParallelLogger::unregisterLogger("TEST_LOGGER")
+  unlink(logFileName)
 })

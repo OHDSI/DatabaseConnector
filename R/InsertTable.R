@@ -319,6 +319,8 @@ insertTable.default <- function(connection,
     ctasHack(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema)
   } else {
     # Inserting using SQL inserts --------------------------------------------------------------
+    logTrace(sprintf("Inserting %d rows into table '%s'", nrow(data), sqlTableName))
+    startTime <- Sys.time()
     if (any(sqlDataTypes == "BIGINT")) {
       validateInt64Insert()
     }
@@ -393,6 +395,8 @@ insertTable.default <- function(connection,
         close(pb)
       }
     }
+    delta <- Sys.time() - startTime
+    inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
   }
 }
 
@@ -442,6 +446,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       }
     }
   }
+  logTrace(sprintf("Inserting %d rows into table '%s' ", nrow(data), tableName))
+  startTime <- Sys.time()
   DBI::dbWriteTable(
     conn = connection@dbiConnection,
     name = tableName,
@@ -450,5 +456,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     append = !createTable,
     temporary = tempTable
   )
+  delta <- Sys.time() - startTime
+  inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
   invisible(NULL)
 }

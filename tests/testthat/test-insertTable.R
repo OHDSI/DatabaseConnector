@@ -1,5 +1,11 @@
 library(testthat)
 
+if (DatabaseConnector:::is_installed("ParallelLogger")) {
+  logFileName <- tempfile(fileext = ".txt")
+  ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
+}
+
+
 test_that("insertTable", {
   set.seed(0)
   day.start <- "1960/01/01"
@@ -217,4 +223,14 @@ test_that("Test temp emulation helper functions", {
   expect_error(assertTempEmulationSchemaSet("oracle", tempEmulationSchema = NULL), "emp emulation schema is not set")
   expect_no_error(assertTempEmulationSchemaSet("oracle", tempEmulationSchema = "some_schema"))
   expect_no_error(assertTempEmulationSchemaSet("sql server", tempEmulationSchema = NULL))
+})
+
+test_that("Logging insertTable times", {
+  skip_if_not_installed("ParallelLogger")
+  log <- readLines(logFileName)
+  insertCount <- sum(grepl("Inserting [0-9]+ rows", log))
+  expect_gt(insertCount, 4)
+  # writeLines(log)
+  ParallelLogger::unregisterLogger("TEST_LOGGER")
+  unlink(logFileName)
 })

@@ -223,8 +223,10 @@ querySqlToAndromeda <- function(connection,
       "statements were found"
     ))
   }
+  logTrace(paste("Querying SQL:", truncateSql(sqlStatements[1])))
   tryCatch(
     {
+      startTime <- Sys.time()
       andromeda <- lowLevelQuerySqlToAndromeda(
         connection = connection,
         query = sqlStatements[1],
@@ -248,6 +250,8 @@ querySqlToAndromeda <- function(connection,
           andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
         }
       }
+      delta <- Sys.time() - startTime
+      logTrace(paste("Query took", delta, attr(delta, "units")))
       invisible(andromeda)
     },
     error = function(err) {
