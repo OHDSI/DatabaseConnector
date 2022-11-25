@@ -10,7 +10,7 @@ test_that("Get table names", {
   )
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
   disconnect(connection)
 
@@ -23,7 +23,7 @@ test_that("Get table names", {
   )
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"), "person"))
   disconnect(connection)
 
@@ -36,7 +36,7 @@ test_that("Get table names", {
   )
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"), "person"))
   disconnect(connection)
 
@@ -49,7 +49,7 @@ test_that("Get table names", {
   connection <- connect(details)
   executeSql(connection, "CREATE TABLE person (x INT);")
   tables <- getTableNames(connection, "main")
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, "main", "person"))
   disconnect(connection)
   unlink(dbFile)
@@ -63,7 +63,7 @@ test_that("Get table names", {
   )
   connection <- connect(details)
   tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
   disconnect(connection)
 })
@@ -84,7 +84,7 @@ test_that("Get table names using DBI drivers", {
                                        user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                        password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
   tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
   DBI::dbDisconnect(connection)
   
@@ -98,7 +98,7 @@ test_that("Get table names using DBI drivers", {
                                TrustServerCertificate = "yes",
                                Port     = 1433)
   tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"), "person"))
   DBI::dbDisconnect(connection)
   
@@ -108,7 +108,7 @@ test_that("Get table names using DBI drivers", {
   connection <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbFile)
   DBI::dbExecute(connection, "CREATE TABLE person (x INT);")
   tables <- getTableNames(connection, "main")
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, "main", "person"))
   DBI::dbDisconnect(connection)
   unlink(dbFile)
@@ -119,7 +119,7 @@ test_that("Get table names using DBI drivers", {
   DBI::dbExecute(connection, "CREATE SCHEMA test")
   DBI::dbExecute(connection, "CREATE TABLE test.person (x INT);")
   tables <- getTableNames(connection, "test")
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, "test", "person"))
   DBI::dbDisconnect(connection)
   
@@ -132,7 +132,7 @@ test_that("Get table names using DBI drivers", {
                                password = Sys.getenv("CDM5_REDSHIFT_PASSWORD"))
   
   tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
-  expect_true("PERSON" %in% tables)
+  expect_true("person" %in% tables)
   expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
   DBI::dbDisconnect(connection)
 })
