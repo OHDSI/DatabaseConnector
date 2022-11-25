@@ -15,6 +15,10 @@ Changes:
 
 6. Adding the `computeDataHash()` function.
 
+7. The `inserTable()` function now converts logical fields to integer fields (and throws a warning if it does so).
+
+8. The `dbListTables()` and `getTableNames()` functions return results in lowercase instead of uppercase for consistency with DBI functions. 
+
 
 Bugfixes:
 

@@ -263,6 +263,7 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
     }
   }
+  data <- convertLogicalFields(data)
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   useBulkLoad <- (bulkLoad && dbms(connection) %in% c("hive", "redshift") && createTable) ||
     (bulkLoad && dbms(connection) %in% c("pdw", "postgresql") && !tempTable)
@@ -446,6 +447,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       }
     }
   }
+  data <- convertLogicalFields(data)
   logTrace(sprintf("Inserting %d rows into table '%s' ", nrow(data), tableName))
   startTime <- Sys.time()
   DBI::dbWriteTable(
@@ -459,4 +461,16 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   delta <- Sys.time() - startTime
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
   invisible(NULL)
+}
+
+convertLogicalFields <- function(data) {
+  for (i in 1:ncol(data)) {
+    column <- data[[i]]
+    if (is.logical(column)) {
+      warn(sprintf("Column '%s' is of type 'logical', but this is not supported by many DBMSs. Converting to numeric (1 = TRUE, 0 = FALSE)", 
+                   colnames(data)[i]))
+      data[, i] <- as.integer(column)
+    }
+  }
+  return(data)
 }

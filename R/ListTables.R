@@ -33,7 +33,7 @@ setMethod(
     
     if (dbms(conn) %in% c("sqlite", "sqlite extended")) {
       tables <- DBI::dbListTables(conn@dbiConnection)
-      return(toupper(tables))
+      return(tolower(tables))
     }
     
     if (is.null(databaseSchema)) {
@@ -75,7 +75,7 @@ setMethod(
     while (rJava::.jcall(resultSet, "Z", "next")) {
       tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
     }
-    return(toupper(tables))
+    return(tolower(tables))
 })
 
 #' List all tables in a database schema.
@@ -86,12 +86,12 @@ setMethod(
 #' @param connection A DBI connection to the database server.
 #' @template DatabaseSchema
 #' @param cast Should the table names be cast to uppercase or lowercase before being returned? 
-#' Valid options are "upper" (default), "lower", "none" (no casting is done)
+#' Valid options are "upper" , "lower" (default), "none" (no casting is done)
 #'
 #' @return A character vector of table names. 
 #'
 #' @export
-getTableNames <- function(connection, databaseSchema, cast = "upper") {
+getTableNames <- function(connection, databaseSchema, cast = "lower") {
  
   stopifnot(is.character(databaseSchema), length(databaseSchema) == 1, DBI::dbIsValid(connection))
   stopifnot(is.character(cast), length(cast) == 1, cast %in% c("upper", "lower", "none"))

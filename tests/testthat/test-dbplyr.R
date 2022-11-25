@@ -68,7 +68,7 @@ test_that("Test dbplyr on SQLite", {
     tableName = "person",
     data = data.frame(person_id = seq_len(100), 
                       year_of_birth = round(runif(100, 1900, 2000)),
-                      race_concept_id = NA,
+                      race_concept_id = as.numeric(NA),
                       gender_concept_id = rep(c(8507, 8532), 50))
   )
   insertTable(
