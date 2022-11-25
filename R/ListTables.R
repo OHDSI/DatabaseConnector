@@ -147,7 +147,7 @@ getTableNames <- function(connection, databaseSchema, cast = "lower") {
 #' @export
 existsTable <- function(connection, databaseSchema, tableName) {
   tables <- getTableNames(connection, databaseSchema)
-  tableName <- toupper(cleanTableName(tableName))
+  tableName <- tolower(cleanTableName(tableName))
   return(tableName %in% tables)
 }
 
