@@ -627,8 +627,7 @@ querySql <- function(connection,
       "statements were found"
     ))
   }
-  tryCatch(
-    {
+  tryCatch({
       result <- DBI::dbGetQuery(connection, statement = sqlStatements[[1]])
     },
     error = function(err) {
@@ -637,14 +636,31 @@ querySql <- function(connection,
       } else {
         rlang::abort(paste0("Error executing SQL:\n", err$message))
       }
+    })
+  
+  colnames(result) <- toupper(colnames(result))
+  result <- convertFields(dbms(connection), result)
+  
+  if (integerAsNumeric) {
+    for (i in seq.int(ncol(result))) {
+      if (is(result[[i]], "integer")) {
+        result[[i]] <- as.numeric(result[[i]])
+      }
     }
-  )
+  }
   
-  if (snakeCaseToCamelCase) names(result) <- SqlRender::snakeCaseToCamelCase(names(result))
-  if (integerAsNumeric) result <- convertToNumeric(result, "integer")
-  if (integer64AsNumeric) result <- convertToNumeric(result, "integer64")
+  if (integer64AsNumeric) {
+    for (i in seq.int(ncol(result))) {
+      if (is(result[[i]], "integer64")) {
+        result[[i]] <- convertInteger64ToNumeric(result[[i]])
+      }
+    }
+  }
   
-  result
+  if (snakeCaseToCamelCase) { 
+    names(result) <- SqlRender::snakeCaseToCamelCase(names(result))
+  }
+  return(result)
 }
 
 #' Render, translate, execute SQL code
