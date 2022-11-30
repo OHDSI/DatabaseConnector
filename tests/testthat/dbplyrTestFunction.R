@@ -21,6 +21,14 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_equal(nrow(personSample), 10)
   
+  sexString <- person %>%
+    mutate(sex = ifelse(.data$gender_concept_id == "8507", "Male",
+                        ifelse(.data$gender_concept_id == "8532", "Female", NA)
+    )) %>%
+    select("person_id", "sex") %>%
+    collect()
+  expect_true(all(sexString$sex %in% c("Male", "Female")))
+  
   cars2 <- copy_to(connection, cars, overwrite = TRUE)
   cars2 <- cars2 %>% collect()
   expect_equivalent(arrange(cars, speed, dist), arrange(cars2, speed, dist))
