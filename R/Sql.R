@@ -427,7 +427,7 @@ executeSql <- function(connection,
                        reportOverallTime = TRUE,
                        errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                        runAsBatch = FALSE) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
+  if (!DBI::dbIsValid(connection)) {
     abort("Connection is closed")
   }
   
@@ -442,7 +442,7 @@ executeSql <- function(connection,
     on.exit(trySettingAutoCommit(connection, TRUE))
   }
   
-  batched <- runAsBatch && supportsBatchUpdates(connection)
+  batched <- runAsBatch && inherits(connection, "DatabaseConnectorJdbcConnection") && supportsBatchUpdates(connection) 
   sqlStatements <- SqlRender::splitSql(sql)
   if (batched) {
     batchSize <- 1000
@@ -494,7 +494,7 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          lowLevelExecuteSql(connection, sqlStatement)
+          DBI::dbExecute(connection, sqlStatement)
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
@@ -615,10 +615,9 @@ querySql <- function(connection,
                      snakeCaseToCamelCase = FALSE,
                      integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
-    abort("Connection is closed")
-  }
-
+  
+  if (!DBI::dbIsValid(connection)) abort("Connection is closed")
+  
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {
@@ -630,23 +629,22 @@ querySql <- function(connection,
   }
   tryCatch(
     {
-      result <- lowLevelQuerySql(
-        connection = connection,
-        query = sqlStatements[1],
-        integerAsNumeric = integerAsNumeric,
-        integer64AsNumeric = integer64AsNumeric
-      )
-      colnames(result) <- toupper(colnames(result))
-      result <- convertFields(dbms(connection), result)
-      if (snakeCaseToCamelCase) {
-        colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
-      }
-      return(result)
+      result <- DBI::dbGetQuery(connection, statement = sqlStatements[[1]])
     },
     error = function(err) {
-      .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
+      if (is.character(errorReportFile)) {
+        .createErrorReport(dbms(connection), err$message, sqlStatements[[1]], errorReportFile)
+      } else {
+        rlang::abort(paste0("Error executing SQL:\n", err$message))
+      }
     }
   )
+  
+  if (snakeCaseToCamelCase) names(result) <- SqlRender::snakeCaseToCamelCase(names(result))
+  if (integerAsNumeric) result <- convertToNumeric(result, "integer")
+  if (integer64AsNumeric) result <- convertToNumeric(result, "integer64")
+  
+  result
 }
 
 #' Render, translate, execute SQL code
