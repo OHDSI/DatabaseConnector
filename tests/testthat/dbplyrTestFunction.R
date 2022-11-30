@@ -22,10 +22,11 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   expect_equal(nrow(personSample), 10)
   
   sexString <- person %>%
-    mutate(sex = ifelse(.data$gender_concept_id == "8507", "Male",
-                        ifelse(.data$gender_concept_id == "8532", "Female", NA)
+    mutate(sex = ifelse(.data$gender_concept_id == 8507, "Male",
+                        ifelse(.data$gender_concept_id == 8532, "Female", NA)
     )) %>%
     select("person_id", "sex") %>%
+    head() %>%
     collect()
   expect_true(all(sexString$sex %in% c("Male", "Female")))
   

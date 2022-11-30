@@ -32,7 +32,7 @@ public class BatchedInsert {
 		columnTypes = new int[columnCount];
 	}
 	
-	private void trySettingAutoCommit(Connection connection, boolean value) throws SQLException {
+	private void trySettingAutoCommit(boolean value) throws SQLException  {
 		try {
 			connection.setAutoCommit(value);
 		} catch (SQLFeatureNotSupportedException exception) {
@@ -103,7 +103,7 @@ public class BatchedInsert {
 	public boolean executeBatch() throws SQLException {
 		checkColumns();
 		try {
-			trySettingAutoCommit(connection, false);
+			trySettingAutoCommit(false);
 			PreparedStatement statement = connection.prepareStatement(sql);
 			for (int i = 0; i < rowCount; i++) {
 				for (int j = 0; j < columnCount; j++)
@@ -114,7 +114,7 @@ public class BatchedInsert {
 			connection.commit();
 			statement.close();
 			connection.clearWarnings();
-			trySettingAutoCommit(connection, true);
+			trySettingAutoCommit(true);
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
 				columns[i] = null;
@@ -132,7 +132,7 @@ public class BatchedInsert {
 	public boolean executeBigQueryBatch() throws SQLException {
 		checkColumns();
 		try {
-			trySettingAutoCommit(connection, false);
+			trySettingAutoCommit(false);
 			
 			int offset = 0;
 			while (offset < rowCount) {
@@ -153,7 +153,7 @@ public class BatchedInsert {
 				statement.executeUpdate();
 				statement.close();
 				connection.clearWarnings();
-				trySettingAutoCommit(connection, true);
+				trySettingAutoCommit(true);
 				offset += BIG_DATA_BATCH_INSERT_LIMIT;
 			}
 		} finally {
