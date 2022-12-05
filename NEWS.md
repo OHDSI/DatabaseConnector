@@ -11,7 +11,7 @@ Changes:
 
 4. Ensuring `dbms()`, `insertTable()`, `renderTranslateExecuteSql()`, `renderTranslateQuerySql()`, and `renderTranslateQuerySqlToAndromeda()` functions work with connection pool objects.
 
-5. Adding logging at 'TRACE' level for performance profiling using the `ParallelLogger` package. Use `options(LOG_DATABASECONNECTOR_SQL = TRUE)` to enable.
+5. Adding logging at 'TRACE' level for performance profiling using the `ParallelLogger` package. Use `options(LOG_DATABASECONNECTOR_SQL = TRUE)` to enable. The query times can be automatically extracted using the new `extractQueryTimes()` function.
 
 6. Adding the `computeDataHash()` function.
 

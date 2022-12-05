@@ -265,10 +265,9 @@ test_that("dbFetch works", {
 
 test_that("Logging query times", {
   skip_if_not_installed("ParallelLogger")
-  log <- readLines(logFileName)
-  queryCount <- sum(grepl("Querying SQL:", log))
-  expect_gt(queryCount, 16)
-  # writeLines(log)
+  
+  queryTimes <- extractQueryTimes(logFileName)
+  expect_gt(nrow(queryTimes), 16)
   ParallelLogger::unregisterLogger("TEST_LOGGER")
   unlink(logFileName)
 })
