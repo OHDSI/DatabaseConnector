@@ -9,7 +9,7 @@
 \usage{
 \S4method{dbIsValid}{DatabaseConnectorJdbcConnection}(dbObj, ...)
 
-\S4method{dbSendQuery}{DatabaseConnectorJdbcConnection,character}(conn, statement, ...)
+\S4method{dbSendQuery}{DatabaseConnectorJdbcConnection,character}(conn, statement, translate = TRUE, ...)
 }
 \description{
 DatabaseConnectorJdbcConnection class.

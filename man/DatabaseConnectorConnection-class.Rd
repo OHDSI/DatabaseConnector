@@ -31,11 +31,11 @@
 
 \S4method{dbQuoteString}{DatabaseConnectorConnection,character}(conn, x, ...)
 
-\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, ...)
+\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 
-\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, ...)
+\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 
-\S4method{dbExecute}{DatabaseConnectorConnection,character}(conn, statement, ...)
+\S4method{dbExecute}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 
 \S4method{dbListFields}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
 

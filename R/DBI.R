@@ -230,18 +230,19 @@ setClass("DatabaseConnectorResult",
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorJdbcConnection", "character"),
-  function(conn, statement,
-           ...) {
+  function(conn, statement, translate = TRUE, ...) {
     if (rJava::is.jnull(conn@jConnection)) {
       abort("Connection is closed")
     }
     logTrace(paste("Sending SQL:", truncateSql(statement)))
     startTime <- Sys.time()
     
-    statement <- translateStatement(
-      sql = statement,
-      targetDialect = dbms(conn)
-    )
+    if (translate) {
+      statement <- translateStatement(
+        sql = statement,
+        targetDialect = dbms(conn)
+      )
+    }
     batchedQuery <- rJava::.jnew(
       "org.ohdsi.databaseConnector.BatchedQuery",
       conn@jConnection,
@@ -264,12 +265,13 @@ setMethod(
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorDbiConnection", "character"),
-  function(conn, statement,
-           ...) {
-    statement <- translateStatement(
-      sql = statement,
-      targetDialect = dbms(conn)
-    )
+  function(conn, statement, translate = TRUE, ...) {
+    if (translate) {
+      statement <- translateStatement(
+        sql = statement,
+        targetDialect = dbms(conn)
+      )
+    }
     logTrace(paste("Sending SQL:", truncateSql(statement)))
     startTime <- Sys.time()
     
@@ -339,12 +341,13 @@ setMethod("dbClearResult", "DatabaseConnectorResult", function(res, ...) {
 setMethod(
   "dbGetQuery",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement,
-           ...) {
-    statement <- translateStatement(
-      sql = statement,
-      targetDialect = dbms(conn)
-    )
+  function(conn, statement, translate = TRUE, ...) {
+    if (translate) {
+      statement <- translateStatement(
+        sql = statement,
+        targetDialect = dbms(conn)
+      )
+    }
     result <- lowLevelQuerySql(conn, statement)
     colnames(result) <- tolower(colnames(result))
     return(result)
@@ -356,12 +359,13 @@ setMethod(
 setMethod(
   "dbSendStatement",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement,
-           ...) {
-    statement <- translateStatement(
-      sql = statement,
-      targetDialect = dbms(conn)
-    )
+  function(conn, statement, translate = TRUE, ...) {
+    if (translate) {
+      statement <- translateStatement(
+        sql = statement,
+        targetDialect = dbms(conn)
+      )
+    }
     rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
     rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
     result <- new("DatabaseConnectorResult",
@@ -386,16 +390,17 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
 setMethod(
   "dbExecute",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement,
-           ...) {
+  function(conn, statement, translate = TRUE, ...) {
     if (isDbplyrSql(statement) && dbms(conn) %in% c("oracle", "bigquery", "spark", "hive") && grepl("^UPDATE STATISTICS", statement)) {
       # These platforms don't support this, so SqlRender translates to an empty string, which causes errors down the line.
       return(0)
     }
-    statement <- translateStatement(
-      sql = statement,
-      targetDialect = dbms(conn)
-    )
+    if (translate) {
+      statement <- translateStatement(
+        sql = statement,
+        targetDialect = dbms(conn)
+      )
+    }
     rowsAffected <- 0
     for (sql in SqlRender::splitSql(statement)) {
       rowsAffected <- rowsAffected + lowLevelExecuteSql(conn, sql)
