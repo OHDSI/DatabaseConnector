@@ -92,6 +92,20 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_s3_class(resultOfAntiJoin, "data.frame")
   
+  personTwice <- person %>%
+    union_all(person) %>%
+    count() %>%
+    collect()
+  expect_gt(personTwice$n, 1)
+  
+  dataWithNa <- cars
+  dataWithNa$speed[2] <- NA
+  dataWithNa <- copy_to(connection, dataWithNa, overwrite = TRUE)
+  filteredRow <- dataWithNa %>%
+    filter(is.na(speed)) %>%
+    collect()
+  expect_equal(nrow(filteredRow), 1)
+  
   # dumbNameCars <- cars
   # names(dumbNameCars) <- c("Car speed", "Dist. to Stop")
   # copy_to(connection, dumbNameCars, name = "dn_cars")
