@@ -60,6 +60,10 @@ database. There are three ways to call this function:
 \details{
 This function creates a list containing all details needed to connect to a database. The list can
 then be used in the \code{\link{connect}} function.
+
+It is highly recommended to use a secure approach to storing credentials, so not to have your
+credentials in plain text in your R scripts. The examples demonstrate how to use the 
+\code{keyring} package.
 }
 \section{DBMS parameter details}{
 
@@ -182,11 +186,19 @@ set before calling \code{connect} for the first time.
 
 \examples{
 \dontrun{
+# Needs to be done only once on a machine. Credentials will then be stored in
+# the operating system's secure credential manager:
+keyring::key_set_with_value("server", password = "localhost/postgres")
+keyring::key_set_with_value("user", password = "root")
+keyring::key_set_with_value("password", password = "secret")
+
+# Create connection details using keyring. Note: the connection details will
+# not store the credentials themselves, but the reference to get the credentials.
 connectionDetails <- createConnectionDetails(
   dbms = "postgresql",
-  server = "localhost/postgres",
-  user = "root",
-  password = "blah"
+  server = keyring::key_get("server"),
+  user = keyring::key_get("user"),
+  password = keyring::key_get("password"),
 )
 conn <- connect(connectionDetails)
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")

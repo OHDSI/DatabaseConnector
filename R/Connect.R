@@ -42,6 +42,21 @@ checkIfDbmsIsSupported <- function(dbms) {
   }
 }
 
+checkIfCanBeEvaluatedInThread <- function(expression, name) {
+  tryCatch(
+    eval(expression, envir = baseenv()),
+    error = function(e) {
+      warning(sprintf(paste("Unable to evaluate the '%s' argument in the base environment.",
+                            "This means these connection details will likely not work in a",
+                            "multi-threading setting. This problem will not occur when using",
+                            "a secure approach to credentials such as keyring. See",
+                            "?createConnectionDetails for more information."), 
+                      name), 
+              call. = FALSE)
+    }
+  )
+}
+
 #' @title
 #' createConnectionDetails
 #'
@@ -55,10 +70,6 @@ checkIfDbmsIsSupported <- function(dbms) {
 #'   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
 #' }
 #'
-#'
-#'
-#'
-#'
 #' @usage
 #' NULL
 #'
@@ -67,16 +78,28 @@ checkIfDbmsIsSupported <- function(dbms) {
 #' @details
 #' This function creates a list containing all details needed to connect to a database. The list can
 #' then be used in the \code{\link{connect}} function.
+#' 
+#' It is highly recommended to use a secure approach to storing credentials, so not to have your
+#' credentials in plain text in your R scripts. The examples demonstrate how to use the 
+#' \code{keyring} package.
 #'
 #' @return
 #' A list with all the details needed to connect to a database.
 #' @examples
 #' \dontrun{
+#' # Needs to be done only once on a machine. Credentials will then be stored in
+#' # the operating system's secure credential manager:
+#' keyring::key_set_with_value("server", password = "localhost/postgres")
+#' keyring::key_set_with_value("user", password = "root")
+#' keyring::key_set_with_value("password", password = "secret")
+#' 
+#' # Create connection details using keyring. Note: the connection details will
+#' # not store the credentials themselves, but the reference to get the credentials.
 #' connectionDetails <- createConnectionDetails(
 #'   dbms = "postgresql",
-#'   server = "localhost/postgres",
-#'   user = "root",
-#'   password = "blah"
+#'   server = keyring::key_get("server"),
+#'   user = keyring::key_get("user"),
+#'   password = keyring::key_get("password"),
 #' )
 #' conn <- connect(connectionDetails)
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
@@ -95,29 +118,34 @@ createConnectionDetails <- function(dbms,
   checkIfDbmsIsSupported(dbms)
   pathToDriver <- path.expand(pathToDriver)
   checkPathToDriver(pathToDriver, dbms)
-
+  
   result <- list(
     dbms = dbms,
     extraSettings = extraSettings,
     oracleDriver = oracleDriver,
     pathToDriver = pathToDriver
   )
-
+  
+  checkIfCanBeEvaluatedInThread(rlang::enexpr(user), "user")
   userExpression <- rlang::enquo(user)
   result$user <- function() rlang::eval_tidy(userExpression)
-
+  
+  checkIfCanBeEvaluatedInThread(rlang::enexpr(password), "password")
   passWordExpression <- rlang::enquo(password)
   result$password <- function() rlang::eval_tidy(passWordExpression)
-
+  
+  checkIfCanBeEvaluatedInThread(rlang::enexpr(server), "server")
   serverExpression <- rlang::enquo(server)
   result$server <- function() rlang::eval_tidy(serverExpression)
-
+  
+  checkIfCanBeEvaluatedInThread(rlang::enexpr(port), "port")
   portExpression <- rlang::enquo(port)
   result$port <- function() rlang::eval_tidy(portExpression)
-
+  
+  checkIfCanBeEvaluatedInThread(rlang::enexpr(connectionString), "connectionString")
   csExpression <- rlang::enquo(connectionString)
   result$connectionString <- function() rlang::eval_tidy(csExpression)
-
+  
   class(result) <- "connectionDetails"
   return(result)
 }
@@ -205,13 +233,13 @@ connect <- function(connectionDetails = NULL,
       connectionString = connectionDetails$connectionString(),
       pathToDriver = connectionDetails$pathToDriver
     )
-
+    
     return(connection)
   }
   checkIfDbmsIsSupported(dbms)
   pathToDriver <- path.expand(pathToDriver)
   checkPathToDriver(pathToDriver, dbms)
-
+  
   if (dbms == "sql server" || dbms == "synapse") {
     jarPath <- findPathToJar("^mssql-jdbc.*.jar$|^sqljdbc.*\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.microsoft.sqlserver.jdbc.SQLServerDriver", jarPath)
@@ -219,7 +247,7 @@ connect <- function(connectionDetails = NULL,
       # Using Windows integrated security
       inform("Connecting using SQL Server driver using Windows integrated security")
       setPathToDll()
-
+      
       if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port)) {
@@ -259,7 +287,7 @@ connect <- function(connectionDetails = NULL,
     if (missing(user) || is.null(user)) {
       # Using Windows integrated security
       setPathToDll()
-
+      
       if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
         connectionString <- paste("jdbc:sqlserver://", server, ";integratedSecurity=true", sep = "")
         if (!missing(port) && !is.null(port)) {
@@ -328,7 +356,7 @@ connect <- function(connectionDetails = NULL,
                                                                  oracle.jdbc.mapDateToTimestamp = "false",
                                                                  dbms = dbms
         ), silent = FALSE))[1]
-
+        
         # Try using TNSName instead:
         if (result == "try-error") {
           inform("- Trying using TNSName")
@@ -382,7 +410,7 @@ connect <- function(connectionDetails = NULL,
       if (!grepl("/", server)) {
         abort("Error: database name not included in server string but is required for PostgreSQL. Please specify server as <host>/<database>")
       }
-
+      
       parts <- unlist(strsplit(server, "/"))
       host <- parts[1]
       database <- parts[2]
@@ -414,7 +442,7 @@ connect <- function(connectionDetails = NULL,
     attr(connection, "server") <- function() rlang::eval_tidy(serverExpression)
     portExpression <- rlang::enquo(port)
     attr(connection, "port") <- function() rlang::eval_tidy(portExpression)
-
+    
     return(connection)
   }
   if (dbms == "redshift") {
@@ -436,7 +464,7 @@ connect <- function(connectionDetails = NULL,
         port <- "5439"
       }
       connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
-
+      
       if (!missing(extraSettings) && !is.null(extraSettings)) {
         connectionString <- paste(connectionString, "?", extraSettings, sep = "")
       }
@@ -516,7 +544,7 @@ connect <- function(connectionDetails = NULL,
     inform("Connecting using Hive driver")
     jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
-
+    
     if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
       connectionString <- paste0("jdbc:hive2://", server, ":", port, "/")
       if (!missing(extraSettings) && !is.null(extraSettings)) {
@@ -529,18 +557,18 @@ connect <- function(connectionDetails = NULL,
                                          password = password,
                                          dbms = dbms
     )
-
+    
     attr(connection, "dbms") <- dbms
     return(connection)
   }
   if (dbms == "bigquery") {
     inform("Connecting using BigQuery driver")
-
+    
     files <- list.files(path = pathToDriver, full.names = TRUE)
     for (jar in files) {
       rJava::.jaddClassPath(jar)
     }
-
+    
     jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", pathToDriver)
     driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
     if (missing(connectionString) || is.null(connectionString) || connectionString == "") {
@@ -596,11 +624,11 @@ connect <- function(connectionDetails = NULL,
       connection <- connectUsingJdbcDriver(driver, connectionString, dbms = dbms, CLIENT_RESULT_COLUMN_CASE_INSENSITIVE = "true")
     } else {
       connection <- connectUsingJdbcDriver(driver,
-        connectionString,
-        user = user,
-        password = password,
-        dbms = dbms, 
-        CLIENT_RESULT_COLUMN_CASE_INSENSITIVE = "true"
+                                           connectionString,
+                                           user = user,
+                                           password = password,
+                                           dbms = dbms, 
+                                           CLIENT_RESULT_COLUMN_CASE_INSENSITIVE = "true"
       )
     }
     attr(connection, "dbms") <- dbms
@@ -749,12 +777,12 @@ dbms <- function(connection) {
   if(!is.null(attr(connection, "dbms"))) return(attr(connection, "dbms"))
   
   switch(class(connection),
-          'Microsoft SQL Server' = 'sql server',
-          'PqConnection' = 'postgresql',
-          'RedshiftConnection' = 'redshift',
-          'BigQueryConnection' = 'bigquery',
-          'SQLiteConnection' = 'sqlite',
-          'duckdb_connection'  = 'duckdb'
-          # add mappings from various DBI connection classes to SqlRender dbms here
+         'Microsoft SQL Server' = 'sql server',
+         'PqConnection' = 'postgresql',
+         'RedshiftConnection' = 'redshift',
+         'BigQueryConnection' = 'bigquery',
+         'SQLiteConnection' = 'sqlite',
+         'duckdb_connection'  = 'duckdb'
+         # add mappings from various DBI connection classes to SqlRender dbms here
   )
 }

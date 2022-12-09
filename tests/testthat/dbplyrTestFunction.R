@@ -16,6 +16,12 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     pull()
   expect_gt(nMales, 1)
   
+  nMales2 <- person %>%
+    filter(gender_concept_id %in% c(8507)) %>%
+    count() %>%
+    pull()
+  expect_gt(nMales2, 1)
+  
   personSample <- person %>%
     slice_sample(n = 10) %>%
     collect()
