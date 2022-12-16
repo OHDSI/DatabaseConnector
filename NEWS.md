@@ -21,6 +21,8 @@ Changes:
 
 9. Throwing informative warning if user calls `createConnectionDetails()` with credential arguments that cannot be evaluated in a multi-threading setting.
 
+10. Supporting external tables on RedShift.
+
 Bugfixes:
 
 1. Fix error when calling `insertTable()` and all column names require quotes.

@@ -61,7 +61,7 @@ setMethod(
       }
     }
     metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-    types <- rJava::.jarray(c("TABLE", "VIEW"))
+    types <- rJava::.jarray(c("TABLE", "VIEW", "EXTERNAL TABLE"))
     resultSet <- rJava::.jcall(metaData,
                                "Ljava/sql/ResultSet;",
                                "getTables",
