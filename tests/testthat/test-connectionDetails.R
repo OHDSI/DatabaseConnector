@@ -3,13 +3,13 @@ library(testthat)
 test_that("Open and close connection", {
   user <- "joe"
 
-  expect_warning(
+  expect_message(
     connectionDetails <- createConnectionDetails(
       dbms = "postgresql",
       user = user
     )
   )
-  expect_no_warning(
+  expect_no_message(
     connectionDetails <- createConnectionDetails(
       dbms = "postgresql",
       user =  Sys.getenv("CDM5_POSTGRESQL_USER")
