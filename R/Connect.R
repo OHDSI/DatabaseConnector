@@ -46,7 +46,7 @@ checkIfCanBeEvaluatedInThread <- function(expression, name) {
   tryCatch(
     eval(expression, envir = baseenv()),
     error = function(e) {
-      warning(sprintf(paste("Unable to evaluate the '%s' argument in the base environment.",
+      message(sprintf(paste("Unable to evaluate the '%s' argument in the base environment.",
                             "This means these connection details will likely not work in a",
                             "multi-threading setting. This problem will not occur when using",
                             "a secure approach to credentials such as keyring. See",

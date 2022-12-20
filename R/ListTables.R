@@ -28,9 +28,10 @@ setMethod(
   "dbListTables",
   "DatabaseConnectorConnection",
   function(conn, databaseSchema = NULL, ...) {
-    
-    stopifnot(is.null(databaseSchema) || (is.character(databaseSchema) && length(databaseSchema) == 1))
-    
+    errorMessages <- checkmate::makeAssertCollection()
+    checkmate::assertCharacter(databaseSchema, len = 1, null.ok = TRUE, add = errorMessages)
+    checkmate::reportAssertions(collection = errorMessages)
+
     if (dbms(conn) %in% c("sqlite", "sqlite extended")) {
       tables <- DBI::dbListTables(conn@dbiConnection)
       return(tolower(tables))
@@ -76,7 +77,7 @@ setMethod(
       tables <- c(tables, rJava::.jcall(resultSet, "S", "getString", "TABLE_NAME"))
     }
     return(tolower(tables))
-})
+  })
 
 #' List all tables in a database schema.
 #'
@@ -91,32 +92,30 @@ setMethod(
 #' @return A character vector of table names. 
 #'
 #' @export
-getTableNames <- function(connection, databaseSchema, cast = "lower") {
- 
-  stopifnot(is.character(databaseSchema), length(databaseSchema) == 1, DBI::dbIsValid(connection))
-  stopifnot(is.character(cast), length(cast) == 1, cast %in% c("upper", "lower", "none"))
-  
-  databaseSchemaSplit <- strsplit(databaseSchema, "\\.")[[1]]
-  if (!(length(databaseSchemaSplit) %in% 1:2)) rlang::abort("databaseSchema can contain at most one dot (.)")
+getTableNames <- function(connection, databaseSchema = NULL, cast = "lower") {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertTRUE(DBI::dbIsValid(connection))
+  checkmate::assertCharacter(databaseSchema, len = 1, null.ok = TRUE, add = errorMessages)
+  checkmate::assertChoice(cast, c("upper", "lower", "none"), add = errorMessages)
+  checkmate::reportAssertions(collection = errorMessages)
   
   if (is.null(databaseSchema)) {
     tableNames <- DBI::dbListTables(connection)
-    
   } else if (is(connection, "DatabaseConnectorConnection")) {
     tableNames <- DBI::dbListTables(conn = connection, databaseSchema = databaseSchema)
-    
   } else if (is(connection, "PqConnection") || is(connection, "RedshiftConnection") || is(connection, "duckdb_connection")) {
     stopifnot(length(databaseSchemaSplit) == 1)
     sql <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '", databaseSchema, "';")
     tableNames <- DBI::dbGetQuery(connection, sql)[["table_name"]]
-    
   } else if (is(connection, "Microsoft SQL Server")) {
+    databaseSchemaSplit <- strsplit(databaseSchema, "\\.")[[1]]
+    if (!(length(databaseSchemaSplit) %in% 1:2)) rlang::abort("databaseSchema can contain at most one dot (.)")
+    
     if (length(databaseSchemaSplit) == 1) {
       tableNames <- DBI::dbListTables(connection, schema_name = databaseSchemaSplit)
     } else {
       tableNames <- DBI::dbListTables(connection, catalog_name = databaseSchemaSplit[[1]], schema_name = databaseSchemaSplit[[2]])
     }
-    
   } else if (is(connection, "SQLiteConnection")) {
     if (databaseSchema != "main") rlang::abort("The only schema supported on SQLite is 'main'")
     tableNames <- DBI::dbListTables(connection)
@@ -124,10 +123,10 @@ getTableNames <- function(connection, databaseSchema, cast = "lower") {
     rlang::abort(paste(paste(class(connection), collapse = ", "), "connection not supported"))
   }
   
-  switch (cast,
-    "upper" = toupper(tableNames),
-    "lower" = tolower(tableNames),
-    "none" = tableNames
+  switch(cast,
+         "upper" = toupper(tableNames),
+         "lower" = tolower(tableNames),
+         "none" = tableNames
   )
 }
 

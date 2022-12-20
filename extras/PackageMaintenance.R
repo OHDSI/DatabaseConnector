@@ -67,8 +67,20 @@ connection <- connect(
   server = Sys.getenv("CDM5_ORACLE_SERVER")
 )
 databaseSchema <- Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
-tables <- getTableNames(connection, databaseSchema)
+tables <- getTableNames(connection, databaseSchema, cast = "none")
 sql <- paste(sprintf("DROP TABLE %s.%s;", databaseSchema, tables), collapse= "\n")
+executeSql(connection, sql)
+disconnect(connection)
+
+connection <- connect(
+  dbms = "postgresql",
+  user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+  password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
+  server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
+)
+databaseSchema <- Sys.getenv("CDM5_POSTGRESQL_OHDSI_SCHEMA")
+tables <- getTableNames(connection, databaseSchema)
+sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse= "\n")
 executeSql(connection, sql)
 disconnect(connection)
 
