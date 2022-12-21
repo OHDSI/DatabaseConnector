@@ -43,18 +43,20 @@ checkIfDbmsIsSupported <- function(dbms) {
 }
 
 checkIfCanBeEvaluatedInThread <- function(expression, name) {
-  tryCatch(
-    eval(expression, envir = baseenv()),
-    error = function(e) {
-      message(sprintf(paste("Unable to evaluate the '%s' argument in the base environment.",
-                            "This means these connection details will likely not work in a",
-                            "multi-threading setting. This problem will not occur when using",
-                            "a secure approach to credentials such as keyring. See",
-                            "?createConnectionDetails for more information."), 
-                      name), 
-              call. = FALSE)
-    }
-  )
+  if (getOption("DatabaseConnector.checkSecureConnectionVars", default = TRUE)) {
+    tryCatch(
+      eval(expression, envir = baseenv()),
+      error = function(e) {
+        message(sprintf(paste("Unable to evaluate the '%s' argument in the base environment.",
+                              "This means these connection details will likely not work in a",
+                              "multi-threading setting. This problem will not occur when using",
+                              "a secure approach to credentials such as keyring. See",
+                              "?createConnectionDetails for more information."),
+                        name),
+                call. = FALSE)
+      }
+    )
+  }
 }
 
 #' @title
@@ -82,6 +84,10 @@ checkIfCanBeEvaluatedInThread <- function(expression, name) {
 #' It is highly recommended to use a secure approach to storing credentials, so not to have your
 #' credentials in plain text in your R scripts. The examples demonstrate how to use the 
 #' \code{keyring} package.
+#'
+#' To disable warnings when not using a secure storage of variables (e.g. in automated tests),
+#' use the following option variable:
+#'  \code(options("DatabaseConnector.checkSecureConnectionVars" = FALSE))
 #'
 #' @return
 #' A list with all the details needed to connect to a database.
