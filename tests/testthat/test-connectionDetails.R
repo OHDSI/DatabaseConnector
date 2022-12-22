@@ -1,19 +1,12 @@
 library(testthat)
 
 test_that("Open and close connection", {
-  user <- "joe"
-
-  expect_message(
-    connectionDetails <- createConnectionDetails(
-      dbms = "postgresql",
-      user = user
-    )
+  connectionDetails <- createConnectionDetails(
+    dbms = "postgresql",
+    user = aNonExistingvariable
   )
-  expect_no_message(
-    connectionDetails <- createConnectionDetails(
-      dbms = "postgresql",
-      user =  Sys.getenv("CDM5_POSTGRESQL_USER")
-    )
+  expect_error(
+    connect(connectionDetails),
+    regexp = "Unable to evaluate the 'user' argument"
   )
 })
-  

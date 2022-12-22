@@ -42,25 +42,33 @@ checkIfDbmsIsSupported <- function(dbms) {
   }
 }
 
-checkIfCanBeEvaluatedInThread <- function(expression, name) {
+checkDetailValidation <- function(connectionDetails, name) {
   tryCatch(
-    eval(expression, envir = baseenv()),
+    invisible(connectionDetails[[name]]()),
     error = function(e) {
-      message(
+      abort(
         sprintf(
           paste(
-            "Unable to evaluate the '%s' argument in the base environment.",
-            "This means these connection details will likely not work in a",
-            "multi-threading setting. This problem will not occur when using",
+            "Unable to evaluate the '%s' argument of the connection details.",
+            "Most likely this is because the connection is being established",
+            "in a separate R thread that has no access to variables in the main",
+            "thread. This problem will not occur when using",
             "a secure approach to credentials such as keyring. See",
             "?createConnectionDetails for more information."
           ),
           name
-        ),
-        call. = FALSE
+        )
       )
     }
   )
+}
+
+assertDetailsCanBeValidated <- function(connectionDetails) {
+  checkDetailValidation(connectionDetails, "server")
+  checkDetailValidation(connectionDetails, "port")
+  checkDetailValidation(connectionDetails, "user")
+  checkDetailValidation(connectionDetails, "password")
+  checkDetailValidation(connectionDetails, "connectionString")
 }
 
 #' @title
@@ -134,23 +142,18 @@ createConnectionDetails <- function(dbms,
     pathToDriver = pathToDriver
   )
 
-  checkIfCanBeEvaluatedInThread(rlang::enexpr(user), "user")
   userExpression <- rlang::enquo(user)
   result$user <- function() rlang::eval_tidy(userExpression)
 
-  checkIfCanBeEvaluatedInThread(rlang::enexpr(password), "password")
   passWordExpression <- rlang::enquo(password)
   result$password <- function() rlang::eval_tidy(passWordExpression)
 
-  checkIfCanBeEvaluatedInThread(rlang::enexpr(server), "server")
   serverExpression <- rlang::enquo(server)
   result$server <- function() rlang::eval_tidy(serverExpression)
 
-  checkIfCanBeEvaluatedInThread(rlang::enexpr(port), "port")
   portExpression <- rlang::enquo(port)
   result$port <- function() rlang::eval_tidy(portExpression)
 
-  checkIfCanBeEvaluatedInThread(rlang::enexpr(connectionString), "connectionString")
   csExpression <- rlang::enquo(connectionString)
   result$connectionString <- function() rlang::eval_tidy(csExpression)
 
@@ -270,10 +273,13 @@ connect <- function(connectionDetails = NULL,
       pathToDriver = pathToDriver
     )
     return(connect(connectionDetails))
+  } else if (is(connectionDetails, "DbiConnectionDetails")) {
+    return(connectUsingDbi(connectionDetails))
   } else {
-    if (is(connectionDetails, "DbiConnectionDetails")) {
-      return(connectUsingDbi(connectionDetails))
-    } else if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
+    # Using default connectionDetails
+    assertDetailsCanBeValidated(connectionDetails)
+
+    if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
       inform("Connecting using SQLite driver")
       ensure_installed("RSQLite")
       connection <- connectUsingDbi(
