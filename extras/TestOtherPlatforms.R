@@ -151,9 +151,9 @@ source("tests/testthat/dbplyrTestFunction.R")
 # options("DEBUG_DATABASECONNECTOR_DBPLYR" = TRUE)
 # BigQuery
 connectionDetails <- createConnectionDetails(dbms = "bigquery",
-                                            connectionString = keyring::key_get("bigQueryConnString"),
-                                            user = "",
-                                            password = "")
+                                             connectionString = keyring::key_get("bigQueryConnString"),
+                                             user = "",
+                                             password = "")
 cdmDatabaseSchema <- "synpuf_2m"
 options(sqlRenderTempEmulationSchema = "synpuf_2m_results")
 testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
@@ -161,9 +161,9 @@ testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 
 # Spark
 connectionDetails <- createConnectionDetails(dbms = "spark",
-                                            connectionString = keyring::key_get("sparkConnectionString"),
-                                            user = keyring::key_get("sparkUser"),
-                                            password = keyring::key_get("sparkPassword"))
+                                             connectionString = keyring::key_get("sparkConnectionString"),
+                                             user = keyring::key_get("sparkUser"),
+                                             password = keyring::key_get("sparkPassword"))
 cdmDatabaseSchema <- "eunomia"
 options(sqlRenderTempEmulationSchema = "eunomia")
 testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
@@ -229,3 +229,30 @@ DBI::dbListTables(db, schema = "eunomia")
 DBI::dbGetQuery(db, "SELECT * FROM eunomia.test2 LIMIT 1;")
 
 DBI::dbDisconnect(db)
+
+# RPostgres
+connectionDetails <- DatabaseConnector:::createDbiConnectionDetails(
+  dbms = "postgresql",
+  drv = RPostgres::Postgres(),
+  dbname = strsplit(Sys.getenv("CDM5_POSTGRESQL_SERVER"), "/")[[1]][2],
+  host = strsplit(Sys.getenv("CDM5_POSTGRESQL_SERVER"), "/")[[1]][1], 
+  user = Sys.getenv("CDM5_POSTGRESQL_USER"), 
+  password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
+)
+connection <- connect(connectionDetails)
+
+insertTable(
+  connection = connection,
+  # databaseSchema = "ohdsi",
+  tableName = "#cars",
+  data = cars,
+  dropTableIfExists = TRUE,
+  createTable = TRUE,
+  tempTable = TRUE
+)
+dbGetQuery(connection, "SELECT TOP 5 * FROM #cars;")
+
+dbExecute(connection, "DROP TABLE #cars;")
+
+disconnect(connection)
+

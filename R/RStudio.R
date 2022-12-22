@@ -76,7 +76,7 @@ unregisterWithRStudio <- function(connection) {
 }
 
 hasCatalogs <- function(connection) {
-  return(dbms(connection) %in% c("pdw", "sql server", "synapse", "postgresql", "redshift", "snowflake", "spark", "bigquery"))
+  return(dbms(connection) %in% c("pdw", "postgresql", "sql server", "synapse", "redshift", "snowflake", "spark", "bigquery"))
 }
 
 listDatabaseConnectorColumns <- function(connection,
@@ -308,8 +308,8 @@ getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) 
     schemas <- DBI::dbGetQuery(conn@dbiConnection, "SHOW DATABASES")
     return(schemas[, 1])
   } else {
-    warn("getSchemaNames not supported for DBMS ", dbms(conn))
-    return("")
+    schemas <- DBI::dbGetQuery(conn@dbiConnection, "SELECT schema_name FROM information_schema.schemata;")
+    return(schemas[, 1])
   }
 }
 
