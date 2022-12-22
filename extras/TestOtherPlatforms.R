@@ -168,3 +168,64 @@ cdmDatabaseSchema <- "eunomia"
 options(sqlRenderTempEmulationSchema = "eunomia")
 testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 
+# Spark via ODBC
+connectionDetails <- createConnectionDetails(dbms = "spark",
+                                             server = keyring::key_get("sparkServer"),
+                                             port = keyring::key_get("sparkPort"),
+                                             user = keyring::key_get("sparkUser"),
+                                             password = keyring::key_get("sparkPassword"))
+
+
+
+# connectionDetails <- createDbiConnectionDetails(
+#   dbms = "spark",
+#   drv = odbc::odbc(),
+#   Driver = "Simba Spark ODBC Driver",
+#   Host = keyring::key_get("sparkServer"),
+#   uid = keyring::key_get("sparkUser"),
+#   pwd = keyring::key_get("sparkPassword"),
+#   Port = keyring::key_get("sparkPort")
+# )
+
+connection <- connect(connectionDetails)
+insertTable(
+  connection = connection,
+  databaseSchema = "eunomia",
+  tableName = "cars",
+  data = cars,
+  dropTableIfExists = TRUE,
+  createTable = TRUE
+)
+
+executeSql(connection, "DROP TABLE eunomia.cars;")
+
+DBI::dbDisconnect(connection)
+
+hash <- computeDataHash(connection = connection,
+                        databaseSchema = "eunomia")
+
+expect_true(is.character(hash))
+disconnect(connection)
+
+
+getTableNames(connection, "eunomia")
+
+# Use pure ODBC:
+db <- DBI::dbConnect(odbc::odbc(),
+                     Driver = "Simba Spark ODBC Driver",
+                     Host = keyring::key_get("sparkServer"),
+                     uid = keyring::key_get("sparkUser"),
+                     pwd = keyring::key_get("sparkPassword"),
+                     Port = keyring::key_get("sparkPort"))
+
+DBI::dbExecute(db, "DROP TABLE cars;")
+DBI::dbGetQuery(db, "SELECT * FROM eunomia.achilles_results LIMIT 1;")
+DBI::dbExecute(db, "CREATE TABLE eunomia.test(x INT);")
+DBI::dbExecute(db, "DROP TABLE eunomia.test;")
+
+DBI::dbExecute(db, "USE eunomia;")
+DBI::dbExecute(db, "DROP TABLE \"test\";")
+DBI::dbListTables(db, schema = "eunomia")
+DBI::dbGetQuery(db, "SELECT * FROM eunomia.test2 LIMIT 1;")
+
+DBI::dbDisconnect(db)

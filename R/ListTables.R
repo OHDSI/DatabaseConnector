@@ -31,9 +31,18 @@ setMethod(
     errorMessages <- checkmate::makeAssertCollection()
     checkmate::assertCharacter(databaseSchema, len = 1, null.ok = TRUE, add = errorMessages)
     checkmate::reportAssertions(collection = errorMessages)
-
-    if (dbms(conn) %in% c("sqlite", "sqlite extended")) {
-      tables <- DBI::dbListTables(conn@dbiConnection)
+    
+    if (is(conn, "DatabaseConnectorDbiConnection")) {
+      if (!is.null(databaseSchema) && dbms(conn) == "spark" && grepl("\\.", databaseSchema)) {
+        databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
+        tables <- DBI::dbListTables(
+          conn@dbiConnection, 
+          catalog = cleanSchemaName(databaseSchema[1]),
+          schema = cleanSchemaName(databaseSchema[2])
+        )
+      } else {
+        tables <- DBI::dbListTables(conn@dbiConnection, schema = databaseSchema)
+      }
       return(tolower(tables))
     }
     

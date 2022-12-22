@@ -425,16 +425,6 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
 
   tableName <- gsub("^#", "", tableName)
-  if (!is.null(databaseSchema)) {
-    if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
-      if (tolower(databaseSchema) != "main") {
-        abort("Only the 'main' schema exists on SQLite")
-      }
-    } else {
-      tableName <- paste(databaseSchema, tableName, sep = ".")
-    }
-  }
-
   if (dbms(connection) == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {
@@ -448,7 +438,20 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }
   }
   data <- convertLogicalFields(data)
+  
   logTrace(sprintf("Inserting %d rows into table '%s' ", nrow(data), tableName))
+  if (!is.null(databaseSchema)) {
+    if (grepl("\\.", databaseSchema)) {
+      databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
+      tableName <- DBI::Id(catalog = cleanSchemaName(databaseSchema[1]),
+                           schema = cleanSchemaName(databaseSchema[2]), 
+                           table = tableName)
+    } else {
+      tableName <- DBI::Id(schema = databaseSchema, 
+                           table = tableName)
+    }
+  } 
+  
   startTime <- Sys.time()
   DBI::dbWriteTable(
     conn = connection@dbiConnection,

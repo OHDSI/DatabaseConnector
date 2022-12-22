@@ -5,7 +5,8 @@
 \title{connect}
 \arguments{
 \item{connectionDetails}{An object of class \code{connectionDetails} as created by the
-\code{\link{createConnectionDetails}} function.}
+\code{\link{createConnectionDetails}} or \code{\link{createDbiConnectionDetails}}
+ function.}
 
 \item{dbms}{The type of DBMS running on the server. Valid values are
 \itemize{
@@ -186,12 +187,13 @@ set before calling \code{connect} for the first time.
 
 \examples{
 \dontrun{
-conn <- connect(
+connectionDetails <- createConnectionDetails(
   dbms = "postgresql",
   server = "localhost/postgres",
   user = "root",
   password = "xxx"
 )
+conn <- connect(connectionDetails)
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 disconnect(conn)
 

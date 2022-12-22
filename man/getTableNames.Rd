@@ -4,7 +4,7 @@
 \alias{getTableNames}
 \title{List all tables in a database schema.}
 \usage{
-getTableNames(connection, databaseSchema, cast = "lower")
+getTableNames(connection, databaseSchema = NULL, cast = "lower")
 }
 \arguments{
 \item{connection}{A DBI connection to the database server.}
