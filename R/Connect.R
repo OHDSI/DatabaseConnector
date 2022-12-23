@@ -278,32 +278,12 @@ connect <- function(connectionDetails = NULL,
   } else {
     # Using default connectionDetails
     assertDetailsCanBeValidated(connectionDetails)
-
+    checkIfDbmsIsSupported(connectionDetails$dbms)
+    
     if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
-      inform("Connecting using SQLite driver")
-      ensure_installed("RSQLite")
-      connection <- connectUsingDbi(
-        createDbiConnectionDetails(
-          dbms = connectionDetails$dbms,
-          drv = RSQLite::SQLite(),
-          dbname = connectionDetails$server(),
-          extended_types = (connectionDetails$dbms == "sqlite extended")
-        )
-      )
+      connectSqlite(connectionDetails)
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
-      inform("Connecting to Spark using ODBC driver")
-      ensure_installed("odbc")
-      connection <- connectUsingDbi(
-        createDbiConnectionDetails(
-          dbms = connectionDetails$dbms,
-          drv = odbc::odbc(),
-          Driver = "Simba Spark ODBC Driver",
-          Host = connectionDetails$server(),
-          uid = connectionDetails$user(),
-          pwd = connectionDetails$password(),
-          Port = connectionDetails$port()
-        )
-      )
+      connectSparkUsingOdbc(connectionDetails)
     } else {
       return(connectUsingJdbc(connectionDetails))
     }
@@ -312,7 +292,6 @@ connect <- function(connectionDetails = NULL,
 
 connectUsingJdbc <- function(connectionDetails) {
   dbms <- connectionDetails$dbms
-  checkIfDbmsIsSupported(dbms)
   connectionDetails$pathToDriver <- path.expand(connectionDetails$pathToDriver)
   checkPathToDriver(connectionDetails$pathToDriver, dbms)
 
@@ -653,7 +632,7 @@ connectBigQuery <- function(connectionDetails) {
 }
 
 connectSpark <- function(connectionDetails) {
-  inform("Connecting using Spark driver")
+  inform("Connecting using Spark JDBC driver")
   jarPath <- findPathToJar("^SparkJDBC42\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
   if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
@@ -669,6 +648,28 @@ connectSpark <- function(connectionDetails) {
       dbms = connectionDetails$dbms
     )
   }
+  return(connection)
+}
+
+connectSparkUsingOdbc <- function(connectionDetails) {
+  inform("Connecting using Spark ODBC driver")
+  ensure_installed("odbc")
+  dbiConnectionDetails <- createDbiConnectionDetails(
+    dbms = connectionDetails$dbms,
+    drv = odbc::odbc(),
+    Driver = "Simba Spark ODBC Driver",
+    Host = connectionDetails$server(),
+    uid = connectionDetails$user(),
+    pwd = connectionDetails$password(),
+    Port = connectionDetails$port()
+  )
+  if (!is.null(connectionDetails$extraSettings)) {
+    dbiConnectionDetails <- append(
+      dbiConnectionDetails,
+      connectionDetails$extraSettings
+    )
+  }
+  connection <- connectUsingDbi(dbiConnectionDetails)
   return(connection)
 }
 
@@ -689,6 +690,20 @@ connectSnowflake <- function(connectionDetails) {
       dbms = connectionDetails$dbms
     )
   }
+  return(connection)
+}
+
+connectSqlite <- function(connectionDetails) {
+  inform("Connecting using SQLite driver")
+  ensure_installed("RSQLite")
+  connection <- connectUsingDbi(
+    createDbiConnectionDetails(
+      dbms = connectionDetails$dbms,
+      drv = RSQLite::SQLite(),
+      dbname = connectionDetails$server(),
+      extended_types = (connectionDetails$dbms == "sqlite extended")
+    )
+  )
   return(connection)
 }
 

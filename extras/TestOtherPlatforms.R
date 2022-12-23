@@ -177,7 +177,7 @@ connectionDetails <- createConnectionDetails(dbms = "spark",
 
 
 
-# connectionDetails <- createDbiConnectionDetails(
+# connectionDetails <- DatabaseConnector:::createDbiConnectionDetails(
 #   dbms = "spark",
 #   drv = odbc::odbc(),
 #   Driver = "Simba Spark ODBC Driver",

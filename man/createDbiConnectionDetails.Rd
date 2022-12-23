@@ -23,10 +23,10 @@ createDbiConnectionDetails(dbms, drv, ...)
   \item {"snowflake" for Snowflake}
 }}
 
-\item{drv}{An object that inherits from DBIDriver, or an existing DBIConnection object 
+\item{drv}{An object that inherits from DBIDriver, or an existing DBIConnection object
 (in order to clone an existing connection).}
 
-\item{...}{authentication arguments needed by the DBMS instance; these typically 
+\item{...}{authentication arguments needed by the DBMS instance; these typically
 include user, password, host, port, dbname, etc. For details see the appropriate DBIDriver}
 }
 \value{

@@ -13,9 +13,9 @@ dbms(connection)
 The name of the database (dbms) used by SqlRender
 }
 \description{
-The SqlRender package provides functions that translate SQL from OHDSI-SQL to 
-a target SQL dialect. These function need the name of the database platform to 
-translate to. The `dbms` function returns the dbms for any DBI 
+The SqlRender package provides functions that translate SQL from OHDSI-SQL to
+a target SQL dialect. These function need the name of the database platform to
+translate to. The `dbms` function returns the dbms for any DBI
 connection that can be passed along to SqlRender translation functions (see example).
 }
 \examples{

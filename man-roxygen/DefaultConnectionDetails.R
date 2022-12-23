@@ -3,8 +3,10 @@
 #' @param server             The name of the server.
 #' @param port               (optional) The port on the server to connect to.
 #' @param extraSettings      (optional) Additional configuration settings specific to the database
-#'                           provider to configure things as security for SSL. These must follow the
-#'                           format for the JDBC connection for the RDBMS specified in dbms.
+#'                           provider to configure things as security for SSL. For connections using 
+#'                           JDBC these will be appended to end of the connection string. For 
+#'                           connections using DBI, these settings will additionally be used to call
+#'                           \code{dbConnect()}.
 #' @param oracleDriver       Specify which Oracle drive you want to use. Choose between \code{"thin"}
 #'                           or \code{"oci"}.
 #' @param connectionString   The JDBC connection string. If specified, the \code{server}, \code{port},
@@ -18,7 +20,9 @@
 #' @section DBMS parameter details:
 #'
 #' Depending on the DBMS, the function arguments have slightly different
-#' interpretations: Oracle:
+#' interpretations: 
+#' 
+#' Oracle:
 #' \itemize{
 #'   \item \code{user}. The user name used to access the server
 #'   \item \code{password}. The password for that user
@@ -103,11 +107,18 @@
 #'   \item \code{server}. The path to the SQLIte file.
 #' }
 #' Spark:
+#' 
+#' Currently both JDBC and ODBC connections are supported for Spark. Set the 
+#' \code{connectionString} argument to use JDBC, otherwise ODBC is used:
 #' \itemize{
-#'   \item \code{connectionString}. The connection string (e.g. starting with
+#'   \item \code{connectionString}. The JDBC connection string (e.g. starting with
 #'         'jdbc:spark://my-org.dev.cloud.databricks.com...').
 #'   \item \code{user}. The user name used to access the server.
 #'   \item \code{password}. The password for that user.
+#'   \item \code{server}. The host name of the server (when using ODBC)
+#'   \item \code{port}. Specifies the port on the server (when using ODBC)
+#'   \item \code{extraSettings} Additional settings for the ODBC connection, for example 
+#'         \code{extraSettings = list(HTTPPath = "http://databricks.server.com")}.
 #' }
 #' Snowflake:
 #' \itemize{

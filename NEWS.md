@@ -19,9 +19,11 @@ Changes:
 
 8. The `dbListTables()` and `getTableNames()` functions return results in lowercase instead of uppercase for consistency with DBI functions. 
 
-9. Throwing informative warning if user calls `createConnectionDetails()` with credential arguments that cannot be evaluated in a multi-threading setting.
+9. Throwing informative error if user calls `createConnectionDetails()` with credential arguments that cannot be evaluated in a multi-threading setting.
 
 10. Supporting external tables on RedShift.
+
+11. Adding support for ODBC connections to Spark.
 
 Bugfixes:
 
