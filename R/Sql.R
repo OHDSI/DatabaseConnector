@@ -529,7 +529,7 @@ executeSql <- function(connection,
 convertFields <- function(dbms, result) {
   if (dbms == "impala") {
     for (colname in colnames(result)) {
-      if (grepl("DATE", colname)) {
+      if (grepl("DATE$", colname)) {
         result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
       }
     }

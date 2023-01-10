@@ -187,6 +187,44 @@ test_that("Fetch results", {
   }
   
   disconnect(connection)
+  
+  # SQLite --------------------------------------------------
+  databaseFile <- tempfile(fileext = ".sqlite")
+  cdmDatabaseSchema <- "main"
+  connectionDetails <- createConnectionDetails(
+    dbms = "sqlite",
+    server = databaseFile
+  )
+  connection <- connect(connectionDetails)
+  insertTable(
+    connection = connection,
+    databaseSchema = cdmDatabaseSchema,
+    tableName = "person",
+    data = data.frame(person_id = seq_len(100), 
+                      year_of_birth = round(runif(100, 1900, 2000)),
+                      race_concept_id = as.numeric(NA),
+                      gender_concept_id = rep(c(8507, 8532), 50))
+  )
+  # Fetch data.frame:
+  count <- querySql(connection, "SELECT COUNT(*) FROM main.person;")
+  expect_equal(count[1, 1], 100)
+  count <- renderTranslateQuerySql(connection, "SELECT COUNT(*) FROM @cdm.person;", cdm = cdmDatabaseSchema)
+  expect_equal(count[1, 1], 100)
+  
+  # Fetch Andromeda:
+  andromeda <- Andromeda::andromeda()
+  querySqlToAndromeda(connection, "SELECT * FROM main.person;", andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+  expect_equivalent(nrow(dplyr::collect(andromeda$test)), 100)
+  
+  if (inherits(andromeda, "SQLiteConnection")) {
+    Andromeda::close(andromeda)
+  } else {
+    close(andromeda)
+  }
+  
+  disconnect(connection)
+  unlink(databaseFile)  
+  
 })
 
 test_that("dbFetch works", {

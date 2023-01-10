@@ -132,14 +132,34 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
   logTrace(paste("Querying SQL:", truncateSql(query)))
   startTime <- Sys.time()
   
-  results <- lowLevelQuerySql(connection,
-                              query,
-                              integerAsNumeric = integerAsNumeric,
-                              integer64AsNumeric = integer64AsNumeric
-  )
-  
-  andromeda[[andromedaTableName]] <- results
-  
+  batchSize <- 100000
+  resultSet <- DBI::dbSendQuery(connection@dbiConnection, query)
+  on.exit(DBI::dbClearResult(resultSet))
+  first <- TRUE
+  while (!DBI::dbHasCompleted(resultSet)) {
+    batch <- DBI::dbFetch(resultSet, batchSize)
+    if (integerAsNumeric) {
+      for (i in seq.int(ncol(batch))) {
+        if (is(batch[[i]], "integer")) {
+          batch[[i]] <- as.numeric(batch[[i]])
+        }
+      }
+    }
+    if (integer64AsNumeric) {
+      for (i in seq.int(ncol(batch))) {
+        if (is(batch[[i]], "integer64")) {
+          batch[[i]] <- convertInteger64ToNumeric(batch[[i]])
+        }
+      }
+    }
+    batch <- convertFields(dbms(connection), batch)
+    if (first) {
+      andromeda[[andromedaTableName]] <- batch
+    } else {
+      Andromeda::appendToTable(andromeda[[andromedaTableName]], batch)
+    }
+    first <- FALSE
+  }
   delta <- Sys.time() - startTime
   logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
   
