@@ -136,7 +136,7 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
   resultSet <- DBI::dbSendQuery(connection@dbiConnection, query)
   on.exit(DBI::dbClearResult(resultSet))
   first <- TRUE
-  while (!DBI::dbHasCompleted(resultSet)) {
+  while (first || !DBI::dbHasCompleted(resultSet)) {
     batch <- DBI::dbFetch(resultSet, batchSize)
     if (integerAsNumeric) {
       for (i in seq.int(ncol(batch))) {

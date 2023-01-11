@@ -24,13 +24,13 @@ folder
 unlink(folder, recursive = TRUE, force = TRUE)
 file.exists(folder)
 
-# Format and check code:
+# Format and check code --------------------------------------------------------
 styler::style_pkg()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
-# Create manual:
+# Create manual ----------------------------------------------------------------
 unlink("extras/DatabaseConnector.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
@@ -59,7 +59,7 @@ unlink("inst/doc/DbiAndDbplyr.tex")
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 
-# Drop all emulated temp tables that haven't been cleaned up:
+# Drop all emulated temp tables that haven't been cleaned up -------------------
 connection <- connect(
   dbms = "oracle",
   user = Sys.getenv("CDM5_ORACLE_USER"),
@@ -84,7 +84,18 @@ sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), c
 executeSql(connection, sql)
 disconnect(connection)
 
-# Release package:
+# Reverse dependency checks (taken from GA workflow) ---------------------------
+utils::download.file("https://raw.githubusercontent.com/OHDSI/.github/main/ReverseDependencyCheckFunctions.R", "ReverseDependencyCheckFunctions.R")
+source("ReverseDependencyCheckFunctions.R")
+saveRDS(prepareForReverseDependencyCheck(), "reverseDependencies.rds")
+reverseDependencies <- readRDS("reverseDependencies.rds")
+if (nrow(reverseDependencies) > 0)
+  for (i in 14:nrow(reverseDependencies))
+    checkPackage(package = reverseDependencies$name[i], inCran = reverseDependencies$inCran[i])
+unlink("ReverseDependencyCheckFunctions.R")
+unlink("reverseDependencies.rds")
+
+# Release package --------------------------------------------------------------
 devtools::check_win_devel()
 
 devtools::check_rhub()

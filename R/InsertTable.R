@@ -142,7 +142,7 @@ trySettingAutoCommit <- function(connection, value) {
 #' of the binary.
 #'
 #' PostgreSQL:
-#' Uses the 'pg' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
+#' Uses the 'psql' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
 #' binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.
 #'
 #' @examples

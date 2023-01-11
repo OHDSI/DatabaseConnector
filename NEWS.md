@@ -25,6 +25,9 @@ Changes:
 
 11. Adding support for ODBC connections to Spark.
 
+12. Querying to Andromeda when using a DBI driver (instead of a JDBC driver) now also uses batching to avoid running out of memory.
+
+
 Bugfixes:
 
 1. Fix error when calling `insertTable()` and all column names require quotes.
