@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
       </span>
     </div>
 
@@ -33,6 +33,9 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/DbiAndDbplyr.html">Using DatabaseConnector through DBI and dbplyr</a>
     </li>
     <li>
       <a href="../articles/Querying.html">Querying a database</a>
@@ -67,6 +70,14 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="assertTempEmulationSchemaSet.html">assertTempEmulationSchemaSet()</a></code> </p>
+        </td>
+        <td><p>Assert the temp emulation schema is set</p></td>
+      </tr><tr><td>
+          <p><code><a href="computeDataHash.html">computeDataHash()</a></code> </p>
+        </td>
+        <td><p>Compute hash of data</p></td>
+      </tr><tr><td>
           <p><code><a href="connect.html">connect</a></code> </p>
         </td>
         <td><p>connect</p></td>
@@ -74,6 +85,10 @@
           <p><code><a href="createConnectionDetails.html">createConnectionDetails</a></code> </p>
         </td>
         <td><p>createConnectionDetails</p></td>
+      </tr><tr><td>
+          <p><code><a href="createDbiConnectionDetails.html">createDbiConnectionDetails()</a></code> </p>
+        </td>
+        <td><p>Create DBI connection details</p></td>
       </tr><tr><td>
           <p><code><a href="createZipFile.html">createZipFile()</a></code> </p>
         </td>
@@ -86,6 +101,10 @@
           <p><code><a href="dbConnect-DatabaseConnectorDriver-method.html">dbConnect(<i>&lt;DatabaseConnectorDriver&gt;</i>)</a></code> </p>
         </td>
         <td><p>Create a connection to a DBMS</p></td>
+      </tr><tr><td>
+          <p><code><a href="dbGetInfo-DatabaseConnectorDriver-method.html">dbGetInfo(<i>&lt;DatabaseConnectorDriver&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Get DBMS metadata</p></td>
       </tr><tr><td>
           <p><code><a href="dbms.html">dbms()</a></code> </p>
         </td>
@@ -115,6 +134,10 @@
         </td>
         <td><p>Does the table exist?</p></td>
       </tr><tr><td>
+          <p><code><a href="extractQueryTimes.html">extractQueryTimes()</a></code> </p>
+        </td>
+        <td><p>Extract query times from a <code>ParallelLogger</code> log file</p></td>
+      </tr><tr><td>
           <p><code><a href="getAvailableJavaHeapSpace.html">getAvailableJavaHeapSpace()</a></code> </p>
         </td>
         <td><p>Get available Java heap space</p></td>
@@ -122,6 +145,10 @@
           <p><code><a href="getTableNames.html">getTableNames()</a></code> </p>
         </td>
         <td><p>List all tables in a database schema.</p></td>
+      </tr><tr><td>
+          <p><code><a href="inDatabaseSchema.html">inDatabaseSchema()</a></code> </p>
+        </td>
+        <td><p>Refer to a table in a database schema</p></td>
       </tr><tr><td>
           <p><code><a href="insertTable.html">insertTable()</a></code> </p>
         </td>
@@ -171,6 +198,10 @@
         </td>
         <td><p>Render, translate, and query to local Andromeda</p></td>
       </tr><tr><td>
+          <p><code><a href="requiresTempEmulation.html">requiresTempEmulation()</a></code> </p>
+        </td>
+        <td><p>Does the DBMS require temp table emulation?</p></td>
+      </tr><tr><td>
           <p><code><a href="show-DatabaseConnectorDriver-method.html">show(<i>&lt;DatabaseConnectorDriver&gt;</i>)</a></code> </p>
         </td>
         <td><p>Show an Object</p></td>
@@ -187,7 +218,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

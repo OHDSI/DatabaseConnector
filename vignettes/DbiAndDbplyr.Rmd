@@ -50,7 +50,7 @@ TRUE
 
 # Querying 
 
-Querying and executing SQL can be done through the usual `DBI` functions, for example:
+Querying and executing SQL can be done through the usual `DBI` functions. SQL statements are assumed to be written in 'OhdsiSql', a subset of SQL Server SQL (see the `SqlRender` package for details), and are automatically translated to the appropriate SQL dialect. For example:
 
 ```{r eval=FALSE}
 dbGetQuery(connection, "SELECT TOP 3 * FROM cdmv5.person")
@@ -121,7 +121,7 @@ observationPeriod %>%
 
 ## Allowed table and field names in dbplyr
 
-Because of the many idiosyncrasies in how different dataplatforms store and transform table and field names, it is currently not possible to use any names that would require quotes. So for example the names `person`, `person_id`, and `observation_period` are fine, but `Person ID` and `Obs. Period` are not. In general, it is recommend to use lower case snake_case for database table and field names.
+Because of the many idiosyncrasies in how different dataplatforms store and transform table and field names, it is currently not possible to use any names that would require quotes. So for example the names `person`, `person_id`, and `observation_period` are fine, but `Person ID` and `Obs. Period` are not. In general, it is highly recommend to **use lower case snake_case for database table and field names**.
 
 
 # Temp tables

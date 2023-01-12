@@ -33,7 +33,8 @@ Features
   - Multiple statements per query
 - Support for fetching data to Andromeda objects
 - Insert data frame to a database table
-- Supports the DBI interface
+- Supports the `DBI` interface, with SQL statements automatically translated to the appropriate dialect.
+- Supports the `dbplyr` interface.
 - Integrates with RStudio's Connections tab
 
 
@@ -54,7 +55,7 @@ disconnect(conn)
 Technology
 ============
 
-DatabaseConnector is an R package using Java's JDBC drivers. 
+DatabaseConnector is an R package using Java's JDBC drivers and other DBI drivers. 
 
 
 System Requirements

@@ -1,6 +1,4 @@
-# @file PackageMaintenance
-#
-# Copyright 2022 Observational Health Data Sciences and Informatics
+# Copyright 2023 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -24,11 +22,13 @@ folder
 unlink(folder, recursive = TRUE, force = TRUE)
 file.exists(folder)
 
+
 # Format and check code --------------------------------------------------------
 styler::style_pkg()
 OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
+
 
 # Create manual ----------------------------------------------------------------
 unlink("extras/DatabaseConnector.pdf")
@@ -40,26 +40,26 @@ rmarkdown::render("vignettes/Connecting.Rmd",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
-unlink("inst/doc/Connecting.tex")
 
 rmarkdown::render("vignettes/Querying.Rmd",
                   output_file = "../inst/doc/Querying.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
-unlink("inst/doc/Querying.tex")
 
 rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
                   output_file = "../inst/doc/DbiAndDbplyr.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
-unlink("inst/doc/DbiAndDbplyr.tex")
 
+# May need to delete Sexpr expressions from description sections to avoid purr error:
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 
+
 # Drop all emulated temp tables that haven't been cleaned up -------------------
+# Oracle
 connection <- connect(
   dbms = "oracle",
   user = Sys.getenv("CDM5_ORACLE_USER"),
@@ -72,6 +72,7 @@ sql <- paste(sprintf("DROP TABLE %s.%s;", databaseSchema, tables), collapse= "\n
 executeSql(connection, sql)
 disconnect(connection)
 
+# Postgres
 connection <- connect(
   dbms = "postgresql",
   user = Sys.getenv("CDM5_POSTGRESQL_USER"),
@@ -83,6 +84,34 @@ tables <- getTableNames(connection, databaseSchema)
 sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse= "\n")
 executeSql(connection, sql)
 disconnect(connection)
+
+# SQL Server
+connection <- connect(
+  dbms = "sql server",
+  user = Sys.getenv("CDM5_SQL_SERVER_USER"),
+  password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
+  server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
+)
+databaseSchema <- Sys.getenv("CDM5_SQL_SERVER_OHDSI_SCHEMA")
+tables <- getTableNames(connection, databaseSchema)
+tables <- tables[tables != "concept"]
+sql <- paste(sprintf("DROP TABLE %s.\"%s\";", databaseSchema, tables), collapse= "\n")
+executeSql(connection, sql, runAsBatch = TRUE)
+disconnect(connection)
+
+# RedShift
+connection <- connect(
+  dbms = "redshift",
+  user = Sys.getenv("CDM5_REDSHIFT_USER"),
+  password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+  server = Sys.getenv("CDM5_REDSHIFT_SERVER")
+)
+databaseSchema <- Sys.getenv("CDM5_REDSHIFT_OHDSI_SCHEMA")
+tables <- getTableNames(connection, databaseSchema)
+sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse= "\n")
+executeSql(connection, sql)
+disconnect(connection)
+
 
 # Reverse dependency checks (taken from GA workflow) ---------------------------
 utils::download.file("https://raw.githubusercontent.com/OHDSI/.github/main/ReverseDependencyCheckFunctions.R", "ReverseDependencyCheckFunctions.R")

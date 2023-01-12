@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
       </span>
     </div>
 
@@ -51,6 +51,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/DbiAndDbplyr.html">Using DatabaseConnector through DBI and dbplyr</a>
     </li>
     <li>
       <a href="../articles/Querying.html">Querying a database</a>
@@ -88,7 +91,7 @@
                         <h4 data-toc-skip class="author">Martijn J.
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2022-09-23</h4>
+            <h4 data-toc-skip class="date">2023-01-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/Querying.Rmd" class="external-link"><code>vignettes/Querying.Rmd</code></a></small>
       <div class="hidden name"><code>Querying.Rmd</code></div>
@@ -197,34 +200,25 @@ function:</p>
 called ‘mtcars’ on the server, that will be automatically created.</p>
 </div>
 <div class="section level2">
-<h2 id="dbi-interface">DBI interface<a class="anchor" aria-label="anchor" href="#dbi-interface"></a>
+<h2 id="logging-all-queries">Logging all queries<a class="anchor" aria-label="anchor" href="#logging-all-queries"></a>
 </h2>
-<p><code>DatabaseConnector</code> implements the DBI interface for
-compatibility with other R packages. One can use the DBI functions
-instead of the ones described before, for example:</p>
+<p>For several reasons it might be helpful to log all queries sent to
+the server (and the time to completion), for example to understand
+performance issues. For this one can use the <code>ParallelLogger</code>
+package. If the <code>LOG_DATABASECONNECTOR_SQL</code> option is set to
+<code>TRUE</code>, each query will be logged at the ‘trace’ level. For
+example:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu">dbConnect</span><span class="op">(</span><span class="fu"><a href="../reference/DatabaseConnectorDriver.html">DatabaseConnectorDriver</a></span><span class="op">(</span><span class="op">)</span>, </span>
-<span>                  dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
-<span>                  server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span>
-<span>                  user <span class="op">=</span> <span class="st">"joe"</span>,</span>
-<span>                  password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Connecting using PostgreSQL driver</span></span></code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">dbIsValid</span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] TRUE</span></span></code></pre>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">dbSendQuery</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT TOP 3 * FROM person"</span><span class="op">)</span></span>
-<span><span class="fu">dbFetch</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   PERSON_ID GENDER_CONCEPT_ID YEAR_OF_BIRTH</span></span>
-<span><span class="co">## 1         1              8507          1975</span></span>
-<span><span class="co">## 2         2              8507          1976</span></span>
-<span><span class="co">## 3         3              8507          1977</span></span></code></pre>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">dbHasCompleted</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] TRUE</span></span></code></pre>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">dbClearResult</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="fu">dbDisconnect</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>LOG_DATABASECONNECTOR_SQL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">ParallelLogger</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/ParallelLogger/reference/addDefaultFileLogger.html" class="external-link">addDefaultFileLogger</a></span><span class="op">(</span><span class="st">"sqlLog.txt"</span>, name <span class="op">=</span> <span class="st">"TEST_LOGGER"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">persons</span> <span class="op">&lt;-</span> <span class="fu">renderTranslatequerySql</span><span class="op">(</span><span class="va">conn</span>, </span>
+<span>                                   sql <span class="op">=</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,</span>
+<span>                                   schema <span class="op">=</span> <span class="st">"cdm_synpuf"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"sqlLog.txt"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>[2] "2022-11-18 10:23:59\t[Main thread]\tTRACE\tDatabaseConnector\tlogTrace\tQuerying SQL: SELECT TOP 10 * FROM cdm_synpuf.person"
+[3] "2022-11-18 10:23:59\t[Main thread]\tTRACE\tDatabaseConnector\tlogTrace\tQuerying SQL took 0.105010032653809 secs"   </code></pre>
 </div>
   </div>
 
@@ -245,7 +239,7 @@ instead of the ones described before, for example:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

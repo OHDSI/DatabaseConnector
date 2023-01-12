@@ -7,6 +7,9 @@
     <loc>/articles/Connecting.html</loc>
   </url>
   <url>
+    <loc>/articles/DbiAndDbplyr.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
@@ -28,10 +31,19 @@
     <loc>/pull_request_template.html</loc>
   </url>
   <url>
+    <loc>/reference/assertTempEmulationSchemaSet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/computeDataHash.html</loc>
+  </url>
+  <url>
     <loc>/reference/connect.html</loc>
   </url>
   <url>
     <loc>/reference/createConnectionDetails.html</loc>
+  </url>
+  <url>
+    <loc>/reference/createDbiConnectionDetails.html</loc>
   </url>
   <url>
     <loc>/reference/createZipFile.html</loc>
@@ -86,6 +98,9 @@
   </url>
   <url>
     <loc>/reference/dbFetch-DatabaseConnectorResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetInfo-DatabaseConnectorDriver-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbGetQuery-DatabaseConnectorConnection-character-method.html</loc>
@@ -166,10 +181,16 @@
     <loc>/reference/existsTable.html</loc>
   </url>
   <url>
+    <loc>/reference/extractQueryTimes.html</loc>
+  </url>
+  <url>
     <loc>/reference/getAvailableJavaHeapSpace.html</loc>
   </url>
   <url>
     <loc>/reference/getTableNames.html</loc>
+  </url>
+  <url>
+    <loc>/reference/inDatabaseSchema.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -196,6 +217,9 @@
     <loc>/reference/lowLevelQuerySqlToAndromeda.html</loc>
   </url>
   <url>
+    <loc>/reference/Microsoft-SQL-Server-class.html</loc>
+  </url>
+  <url>
     <loc>/reference/querySql.ffdf.html</loc>
   </url>
   <url>
@@ -218,6 +242,9 @@
   </url>
   <url>
     <loc>/reference/renderTranslateQuerySqlToAndromeda.html</loc>
+  </url>
+  <url>
+    <loc>/reference/requiresTempEmulation.html</loc>
   </url>
   <url>
     <loc>/reference/show-DatabaseConnectorConnection-method.html</loc>

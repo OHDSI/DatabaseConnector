@@ -18,7 +18,7 @@ is created, or the data is appended to an existing table."><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
       </span>
     </div>
 
@@ -34,6 +34,9 @@ is created, or the data is appended to an existing table."><!-- mathjax --><scri
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/DbiAndDbplyr.html">Using DatabaseConnector through DBI and dbplyr</a>
     </li>
     <li>
       <a href="../articles/Querying.html">Querying a database</a>
@@ -167,7 +170,7 @@ user; --Grant Staging database permissions - we will use the user db. USE scratc
 sp_addrolemember 'db_ddladmin', user; Set the R environment variable DWLOADER_PATH to the location
 of the binary.</p>
 <p>PostgreSQL:
-Uses the 'pg' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
+Uses the 'psql' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
 binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.</p>
     </div>
 
@@ -220,7 +223,7 @@ binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
