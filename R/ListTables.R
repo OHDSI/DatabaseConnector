@@ -50,7 +50,7 @@ setMethod(
       database <- rJava::.jnull("java/lang/String")
       schema <- rJava::.jnull("java/lang/String")
     } else {
-      if (dbms(conn) == "oracle") {
+      if (dbms(conn) %in% c("oracle", "snowflake")) {
         databaseSchema <- toupper(databaseSchema)
       }
       if (dbms(conn) == "redshift") {
