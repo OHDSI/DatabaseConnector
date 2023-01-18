@@ -598,6 +598,8 @@ connectHive <- function(connectionDetails) {
     if (!is.null(connectionDetails$extraSettings)) {
       connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
     }
+  } else {
+    connectionString <- connectionDetails$connectionString()
   }
   connection <- connectUsingJdbcDriver(driver,
     connectionString,
@@ -621,6 +623,8 @@ connectBigQuery <- function(connectionDetails) {
     if (!is.null(connectionDetails$extraSettings)) {
       connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = "?")
     }
+  } else {
+    connectionString <- connectionDetails$connectionString()
   }
   connection <- connectUsingJdbcDriver(driver,
     connectionString,
@@ -661,7 +665,8 @@ connectSparkUsingOdbc <- function(connectionDetails) {
     Host = connectionDetails$server(),
     uid = connectionDetails$user(),
     pwd = connectionDetails$password(),
-    Port = connectionDetails$port()
+    Port = connectionDetails$port(),
+    UseNativeQuery=1
   )
   if (!is.null(connectionDetails$extraSettings)) {
     dbiConnectionDetails <- append(
