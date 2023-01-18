@@ -74,9 +74,11 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_equal(nrow(topAges), 10)
   
+  # Casting duration to numeric because platforms like SQL Server compute the mean by first computing the sum, which
+  # will not fit in an integer:
   durationDist <- person %>%
     inner_join(observationPeriod, by = "person_id") %>%
-    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    mutate(duration = as.numeric(datediff(day, observation_period_start_date, observation_period_end_date))) %>%
     group_by(gender_concept_id) %>%
     summarize(mean_duration = mean(duration, na.rm = TRUE),
               min_duration = min(duration, na.rm = TRUE),

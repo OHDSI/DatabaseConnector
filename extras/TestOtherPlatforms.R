@@ -2,40 +2,97 @@
 library(DatabaseConnector)
 library(testthat)
 
+# Set connection details -------------------------------------------------------
+
+# BigQuery
+connectionDetailsBigQuery <- createConnectionDetails(
+  dbms = "bigquery",
+  connectionString = keyring::key_get("bigQueryConnString"),
+  user = "",
+  password = ""
+)
+cdmDatabaseSchemaBigQuery <- "synpuf_2m"
+scratchDatabaseSchemaBigQuery <- "synpuf_2m_results"
+
+# Azure
+connectionDetailsAzure <- createConnectionDetails(
+  dbms = "sql server",
+  connectionString = keyring::key_get("azureConnectionString"),
+  user = keyring::key_get("azureUser"),
+  password = keyring::key_get("azurePassword")
+)
+cdmDatabaseSchemaAzure <- "[sql-synthea-1M].cdm_synthea_1M"
+scratchDatabaseSchemaAzure <- "[sql-synthea-1M].mschuemie"
+
+# Spark
+connectionDetailsSparkJdbc <- createConnectionDetails(
+  dbms = "spark",
+  connectionString = keyring::key_get("sparkConnectionString"),
+  user = keyring::key_get("sparkUser"),
+  password = keyring::key_get("sparkPassword")
+)
+connectionDetailsSparkOdbc <- createConnectionDetails(
+  dbms = "spark",
+  server = keyring::key_get("sparkServer"),
+  port = keyring::key_get("sparkPort"),
+  user = keyring::key_get("sparkUser"),
+  password = keyring::key_get("sparkPassword")
+)
+cdmDatabaseSchemaSpark <- "eunomia"
+scratchDatabaseSchemaSpark <- "eunomia"
+
 # Open and close connection -----------------------------------------------
 
 # BigQuery
-details <- createConnectionDetails(dbms = "bigquery",
-                                   connectionString = keyring::key_get("bigQueryConnString"),
-                                   user = "",
-                                   password = "")
-connection <- connect(details)
+connection <- connect(connectionDetailsBigQuery)
 expect_true(inherits(connection, "DatabaseConnectorConnection"))
 expect_true(disconnect(connection))
 
+# Azure
+connection <- connect(connectionDetailsAzure)
+expect_true(inherits(connection, "DatabaseConnectorConnection"))
+expect_true(disconnect(connection))
+
+
 # Fetch results -------------------------------------------------------------
+sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
 
 # BigQuery
-connection <- connect(dbms = "bigquery",
-                      connectionString = keyring::key_get("bigQueryConnString"),
-                      user = "",
-                      password = "")
-cdmDatabaseSchema <- "synpuf_2m"
-sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
-renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
+connection <- connect(connectionDetailsBigQuery)
+renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchemaBigQuery)
 
 # Fetch data.frame:
 count <- querySql(connection, renderedSql)
 expect_equal(count[1, 1], 96)
-count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
+count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchemaBigQuery)
 expect_equal(count[1, 1], 96)
 
 # Fetch Andromeda:
 andromeda <- Andromeda::andromeda()
 querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
 expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 96)
-renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchema, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
+renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchemaBigQuery, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
 expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 96)
+
+disconnect(connection)
+
+
+# Azure
+connection <- connect(connectionDetailsAzure)
+renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchemaAzure)
+
+# Fetch data.frame:
+count <- querySql(connection, renderedSql)
+expect_equal(count[1, 1], 63)
+count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchemaAzure)
+expect_equal(count[1, 1], 63)
+
+# Fetch Andromeda:
+andromeda <- Andromeda::andromeda()
+querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 63)
+renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchemaAzure, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 63)
 
 disconnect(connection)
 
@@ -43,14 +100,17 @@ disconnect(connection)
 # Get table names ----------------------------------------------------------------------
 
 # BigQuery
-details <- createConnectionDetails(dbms = "bigquery",
-                                   connectionString = keyring::key_get("bigQueryConnString"),
-                                   user = "",
-                                   password = "")
-connection <- connect(details)
-tables <- getTableNames(connection, "synpuf_2m")
-expect_true("PERSON" %in% tables)
+connection <- connect(connectionDetailsBigQuery)
+tables <- getTableNames(connection, cdmDatabaseSchemaBigQuery)
+expect_true("person" %in% tables)
 disconnect(connection)
+
+# Azure
+connection <- connect(connectionDetailsAzure)
+tables <- getTableNames(connection, cdmDatabaseSchemaAzure)
+expect_true("person" %in% tables)
+disconnect(connection)
+
 
 # insertTable ---------------------------------------------------------------------------------
 set.seed(0)
@@ -83,20 +143,20 @@ data$big_ints[7] <- NA
 data$big_ints[8] <- 3.3043e+10
 
 # BigQuery
-details <- createConnectionDetails(dbms = "bigquery",
-                                   connectionString = keyring::key_get("bigQueryConnString"),
-                                   user = "",
-                                   password = "")
-connection <- connect(details)
+connection <- connect(connectionDetailsBigQuery)
 insertTable(connection = connection,
-            tableName = "synpuf_2m_results.temp",
+            tableName = paste(scratchDatabaseSchemaBigQuery, "insert_test", sep= "."),
             data = data,
             createTable = TRUE,
             tempTable = FALSE,
-            tempEmulationSchema = "synpuf_2m_results")
+            tempEmulationSchema = scratchDatabaseSchemaBigQuery)
 
 # Check data on server is same as local
-data2 <- querySql(connection, "SELECT * FROM synpuf_2m_results.temp", integer64AsNumeric = FALSE)
+data2 <- renderTranslateQuerySql(
+  connection = connection, 
+  sql = "SELECT * FROM @scratch_database_schema.insert_test", 
+  scratch_database_schema = scratchDatabaseSchemaBigQuery,
+  integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
 data <- data[order(data$person_id), ]
 data2 <- data2[order(data2$person_id), ]
@@ -105,59 +165,92 @@ row.names(data2) <- NULL
 expect_equal(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
 
 # Check data types
-res <- dbSendQuery(connection, "SELECT * FROM synpuf_2m_results.temp")
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaBigQuery))
 columnInfo <- dbColumnInfo(res)
 dbClearResult(res)
 expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64"))
 
-executeSql(connection, "DROP TABLE synpuf_2m_results.temp;")
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaBigQuery))
+
+disconnect(connection)
+
+
+# Azure
+connection <- connect(connectionDetailsAzure)
+
+insertTable(connection = connection,
+            tableName = paste(scratchDatabaseSchemaAzure, "insert_test", sep= "."),
+            data = data,
+            createTable = TRUE,
+            tempTable = FALSE)
+
+# Check data on server is same as local
+data2 <- renderTranslateQuerySql(
+  connection = connection, 
+  sql = "SELECT * FROM @scratch_database_schema.insert_test", 
+  scratch_database_schema = scratchDatabaseSchemaAzure,
+  integer64AsNumeric = FALSE)
+names(data2) <- tolower(names(data2))
+data <- data[order(data$person_id), ]
+data2 <- data2[order(data2$person_id), ]
+row.names(data) <- NULL
+row.names(data2) <- NULL
+expect_equal(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
+
+# Check data types
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+columnInfo <- dbColumnInfo(res)
+dbClearResult(res)
+expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
 
 disconnect(connection)
 
 
 # Test dropEmulatedTempTables ----------------------------------------------
+
 # BigQuery
-details <- createConnectionDetails(dbms = "bigquery",
-                                   connectionString = keyring::key_get("bigQueryConnString"),
-                                   user = "",
-                                   password = "")
-connection <- connect(details)
+connection <- connect(connectionDetailsBigQuery)
 insertTable(connection = connection,
             tableName = "temp",
             data = cars,
             createTable = TRUE,
             tempTable = TRUE,
-            tempEmulationSchema = "synpuf_2m_results")
+            tempEmulationSchema = scratchDatabaseSchemaBigQuery)
 
-droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = "synpuf_2m_results")
+droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = scratchDatabaseSchemaBigQuery)
 expect_equal(droppedTables, sprintf("%s.%stemp", tempEmulationSchema, SqlRender::getTempTablePrefix()))
 disconnect(connection)
 
 
-# Testhash computation ----------------------------------------------
+# Test hash computation ----------------------------------------------
+
 # BigQuery
-details <- createConnectionDetails(dbms = "bigquery",
-                                   connectionString = keyring::key_get("bigQueryConnString"),
-                                   user = "",
-                                   password = "")
-connection <- connect(details)
+connection <- connect(connectionDetailsBigQuery)
 hash <- computeDataHash(connection = connection,
-                        databaseSchema = "synpuf_2m")
+                        databaseSchema = cdmDatabaseSchemaBigQuery)
+expect_true(is.character(hash))
+disconnect(connection)
+
+# Azure
+connection <- connect(connectionDetailsAzure)
+hash <- computeDataHash(connection = connection,
+                        databaseSchema = cdmDatabaseSchemaAzure)
 expect_true(is.character(hash))
 disconnect(connection)
 
 # Test dbplyr ------------------------------------------------------------------
+
 source("tests/testthat/dbplyrTestFunction.R")
 # options("DEBUG_DATABASECONNECTOR_DBPLYR" = TRUE)
 # BigQuery
-connectionDetails <- createConnectionDetails(dbms = "bigquery",
-                                             connectionString = keyring::key_get("bigQueryConnString"),
-                                             user = "",
-                                             password = "")
-cdmDatabaseSchema <- "synpuf_2m"
-options(sqlRenderTempEmulationSchema = "synpuf_2m_results")
-testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaBigQuery)
+testDbplyrFunctions(connectionDetailsBigQuery, cdmDatabaseSchemaBigQuery)
 
+# Azure
+testDbplyrFunctions(connectionDetails = connectionDetailsAzure, 
+                    cdmDatabaseSchema = cdmDatabaseSchemaAzure)
 
 # Spark
 connectionDetails <- createConnectionDetails(dbms = "spark",
@@ -216,6 +309,7 @@ db <- DBI::dbConnect(odbc::odbc(),
                      Host = keyring::key_get("sparkServer"),
                      uid = keyring::key_get("sparkUser"),
                      pwd = keyring::key_get("sparkPassword"),
+                     UseNativeQuery=1,
                      Port = keyring::key_get("sparkPort"))
 
 DBI::dbExecute(db, "DROP TABLE cars;")
@@ -226,7 +320,7 @@ DBI::dbExecute(db, "DROP TABLE eunomia.test;")
 DBI::dbExecute(db, "USE eunomia;")
 DBI::dbExecute(db, "DROP TABLE \"test\";")
 DBI::dbListTables(db, schema = "eunomia")
-DBI::dbGetQuery(db, "SELECT * FROM eunomia.test2 LIMIT 1;")
+DBI::dbGetQuery(db, "SELECT * FROM eunomia.person LIMIT 1;")
 
 DBI::dbDisconnect(db)
 
@@ -255,4 +349,18 @@ dbGetQuery(connection, "SELECT TOP 5 * FROM #cars;")
 dbExecute(connection, "DROP TABLE #cars;")
 
 disconnect(connection)
+
+library(DatabaseConnector)
+connectionDetails <- createConnectionDetails(dbms = "spark",
+                                             server = keyring::key_get("sparkServer"),
+                                             port = keyring::key_get("sparkPort"),
+                                             user = keyring::key_get("sparkUser"),
+                                             password = keyring::key_get("sparkPassword"))
+
+connection <- connect(connectionDetails)
+dbGetQuery(connection, "SELECT TOP 5 * FROM eunomia.person;")
+querySql(connection, "SELECT  FROM eunomia.person;")
+disconnect(connection)
+
+
 
