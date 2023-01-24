@@ -17,12 +17,13 @@ renderTranslateQuerySql(
 )
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{sql}{The SQL to be send.}
 
-\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReportSql.txt' in the current working directory.}
+\item{errorReportFile}{The file where an error report will be written if an error occurs.
+Defaults to 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 
@@ -47,8 +48,8 @@ A data frame.
 This function renders, and translates SQL, sends it to the server, and returns the results as a data.frame.
 }
 \details{
-This function calls the \code{render} and \code{translate} functions in the SqlRender package before
-calling \code{\link{querySql}}.
+This function calls the \code{render} and \code{translate} functions in the \code{SqlRender} package before
+calling \code{\link[=querySql]{querySql()}}.
 }
 \examples{
 \dontrun{

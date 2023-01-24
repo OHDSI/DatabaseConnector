@@ -11,6 +11,7 @@ renderTranslateQueryApplyBatched(
   args = list(),
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
+  oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
   integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -18,7 +19,8 @@ renderTranslateQueryApplyBatched(
 )
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{sql}{The SQL to be send.}
 
@@ -26,10 +28,12 @@ renderTranslateQueryApplyBatched(
 
 \item{args}{List of arguments to be passed to function call.}
 
-\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReportSql.txt' in the current working directory.}
+\item{errorReportFile}{The file where an error report will be written if an error occurs.
+Defaults to 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
+
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
@@ -54,8 +58,8 @@ that won't fit in to memory.
 The batch sizes are determined by the java virtual machine and will depend on the data.
 }
 \details{
-This function calls the \code{render} and \code{translate} functions in the SqlRender package before
-calling \code{\link{querySql}}.
+This function calls the \code{render} and \code{translate} functions in the \code{SqlRender} package before
+calling \code{\link[=querySql]{querySql()}}.
 }
 \examples{
 \dontrun{

@@ -109,11 +109,11 @@ setClass("DatabaseConnectorDbiConnection",
 #' Create a connection to a DBMS
 #'
 #' @description
-#' Connect to a database. This function is synonymous with the \code{\link{connect}} function. except
+#' Connect to a database. This function is synonymous with the [connect()] function. except
 #' a dummy driver needs to be specified
 #'
-#' @param drv   The result of the \code{link{DatabaseConnectorDriver}} function
-#' @param ...   Other parameters. These are the same as expected by the \code{\link{connect}} function.
+#' @param drv   The result of the [DatabaseConnectorDriver()] function
+#' @param ...   Other parameters. These are the same as expected by the [connect()] function.
 #'
 #' @return
 #' Returns a DatabaseConnectorConnection object that can be used with most of the other functions in
@@ -647,10 +647,9 @@ setMethod("dbRollback",
 #' Refer to a table in a database schema
 #' 
 #' @description 
-#' Can be used with \code{dplyr::tbl()} to indicate a table in a specific database schema.
+#' Can be used with [dplyr::tbl()] to indicate a table in a specific database schema.
 #'
-#' @param databaseSchema The name of the database schema. For example, for SQL Server this can 
-#'                       be 'cdm.dbo'.
+#' @template DatabaseSchema
 #' @param table          The name of the table in the database schema.
 #'
 #' @return
@@ -675,9 +674,12 @@ translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOpti
   if (debug) {
     message(paste("SQL in:", sql))
   }
-  if (isDbplyrSql(sql) && !grepl(";\\s*$", sql)) {
-    # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
-    sql <- paste0(sql, ";")
+  if (isDbplyrSql(sql)) {
+    if (!grepl(";\\s*$", sql)) {
+      # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
+      sql <- paste0(sql, ";")
+    }
+    sql <- translateDateFunctions(sql)
   }
   sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
   # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)

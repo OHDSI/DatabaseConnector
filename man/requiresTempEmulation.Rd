@@ -7,7 +7,7 @@
 requiresTempEmulation(dbms)
 }
 \arguments{
-\item{dbms}{The type of DBMS running on the server. See [connect()] or [createConnectionDetails()] for 
+\item{dbms}{The type of DBMS running on the server. See \code{\link[=connect]{connect()}} or \code{\link[=createConnectionDetails]{createConnectionDetails()}} for
 valid values.}
 }
 \value{

@@ -14,12 +14,13 @@ querySql(
 )
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{sql}{The SQL to be send.}
 
-\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReportSql.txt' in the current working directory.}
+\item{errorReportFile}{The file where an error report will be written if an error occurs.
+Defaults to 'errorReportSql.txt' in the current working directory.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 

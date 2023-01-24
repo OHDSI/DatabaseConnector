@@ -27,6 +27,9 @@ Changes:
 
 12. Querying to Andromeda when using a DBI driver (instead of a JDBC driver) now also uses batching to avoid running out of memory.
 
+13. Adding `appendToTable` argument to `querySqlToAndromeda()`, `renderTranslateQuerySqlToAndromeda()`, and `lowLevelQuerySqlToAndromeda()`.
+
+
 
 Bugfixes:
 

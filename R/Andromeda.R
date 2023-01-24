@@ -17,24 +17,17 @@
 #' Low level function for retrieving data to a local Andromeda object
 #'
 #' @description
-#' This is the equivalent of the \code{\link{querySqlToAndromeda}} function, except no error report is
+#' This is the equivalent of the [querySqlToAndromeda()] function, except no error report is
 #' written when an error occurs.
 #'
-#' @param connection           The connection to the database server.
+#' @template Connection
 #' @param query                The SQL statement to retrieve the data
 #' @param datesAsString        Should dates be imported as character vectors, our should they be
 #'                             converted to R's date format?
-#' @param andromeda            An open Andromeda object, for example as created using
-#'                             \code{\link[Andromeda]{andromeda}}.
-#' @param andromedaTableName   The name of the table in the local Andromeda object where the results
-#'                             of the query will be stored.
-#' @param integerAsNumeric     Logical: should 32-bit integers be converted to numeric (double) values?
-#'                             If FALSE 32-bit integers will be represented using R's native
-#'                             \code{Integer} class.
-#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values?
-#'                             If FALSE 64-bit integers will be represented using
-#'                             \code{bit64::integer64}.
-#'
+#' @template Andromeda
+#' @template SnakeCaseToCamelCase
+#' @template IntegerAsNumeric
+#' 
 #' @details
 #' Retrieves data from the database server and stores it in a local Andromeda object This allows
 #' very large data sets to be retrieved without running out of memory. Null values in the database are
@@ -51,6 +44,8 @@ lowLevelQuerySqlToAndromeda <- function(connection,
                                         andromeda,
                                         andromedaTableName,
                                         datesAsString = FALSE,
+                                        appendToTable = FALSE,
+                                        snakeCaseToCamelCase = FALSE,
                                         integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                      default = TRUE
                                         ),
@@ -66,6 +61,8 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                                 andromeda,
                                                 andromedaTableName,
                                                 datesAsString = FALSE,
+                                                appendToTable = FALSE,
+                                                snakeCaseToCamelCase = FALSE,
                                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                              default = TRUE
                                                 ),
@@ -103,8 +100,10 @@ lowLevelQuerySqlToAndromeda.default <- function(connection,
                                  integer64AsNumeric = integer64AsNumeric,
                                  integerAsNumeric = integerAsNumeric
     )
-    
-    if (first) {
+    if (snakeCaseToCamelCase) {
+      colnames(batch) <- SqlRender::snakeCaseToCamelCase(colnames(batch))
+    }
+    if (first && !appendToTable) {
       andromeda[[andromedaTableName]] <- batch
     } else {
       Andromeda::appendToTable(andromeda[[andromedaTableName]], batch)
@@ -123,6 +122,8 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
                                                                        andromeda,
                                                                        andromedaTableName,
                                                                        datesAsString = FALSE,
+                                                                       appendToTable = FALSE,
+                                                                       snakeCaseToCamelCase = FALSE,
                                                                        integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                                                     default = TRUE
                                                                        ),
@@ -153,7 +154,10 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
       }
     }
     batch <- convertFields(dbms(connection), batch)
-    if (first) {
+    if (snakeCaseToCamelCase) {
+      colnames(batch) <- SqlRender::snakeCaseToCamelCase(colnames(batch))
+    }
+    if (first && !appendToTable) {
       andromeda[[andromedaTableName]] <- batch
     } else {
       Andromeda::appendToTable(andromeda[[andromedaTableName]], batch)
@@ -171,22 +175,12 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
 #' @description
 #' This function sends SQL to the server, and returns the results in a local Andromeda object
 #'
-#' @param connection             The connection to the database server.
+#' @template Connection
 #' @param sql                    The SQL to be sent.
-#' @param andromeda              An open connection to a Andromeda object, for example as created
-#'                               using \code{\link[Andromeda]{andromeda}}.
-#' @param andromedaTableName     The name of the table in the local Andromeda object where the
-#'                               results of the query will be stored.
-#' @param errorReportFile        The file where an error report will be written if an error occurs.
-#'                               Defaults to 'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase   If true, field names are assumed to use snake_case, and are converted
-#'                               to camelCase.
-#' @param integerAsNumeric       Logical: should 32-bit integers be converted to numeric (double)
-#'                               values? If FALSE 32-bit integers will be represented using R's native
-#'                               \code{Integer} class.
-#' @param integer64AsNumeric     Logical: should 64-bit integers be converted to numeric (double)
-#'                               values? If FALSE 64-bit integers will be represented using
-#'                               \code{bit64::integer64}.
+#' @template ErrorReportFile
+#' @template SnakeCaseToCamelCase
+#' @template Andromeda
+#' @template IntegerAsNumeric
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a local Andromeda object. This allows
@@ -227,6 +221,7 @@ querySqlToAndromeda <- function(connection,
                                 andromedaTableName,
                                 errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                 snakeCaseToCamelCase = FALSE,
+                                appendToTable = FALSE,
                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                              default = TRUE
                                 ),
@@ -262,24 +257,26 @@ querySqlToAndromeda <- function(connection,
         query = sqlStatements[1],
         andromeda = andromeda,
         andromedaTableName = andromedaTableName,
+        appendToTable = appendToTable, 
+        snakeCaseToCamelCase = snakeCaseToCamelCase,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      if (inherits(andromeda, "SQLiteConnection")) {
-        columnNames <- colnames(andromeda[[andromedaTableName]])
-        if (snakeCaseToCamelCase) {
-          newColumnNames <- SqlRender::snakeCaseToCamelCase(columnNames)
-        } else {
-          newColumnNames <- toupper(columnNames)
-        }
-        names(andromeda[[andromedaTableName]]) <- newColumnNames
-      } else {
-        if (snakeCaseToCamelCase) {
-          andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], SqlRender::snakeCaseToCamelCase)
-        } else {
-          andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
-        }
-      }
+      # if (inherits(andromeda, "SQLiteConnection")) {
+      #   columnNames <- colnames(andromeda[[andromedaTableName]])
+      #   if (snakeCaseToCamelCase) {
+      #     newColumnNames <- SqlRender::snakeCaseToCamelCase(columnNames)
+      #   } else {
+      #     newColumnNames <- toupper(columnNames)
+      #   }
+      #   names(andromeda[[andromedaTableName]]) <- newColumnNames
+      # } else {
+      #   if (snakeCaseToCamelCase) {
+      #     andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], SqlRender::snakeCaseToCamelCase)
+      #   } else {
+      #     andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
+      #   }
+      # }
       invisible(andromeda)
     },
     error = function(err) {
@@ -294,28 +291,18 @@ querySqlToAndromeda <- function(connection,
 #' This function renders, and translates SQL, sends it to the server, and returns the results as an
 #' ffdf object
 #'
-#' @param connection             The connection to the database server.
+#' @template Connection
 #' @param sql                    The SQL to be send.
-#' @param andromeda              An open Andromeda object, for example as created
-#'                               using \code{\link[Andromeda]{andromeda}}.
-#' @param andromedaTableName     The name of the table in the local Andromeda object where the
-#'                               results of the query will be stored.
-#' @param errorReportFile        The file where an error report will be written if an error occurs.
-#'                               Defaults to 'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase   If true, field names are assumed to use snake_case, and are converted
-#'                               to camelCase.
+#' @template ErrorReportFile
+#' @template SnakeCaseToCamelCase
+#' @template Andromeda
 #' @template TempEmulationSchema
-#' @param integerAsNumeric       Logical: should 32-bit integers be converted to numeric (double)
-#'                               values? If FALSE 32-bit integers will be represented using R's native
-#'                               \code{Integer} class.
-#' @param integer64AsNumeric     Logical: should 64-bit integers be converted to numeric (double)
-#'                               values? If FALSE 64-bit integers will be represented using
-#'                               \code{bit64::integer64}.
+#' @template IntegerAsNumeric
 #' @param ...                    Parameters that will be used to render the SQL.
 #'
 #' @details
-#' This function calls the \code{render} and \code{translate} functions in the SqlRender package
-#' before calling \code{\link{querySqlToAndromeda}}.
+#' This function calls the `render` and `translate` functions in the `SqlRender` package
+#' before calling [querySqlToAndromeda()].
 #'
 #' @return
 #' Invisibly returns the andromeda. The Andromeda object will have a table added with the query
@@ -351,6 +338,7 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                  "errorReportSql.txt"
                                                ),
                                                snakeCaseToCamelCase = FALSE,
+                                               appendToTable = FALSE,
                                                oracleTempSchema = NULL,
                                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
@@ -383,6 +371,7 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
     andromedaTableName = andromedaTableName,
     errorReportFile = errorReportFile,
     snakeCaseToCamelCase = snakeCaseToCamelCase,
+    appendToTable = appendToTable,
     integerAsNumeric = integerAsNumeric,
     integer64AsNumeric = integer64AsNumeric
   ))

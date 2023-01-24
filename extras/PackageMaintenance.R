@@ -57,6 +57,9 @@ rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 
+# Store JAR checksum -----------------------------------------------------------
+checksum <- rJava::J("org.ohdsi.databaseConnector.JarChecksum", "computeJarChecksum")
+write(checksum, file.path("inst", "csv", "jarChecksum.txt"))
 
 # Drop all emulated temp tables that haven't been cleaned up -------------------
 # Oracle

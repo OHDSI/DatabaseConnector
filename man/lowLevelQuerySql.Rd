@@ -13,7 +13,8 @@ lowLevelQuerySql(
 )
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{query}{The SQL statement to retrieve the data}
 
@@ -30,7 +31,7 @@ to R's date format?}
 A data frame containing the data retrieved from the server
 }
 \description{
-This is the equivalent of the \code{\link{querySql}} function, except no error report is written
+This is the equivalent of the \code{\link[=querySql]{querySql()}} function, except no error report is written
 when an error occurs.
 }
 \details{

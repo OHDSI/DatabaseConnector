@@ -7,11 +7,12 @@
 getTableNames(connection, databaseSchema = NULL, cast = "lower")
 }
 \arguments{
-\item{connection}{A DBI connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
-\item{cast}{Should the table names be cast to uppercase or lowercase before being returned? 
+\item{cast}{Should the table names be cast to uppercase or lowercase before being returned?
 Valid options are "upper" , "lower" (default), "none" (no casting is done)}
 }
 \value{

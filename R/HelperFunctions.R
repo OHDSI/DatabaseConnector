@@ -54,15 +54,15 @@ ensure_installed <- function(pkg) {
   }
 }
 
-#' Extract query times from a \code{ParallelLogger} log file
+#' Extract query times from a `ParallelLogger` log file
 #' 
 #' @description 
-#' When using the \code{ParallelLogger} default file logger, and using \code{options(LOG_DATABASECONNECTOR_SQL = TRUE)},
-#' \code{DatabaseConnector} will log all SQL sent to the server, and the time to get a response. 
+#' When using the `ParallelLogger` default file logger, and using `options(LOG_DATABASECONNECTOR_SQL = TRUE)`,
+#' `DatabaseConnector` will log all SQL sent to the server, and the time to get a response. 
 #' 
 #' This function parses the log file, producing a data frame with time per query.
 #'
-#' @param logFileName Name of the \code{ParallelLogger} log file. Assumes the file was created using
+#' @param logFileName Name of the `ParallelLogger` log file. Assumes the file was created using
 #'                    the default file logger.              
 #'
 #' @return

@@ -103,9 +103,8 @@ trySettingAutoCommit <- function(connection, value) {
 #' This function sends the data in a data frame to a table on the server. Either a new table
 #' is created, or the data is appended to an existing table.
 #'
-#' @param connection          The connection to the database server.
-#' @param databaseSchema      (Optional) The name of the database schema where the table should
-#'                            be located.
+#' @template Connection
+#' @template DatabaseSchema
 #' @param tableName           The name of the table where the data should be inserted.
 #' @param data                The data frame containing the data to be inserted.
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
@@ -115,7 +114,7 @@ trySettingAutoCommit <- function(connection, value) {
 #' @param bulkLoad            If using Redshift, PDW, Hive or Postgres, use more performant bulk loading
 #'                            techniques. Does not work for temp tables (except for HIVE). See Details for
 #'                            requirements for the various platforms.
-#' @param useMppBulkLoad      DEPRECATED. Use \code{bulkLoad} instead.
+#' @param useMppBulkLoad      DEPRECATED. Use `bulkLoad` instead.
 #' @param progressBar         Show a progress bar when uploading?
 #' @param camelCaseToSnakeCase If TRUE, the data frame column names are assumed to use camelCase and
 #'                             are converted to snake_case before uploading.
