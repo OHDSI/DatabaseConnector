@@ -1,4 +1,5 @@
 library(dplyr)
+library(testthat)
 # options("DEBUG_DATABASECONNECTOR_DBPLYR" = TRUE)
 
 testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
@@ -41,7 +42,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   expect_equivalent(arrange(cars, speed, dist), arrange(cars2, speed, dist))
   
   nObsOverOneYear <- observationPeriod %>%
-    filter(datediff(day, observation_period_start_date, observation_period_end_date) > 365) %>%
+    filter(dateDiff("day", observation_period_start_date, observation_period_end_date) > 365) %>%
     count() %>%
     pull()
   
@@ -56,7 +57,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   expect_gt(nMales2, 1)
   
   longestObsPeriod <- observationPeriod %>%
-    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    mutate(duration = dateDiff("day", observation_period_start_date, observation_period_end_date)) %>%
     arrange(desc(duration)) %>%
     relocate(duration) %>%
     head(1) %>%
@@ -76,7 +77,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   
   durationDist <- person %>%
     inner_join(observationPeriod, by = "person_id") %>%
-    mutate(duration = datediff(day, observation_period_start_date, observation_period_end_date)) %>%
+    mutate(duration = dateDiff("day", observation_period_start_date, observation_period_end_date)) %>%
     group_by(gender_concept_id) %>%
     summarize(mean_duration = mean(duration, na.rm = TRUE),
               min_duration = min(duration, na.rm = TRUE),

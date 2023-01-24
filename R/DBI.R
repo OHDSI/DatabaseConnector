@@ -679,7 +679,7 @@ translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOpti
       # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
       sql <- paste0(sql, ";")
     }
-    sql <- gsub(", 'day')", ")", gsub("difftime\\(", "DATEDIFF(DAY, ", sql))
+    sql <- translateDateFunctions(sql)
   }
   sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
   # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)
@@ -707,7 +707,3 @@ splitDatabaseSchema <- function(databaseSchema, dbms) {
     return(list(NULL, databaseSchema))
   }
 }
-
-
-
-
