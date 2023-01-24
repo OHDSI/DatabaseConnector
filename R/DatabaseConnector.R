@@ -35,31 +35,34 @@ NULL
 #'
 #' @description
 #' Below are instructions for downloading JDBC drivers for the various data platforms. Once downloaded
-#' use the \code{pathToDriver} argument in the \code{\link{connect}} or \code{\link{createConnectionDetails}}
+#' use the `pathToDriver` argument in the [connect()] or [createConnectionDetails()]
 #' functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 #' variable, for example in your .Renviron file (recommended).
 #'
-#' @section
-#' SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark RedShift, Azure Synapse: Use the \code{\link{downloadJdbcDrivers}} function to download these drivers
-#' from the OHDSI GitHub pages.
+#' # SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark RedShift, Azure Synapse
+#' 
+#' Use the [downloadJdbcDrivers()] function to download these drivers from the OHDSI GitHub pages.
 #'
-#' @section
-#' Netezza: Read the instructions
-#' \href{https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html}{here}
+#' # Netezza
+#' 
+#' Read the instructions
+#' [here](https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html)
 #' on how to obtain the Netezza JDBC driver.
 #'
-#' @section
-#' BigQuery: Go to \href{https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers}{Google's site} and
+#' # BigQuery
+#' 
+#' Go to [Google's site](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers) and
 #' download the latest JDBC driver. Unzip the file, and locate the appropriate jar files.
 #'
-#' @section
-#' Impala: Go to
-#' \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick
+#' # Impala
+#' 
+#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html), pick
 #' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 #'
-#' @section
-#' SQLite: For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
-#' using \code{install.packages("RSQLite")}.
+#' #SQLite
+#' 
+#' For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
+#' using `install.packages("RSQLite")`.
 #'
 NULL
 

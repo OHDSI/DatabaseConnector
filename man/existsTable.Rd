@@ -7,7 +7,8 @@
 existsTable(connection, databaseSchema, tableName)
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
@@ -17,7 +18,7 @@ existsTable(connection, databaseSchema, tableName)
 A logical value indicating whether the table exits.
 }
 \description{
-Checks whether a table exists. Accounts for surrounding escape characters. 
+Checks whether a table exists. Accounts for surrounding escape characters.
 Case insensitive.
 }
 \details{

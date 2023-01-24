@@ -21,7 +21,7 @@
 #' should produce a different hash code. Specifically, the hash is based on the
 #' field names, field types, and table row counts.
 #'
-#' @param connection      The connection to the database server.
+#' @template Connection
 #' @template DatabaseSchema
 #' @param tables          (Optional) A list of tables to restrict to.
 #' @param progressBar     When true, a progress bar is shown based on the number of tables

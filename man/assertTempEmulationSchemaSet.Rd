@@ -10,17 +10,17 @@ assertTempEmulationSchemaSet(
 )
 }
 \arguments{
-\item{dbms}{The type of DBMS running on the server. See [connect()] or 
-[createConnectionDetails()] for valid values.}
+\item{dbms}{The type of DBMS running on the server. See \code{\link[=connect]{connect()}} or
+\code{\link[=createConnectionDetails]{createConnectionDetails()}} for valid values.}
 
 \item{tempEmulationSchema}{The temp emulation schema specified by the user.}
 }
 \value{
-Does not return anything. Throws an error if the DBMS requires temp emulation but the 
+Does not return anything. Throws an error if the DBMS requires temp emulation but the
 temp emulation schema is not set.
 }
 \description{
-Asserts the temp emulation schema is set for DBMSs requiring temp table emulation. 
+Asserts the temp emulation schema is set for DBMSs requiring temp table emulation.
 
 If you know your code uses temp tables, it is a good idea to call this function first,
 so it can throw an informative error if the user forgot to set the temp emulation schema.

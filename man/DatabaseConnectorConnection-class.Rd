@@ -104,8 +104,7 @@
 
 \item{...}{Not used}
 
-\item{databaseSchema}{Character string containing the name of the schema 
-or database and schema separated by period. (e.g. "schema", "dbo.schema")}
+\item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
 \item{overwrite}{Overwrite an existing table (if exists)?}
 
@@ -137,8 +136,18 @@ The returned names are suitable for quoting with \code{dbQuoteIdentifier()}.
 \description{
 Returns the unquoted names of remote tables accessible through this
 connection.
+This should include views and temporary objects, but not all database backends
+(in particular \pkg{RMariaDB} and \pkg{RMySQL}) support this.
+
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListTables")}
 }
 \details{
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:
 SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
 'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:

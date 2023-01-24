@@ -75,14 +75,12 @@ assertDetailsCanBeValidated <- function(connectionDetails) {
 #' createConnectionDetails
 #'
 #' @description
-#' \code{createConnectionDetails} creates a list containing all details needed to connect to a
+#' Creates a list containing all details needed to connect to a
 #' database. There are three ways to call this function:
-#' \itemize{
-#'   \item \code{createConnectionDetails(dbms, user, password, server, port, extraSettings,
-#'         oracleDriver, pathToDriver)}
-#'   \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
-#'   \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
-#' }
+#' 
+#' - `createConnectionDetails(dbms, user, password, server, port, extraSettings, oracleDriver, pathToDriver)`
+#' - `createConnectionDetails(dbms, connectionString, pathToDriver)`
+#' - `createConnectionDetails(dbms, connectionString, user, password, pathToDriver)`
 #'
 #' @usage
 #' NULL
@@ -92,11 +90,11 @@ assertDetailsCanBeValidated <- function(connectionDetails) {
 #'
 #' @details
 #' This function creates a list containing all details needed to connect to a database. The list can
-#' then be used in the \code{\link{connect}} function.
+#' then be used in the [connect()] function.
 #'
 #' It is highly recommended to use a secure approach to storing credentials, so not to have your
 #' credentials in plain text in your R scripts. The examples demonstrate how to use the
-#' \code{keyring} package.
+#' `keyring` package.
 #'
 #' @return
 #' A list with all the details needed to connect to a database.
@@ -189,30 +187,27 @@ createDbiConnectionDetails <- function(dbms, drv, ...) {
 #' connect
 #'
 #' @description
-#' \code{connect} creates a connection to a database server .There are four ways to call this
+#' Creates a connection to a database server .There are four ways to call this
 #' function:
-#' \itemize{
-#'   \item \code{connect(dbms, user, password, server, port, extraSettings, oracleDriver,
-#'         pathToDriver)}
-#'   \item \code{connect(connectionDetails)}
-#'   \item \code{connect(dbms, connectionString, pathToDriver))}
-#'   \item \code{connect(dbms, connectionString, user, password, pathToDriver)}
-#' }
+#' 
+#' - `connect(dbms, user, password, server, port, extraSettings, oracleDriver, pathToDriver)`
+#' - `connect(connectionDetails)`
+#' - `connect(dbms, connectionString, pathToDriver))`
+#' - `connect(dbms, connectionString, user, password, pathToDriver)`
 #'
 #' @usage
 #' NULL
 #'
 #' @template Dbms
 #' @template DefaultConnectionDetails
-#' @param connectionDetails   An object of class \code{connectionDetails} as created by the
-#'                            \code{\link{createConnectionDetails}} or \code{\link{createDbiConnectionDetails}}
-#'                             function.
+#' @param connectionDetails   An object of class `connectionDetails` as created by the
+#'                            [createConnectionDetails()] function.
 #'
 #' @details
 #' This function creates a connection to a database.
 #'
 #' @return
-#' An object that extends \code{DBIConnection} in a database-specific manner. This object is used to
+#' An object that extends `DBIConnection` in a database-specific manner. This object is used to
 #' direct commands to the database engine.
 #'
 #' @examples
@@ -776,7 +771,7 @@ generateRandomString <- function(length = 20) {
 #' @description
 #' Close the connection to the server.
 #'
-#' @param connection   The connection to the database server.
+#' @template Connection
 #'
 #' @examples
 #' \dontrun{
@@ -828,7 +823,7 @@ setPathToDll <- function() {
 #' translate to. The `dbms` function returns the dbms for any DBI
 #' connection that can be passed along to SqlRender translation functions (see example).
 #'
-#' @param connection A DBI (or DatabaseConnector) connection
+#' @template Connection
 #'
 #' @return The name of the database (dbms) used by SqlRender
 #' @export

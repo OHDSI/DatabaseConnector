@@ -55,4 +55,5 @@ URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/Databa
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
 RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

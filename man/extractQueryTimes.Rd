@@ -15,7 +15,7 @@ A data frame with queries and their run times in milliseconds.
 }
 \description{
 When using the \code{ParallelLogger} default file logger, and using \code{options(LOG_DATABASECONNECTOR_SQL = TRUE)},
-\code{DatabaseConnector} will log all SQL sent to the server, and the time to get a response. 
+\code{DatabaseConnector} will log all SQL sent to the server, and the time to get a response.
 
 This function parses the log file, producing a data frame with time per query.
 }

@@ -7,8 +7,7 @@
 inDatabaseSchema(databaseSchema, table)
 }
 \arguments{
-\item{databaseSchema}{The name of the database schema. For example, for SQL Server this can 
-be 'cdm.dbo'.}
+\item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
 \item{table}{The name of the table in the database schema.}
 }
@@ -16,5 +15,12 @@ be 'cdm.dbo'.}
 An object representing the table and database schema.
 }
 \description{
-Can be used with \code{dplyr::tbl()} to indicate a table in a specific database schema.
+Can be used with \code{\link[dplyr:tbl]{dplyr::tbl()}} to indicate a table in a specific database schema.
+}
+\details{
+The \code{databaseSchema} argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
 }

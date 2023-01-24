@@ -19,7 +19,7 @@
 #' Compress files and/or folders into a single zip file
 #'
 #' @details
-#' Uses Java's compression library to create a zip file. It is similar to \code{utils::zip}, except
+#' Uses Java's compression library to create a zip file. It is similar to `utils::zip`, except
 #' that it does not require an external zip tool to be available on the system path.
 #'
 #' @param zipFile The path to the zip file to be created.

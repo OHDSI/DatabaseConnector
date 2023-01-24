@@ -19,8 +19,7 @@
 #' @inherit
 #' DBI::dbListTables title description params details references return seealso
 #' @rdname DatabaseConnectorConnection-class
-#' @param databaseSchema Character string containing the name of the schema 
-#' or database and schema separated by period. (e.g. "schema", "dbo.schema")
+#' @template DatabaseSchema
 #' @param ... Not used
 #'
 #' @export
@@ -93,7 +92,7 @@ setMethod(
 #' @description
 #' This function returns a list of all tables in a database schema.
 #'
-#' @param connection A DBI connection to the database server.
+#' @template Connection
 #' @template DatabaseSchema
 #' @param cast Should the table names be cast to uppercase or lowercase before being returned? 
 #' Valid options are "upper" , "lower" (default), "none" (no casting is done)
@@ -145,7 +144,7 @@ getTableNames <- function(connection, databaseSchema = NULL, cast = "lower") {
 #' Checks whether a table exists. Accounts for surrounding escape characters. 
 #' Case insensitive.
 #'
-#' @param connection       The connection to the database server.
+#' @template Connection
 #' @template DatabaseSchema
 #' @param tableName        The name of the table to check.
 #'

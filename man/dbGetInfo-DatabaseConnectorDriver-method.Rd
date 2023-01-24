@@ -53,6 +53,8 @@ as returned by \code{\link[DBI:dbHasCompleted]{dbHasCompleted()}}.
 \description{
 Retrieves information on objects of class \linkS4class{DBIDriver},
 \linkS4class{DBIConnection} or \linkS4class{DBIResult}.
+
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetInfo")}
 }
 \seealso{
 Other DBIDriver generics: 
