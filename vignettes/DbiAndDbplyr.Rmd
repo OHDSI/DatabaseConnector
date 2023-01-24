@@ -104,13 +104,15 @@ person %>%
 1234
 ```
 
-Because of `SqlRender` translation, we can even use non-standard SQL such as `DATEADD`:
+## Date functions
+
+The `dbplyr` package does not support date functions, but `DatabaseConnector` provides the `dateDiff()`, `dateAdd()`, `eoMonth()`, `dateFromParts()`, `year()`, `month()`, and `day()` functions that will correctly translate to various data platforms:
 
 ```{r eval=FALSE}
 observationPeriod <- tbl(connection, inDatabaseSchema("cdmv5", "observation_period"))
 observationPeriod %>%
   filter(
-    datediff(day, observation_period_start_date, observation_period_end_date) > 365
+    dateDiff("day", observation_period_start_date, observation_period_end_date) > 365
   ) %>%
   count() %>%
   pull()

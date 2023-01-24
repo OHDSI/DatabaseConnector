@@ -36,17 +36,20 @@ public class RtoSqlTranslator {
 							wordStart = cursor;
 						}
 						if (!Character.isLetter(ch) && wordStart != -1 && cursor < string.length() - 1) {
-							String word = string.substring(wordStart, cursor);
-							if (word.toLowerCase().equals(rFunctionToTranslate.getName().toLowerCase())) {
-								searchStart = cursor;
-								functionNameFound = true;
-								string = string.substring(0, wordStart) + word.toUpperCase() + string.substring(cursor);
-								argumentStart = cursor + 1;
+							if (ch == '(') {
+								String word = string.substring(wordStart, cursor);
+								if (word.toLowerCase().equals(rFunctionToTranslate.getName().toLowerCase())) {
+									searchStart = cursor;
+									functionNameFound = true;
+									string = string.substring(0, wordStart) + word.toUpperCase()
+											+ string.substring(cursor);
+									argumentStart = cursor + 1;
+								}
 							}
 							wordStart = -1;
 						}
 					} else {
-						if (ch == '(') 
+						if (ch == '(')
 							parenthesisLevel++;
 						else if (ch == ')' && parenthesisLevel > 0)
 							parenthesisLevel--;
@@ -68,9 +71,9 @@ public class RtoSqlTranslator {
 						}
 					}
 				}
-				if (ch == '\'' && !doubleQuote) 
+				if (ch == '\'' && !doubleQuote)
 					singleQuote = !singleQuote;
-				if (ch == '"' && !singleQuote) 
+				if (ch == '"' && !singleQuote)
 					doubleQuote = !doubleQuote;
 				cursor++;
 			}
@@ -78,21 +81,22 @@ public class RtoSqlTranslator {
 		}
 
 	}
-	
+
 	private void translateArguments(List<ArgumentInstance> argumentInstances,
 			RFunctionToTranslate rFunctionToTranslate) {
 		List<Argument> arguments = rFunctionToTranslate.getArguments();
-		if (argumentInstances.size() != arguments.size()) 
-		  throw new RuntimeException("Must provide all arguments for function " + rFunctionToTranslate.getName() + " to translate properly");
+		if (argumentInstances.size() != arguments.size())
+			throw new RuntimeException("Must provide all arguments for function " + rFunctionToTranslate.getName()
+					+ " to translate properly");
 		int blockStart = 999999;
 		int blockEnd = -1;
 		int[] outputIndices = new int[argumentInstances.size()];
 		for (int j = 0; j < argumentInstances.size(); j++) {
 			ArgumentInstance argumentInstance = argumentInstances.get(j);
-			if (argumentInstance.start < blockStart) 
-			  blockStart = 	argumentInstance.start ;
-			if (argumentInstance.end > blockEnd) 
-				blockEnd = 	argumentInstance.end;
+			if (argumentInstance.start < blockStart)
+				blockStart = argumentInstance.start;
+			if (argumentInstance.end > blockEnd)
+				blockEnd = argumentInstance.end;
 			String text = string.substring(argumentInstance.start, argumentInstance.end).trim();
 			int outputIndex = j;
 			for (int i = 0; i < arguments.size(); i++) {
@@ -102,8 +106,8 @@ public class RtoSqlTranslator {
 					break;
 				}
 			}
-			if (arguments.get(outputIndex).removeQuotes && text.length() > 2 && 
-					text.charAt(0) == '\'' && text.charAt(text.length() - 1) == '\'')
+			if (arguments.get(outputIndex).removeQuotes && text.length() > 2 && text.charAt(0) == '\''
+					&& text.charAt(text.length() - 1) == '\'')
 				text = text.substring(1, text.length() - 1);
 			outputIndices[outputIndex] = j;
 			argumentInstance.text = text;
@@ -112,7 +116,7 @@ public class RtoSqlTranslator {
 		String outputString = "";
 		for (int i = 0; i < outputIndices.length; i++) {
 			if (i != 0)
-				outputString = outputString + ", ";	
+				outputString = outputString + ", ";
 			outputString = outputString + argumentInstances.get(outputIndices[i]).text;
 		}
 		string = string.substring(0, blockStart) + outputString + string.substring(blockEnd);

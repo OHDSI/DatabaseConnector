@@ -97,7 +97,6 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     ) %>%
     group_by(period_type_concept_id) %>%
     summarize(value_count = n()) %>%
-    mutate(rn = row_number(value_count)) %>%
     collect()
   expect_s3_class(resultOfAntiJoin, "data.frame")
   
@@ -106,6 +105,13 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     count() %>%
     collect()
   expect_gt(personTwice$n, 1)
+  
+  top10PersonsHardWay <- person %>%
+    head(100) %>%
+    mutate(rn = row_number(person_id)) %>%
+    filter(rn <= 10) %>%
+    collect()
+  expect_equal(nrow(top10PersonsHardWay), 10)
   
   dataWithNa <- cars
   dataWithNa$speed[2] <- NA

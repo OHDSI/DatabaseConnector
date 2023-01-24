@@ -83,7 +83,7 @@ eoMonth <- function(date) {
 #'
 #' @param year  The calendar year.
 #' @param month The calendar month (1 = January).
-#' @param day   The day of the month
+#' @param day   The day of the month.
 #'
 #' @template DbiDateFunction
 #'
@@ -98,19 +98,56 @@ dateFromParts <- function(year, month, day) {
   return(as.Date(paste(year, month, day, sep='-')))
 }
 
-# Already supported by SQL Server backend:
-# year <- function(date) {
-#   return(as.numeric(format(date, format = "%Y")))
-# }
-# 
-# month <- function(date) {
-#   return(as.numeric(format(date, format = "%m")))
-# }
-# 
-# day <- function(date) {
-#   return(as.numeric(format(date, format = "%d")))
-# }
+#' Extract the year from a date
+#'
+#' @param date  The date.
+#'
+#' @template DbiDateFunction
+#'
+#' @return
+#' The year
+#'
+#' @examples
+#' year(as.Date("2000-02-01"))
+#' 
+#' @export
+year <- function(date) {
+  return(as.numeric(format(date, format = "%Y")))
+}
 
+#' Extract the month from a date
+#'
+#' @param date  The date.
+#'
+#' @template DbiDateFunction
+#'
+#' @return
+#' The month
+#'
+#' @examples
+#' month(as.Date("2000-02-01"))
+#' 
+#' @export
+month <- function(date) {
+  return(as.numeric(format(date, format = "%m")))
+}
+
+#' Extract the day from a date
+#'
+#' @param date  The date.
+#'
+#' @template DbiDateFunction
+#'
+#' @return
+#' The day
+#'
+#' @examples
+#' day(as.Date("2000-02-01"))
+#' 
+#' @export
+day <- function(date) {
+  return(as.numeric(format(date, format = "%d")))
+}
 
 translateDateFunctions <- function(sql) {
   # sql <- "SELECT DatabaseConnector::dateAdd(1 AS value, DatabaseConnector::dateAdd('day', 1, a_date) AS date, 'day' AS unit) AS start_date FROM my_table;"
@@ -137,6 +174,18 @@ translateDateFunctions <- function(sql) {
   fun$addArgument(name = "year")
   fun$addArgument(name = "month") 
   fun$addArgument(name = "day") 
+  translator$translate(fun)
+  
+  fun <- rJava::new(rJava::J("org.ohdsi.databaseConnector.RFunctionToTranslate"), name = "year")  
+  fun$addArgument(name = "date") 
+  translator$translate(fun)
+  
+  fun <- rJava::new(rJava::J("org.ohdsi.databaseConnector.RFunctionToTranslate"), name = "month")  
+  fun$addArgument(name = "date") 
+  translator$translate(fun)
+  
+  fun <- rJava::new(rJava::J("org.ohdsi.databaseConnector.RFunctionToTranslate"), name = "day")  
+  fun$addArgument(name = "date") 
   translator$translate(fun)
   
   sql <- translator$getSql()
