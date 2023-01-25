@@ -114,15 +114,15 @@ test_that("Fetch results", {
   ", integerAsNumeric = FALSE, integer64AsNumeric = FALSE)
   
   expect_identical(x, data.frame(
-    a = 0.1,
-    x1 = 1,
-    x2 = 10,
-    b = 0.1,
-    c = as.integer(1),
-    d = as.integer(1),
-    e = 1.1,
-    f = 0.1,
-    g = bit64::as.integer64("9223372036854775807")
+    A = 0.1,
+    X1 = 1,
+    X2 = 10,
+    B = 0.1,
+    C = as.integer(1),
+    D = as.integer(1),
+    E = 1.1,
+    F = 0.1,
+    G = bit64::as.integer64("9223372036854775807")
   ))
   
   # Fetch data.frame:
