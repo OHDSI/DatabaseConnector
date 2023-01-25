@@ -95,34 +95,34 @@ test_that("Fetch results", {
   # Fetch types correctly:
   x <- querySql(connection, "
     SELECT
-        1/10 as A,
-        X1,
-        X2,
-        X1 / X2 as B,
-        CAST(1 AS INT) as C,
-        CAST(1.1 AS NUMBER(1,0)) as D,
-        CAST(1.1 AS FLOAT) as E,
-        0.1 as F,
-        CAST(9223372036854775807 as NUMBER(19)) as G
+        1/10 as a,
+        x1,
+        x2,
+        x1 / x2 AS b,
+        CAST(1 AS INT) AS c,
+        CAST(1.1 AS NUMBER(1,0)) AS d,
+        CAST(1.1 AS FLOAT) AS e,
+        0.1 AS f,
+        CAST(9223372036854775807 AS NUMBER(19)) AS g
     FROM (
         SELECT
-          1 as X1,
-          10 as X2
+          1 AS x1,
+          10 AS x2
         FROM
           DUAL
       )
   ", integerAsNumeric = FALSE, integer64AsNumeric = FALSE)
   
   expect_identical(x, data.frame(
-    A = 0.1,
-    X1 = 1,
-    X2 = 10,
-    B = 0.1,
-    C = as.integer(1),
-    D = as.integer(1),
-    E = 1.1,
-    F = 0.1,
-    G = bit64::as.integer64("9223372036854775807")
+    a = 0.1,
+    x1 = 1,
+    x2 = 10,
+    b = 0.1,
+    c = as.integer(1),
+    d = as.integer(1),
+    e = 1.1,
+    f = 0.1,
+    g = bit64::as.integer64("9223372036854775807")
   ))
   
   # Fetch data.frame:

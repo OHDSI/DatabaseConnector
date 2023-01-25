@@ -11,6 +11,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   person <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "person"))
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
   
+  # Test filter, arrange, relocate, distinct -----------------------------------
   nMales <- person %>%
     filter(gender_concept_id == 8507) %>%
     count() %>%
@@ -19,39 +20,6 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   
   nMales2 <- person %>%
     filter(gender_concept_id %in% c(8507)) %>%
-    count() %>%
-    pull()
-  expect_gt(nMales2, 1)
-  
-  personSample <- person %>%
-    slice_sample(n = 10) %>%
-    collect()
-  expect_equal(nrow(personSample), 10)
-  
-  sexString <- person %>%
-    mutate(sex = ifelse(.data$gender_concept_id == 8507, "Male",
-                        ifelse(.data$gender_concept_id == 8532, "Female", NA)
-    )) %>%
-    select("person_id", "sex") %>%
-    head() %>%
-    collect()
-  expect_true(all(sexString$sex %in% c("Male", "Female")))
-  
-  cars2 <- copy_to(connection, cars, overwrite = TRUE)
-  cars2 <- cars2 %>% collect()
-  expect_equivalent(arrange(cars, speed, dist), arrange(cars2, speed, dist))
-  
-  nObsOverOneYear <- observationPeriod %>%
-    filter(dateDiff("day", observation_period_start_date, observation_period_end_date) > 365) %>%
-    count() %>%
-    pull()
-  
-  expect_gt(nObsOverOneYear, 1)
-  
-  tempTable <- person %>%
-    filter(gender_concept_id == 8507) %>%
-    compute()
-  nMales2 <- tempTable %>%
     count() %>%
     pull()
   expect_gt(nMales2, 1)
@@ -75,11 +43,50 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_equal(nrow(topAges), 10)
   
+  # Test slicing ---------------------------------------------------------------
+  personSample <- person %>%
+    slice_sample(n = 10) %>%
+    collect()
+  expect_equal(nrow(personSample), 10)
+  
+  # Test ifelse ----------------------------------------------------------------
+  sexString <- person %>%
+    mutate(sex = ifelse(.data$gender_concept_id == 8507, "Male",
+                        ifelse(.data$gender_concept_id == 8532, "Female", NA)
+    )) %>%
+    select("person_id", "sex") %>%
+    head() %>%
+    collect()
+  expect_true(all(sexString$sex %in% c("Male", "Female")))
+  
+  # Test creation of temp tables -----------------------------------------------
+  cars2 <- copy_to(connection, cars, overwrite = TRUE)
+  cars2 <- cars2 %>% collect()
+  expect_equivalent(arrange(cars, speed, dist), arrange(cars2, speed, dist))
+  
+  tempTable <- person %>%
+    filter(gender_concept_id == 8507) %>%
+    compute()
+  nMales2 <- tempTable %>%
+    count() %>%
+    pull()
+  expect_gt(nMales2, 1)
+  
+  dataWithNa <- cars
+  dataWithNa$speed[2] <- NA
+  dataWithNa <- copy_to(connection, dataWithNa, overwrite = TRUE)
+  filteredRow <- dataWithNa %>%
+    filter(is.na(speed)) %>%
+    collect()
+  expect_equal(nrow(filteredRow), 1)
+  
+  # Test joins and unions ------------------------------------------------------
+  
   # Casting duration to numeric because platforms like SQL Server compute the mean by first computing the sum, which
   # will not fit in an integer:
   durationDist <- person %>%
     inner_join(observationPeriod, by = "person_id") %>%
-    mutate(duration = dateDiff("day", observation_period_start_date, observation_period_end_date)) %>%
+    mutate(duration = as.numeric(dateDiff("day", observation_period_start_date, observation_period_end_date))) %>%
     group_by(gender_concept_id) %>%
     summarize(mean_duration = mean(duration, na.rm = TRUE),
               min_duration = min(duration, na.rm = TRUE),
@@ -106,6 +113,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_gt(personTwice$n, 1)
   
+  # Test row_number ------------------------------------------------------------
   top10PersonsHardWay <- person %>%
     head(100) %>%
     mutate(rn = row_number(person_id)) %>%
@@ -113,14 +121,30 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_equal(nrow(top10PersonsHardWay), 10)
   
-  dataWithNa <- cars
-  dataWithNa$speed[2] <- NA
-  dataWithNa <- copy_to(connection, dataWithNa, overwrite = TRUE)
-  filteredRow <- dataWithNa %>%
-    filter(is.na(speed)) %>%
-    collect()
-  expect_equal(nrow(filteredRow), 1)
+  # Test date functions --------------------------------------------------------
+  nObsOverOneYear <- observationPeriod %>%
+    filter(dateDiff("day", observation_period_start_date, observation_period_end_date) > 365) %>%
+    count() %>%
+    pull()
   
+  expect_gt(nObsOverOneYear, 1)
+  
+  testData <- observationPeriod %>%
+    mutate(plus_one_date = dateAdd("day", 1, observation_period_start_date),
+           end_of_month_date = eoMonth(observation_period_start_date),
+           obs_year = year(observation_period_start_date),
+           obs_month = month(observation_period_start_date),
+           obs_day = day(observation_period_start_date)) %>%
+    mutate(is_later = if_else(plus_one_date > observation_period_start_date, 1, 0)) %>%
+    head(1) %>%
+    collect()
+  expect_equal(as.Date(testData$plus_one_date), dateAdd("day", 1, testData$observation_period_start_date))
+  expect_equal(testData$end_of_month_date, eoMonth(testData$observation_period_start_date))
+  expect_equal(testData$obs_year, year(testData$observation_period_start_date))
+  expect_equal(testData$obs_month, month(testData$observation_period_start_date))
+  expect_equal(testData$obs_day, day(testData$observation_period_start_date))
+  expect_equal(testData$is_later, 1)
+
   # dumbNameCars <- cars
   # names(dumbNameCars) <- c("Car speed", "Dist. to Stop")
   # copy_to(connection, dumbNameCars, name = "dn_cars")

@@ -76,7 +76,18 @@ dateAdd <- function(interval, number, date) {
 #' 
 #' @export
 eoMonth <- function(date) {
-  return(seq(date, length=2, by="months")[2] - 1)
+  return(.ifElse(month(date) != month(date + 1),
+         date,
+         .ifElse(month(date) == 12,
+                dateFromParts(year(date) + 1, 1, 1) - 1,
+                dateFromParts(year(date), month(date) + 1, 1) - 1)
+  ))
+}
+
+# Note: base ifelse converts dates to integers for unknown reasons, so adding this:
+.ifElse <- function (condition, true, false) {
+  false[condition] <- true[condition]
+  return(false)
 }
 
 #' Construct a date from parts

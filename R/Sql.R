@@ -525,17 +525,17 @@ executeSql <- function(connection,
 convertFields <- function(dbms, result) {
   if (dbms == "impala") {
     for (colname in colnames(result)) {
-      if (grepl("DATE$", colname)) {
+      if (grepl("DATE$", colname, ignore.case = TRUE)) {
         result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
       }
     }
   }
   if (dbms == "sqlite") {
     for (colname in colnames(result)) {
-      if (grepl("DATE$", colname)) {
+      if (grepl("DATE$", colname, ignore.case = TRUE)) {
         result[[colname]] <- as.Date(as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT"))
       }
-      if (grepl("DATETIME$", colname)) {
+      if (grepl("DATETIME$", colname, ignore.case = TRUE)) {
         result[[colname]] <- as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT")
       }
     }
@@ -628,7 +628,7 @@ querySql <- function(connection,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      colnames(result) <- toupper(colnames(result))
+      colnames(result) <- tolower(colnames(result))
       result <- convertFields(dbms(connection), result)
       if (snakeCaseToCamelCase) {
         colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))

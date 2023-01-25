@@ -24,7 +24,6 @@ test_that("Test dbplyr on SQL Server", {
   )
   cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA")
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
-  
 })
 
 test_that("Test dbplyr on Oracle", {
@@ -50,7 +49,6 @@ test_that("Test dbplyr on RedShift", {
   )
   cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA")
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
-  
 })
 
 test_that("Test dbplyr on SQLite", {
@@ -83,4 +81,22 @@ test_that("Test dbplyr on SQLite", {
   disconnect(connection)
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
   unlink(databaseFile)  
+})
+
+test_that("Test dbplyr date functions on non-dbplyr data", {
+  date <- c(as.Date("2000-02-01"), as.Date("2000-12-31"), as.Date("2000-01-31"))
+
+  date2 <- c(as.Date("2000-02-05"), as.Date("2000-11-30"), as.Date("2002-01-31"))
+  
+  expect_equal(dateDiff("day", date, date2), c(4, -31, 731))
+  
+  expect_equal(eoMonth(date), c(as.Date("2000-02-29"), as.Date("2000-12-31"), as.Date("2000-01-31")))
+
+  expect_equal(dateAdd("day", 1, date), c(as.Date("2000-02-02"), as.Date("2001-01-01"), as.Date("2000-02-01")))
+  
+  expect_equal(year(date), c(2000, 2000, 2000))
+
+  expect_equal(month(date), c(2, 12, 1))
+
+  expect_equal(day(date), c(1, 31, 31))
 })

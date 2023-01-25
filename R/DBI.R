@@ -212,16 +212,30 @@ setMethod(
 
 # Results -----------------------------------------------------------------------------------------
 
-#' DatabaseConnector results class.
+#' DatabaseConnector JDBC results class.
 #'
 #' @keywords internal
 #' @import rJava
 #' @export
-setClass("DatabaseConnectorResult",
+setClass("DatabaseConnectorJdbcResult",
          contains = "DBIResult",
          slots = list(
-           content = "jobjRef", type = "character",
-           statement = "character"
+           content = "jobjRef", 
+           type = "character",
+           statement = "character",
+           dbms = "character"
+         )
+)
+
+#' DatabaseConnector DBI results class.
+#'
+#' @keywords internal
+#' @export
+setClass("DatabaseConnectorDbiResult",
+         contains = "DBIResult",
+         slots = list(
+           resultSet = "DBIResult",
+           dbms = "character"
          )
 )
 
@@ -237,22 +251,27 @@ setMethod(
     logTrace(paste("Sending SQL:", truncateSql(statement)))
     startTime <- Sys.time()
     
+    dbms <- dbms(conn)
     if (translate) {
       statement <- translateStatement(
         sql = statement,
-        targetDialect = dbms(conn)
+        targetDialect = dbms
       )
     }
+    # For Oracle, remove trailing semicolon:
+    statement <- gsub(";\\s*$", "", statement)
+    
     batchedQuery <- rJava::.jnew(
       "org.ohdsi.databaseConnector.BatchedQuery",
       conn@jConnection,
       statement,
-      dbms(conn)
+      dbms
     )
-    result <- new("DatabaseConnectorResult",
+    result <- new("DatabaseConnectorJdbcResult",
                   content = batchedQuery,
                   type = "batchedQuery",
-                  statement = statement
+                  statement = statement,
+                  dbms = dbms
     )
     delta <- Sys.time() - startTime
     logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
@@ -275,7 +294,11 @@ setMethod(
     logTrace(paste("Sending SQL:", truncateSql(statement)))
     startTime <- Sys.time()
     
-    result <- DBI::dbSendQuery(conn@dbiConnection, statement, ...)
+    resultSet <- DBI::dbSendQuery(conn@dbiConnection, statement, ...)
+    result <- new("DatabaseConnectorDbiResult",
+                  resultSet = resultSet,
+                  dbms = dbms(conn)
+    )
     
     delta <- Sys.time() - startTime
     logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
@@ -283,9 +306,9 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorResult-class
+#' @rdname DatabaseConnectorJdbcResult-class
 #' @export
-setMethod("dbHasCompleted", "DatabaseConnectorResult", function(res, ...) {
+setMethod("dbHasCompleted", "DatabaseConnectorJdbcResult", function(res, ...) {
   if (res@type == "rowsAffected") {
     return(TRUE)
   } else {
@@ -293,9 +316,15 @@ setMethod("dbHasCompleted", "DatabaseConnectorResult", function(res, ...) {
   }
 })
 
-#' @rdname DatabaseConnectorResult-class
+#' @rdname DatabaseConnectorDbiResult-class
 #' @export
-setMethod("dbColumnInfo", "DatabaseConnectorResult", function(res, ...) {
+setMethod("dbHasCompleted", "DatabaseConnectorDbiResult", function(res, ...) {
+  return(DBI::dbHasCompleted(res@resultSet, ...))
+})
+
+#' @rdname DatabaseConnectorJdbcResult-class
+#' @export
+setMethod("dbColumnInfo", "DatabaseConnectorJdbcResult", function(res, ...) {
   columnTypeIds <- rJava::.jcall(res@content, "[I", "getColumnTypes")
   columnTypes <- rep("", length(columnTypeIds))
   columnTypes[columnTypeIds == 1] <- "numeric"
@@ -306,34 +335,85 @@ setMethod("dbColumnInfo", "DatabaseConnectorResult", function(res, ...) {
   return(data.frame(name = columnNames, field.type = columnSqlTypes, data.type = columnTypes))
 })
 
-#' @rdname DatabaseConnectorResult-class
+#' @rdname DatabaseConnectorDbiResult-class
 #' @export
-setMethod("dbGetStatement", "DatabaseConnectorResult", function(res, ...) {
+setMethod("dbColumnInfo", "DatabaseConnectorDbiResult", function(res, ...) {
+  return(DBI::dbColumnInfo(res@resultSet, ...))
+})
+
+#' @rdname DatabaseConnectorJdbcResult-class
+#' @export
+setMethod("dbGetStatement", "DatabaseConnectorJdbcResult", function(res, ...) {
   return(res@statement)
 })
 
-#' @rdname DatabaseConnectorResult-class
+#' @rdname DatabaseConnectorDbiResult-class
 #' @export
-setMethod("dbGetRowCount", "DatabaseConnectorResult", function(res, ...) {
+setMethod("dbGetStatement", "DatabaseConnectorDbiResult", function(res, ...) {
+  return(DBI::dbGetStatement(res@resultSet, ...))
+})
+
+#' @rdname DatabaseConnectorJdbcResult-class
+#' @export
+setMethod("dbGetRowCount", "DatabaseConnectorJdbcResult", function(res, ...) {
   return(rJava::.jcall(res@content, "I", "getTotalRowCount"))
 })
 
-#' @rdname DatabaseConnectorResult-class
+#' @rdname DatabaseConnectorDbiResult-class
 #' @export
-setMethod("dbFetch", "DatabaseConnectorResult", function(res, ...) {
+setMethod("dbGetRowCount", "DatabaseConnectorDbiResult", function(res, ...) {
+  return(DBI::dbGetRowCount(res@resultSet, ...))
+})
+
+#' @rdname DatabaseConnectorJdbcResult-class
+#' @export
+setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, ...) {
   rJava::.jcall(res@content, "V", "fetchBatch")
   columns <- parseJdbcColumnData(res@content, ...)
+  columns <- convertFields(res@dbms, columns)
+  columns <- dbFetchIntegerToNumeric(columns)
   colnames(columns) <- tolower(colnames(columns))
   return(columns)
 })
 
-#' @rdname DatabaseConnectorResult-class
+#' @rdname DatabaseConnectorDbiResult-class
 #' @export
-setMethod("dbClearResult", "DatabaseConnectorResult", function(res, ...) {
+setMethod("dbFetch", "DatabaseConnectorDbiResult", function(res, ...) {
+  columns <- DBI::dbFetch(res@resultSet, ...)
+  columns <- convertFields(res@dbms, columns)
+  columns <- dbFetchIntegerToNumeric(columns)
+  colnames(columns) <- tolower(colnames(columns))
+  return(columns)
+})
+
+#' @rdname DatabaseConnectorJdbcResult-class
+#' @export
+setMethod("dbClearResult", "DatabaseConnectorJdbcResult", function(res, ...) {
   if (res@type == "batchedQuery") {
     rJava::.jcall(res@content, "V", "clear")
   }
   return(TRUE)
+})
+
+#' @rdname DatabaseConnectorDbiResult-class
+#' @export
+setMethod("dbClearResult", "DatabaseConnectorDbiResult", function(res, ...) {
+  return(DBI::dbClearResult(res@resultSet, ...))
+})
+
+#' @rdname DatabaseConnectorJdbcResult-class
+#' @export
+setMethod("dbGetRowsAffected", "DatabaseConnectorJdbcResult", function(res, ...) {
+  if (res@type != "rowsAffected") {
+    abort("Object not result of dbSendStatement")
+  }
+  return(rJava::.jsimplify(res@content))
+})
+
+#' @rdname DatabaseConnectorDbiResult-class
+#' @export
+setMethod("dbGetRowsAffected", "DatabaseConnectorDbiResult", function(res, ...) {
+  return(DBI::dbGetRowsAffected(res@resultSet, ...))
 })
 
 #' @rdname DatabaseConnectorConnection-class
@@ -348,7 +428,7 @@ setMethod(
         targetDialect = dbms(conn)
       )
     }
-    result <- lowLevelQuerySql(conn, statement)
+    result <- querySql(conn, statement)
     colnames(result) <- tolower(colnames(result))
     return(result)
   }
@@ -366,24 +446,15 @@ setMethod(
         targetDialect = dbms(conn)
       )
     }
-    rowsAffected <- lowLevelExecuteSql(connection = conn, sql = statement)
+    rowsAffected <- executeSql(connection = conn, sql = statement)
     rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
-    result <- new("DatabaseConnectorResult",
+    result <- new("DatabaseConnectorJdbcResult",
                   content = rowsAffected,
                   type = "rowsAffected",
                   statement = statement
     )
   }
 )
-
-#' @rdname DatabaseConnectorResult-class
-#' @export
-setMethod("dbGetRowsAffected", "DatabaseConnectorResult", function(res, ...) {
-  if (res@type != "rowsAffected") {
-    abort("Object not result of dbSendStatement")
-  }
-  return(rJava::.jsimplify(res@content))
-})
 
 #' @rdname DatabaseConnectorConnection-class
 #' @export
@@ -403,7 +474,7 @@ setMethod(
     }
     rowsAffected <- 0
     for (sql in SqlRender::splitSql(statement)) {
-      rowsAffected <- rowsAffected + lowLevelExecuteSql(conn, sql)
+      rowsAffected <- rowsAffected + executeSql(conn, sql)
     }
     return(rowsAffected)
   }
@@ -587,7 +658,7 @@ setMethod("dbReadTable",
               targetDialect = dbms(conn),
               tempEmulationSchema = tempEmulationSchema
             )
-            return(lowLevelQuerySql(conn, sql))
+            return(querySql(conn, sql))
           })
 
 #' @rdname DatabaseConnectorConnection-class
@@ -619,7 +690,7 @@ setMethod(
       tempEmulationSchema = tempEmulationSchema
     )
     for (statement in SqlRender::splitSql(sql)) {
-      lowLevelExecuteSql(conn, statement)
+      executeSql(conn, statement)
     }
     return(TRUE)
   }
@@ -682,8 +753,6 @@ translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOpti
     sql <- translateDateFunctions(sql)
   }
   sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
-  # Remove trailing semicolons for Oracle: (alternatively could use querySql instead of lowLevelQuery)
-  sql <- gsub(";\\s*$", "", sql)
   if (debug) {
     message(paste("SQL out:", sql))
   }
@@ -706,4 +775,22 @@ splitDatabaseSchema <- function(databaseSchema, dbms) {
   } else {
     return(list(NULL, databaseSchema))
   }
+}
+
+dbFetchIntegerToNumeric <- function(columns) {
+  if (getOption("databaseConnectorIntegerAsNumeric", default = TRUE)) {
+    for (i in seq.int(ncol(columns))) {
+      if (is(columns[[i]], "integer")) {
+        columns[[i]] <- as.numeric(columns[[i]])
+      }
+    }
+  }
+  if (getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
+    for (i in seq.int(ncol(columns))) {
+      if (is(columns[[i]], "integer64")) {
+        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
+      }
+    }
+  }
+  return(columns)
 }

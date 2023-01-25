@@ -246,7 +246,8 @@ source("tests/testthat/dbplyrTestFunction.R")
 # options("DEBUG_DATABASECONNECTOR_DBPLYR" = TRUE)
 # BigQuery
 options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaBigQuery)
-testDbplyrFunctions(connectionDetailsBigQuery, cdmDatabaseSchemaBigQuery)
+testDbplyrFunctions(connectionDetails = connectionDetailsBigQuery, 
+                    cdmDatabaseSchema = cdmDatabaseSchemaBigQuery)
 
 # Azure
 testDbplyrFunctions(connectionDetails = connectionDetailsAzure, 
