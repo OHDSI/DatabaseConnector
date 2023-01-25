@@ -779,14 +779,14 @@ splitDatabaseSchema <- function(databaseSchema, dbms) {
 
 dbFetchIntegerToNumeric <- function(columns) {
   if (getOption("databaseConnectorIntegerAsNumeric", default = TRUE)) {
-    for (i in seq.int(ncol(columns))) {
+    for (i in seq_len(ncol(columns))) {
       if (is(columns[[i]], "integer")) {
         columns[[i]] <- as.numeric(columns[[i]])
       }
     }
   }
   if (getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
-    for (i in seq.int(ncol(columns))) {
+    for (i in seq_len(ncol(columns))) {
       if (is(columns[[i]], "integer64")) {
         columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
       }

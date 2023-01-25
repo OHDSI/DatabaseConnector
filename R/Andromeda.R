@@ -140,14 +140,14 @@ lowLevelQuerySqlToAndromeda.DatabaseConnectorDbiConnection <- function(connectio
   while (first || !DBI::dbHasCompleted(resultSet)) {
     batch <- DBI::dbFetch(resultSet, batchSize)
     if (integerAsNumeric) {
-      for (i in seq.int(ncol(batch))) {
+      for (i in seq_len(ncol(batch))) {
         if (is(batch[[i]], "integer")) {
           batch[[i]] <- as.numeric(batch[[i]])
         }
       }
     }
     if (integer64AsNumeric) {
-      for (i in seq.int(ncol(batch))) {
+      for (i in seq_len(ncol(batch))) {
         if (is(batch[[i]], "integer64")) {
           batch[[i]] <- convertInteger64ToNumeric(batch[[i]])
         }

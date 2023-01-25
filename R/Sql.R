@@ -99,7 +99,7 @@ parseJdbcColumnData <- function(content,
   
   columns <- vector("list", length(columnTypes))
   
-  for (i in seq.int(length(columnTypes))) {
+  for (i in seq_len(length(columnTypes))) {
     if (columnTypes[i] == 1) {
       column <- rJava::.jcall(
         content,
@@ -244,14 +244,14 @@ lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection,
   
   columns <- DBI::dbGetQuery(connection@dbiConnection, query)
   if (integerAsNumeric) {
-    for (i in seq.int(ncol(columns))) {
+    for (i in seq_len(ncol(columns))) {
       if (is(columns[[i]], "integer")) {
         columns[[i]] <- as.numeric(columns[[i]])
       }
     }
   }
   if (integer64AsNumeric) {
-    for (i in seq.int(ncol(columns))) {
+    for (i in seq_len(ncol(columns))) {
       if (is(columns[[i]], "integer64")) {
         columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
       }
@@ -628,7 +628,7 @@ querySql <- function(connection,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      colnames(result) <- tolower(colnames(result))
+      colnames(result) <- toupper(colnames(result))
       result <- convertFields(dbms(connection), result)
       if (snakeCaseToCamelCase) {
         colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
