@@ -17,7 +17,7 @@ Oracle:
 user. The user name used to access the server
 password. The password for that user
 server. This field contains the SID, or host and servicename, SID, or TNSName:
-'', '/', '/', or ''
+'sid', 'host/sid', 'host/service name', or 'tnsname'
 port. Specifies the port on the server (default = 1521)
 extraSettings. The configuration settings for the connection (i.e. SSL Settings such
 as &quot;(PROTOCOL=tcps)&quot;)
@@ -53,7 +53,7 @@ PostgreSQL:
 user. The user used to log in to the server
 password. The password used to log on to the server
 server. This field contains the host name of the server and the database holding the
-relevant schemas: /
+relevant schemas: host/database
 port. Specifies the port on the server (default = 5432)
 extraSettings. The configuration settings for the connection (i.e. SSL Settings such
 as &quot;ssl=true&quot;)
@@ -64,7 +64,7 @@ Redshift:
 user. The user used to log in to the server
 password. The password used to log on to the server
 server. This field contains the host name of the server and the database holding the
-relevant schemas: /
+relevant schemas: host/database
 port. Specifies the port on the server (default = 5439)
 `extraSettings The configuration settings for the connection (i.e. SSL Settings such
 as &quot;ssl=true&amp;amp;sslfactory=com.amazon.redshift.ssl.NonValidatingFactory&quot;)
@@ -75,7 +75,7 @@ Netezza:
 user. The user used to log in to the server
 password. The password used to log on to the server
 server. This field contains the host name of the server and the database holding the
-relevant schemas: /
+relevant schemas: host/database
 port. Specifies the port on the server (default = 5480)
 extraSettings. The configuration settings for the connection (i.e. SSL Settings such
 as &quot;ssl=true&quot;)
@@ -217,7 +217,7 @@ interpretations:</p>
 <p>Oracle:</p><ul><li><p><code>user</code>. The user name used to access the server</p></li>
 <li><p><code>password</code>. The password for that user</p></li>
 <li><p><code>server</code>. This field contains the SID, or host and servicename, SID, or TNSName:
-'<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'</tnsname></service></host></sid></host></sid></p></li>
+'sid', 'host/sid', 'host/service name', or 'tnsname'</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 1521)</p></li>
 <li><p><code>extraSettings</code>. The configuration settings for the connection (i.e. SSL Settings such
 as "(PROTOCOL=tcps)")</p></li>
@@ -244,7 +244,7 @@ as "encrypt=true; trustServerCertificate=false;")</p></li>
 </ul><p>PostgreSQL:</p><ul><li><p><code>user</code>. The user used to log in to the server</p></li>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server and the database holding the
-relevant schemas: <host>/<database></database></host></p></li>
+relevant schemas: host/database</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 5432)</p></li>
 <li><p><code>extraSettings</code>. The configuration settings for the connection (i.e. SSL Settings such
 as "ssl=true")</p></li>
@@ -252,7 +252,7 @@ as "ssl=true")</p></li>
 </ul><p>Redshift:</p><ul><li><p><code>user</code>. The user used to log in to the server</p></li>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server and the database holding the
-relevant schemas: <host>/<database></database></host></p></li>
+relevant schemas: host/database</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 5439)</p></li>
 <li><p>`extraSettings The configuration settings for the connection (i.e. SSL Settings such
 as "ssl=true&amp;sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")</p></li>
@@ -260,7 +260,7 @@ as "ssl=true&amp;sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")</p></
 </ul><p>Netezza:</p><ul><li><p><code>user</code>. The user used to log in to the server</p></li>
 <li><p><code>password</code>. The password used to log on to the server</p></li>
 <li><p><code>server</code>. This field contains the host name of the server and the database holding the
-relevant schemas: <host>/<database></database></host></p></li>
+relevant schemas: host/database</p></li>
 <li><p><code>port</code>. Specifies the port on the server (default = 5480)</p></li>
 <li><p><code>extraSettings</code>. The configuration settings for the connection (i.e. SSL Settings such
 as "ssl=true")</p></li>

@@ -67,7 +67,7 @@ Oracle:
 \item \code{user}. The user name used to access the server
 \item \code{password}. The password for that user
 \item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName:
-'\if{html}{\out{<sid>}}', '\if{html}{\out{<host>}}/\if{html}{\out{<sid>}}', '\if{html}{\out{<host>}}/\if{html}{\out{<service name>}}', or '\if{html}{\out{<tnsname>}}'
+'sid', 'host/sid', 'host/service name', or 'tnsname'
 \item \code{port}. Specifies the port on the server (default = 1521)
 \item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
 as "(PROTOCOL=tcps)")
@@ -106,7 +106,7 @@ PostgreSQL:
 \item \code{user}. The user used to log in to the server
 \item \code{password}. The password used to log on to the server
 \item \code{server}. This field contains the host name of the server and the database holding the
-relevant schemas: \if{html}{\out{<host>}}/\if{html}{\out{<database>}}
+relevant schemas: host/database
 \item \code{port}. Specifies the port on the server (default = 5432)
 \item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
 as "ssl=true")
@@ -118,7 +118,7 @@ Redshift:
 \item \code{user}. The user used to log in to the server
 \item \code{password}. The password used to log on to the server
 \item \code{server}. This field contains the host name of the server and the database holding the
-relevant schemas: \if{html}{\out{<host>}}/\if{html}{\out{<database>}}
+relevant schemas: host/database
 \item \code{port}. Specifies the port on the server (default = 5439)
 \item `extraSettings The configuration settings for the connection (i.e. SSL Settings such
 as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
@@ -130,7 +130,7 @@ Netezza:
 \item \code{user}. The user used to log in to the server
 \item \code{password}. The password used to log on to the server
 \item \code{server}. This field contains the host name of the server and the database holding the
-relevant schemas: \if{html}{\out{<host>}}/\if{html}{\out{<database>}}
+relevant schemas: host/database
 \item \code{port}. Specifies the port on the server (default = 5480)
 \item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
 as "ssl=true")

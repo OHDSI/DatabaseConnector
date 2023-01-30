@@ -28,7 +28,7 @@
 #'  - `user`. The user name used to access the server
 #'  - `password`. The password for that user
 #'  - `server`. This field contains the SID, or host and servicename, SID, or TNSName:
-#'         '<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'
+#'         'sid', 'host/sid', 'host/service name', or 'tnsname'
 #'  - `port`. Specifies the port on the server (default = 1521)
 #'  - `extraSettings`. The configuration settings for the connection (i.e. SSL Settings such
 #'         as "(PROTOCOL=tcps)")
@@ -64,7 +64,7 @@
 #'  - `user`. The user used to log in to the server
 #'  - `password`. The password used to log on to the server
 #'  - `server`. This field contains the host name of the server and the database holding the
-#'         relevant schemas: <host>/<database>
+#'         relevant schemas: host/database
 #'  - `port`. Specifies the port on the server (default = 5432)
 #'  - `extraSettings`. The configuration settings for the connection (i.e. SSL Settings such
 #'         as "ssl=true")
@@ -75,7 +75,7 @@
 #'  - `user`. The user used to log in to the server
 #'  - `password`. The password used to log on to the server
 #'  - `server`. This field contains the host name of the server and the database holding the
-#'         relevant schemas: <host>/<database>
+#'         relevant schemas: host/database
 #'  - `port`. Specifies the port on the server (default = 5439)
 #'  - `extraSettings The configuration settings for the connection (i.e. SSL Settings such
 #'         as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
@@ -86,7 +86,7 @@
 #'  - `user`. The user used to log in to the server
 #'  - `password`. The password used to log on to the server
 #'  - `server`. This field contains the host name of the server and the database holding the
-#'         relevant schemas: <host>/<database>
+#'         relevant schemas: host/database
 #'  - `port`. Specifies the port on the server (default = 5480)
 #'  - `extraSettings`. The configuration settings for the connection (i.e. SSL Settings such
 #'         as "ssl=true")
