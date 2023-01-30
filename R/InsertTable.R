@@ -424,19 +424,6 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
 
   tableName <- gsub("^#", "", tableName)
-<<<<<<< HEAD
-  if (!is.null(databaseSchema)) {
-    if (dbms(connection) %in% c("sqlite", "sqlite extended")) {
-      if (tolower(databaseSchema) != "main") {
-        abort("Only the 'main' schema exists on SQLite")
-      }
-    } else {
-      tableName <- DBI::SQL(paste(databaseSchema, tableName, sep = "."))
-    }
-  }
-
-=======
->>>>>>> d2e0c89a898467fd484dcabe42b62fde6dff48db
   if (dbms(connection) == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {
