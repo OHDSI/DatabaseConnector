@@ -1,5 +1,10 @@
 library(testthat)
 
+if (DatabaseConnector:::is_installed("ParallelLogger")) {
+  logFileName <- tempfile(fileext = ".txt")
+  ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
+}
+
 test_that("Send updates to server", {
   sql <- "CREATE TABLE #temp (x INT);
     INSERT INTO #temp (x) SELECT 123;
@@ -65,4 +70,14 @@ test_that("Send updates to server", {
   expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
 
   disconnect(connection)
+})
+
+test_that("Logging update times", {
+  skip_if_not_installed("ParallelLogger")
+  log <- readLines(logFileName)
+  statementCount <- sum(grepl("Executing SQL:", log))
+  expect_gt(statementCount, 19)
+  # writeLines(log)
+  ParallelLogger::unregisterLogger("TEST_LOGGER")
+  unlink(logFileName)
 })

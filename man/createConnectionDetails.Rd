@@ -6,18 +6,17 @@
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
 \itemize{
-  \item {"oracle" for Oracle}
-  \item {"postgresql" for PostgreSQL}
-  \item {"redshift" for Amazon Redshift}
-  \item {"sql server" for Microsoft SQL Server}
-  \item {"pdw" for Microsoft Parallel Data Warehouse (PDW)}
-  \item {"netezza" for IBM Netezza}
-  \item {"bigquery" for Google BigQuery}
-  \item {"sqlite" for SQLite}
-  \item {"sqlite extended" for SQLite with extended types (DATE and
-        DATETIME)}
-  \item {"spark" for Spark}
-  \item {"snowflake" for Snowflake}
+\item "oracle" for Oracle
+\item "postgresql" for PostgreSQL
+\item "redshift" for Amazon Redshift
+\item "sql server" for Microsoft SQL Server
+\item "pdw" for Microsoft Parallel Data Warehouse (PDW)
+\item "netezza" for IBM Netezza
+\item "bigquery" for Google BigQuery
+\item "sqlite" for SQLite
+\item "sqlite extended" for SQLite with extended types (DATE and DATETIME)
+\item "spark" for Spark
+\item "snowflake" for Snowflake
 }}
 
 \item{user}{The user name used to access the server.}
@@ -29,8 +28,10 @@
 \item{port}{(optional) The port on the server to connect to.}
 
 \item{extraSettings}{(optional) Additional configuration settings specific to the database
-provider to configure things as security for SSL. These must follow the
-format for the JDBC connection for the RDBMS specified in dbms.}
+provider to configure things as security for SSL. For connections using
+JDBC these will be appended to end of the connection string. For
+connections using DBI, these settings will additionally be used to call
+\code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"}
 or \code{"oci"}.}
@@ -41,132 +42,143 @@ or \code{"oci"}.}
 already be included in the connection string.}
 
 \item{pathToDriver}{Path to a folder containing the JDBC driver JAR files. See
-\code{\link{downloadJdbcDrivers}} for instructions on how to download the
+\code{\link[=downloadJdbcDrivers]{downloadJdbcDrivers()}} for instructions on how to download the
 relevant drivers.}
 }
 \value{
 A list with all the details needed to connect to a database.
 }
 \description{
-\code{createConnectionDetails} creates a list containing all details needed to connect to a
+Creates a list containing all details needed to connect to a
 database. There are three ways to call this function:
 \itemize{
-  \item \code{createConnectionDetails(dbms, user, password, server, port, extraSettings,
-        oracleDriver, pathToDriver)}
-  \item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
-  \item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
+\item \code{createConnectionDetails(dbms, user, password, server, port, extraSettings, oracleDriver, pathToDriver)}
+\item \code{createConnectionDetails(dbms, connectionString, pathToDriver)}
+\item \code{createConnectionDetails(dbms, connectionString, user, password, pathToDriver)}
 }
-}
-\details{
-This function creates a list containing all details needed to connect to a database. The list can
-then be used in the \code{\link{connect}} function.
-}
-\section{DBMS parameter details}{
 
+\subsection{DBMS parameter details:}{
 
 Depending on the DBMS, the function arguments have slightly different
-interpretations: Oracle:
+interpretations:
+
+Oracle:
 \itemize{
-  \item \code{user}. The user name used to access the server
-  \item \code{password}. The password for that user
-  \item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName:
-        '<sid>', '<host>/<sid>', '<host>/<service name>', or '<tnsname>'
-  \item \code{port}. Specifies the port on the server (default = 1521)
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "(PROTOCOL=tcps)")
-  \item \code{oracleDriver} The driver to be used. Choose between "thin" or "oci".
-  \item \code{pathToDriver} The path to the folder containing the Oracle JDBC driver JAR files.
+\item \code{user}. The user name used to access the server
+\item \code{password}. The password for that user
+\item \code{server}. This field contains the SID, or host and servicename, SID, or TNSName:
+'sid', 'host/sid', 'host/service name', or 'tnsname'
+\item \code{port}. Specifies the port on the server (default = 1521)
+\item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
+as "(PROTOCOL=tcps)")
+\item \code{oracleDriver}. The driver to be used. Choose between "thin" or "oci".
+\item \code{pathToDriver}. The path to the folder containing the Oracle JDBC driver JAR files.
 }
+
 Microsoft SQL Server:
 \itemize{
-  \item \code{user}. The user used to log in to the server. If the user is not specified, Windows
-        Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
-        (see details below).
-  \item \code{password}. The password used to log on to the server
-  \item \code{server}. This field contains the host name of the server
-  \item \code{port}. Not used for SQL Server
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "encrypt=true; trustServerCertificate=false;")
-  \item \code{pathToDriver} The path to the folder containing the SQL Server JDBC driver JAR files.
+\item \code{user}. The user used to log in to the server. If the user is not specified, Windows
+Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
+(see details below).
+\item \code{password}. The password used to log on to the server
+\item \code{server}. This field contains the host name of the server
+\item \code{port}. Not used for SQL Server
+\item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
+as "encrypt=true; trustServerCertificate=false;")
+\item \code{pathToDriver}. The path to the folder containing the SQL Server JDBC driver JAR files.
 }
+
 Microsoft PDW:
 \itemize{
-  \item \code{user}. The user used to log in to the server. If the user is not specified, Windows
-        Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
-        (see details below).
-  \item \code{password}. The password used to log on to the server
-  \item \code{server}. This field contains the host name of the server
-  \item \code{port}. Not used for SQL Server
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "encrypt=true; trustServerCertificate=false;")
-  \item \code{pathToDriver} The path to the folder containing the SQL Server JDBC driver JAR files.
+\item \code{user}. The user used to log in to the server. If the user is not specified, Windows
+Integrated Security will be used, which requires the SQL Server JDBC drivers to be installed
+(see details below).
+\item \code{password}. The password used to log on to the server
+\item \code{server}. This field contains the host name of the server
+\item \code{port}. Not used for SQL Server
+\item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
+as "encrypt=true; trustServerCertificate=false;")
+\item \code{pathToDriver}. The path to the folder containing the SQL Server JDBC driver JAR files.
 }
+
 PostgreSQL:
 \itemize{
-  \item \code{user}. The user used to log in to the server
-  \item \code{password}. The password used to log on to the server
-  \item \code{server}. This field contains the host name of the server and the database holding the
-        relevant schemas: <host>/<database>
-  \item \code{port}. Specifies the port on the server (default = 5432)
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "ssl=true")
-  \item \code{pathToDriver} The path to the folder containing the PostgreSQL JDBC driver JAR files.
+\item \code{user}. The user used to log in to the server
+\item \code{password}. The password used to log on to the server
+\item \code{server}. This field contains the host name of the server and the database holding the
+relevant schemas: host/database
+\item \code{port}. Specifies the port on the server (default = 5432)
+\item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
+as "ssl=true")
+\item \code{pathToDriver}. The path to the folder containing the PostgreSQL JDBC driver JAR files.
 }
+
 Redshift:
 \itemize{
-  \item \code{user}. The user used to log in to the server
-  \item \code{password}. The password used to log on to the server
-  \item \code{server}. This field contains the host name of the server and the database holding the
-        relevant schemas: <host>/<database>
-  \item \code{port}. Specifies the port on the server (default = 5439)
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
-  \item \code{pathToDriver} The path to the folder containing the RedShift JDBC driver JAR files.
+\item \code{user}. The user used to log in to the server
+\item \code{password}. The password used to log on to the server
+\item \code{server}. This field contains the host name of the server and the database holding the
+relevant schemas: host/database
+\item \code{port}. Specifies the port on the server (default = 5439)
+\item `extraSettings The configuration settings for the connection (i.e. SSL Settings such
+as "ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory")
+\item \code{pathToDriver}. The path to the folder containing the RedShift JDBC driver JAR files.
 }
+
 Netezza:
 \itemize{
-  \item \code{user}. The user used to log in to the server
-  \item \code{password}. The password used to log on to the server
-  \item \code{server}. This field contains the host name of the server and the database holding the
-        relevant schemas: <host>/<database>
-  \item \code{port}. Specifies the port on the server (default = 5480)
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "ssl=true")
-  \item \code{pathToDriver} The path to the folder containing the Netezza JDBC driver JAR file
-        (nzjdbc.jar).
+\item \code{user}. The user used to log in to the server
+\item \code{password}. The password used to log on to the server
+\item \code{server}. This field contains the host name of the server and the database holding the
+relevant schemas: host/database
+\item \code{port}. Specifies the port on the server (default = 5480)
+\item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
+as "ssl=true")
+\item \code{pathToDriver}. The path to the folder containing the Netezza JDBC driver JAR file
+(nzjdbc.jar).
 }
+
 Impala:
 \itemize{
-  \item \code{user}. The user name used to access the server
-  \item \code{password}. The password for that user
-  \item \code{server}. The host name of the server
-  \item \code{port}. Specifies the port on the server (default = 21050)
-  \item \code{extraSettings} The configuration settings for the connection (i.e. SSL Settings such
-        as "SSLKeyStorePwd=*****")
-  \item \code{pathToDriver} The path to the folder containing the Impala JDBC driver JAR files.
+\item \code{user}. The user name used to access the server
+\item \code{password}. The password for that user
+\item \code{server}. The host name of the server
+\item \code{port}. Specifies the port on the server (default = 21050)
+\item \code{extraSettings}. The configuration settings for the connection (i.e. SSL Settings such
+as "SSLKeyStorePwd=*****")
+\item \code{pathToDriver}. The path to the folder containing the Impala JDBC driver JAR files.
 }
+
 SQLite:
 \itemize{
-  \item \code{server}. The path to the SQLIte file.
+\item \code{server}. The path to the SQLIte file.
 }
+
 Spark:
+
+Currently both JDBC and ODBC connections are supported for Spark. Set the
+\code{connectionString} argument to use JDBC, otherwise ODBC is used:
 \itemize{
-  \item \code{connectionString}. The connection string (e.g. starting with
-        'jdbc:spark://my-org.dev.cloud.databricks.com...').
-  \item \code{user}. The user name used to access the server.
-  \item \code{password}. The password for that user.
+\item \code{connectionString}. The JDBC connection string (e.g. starting with
+'jdbc:spark://my-org.dev.cloud.databricks.com...').
+\item \code{user}. The user name used to access the server.
+\item \code{password}. The password for that user.
+\item \code{server}. The host name of the server (when using ODBC)
+\item \code{port}. Specifies the port on the server (when using ODBC)
+\item \code{extraSettings}. Additional settings for the ODBC connection, for example
+\code{extraSettings = list(HTTPPath = "http://databricks.server.com")}.
 }
+
 Snowflake:
 \itemize{
-  \item \code{connectionString}. The connection string (e.g. starting with
-        'jdbc:snowflake://{host}[:port]/?[db={database}]').
-  \item \code{user}. The user name used to access the server.
-  \item \code{password}. The password for that user.
+\item \code{connectionString}. The connection string (e.g. starting with
+'jdbc:snowflake://host:port/?db=database').
+\item \code{user}. The user name used to access the server.
+\item \code{password}. The password for that user.
 }
 }
 
-\section{Windows authentication for SQL Server}{
-
+\subsection{Windows authentication for SQL Server:}{
 
 To be able to use Windows authentication for SQL Server (and PDW), you have to install the JDBC
 driver. Download the version 9.2.0 .zip from \href{https://learn.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92-releases}{Microsoft}
@@ -177,16 +189,32 @@ location on the system path, for example to c:/windows/system32. If you not have
 any folder in the system path, you can also specify the path to the folder containing the dll by
 setting the environmental variable PATH_TO_AUTH_DLL, so for example
 \code{Sys.setenv("PATH_TO_AUTH_DLL" = "c:/temp")} Note that the environmental variable needs to be
-set before calling \code{connect} for the first time.
+set before calling \code{\link[=connect]{connect()}} for the first time.
 }
+}
+\details{
+This function creates a list containing all details needed to connect to a database. The list can
+then be used in the \code{\link[=connect]{connect()}} function.
 
+It is highly recommended to use a secure approach to storing credentials, so not to have your
+credentials in plain text in your R scripts. The examples demonstrate how to use the
+\code{keyring} package.
+}
 \examples{
 \dontrun{
+# Needs to be done only once on a machine. Credentials will then be stored in
+# the operating system's secure credential manager:
+keyring::key_set_with_value("server", password = "localhost/postgres")
+keyring::key_set_with_value("user", password = "root")
+keyring::key_set_with_value("password", password = "secret")
+
+# Create connection details using keyring. Note: the connection details will
+# not store the credentials themselves, but the reference to get the credentials.
 connectionDetails <- createConnectionDetails(
   dbms = "postgresql",
-  server = "localhost/postgres",
-  user = "root",
-  password = "blah"
+  server = keyring::key_get("server"),
+  user = keyring::key_get("user"),
+  password = keyring::key_get("password"),
 )
 conn <- connect(connectionDetails)
 dbGetQuery(conn, "SELECT COUNT(*) FROM person")

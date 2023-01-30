@@ -7,7 +7,8 @@
 disconnect(connection)
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 }
 \description{
 Close the connection to the server.

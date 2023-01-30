@@ -9,7 +9,7 @@
 \usage{
 \S4method{dbIsValid}{DatabaseConnectorDbiConnection}(dbObj, ...)
 
-\S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, ...)
+\S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, translate = TRUE, ...)
 }
 \description{
 DatabaseConnectorDbiConnection class.

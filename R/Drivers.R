@@ -1,6 +1,6 @@
 # @file Drivers.R
 #
-# Copyright 2022 Observational Health Data Sciences and Informatics
+# Copyright 2023 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -25,28 +25,27 @@ jdbcDrivers <- new.env()
 #' @param pathToDriver The full path to the folder where the JDBC driver .jar files should be downloaded to.
 #'        By default the value of the environment variable "DATABASECONNECTOR_JAR_FOLDER" is used.
 #' @param dbms The type of DBMS to download Jar files for.
-#'      \itemize{
-#'          \item{"postgresql" for PostgreSQL}
-#'          \item{"redshift" for Amazon Redshift}
-#'          \item{"sql server", "pdw" or "synapse" for Microsoft SQL Server}
-#'          \item{"oracle" for Oracle}
-#'          \item{"spark" for Spark}
-#'          \item{"snowflake" for Snowflake}
-#'      }
-#' @param method The method used for downloading files. See \code{?download.file} for details and options.
-#' @param ... Further arguments passed on to \code{download.file}
+#'  
+#' - "postgresql" for PostgreSQL
+#' - "redshift" for Amazon Redshift
+#' - "sql server", "pdw" or "synapse" for Microsoft SQL Server
+#' - "oracle" for Oracle
+#' - "spark" for Spark
+#' - "snowflake" for Snowflake
+#'  
+#' @param method The method used for downloading files. See `?download.file` for details and options.
+#' @param ... Further arguments passed on to `download.file`.
 #'
 #' @details
 #' The following versions of the JDBC drivers are currently used:
-#' \itemize{
-#'   \item{PostgreSQL}{V42.2.18}
-#'   \item{RedShift}{V2.1.0.9}
-#'   \item{SQL Server}{V8.4.1.zip}
-#'   \item{Oracle}{V19.8}
-#'   \item{Spark}{V2.6.21}
-#'   \item{Snowflake}{V3.13.22}
-#' }
-#'
+#' 
+#' - PostgreSQL: V42.2.18
+#' - RedShift: V2.1.0.9
+#' - SQL Server: V8.4.1.zip
+#' - Oracle: V19.8
+#' - Spark: V2.6.21
+#' - Snowflake: V3.13.22
+#' 
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
 #'

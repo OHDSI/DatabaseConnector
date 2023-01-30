@@ -20,7 +20,7 @@ The batch sizes are determined by the java virtual machine and will depend on th
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
       </span>
     </div>
 
@@ -36,6 +36,9 @@ The batch sizes are determined by the java virtual machine and will depend on th
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/DbiAndDbplyr.html">Using DatabaseConnector through DBI and dbplyr</a>
     </li>
     <li>
       <a href="../articles/Querying.html">Querying a database</a>
@@ -82,6 +85,7 @@ that won't fit in to memory.</p>
 <span>  args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  errorReportFile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"errorReportSql.txt"</span><span class="op">)</span>,</span>
 <span>  snakeCaseToCamelCase <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  oracleTempSchema <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tempEmulationSchema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sqlRenderTempEmulationSchema"</span><span class="op">)</span>,</span>
 <span>  integerAsNumeric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"databaseConnectorIntegerAsNumeric"</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  integer64AsNumeric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"databaseConnectorInteger64AsNumeric"</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -92,7 +96,8 @@ that won't fit in to memory.</p>
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>connection</dt>
-<dd><p>The connection to the database server.</p></dd>
+<dd><p>The connection to the database server created using either
+<code><a href="connect.html">connect()</a></code> or <code>dbConnect()</code>.</p></dd>
 
 
 <dt>sql</dt>
@@ -108,12 +113,16 @@ that won't fit in to memory.</p>
 
 
 <dt>errorReportFile</dt>
-<dd><p>The file where an error report will be written if an error occurs. Defaults to
-'errorReportSql.txt' in the current working directory.</p></dd>
+<dd><p>The file where an error report will be written if an error occurs.
+Defaults to 'errorReportSql.txt' in the current working directory.</p></dd>
 
 
 <dt>snakeCaseToCamelCase</dt>
 <dd><p>If true, field names are assumed to use snake_case, and are converted to camelCase.</p></dd>
+
+
+<dt>oracleTempSchema</dt>
+<dd><p>DEPRECATED: use <code>tempEmulationSchema</code> instead.</p></dd>
 
 
 <dt>tempEmulationSchema</dt>
@@ -144,8 +153,8 @@ can be created.</p></dd>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>This function calls the <code>render</code> and <code>translate</code> functions in the SqlRender package before
-calling <code><a href="querySql.html">querySql</a></code>.</p>
+    <p>This function calls the <code>render</code> and <code>translate</code> functions in the <code>SqlRender</code> package before
+calling <code><a href="querySql.html">querySql()</a></code>.</p>
     </div>
 
     <div id="ref-examples">
@@ -209,7 +218,7 @@ calling <code><a href="querySql.html">querySql</a></code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

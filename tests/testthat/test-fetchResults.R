@@ -1,5 +1,11 @@
 library(testthat)
 
+if (DatabaseConnector:::is_installed("ParallelLogger")) {
+  options(LOG_DATABASECONNECTOR_SQL = TRUE)
+  logFileName <- tempfile(fileext = ".txt")
+  ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
+}
+
 test_that("Fetch results", {
   # Postgres ----------------------------------------------------------
   connection <- connect(
@@ -89,19 +95,19 @@ test_that("Fetch results", {
   # Fetch types correctly:
   x <- querySql(connection, "
     SELECT
-        1/10 as A,
-        X1,
-        X2,
-        X1 / X2 as B,
-        CAST(1 AS INT) as C,
-        CAST(1.1 AS NUMBER(1,0)) as D,
-        CAST(1.1 AS FLOAT) as E,
-        0.1 as F,
-        CAST(9223372036854775807 as NUMBER(19)) as G
+        1/10 as a,
+        x1,
+        x2,
+        x1 / x2 AS b,
+        CAST(1 AS INT) AS c,
+        CAST(1.1 AS NUMBER(1,0)) AS d,
+        CAST(1.1 AS FLOAT) AS e,
+        0.1 AS f,
+        CAST(9223372036854775807 AS NUMBER(19)) AS g
     FROM (
         SELECT
-          1 as X1,
-          10 as X2
+          1 AS x1,
+          10 AS x2
         FROM
           DUAL
       )
@@ -181,6 +187,44 @@ test_that("Fetch results", {
   }
   
   disconnect(connection)
+  
+  # SQLite --------------------------------------------------
+  databaseFile <- tempfile(fileext = ".sqlite")
+  cdmDatabaseSchema <- "main"
+  connectionDetails <- createConnectionDetails(
+    dbms = "sqlite",
+    server = databaseFile
+  )
+  connection <- connect(connectionDetails)
+  insertTable(
+    connection = connection,
+    databaseSchema = cdmDatabaseSchema,
+    tableName = "person",
+    data = data.frame(person_id = seq_len(100), 
+                      year_of_birth = round(runif(100, 1900, 2000)),
+                      race_concept_id = as.numeric(NA),
+                      gender_concept_id = rep(c(8507, 8532), 50))
+  )
+  # Fetch data.frame:
+  count <- querySql(connection, "SELECT COUNT(*) FROM main.person;")
+  expect_equal(count[1, 1], 100)
+  count <- renderTranslateQuerySql(connection, "SELECT COUNT(*) FROM @cdm.person;", cdm = cdmDatabaseSchema)
+  expect_equal(count[1, 1], 100)
+  
+  # Fetch Andromeda:
+  andromeda <- Andromeda::andromeda()
+  querySqlToAndromeda(connection, "SELECT * FROM main.person;", andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+  expect_equivalent(nrow(dplyr::collect(andromeda$test)), 100)
+  
+  if (inherits(andromeda, "SQLiteConnection")) {
+    Andromeda::close(andromeda)
+  } else {
+    close(andromeda)
+  }
+  
+  disconnect(connection)
+  unlink(databaseFile)  
+  
 })
 
 test_that("dbFetch works", {
@@ -238,7 +282,6 @@ test_that("dbFetch works", {
   
   disconnect(connection)
   
-  
   # RedShift ----------------------------------------------
   connection <- connect(
     dbms = "redshift",
@@ -256,4 +299,13 @@ test_that("dbFetch works", {
   dbClearResult(queryResult)
   
   disconnect(connection)
+})
+
+test_that("Logging query times", {
+  skip_if_not_installed("ParallelLogger")
+  
+  queryTimes <- extractQueryTimes(logFileName)
+  expect_gt(nrow(queryTimes), 16)
+  ParallelLogger::unregisterLogger("TEST_LOGGER")
+  unlink(logFileName)
 })

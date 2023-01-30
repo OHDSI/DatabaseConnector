@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
       </span>
     </div>
 
@@ -33,6 +33,9 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/DbiAndDbplyr.html">Using DatabaseConnector through DBI and dbplyr</a>
     </li>
     <li>
       <a href="../articles/Querying.html">Querying a database</a>
@@ -64,7 +67,25 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="5.1.0" id="databaseconnector-510">DatabaseConnector 5.1.0<a class="anchor" aria-label="anchor" href="#databaseconnector-510"></a></h2>
+<h2 class="page-header" data-toc-text="6.0.0" id="databaseconnector-600">DatabaseConnector 6.0.0<a class="anchor" aria-label="anchor" href="#databaseconnector-600"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Complete overhaul of DBI interface. DBI functions now apply translation to all incoming SQL, thus making the DatabaseConnector DBI interface an interface to a virtual database platform speaking OHDSISql as defined in <code>SqlRender</code>. This should aid write once - execute everywhere code development. It also allows using <code>dbplyr</code> with <code>DatabaseConnector</code>.</p></li>
+<li><p>Adding <code><a href="../reference/requiresTempEmulation.html">requiresTempEmulation()</a></code> and <code><a href="../reference/assertTempEmulationSchemaSet.html">assertTempEmulationSchemaSet()</a></code> functions.</p></li>
+<li><p>The <code><a href="../reference/dropEmulatedTempTables.html">dropEmulatedTempTables()</a></code> function can be called on all platforms (it doesn’t do anything on platforms not requiring temp table emulation).</p></li>
+<li><p>Ensuring <code><a href="../reference/dbms.html">dbms()</a></code>, <code><a href="../reference/insertTable.html">insertTable()</a></code>, <code><a href="../reference/renderTranslateExecuteSql.html">renderTranslateExecuteSql()</a></code>, <code><a href="../reference/renderTranslateQuerySql.html">renderTranslateQuerySql()</a></code>, and <code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code> functions work with connection pool objects.</p></li>
+<li><p>Adding logging at ‘TRACE’ level for performance profiling using the <code>ParallelLogger</code> package. Use <code>options(LOG_DATABASECONNECTOR_SQL = TRUE)</code> to enable. The query times can be automatically extracted using the new <code><a href="../reference/extractQueryTimes.html">extractQueryTimes()</a></code> function.</p></li>
+<li><p>Adding the <code><a href="../reference/computeDataHash.html">computeDataHash()</a></code> function.</p></li>
+<li><p>The <code>inserTable()</code> function now converts logical fields to integer fields (and throws a warning if it does so).</p></li>
+<li><p>The <code>dbListTables()</code> and <code><a href="../reference/getTableNames.html">getTableNames()</a></code> functions return results in lowercase instead of uppercase for consistency with DBI functions.</p></li>
+<li><p>Throwing informative error if user calls <code><a href="../reference/createConnectionDetails.html">createConnectionDetails()</a></code> with credential arguments that cannot be evaluated in a multi-threading setting.</p></li>
+<li><p>Supporting external tables on RedShift.</p></li>
+<li><p>Adding support for ODBC connections to Spark.</p></li>
+<li><p>Querying to Andromeda when using a DBI driver (instead of a JDBC driver) now also uses batching to avoid running out of memory.</p></li>
+<li><p>Adding <code>appendToTable</code> argument to <code><a href="../reference/querySqlToAndromeda.html">querySqlToAndromeda()</a></code>, <code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code>, and <code><a href="../reference/lowLevelQuerySqlToAndromeda.html">lowLevelQuerySqlToAndromeda()</a></code>.</p></li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Fix error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> and all column names require quotes.</li></ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="5.1.0" id="databaseconnector-510">DatabaseConnector 5.1.0<small>2022-09-23</small><a class="anchor" aria-label="anchor" href="#databaseconnector-510"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li><p>Supporting upcoming version of <code>Andromeda</code> using <code>arrow</code> backend.</p></li>
 <li><p>Adding new <code><a href="../reference/dbms.html">dbms()</a></code> function, which is the preferred way to establish the dbms of a connection.</p></li>
@@ -78,13 +99,11 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.4" id="databaseconnector-504">DatabaseConnector 5.0.4<small>2022-06-28</small><a class="anchor" aria-label="anchor" href="#databaseconnector-504"></a></h2>
 <p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Prevent error when <code>connectionString</code> is empty string (instead of <code>NULL</code>).</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Prevent error when <code>connectionString</code> is empty string (instead of <code>NULL</code>).</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.3" id="databaseconnector-503">DatabaseConnector 5.0.3<small>2022-06-08</small><a class="anchor" aria-label="anchor" href="#databaseconnector-503"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Ensuring Andromeda works with different backends (e.g. arrow).</li>
-</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Ensuring Andromeda works with different backends (e.g. arrow).</li></ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Fixing ‘DBMS not supported’ error when connecting to Hive.</p></li>
 <li><p>Fixing error when bulk uploading to Postgress with NULL values.</p></li>
 <li><p>Fixing warning when automatically converting <code>Integer64</code> to <code>numeric</code> in R 4.2.0.</p></li>
@@ -100,15 +119,12 @@
 <li><p>Splitting vignette into two, because many users will only need to now how to connect to their database.</p></li>
 <li><p>Improved error messaging related to the driver folder.</p></li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixing <code><a href="../reference/getTableNames.html">getTableNames()</a></code> when the database or schema name contains escaped characters.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Fixing <code><a href="../reference/getTableNames.html">getTableNames()</a></code> when the database or schema name contains escaped characters.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.1" id="databaseconnector-501">DatabaseConnector 5.0.1<a class="anchor" aria-label="anchor" href="#databaseconnector-501"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Added <code><a href="../reference/dropEmulatedTempTables.html">dropEmulatedTempTables()</a></code> function.</li>
-</ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixed R-Studio connection panel for BigQuery.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Added <code><a href="../reference/dropEmulatedTempTables.html">dropEmulatedTempTables()</a></code> function.</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Fixed R-Studio connection panel for BigQuery.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.0" id="databaseconnector-500">DatabaseConnector 5.0.0<small>2021-11-18</small><a class="anchor" aria-label="anchor" href="#databaseconnector-500"></a></h2>
 <p>Changes:</p>
@@ -127,8 +143,7 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="4.0.2" id="databaseconnector-402">DatabaseConnector 4.0.2<small>2021-04-15</small><a class="anchor" aria-label="anchor" href="#databaseconnector-402"></a></h2>
 <p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixing handling of tibbles when inserting tables to avoid issues with date fields.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Fixing handling of tibbles when inserting tables to avoid issues with date fields.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="4.0.1" id="databaseconnector-401">DatabaseConnector 4.0.1<a class="anchor" aria-label="anchor" href="#databaseconnector-401"></a></h2>
 <p>Changes:</p>
@@ -178,30 +193,24 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.3" id="databaseconnector-243">DatabaseConnector 2.4.3<a class="anchor" aria-label="anchor" href="#databaseconnector-243"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding bulk upload for Hive.</li>
-</ol><p>Bugfixes:</p>
-<ol start="2" style="list-style-type: decimal"><li>Reducing batch size when performing CTAS hack on Hive to avoid error.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Adding bulk upload for Hive.</li></ol><p>Bugfixes:</p>
+<ol start="2" style="list-style-type: decimal"><li>Reducing batch size when performing CTAS hack on Hive to avoid error.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.2" id="databaseconnector-242">DatabaseConnector 2.4.2<small>2020-01-15</small><a class="anchor" aria-label="anchor" href="#databaseconnector-242"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>BigQuery insertTable now also uses CTAS hack for improved speed and avoiding insert size limitations.</li>
-</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>BigQuery insertTable now also uses CTAS hack for improved speed and avoiding insert size limitations.</li></ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Preventing scientific notation when bulk uploading to PDW to avoid error.</p></li>
 <li><p>Fixing null error when calling getSchemaNames for BigQuery.</p></li>
 </ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.1" id="databaseconnector-241">DatabaseConnector 2.4.1<small>2019-07-18</small><a class="anchor" aria-label="anchor" href="#databaseconnector-241"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.</li>
-</ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>No longer dropping ‘#’ prefix for temp table names when inserting data for RedShift.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>No longer dropping ‘#’ prefix for temp table names when inserting data for RedShift.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.0" id="databaseconnector-240">DatabaseConnector 2.4.0<a class="anchor" aria-label="anchor" href="#databaseconnector-240"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).</li>
-</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).</li></ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Not adding ‘#’ prefix when performing insert into RedShift.</p></li>
 <li><p>Disabling autocommit when sending updates to RedShift to prevent errors with new JDBC driver.</p></li>
 <li><p>Preventing ‘FeatureNotSupportedError’ from terminating query on platforms that do no support autocommit.</p></li>
@@ -216,13 +225,11 @@
 <li><p>Added support for inserting BIGINTs (large integers stored as numeric in R)</p></li>
 <li><p>Applying CTAS hack to improve insertion performance for RedShift (was already used for PDW)</p></li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Executing multi-statement SQL where one statement returns results no longer causes error.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Executing multi-statement SQL where one statement returns results no longer causes error.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.2.1" id="databaseconnector-221">DatabaseConnector 2.2.1<small>2018-11-25</small><a class="anchor" aria-label="anchor" href="#databaseconnector-221"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Now supporting proper insertion and extraction of DATETIME fields</li>
-</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Now supporting proper insertion and extraction of DATETIME fields</li></ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li>Closing output stream when writing to zip file to avoid orphan file locks</li>
 <li>Fixed the problem that Jar file is not detected when setting JDBC driver manually</li>
 </ol></div>
@@ -235,16 +242,14 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.4" id="databaseconnector-214">DatabaseConnector 2.1.4<small>2018-08-21</small><a class="anchor" aria-label="anchor" href="#databaseconnector-214"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Faster inserts by building batches in Java instead of R</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Faster inserts by building batches in Java instead of R</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.3" id="databaseconnector-213">DatabaseConnector 2.1.3<small>2018-06-28</small><a class="anchor" aria-label="anchor" href="#databaseconnector-213"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li>Updated to DBI specification 1.0</li>
 <li>Defaulting connect arguments to NULL to prevent missing argument warnings in RStudio</li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Now generating unique display names for RStudio’s Connections tab to prevent problems when opening two connections to the same server.</li>
-</ol></div>
+<ol style="list-style-type: decimal"><li>Now generating unique display names for RStudio’s Connections tab to prevent problems when opening two connections to the same server.</li></ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.2" id="databaseconnector-212">DatabaseConnector 2.1.2<small>2018-05-24</small><a class="anchor" aria-label="anchor" href="#databaseconnector-212"></a></h2>
 <p>Changes: initial submission to CRAN</p>
@@ -263,7 +268,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

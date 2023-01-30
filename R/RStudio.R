@@ -1,6 +1,6 @@
 # @file RStudio.R
 #
-# Copyright 2022 Observational Health Data Sciences and Informatics
+# Copyright 2023 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -76,7 +76,7 @@ unregisterWithRStudio <- function(connection) {
 }
 
 hasCatalogs <- function(connection) {
-  return(dbms(connection) %in% c("pdw", "sql server", "synapse", "postgresql", "redshift", "snowflake", "spark", "bigquery"))
+  return(dbms(connection) %in% c("pdw", "postgresql", "sql server", "synapse", "redshift", "snowflake", "spark", "bigquery"))
 }
 
 listDatabaseConnectorColumns <- function(connection,
@@ -141,6 +141,12 @@ listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connecti
                                                                         schema = NULL,
                                                                         table = NULL,
                                                                         ...) {
+  if (!is.null(schema)) {
+    table <- paste(schema, table, sep = ".")
+  }
+  if (!is.null(catalog)) {
+    table <- paste(catalog, table, sep = ".")
+  }
   res <- DBI::dbSendQuery(connection@dbiConnection, sprintf("SELECT * FROM %s LIMIT 0;", table))
   info <- dbColumnInfo(res)
   dbClearResult(res)
@@ -296,11 +302,23 @@ getSchemaNames.default <- function(conn, catalog = NULL) {
 }
 
 getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) {
-  return("main")
+  if (dbms(conn) %in% c("sqlite", "sqlite extended")) {
+    return("main")
+  } else if (dbms(conn) == "spark") {
+    schemas <- DBI::dbGetQuery(conn@dbiConnection, "SHOW DATABASES")
+    return(schemas[, 1])
+  } else {
+    schemas <- DBI::dbGetQuery(conn@dbiConnection, "SELECT schema_name FROM information_schema.schemata;")
+    return(schemas[, 1])
+  }
 }
 
-getCatalogs <- function(conn) {
-  metaData <- rJava::.jcall(conn@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+getCatalogs <- function(connection) {
+  UseMethod("getCatalogs", connection)
+}
+
+getCatalogs.default <- function(connection) {
+  metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   resultSet <- rJava::.jcall(metaData, "Ljava/sql/ResultSet;", "getCatalogs")
   on.exit(rJava::.jcall(resultSet, "V", "close"))
   schemas <- character()
@@ -309,4 +327,8 @@ getCatalogs <- function(conn) {
     catalogs <- c(catalogs, rJava::.jcall(resultSet, "S", "getString", "TABLE_CAT"))
   }
   return(catalogs)
+}
+
+getCatalogs.DatabaseConnectorDbiConnection <- function(connection) {
+  return(DBI::dbGetInfo(connection@dbiConnection)$dbname)
 }

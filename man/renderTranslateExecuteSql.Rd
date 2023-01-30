@@ -18,7 +18,8 @@ renderTranslateExecuteSql(
 )
 }
 \arguments{
-\item{connection}{The connection to the database server.}
+\item{connection}{The connection to the database server created using either
+\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
 
 \item{sql}{The SQL to be executed}
 
@@ -31,8 +32,8 @@ code.}
 \item{reportOverallTime}{When true, the function will display the overall time taken to execute
 all statements.}
 
-\item{errorReportFile}{The file where an error report will be written if an error occurs. Defaults to
-'errorReportSql.txt' in the current working directory.}
+\item{errorReportFile}{The file where an error report will be written if an error occurs.
+Defaults to 'errorReportSql.txt' in the current working directory.}
 
 \item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and
 executed there. This will be faster if you have many small SQL statements, but
@@ -52,8 +53,8 @@ can be created.}
 This function renders, translates, and executes SQL consisting of one or more statements.
 }
 \details{
-This function calls the \code{render} and \code{translate} functions in the SqlRender package before
-calling \code{\link{executeSql}}.
+This function calls the \code{render} and \code{translate} functions in the \code{SqlRender} package before
+calling \code{\link[=executeSql]{executeSql()}}.
 }
 \examples{
 \dontrun{

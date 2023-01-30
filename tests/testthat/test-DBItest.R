@@ -36,6 +36,5 @@ DBItest::test_getting_started(skip = c(
 
 
 DBItest::test_driver(skip = c(
-  "get_info_driver", # Need to implement dbGetInfo
   "connect_bigint.*" # Possibly need to fix bigint tests
 ))
