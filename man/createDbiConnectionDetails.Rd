@@ -32,5 +32,7 @@ include user, password, host, port, dbname, etc. For details see the appropriate
 A list with all the details needed to connect to a database.
 }
 \description{
-Create DBI connection details
+For advanced users only. This function will allow \code{DatabaseConnector} to wrap any DBI driver. Using a driver that
+\code{DatabaseConnector} hasn't been tested with may give unpredictable performance. Use at your own risk. No
+support will be provided.
 }

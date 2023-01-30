@@ -160,11 +160,12 @@ createConnectionDetails <- function(dbms,
 }
 
 
-# This function allows any DBI driver to be wrapped in a DatabaseConnector connection.
-# Currently not public, because I doubt that would be a good idea, as behavior of
-# unknown DBI drivers can be unpredictable.
-
 #' Create DBI connection details
+#' 
+#' @description 
+#' For advanced users only. This function will allow `DatabaseConnector` to wrap any DBI driver. Using a driver that 
+#' `DatabaseConnector` hasn't been tested with may give unpredictable performance. Use at your own risk. No
+#' support will be provided. 
 #'
 #' @template Dbms
 #' @param drv   An object that inherits from DBIDriver, or an existing DBIConnection object
@@ -175,6 +176,7 @@ createConnectionDetails <- function(dbms,
 #' @return
 #' A list with all the details needed to connect to a database.
 #'
+#' @export
 createDbiConnectionDetails <- function(dbms, drv, ...) {
   result <- list(...)
   result$dbms <- dbms

@@ -94,12 +94,12 @@ is created, or the data is appended to an existing table.</p>
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>connection</dt>
-<dd><p>The connection to the database server.</p></dd>
+<dd><p>The connection to the database server created using either
+<code><a href="connect.html">connect()</a></code> or <code>dbConnect()</code>.</p></dd>
 
 
 <dt>databaseSchema</dt>
-<dd><p>(Optional) The name of the database schema where the table should
-be located.</p></dd>
+<dd><p>The name of the database schema. See details for platform-specific details.</p></dd>
 
 
 <dt>tableName</dt>
@@ -153,7 +153,12 @@ are converted to snake_case before uploading.</p></dd>
 </dl></div>
     <div id="details">
     <h2>Details</h2>
-    <p>This function sends the data in a data frame to a table on the server. Either a new table is
+    <p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.</p>
+<p>This function sends the data in a data frame to a table on the server. Either a new table is
 created, or the data is appended to an existing table. NA values are inserted as null values in the
 database.</p>
 <p>Bulk uploading:</p>

@@ -92,7 +92,7 @@ dbplyr</h1>
                         <h4 data-toc-skip class="author">Martijn J.
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2023-01-12</h4>
+            <h4 data-toc-skip class="date">2023-01-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/DbiAndDbplyr.Rmd" class="external-link"><code>vignettes/DbiAndDbplyr.Rmd</code></a></small>
       <div class="hidden name"><code>DbiAndDbplyr.Rmd</code></div>
@@ -182,17 +182,25 @@ SqlRender:</p>
 <span>  <span class="fu">count</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">pull</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 1234</span></span></code></pre>
-<p>Because of <code>SqlRender</code> translation, we can even use
-non-standard SQL such as <code>DATEADD</code>:</p>
+<div class="section level3">
+<h3 id="date-functions">Date functions<a class="anchor" aria-label="anchor" href="#date-functions"></a>
+</h3>
+<p>The <code>dbplyr</code> package does not support date functions, but
+<code>DatabaseConnector</code> provides the <code><a href="../reference/dateDiff.html">dateDiff()</a></code>,
+<code><a href="../reference/dateAdd.html">dateAdd()</a></code>, <code><a href="../reference/eoMonth.html">eoMonth()</a></code>,
+<code><a href="../reference/dateFromParts.html">dateFromParts()</a></code>, <code><a href="../reference/year.html">year()</a></code>, <code><a href="../reference/month.html">month()</a></code>,
+and <code><a href="../reference/day.html">day()</a></code> functions that will correctly translate to
+various data platforms:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">observationPeriod</span> <span class="op">&lt;-</span> <span class="fu">tbl</span><span class="op">(</span><span class="va">connection</span>, <span class="fu"><a href="../reference/inDatabaseSchema.html">inDatabaseSchema</a></span><span class="op">(</span><span class="st">"cdmv5"</span>, <span class="st">"observation_period"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">observationPeriod</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>    <span class="fu">datediff</span><span class="op">(</span><span class="va">day</span>, <span class="va">observation_period_start_date</span>, <span class="va">observation_period_end_date</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">365</span></span>
+<span>    <span class="fu"><a href="../reference/dateDiff.html">dateDiff</a></span><span class="op">(</span><span class="st">"day"</span>, <span class="va">observation_period_start_date</span>, <span class="va">observation_period_end_date</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">365</span></span>
 <span>  <span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">count</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">pull</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 987</span></span></code></pre>
+</div>
 <div class="section level3">
 <h3 id="allowed-table-and-field-names-in-dbplyr">Allowed table and field names in dbplyr<a class="anchor" aria-label="anchor" href="#allowed-table-and-field-names-in-dbplyr"></a>
 </h3>

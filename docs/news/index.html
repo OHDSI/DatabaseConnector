@@ -81,6 +81,7 @@
 <li><p>Supporting external tables on RedShift.</p></li>
 <li><p>Adding support for ODBC connections to Spark.</p></li>
 <li><p>Querying to Andromeda when using a DBI driver (instead of a JDBC driver) now also uses batching to avoid running out of memory.</p></li>
+<li><p>Adding <code>appendToTable</code> argument to <code><a href="../reference/querySqlToAndromeda.html">querySqlToAndromeda()</a></code>, <code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code>, and <code><a href="../reference/lowLevelQuerySqlToAndromeda.html">lowLevelQuerySqlToAndromeda()</a></code>.</p></li>
 </ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li>Fix error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> and all column names require quotes.</li>
 </ol></div>

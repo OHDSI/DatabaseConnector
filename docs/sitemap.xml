@@ -61,6 +61,9 @@
     <loc>/reference/DatabaseConnectorDbiConnection-class.html</loc>
   </url>
   <url>
+    <loc>/reference/DatabaseConnectorDbiResult-class.html</loc>
+  </url>
+  <url>
     <loc>/reference/DatabaseConnectorDriver-class.html</loc>
   </url>
   <url>
@@ -70,7 +73,22 @@
     <loc>/reference/DatabaseConnectorJdbcConnection-class.html</loc>
   </url>
   <url>
+    <loc>/reference/DatabaseConnectorJdbcResult-class.html</loc>
+  </url>
+  <url>
     <loc>/reference/DatabaseConnectorResult-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dateAdd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dateDiff.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dateFromParts.html</loc>
+  </url>
+  <url>
+    <loc>/reference/day.html</loc>
   </url>
   <url>
     <loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
@@ -175,6 +193,9 @@
     <loc>/reference/dropEmulatedTempTables.html</loc>
   </url>
   <url>
+    <loc>/reference/eoMonth.html</loc>
+  </url>
+  <url>
     <loc>/reference/executeSql.html</loc>
   </url>
   <url>
@@ -220,6 +241,9 @@
     <loc>/reference/Microsoft-SQL-Server-class.html</loc>
   </url>
   <url>
+    <loc>/reference/month.html</loc>
+  </url>
+  <url>
     <loc>/reference/querySql.ffdf.html</loc>
   </url>
   <url>
@@ -251,5 +275,8 @@
   </url>
   <url>
     <loc>/reference/show-DatabaseConnectorDriver-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/year.html</loc>
   </url>
 </urlset>

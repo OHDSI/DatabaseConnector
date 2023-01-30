@@ -1,4 +1,4 @@
-This update includes 12 changes and 1 bugfix (see NEWS.md)
+This update includes 13 changes and 1 bugfix (see NEWS.md)
 
 ---
 
@@ -14,4 +14,4 @@ There were no ERRORs or WARNINGs.
 
 ## Downstream dependencies
 
-There are no downstream dependencies
+DatabaseConnector is used by CDMConnector, which was tested with this new version. No issues were found.

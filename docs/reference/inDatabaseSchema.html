@@ -78,8 +78,7 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>databaseSchema</dt>
-<dd><p>The name of the database schema. For example, for SQL Server this can 
-be 'cdm.dbo'.</p></dd>
+<dd><p>The name of the database schema. See details for platform-specific details.</p></dd>
 
 
 <dt>table</dt>
@@ -91,6 +90,14 @@ be 'cdm.dbo'.</p></dd>
     
 
 <p>An object representing the table and database schema.</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.</p>
     </div>
 
   </div>
