@@ -1,3 +1,41 @@
+DatabaseConnector 6.0.0
+=======================
+
+Changes:
+
+1. Complete overhaul of DBI interface. DBI functions now apply translation to all incoming SQL, thus making the DatabaseConnector DBI interface an interface to a virtual database platform speaking OHDSISql as defined in `SqlRender`. This should aid write once - execute everywhere code development. It also allows using `dbplyr` with `DatabaseConnector`.
+
+2. Adding `requiresTempEmulation()` and `assertTempEmulationSchemaSet()` functions.
+
+3. The `dropEmulatedTempTables()` function can be called on all platforms (it doesn't do anything on platforms not requiring temp table emulation).
+
+4. Ensuring `dbms()`, `insertTable()`, `renderTranslateExecuteSql()`, `renderTranslateQuerySql()`, and `renderTranslateQuerySqlToAndromeda()` functions work with connection pool objects.
+
+5. Adding logging at 'TRACE' level for performance profiling using the `ParallelLogger` package. Use `options(LOG_DATABASECONNECTOR_SQL = TRUE)` to enable. The query times can be automatically extracted using the new `extractQueryTimes()` function.
+
+6. Adding the `computeDataHash()` function.
+
+7. The `inserTable()` function now converts logical fields to integer fields (and throws a warning if it does so).
+
+8. The `dbListTables()` and `getTableNames()` functions return results in lowercase instead of uppercase for consistency with DBI functions. 
+
+9. Throwing informative error if user calls `createConnectionDetails()` with credential arguments that cannot be evaluated in a multi-threading setting.
+
+10. Supporting external tables on RedShift.
+
+11. Adding support for ODBC connections to Spark.
+
+12. Querying to Andromeda when using a DBI driver (instead of a JDBC driver) now also uses batching to avoid running out of memory.
+
+13. Adding `appendToTable` argument to `querySqlToAndromeda()`, `renderTranslateQuerySqlToAndromeda()`, and `lowLevelQuerySqlToAndromeda()`.
+
+
+
+Bugfixes:
+
+1. Fix error when calling `insertTable()` and all column names require quotes.
+
+
 DatabaseConnector 5.1.0
 =======================
 

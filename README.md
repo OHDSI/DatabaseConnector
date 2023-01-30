@@ -33,7 +33,8 @@ Features
   - Multiple statements per query
 - Support for fetching data to Andromeda objects
 - Insert data frame to a database table
-- Supports the DBI interface
+- Supports the `DBI` interface, with SQL statements automatically translated to the appropriate dialect.
+- Supports the `dbplyr` interface.
 - Integrates with RStudio's Connections tab
 
 
@@ -44,8 +45,7 @@ Examples
 connectionDetails <- createConnectionDetails(dbms="postgresql", 
                                              server="localhost",
                                              user="root",
-                                             password="blah",
-                                             schema="cdm_v4")
+                                             password="blah")
 conn <- connect(connectionDetails)
 querySql(conn,"SELECT COUNT(*) FROM person")
 disconnect(conn)
@@ -55,7 +55,7 @@ disconnect(conn)
 Technology
 ============
 
-DatabaseConnector is an R package using Java's JDBC drivers. 
+DatabaseConnector is an R package using Java's JDBC drivers and other DBI drivers. 
 
 
 System Requirements
@@ -87,6 +87,7 @@ PDF versions of the documentation are also available:
 
 * Vignette: [Connecting to a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Connecting.pdf)
 * Vignette: [Querying a database](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/Querying.pdf)
+* Vignette: [Using DatabaseConnector through DBI and dbplyr](https://github.com/OHDSI/DatabaseConnector/raw/main/inst/doc/DbiAndDbplyr.pdf)
 * Package manual: [DatabaseConnector manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/DatabaseConnector.pdf) 
 
 

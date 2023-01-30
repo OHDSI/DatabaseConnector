@@ -7,6 +7,9 @@
     <loc>/articles/Connecting.html</loc>
   </url>
   <url>
+    <loc>/articles/DbiAndDbplyr.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
@@ -28,10 +31,19 @@
     <loc>/pull_request_template.html</loc>
   </url>
   <url>
+    <loc>/reference/assertTempEmulationSchemaSet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/computeDataHash.html</loc>
+  </url>
+  <url>
     <loc>/reference/connect.html</loc>
   </url>
   <url>
     <loc>/reference/createConnectionDetails.html</loc>
+  </url>
+  <url>
+    <loc>/reference/createDbiConnectionDetails.html</loc>
   </url>
   <url>
     <loc>/reference/createZipFile.html</loc>
@@ -49,6 +61,9 @@
     <loc>/reference/DatabaseConnectorDbiConnection-class.html</loc>
   </url>
   <url>
+    <loc>/reference/DatabaseConnectorDbiResult-class.html</loc>
+  </url>
+  <url>
     <loc>/reference/DatabaseConnectorDriver-class.html</loc>
   </url>
   <url>
@@ -58,7 +73,22 @@
     <loc>/reference/DatabaseConnectorJdbcConnection-class.html</loc>
   </url>
   <url>
+    <loc>/reference/DatabaseConnectorJdbcResult-class.html</loc>
+  </url>
+  <url>
     <loc>/reference/DatabaseConnectorResult-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dateAdd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dateDiff.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dateFromParts.html</loc>
+  </url>
+  <url>
+    <loc>/reference/day.html</loc>
   </url>
   <url>
     <loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
@@ -86,6 +116,9 @@
   </url>
   <url>
     <loc>/reference/dbFetch-DatabaseConnectorResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetInfo-DatabaseConnectorDriver-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbGetQuery-DatabaseConnectorConnection-character-method.html</loc>
@@ -160,16 +193,25 @@
     <loc>/reference/dropEmulatedTempTables.html</loc>
   </url>
   <url>
+    <loc>/reference/eoMonth.html</loc>
+  </url>
+  <url>
     <loc>/reference/executeSql.html</loc>
   </url>
   <url>
     <loc>/reference/existsTable.html</loc>
   </url>
   <url>
+    <loc>/reference/extractQueryTimes.html</loc>
+  </url>
+  <url>
     <loc>/reference/getAvailableJavaHeapSpace.html</loc>
   </url>
   <url>
     <loc>/reference/getTableNames.html</loc>
+  </url>
+  <url>
+    <loc>/reference/inDatabaseSchema.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -196,6 +238,12 @@
     <loc>/reference/lowLevelQuerySqlToAndromeda.html</loc>
   </url>
   <url>
+    <loc>/reference/Microsoft-SQL-Server-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/month.html</loc>
+  </url>
+  <url>
     <loc>/reference/querySql.ffdf.html</loc>
   </url>
   <url>
@@ -220,9 +268,15 @@
     <loc>/reference/renderTranslateQuerySqlToAndromeda.html</loc>
   </url>
   <url>
+    <loc>/reference/requiresTempEmulation.html</loc>
+  </url>
+  <url>
     <loc>/reference/show-DatabaseConnectorConnection-method.html</loc>
   </url>
   <url>
     <loc>/reference/show-DatabaseConnectorDriver-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/year.html</loc>
   </url>
 </urlset>

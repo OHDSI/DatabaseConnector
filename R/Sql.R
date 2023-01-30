@@ -1,6 +1,6 @@
 # @file Sql.R
 #
-# Copyright 2022 Observational Health Data Sciences and Informatics
+# Copyright 2023 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -99,7 +99,7 @@ parseJdbcColumnData <- function(content,
   
   columns <- vector("list", length(columnTypes))
   
-  for (i in seq.int(length(columnTypes))) {
+  for (i in seq_len(length(columnTypes))) {
     if (columnTypes[i] == 1) {
       column <- rJava::.jcall(
         content,
@@ -165,17 +165,14 @@ parseJdbcColumnData <- function(content,
 #' Low level function for retrieving data to a data frame
 #'
 #' @description
-#' This is the equivalent of the \code{\link{querySql}} function, except no error report is written
+#' This is the equivalent of the [querySql()] function, except no error report is written
 #' when an error occurs.
 #'
-#' @param connection      The connection to the database server.
+#' @template Connection
 #' @param query           The SQL statement to retrieve the data
 #' @param datesAsString   Logical: Should dates be imported as character vectors, our should they be converted
 #'                        to R's date format?
-#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
-#'                          32-bit integers will be represented using R's native \code{Integer} class.
-#' @param integer64AsNumeric Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                          64-bit integers will be represented using \code{bit64::integer64}.
+#' @template IntegerAsNumeric
 #'
 #' @details
 #' Retrieves data from the database server and stores it in a data frame. Null values in the database are converted
@@ -203,6 +200,9 @@ lowLevelQuerySql.default <- function(connection,
     abort("Connection is closed")
   }
   
+  logTrace(paste("Querying SQL:", truncateSql(query)))
+  startTime <- Sys.time()
+
   batchedQuery <- rJava::.jnew(
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
@@ -228,6 +228,8 @@ lowLevelQuerySql.default <- function(connection,
     
     columns <- rbind(columns, batch)
   }
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
   return(columns)
 }
 
@@ -237,21 +239,26 @@ lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection,
                                                             datesAsString = FALSE,
                                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
+  logTrace(paste("Querying SQL:", truncateSql(query)))
+  startTime <- Sys.time()
+  
   columns <- DBI::dbGetQuery(connection@dbiConnection, query)
   if (integerAsNumeric) {
-    for (i in seq.int(ncol(columns))) {
+    for (i in seq_len(ncol(columns))) {
       if (is(columns[[i]], "integer")) {
         columns[[i]] <- as.numeric(columns[[i]])
       }
     }
   }
   if (integer64AsNumeric) {
-    for (i in seq.int(ncol(columns))) {
+    for (i in seq_len(ncol(columns))) {
       if (is(columns[[i]], "integer64")) {
         columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
       }
     }
   }
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
   return(columns)
 }
 
@@ -260,7 +267,7 @@ lowLevelQuerySql.DatabaseConnectorDbiConnection <- function(connection,
 #' @description
 #' This function executes a single SQL statement.
 #'
-#' @param connection   The connection to the database server.
+#' @template Connection
 #' @param sql          The SQL to be executed
 #'
 #' @export
@@ -310,6 +317,9 @@ delayIfNecessaryForInsert <- function(sql) {
 
 #' @export
 lowLevelExecuteSql.default <- function(connection, sql) {
+  logTrace(paste("Executing SQL:", truncateSql(sql)))
+  startTime <- Sys.time()
+  
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
   hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
@@ -323,12 +333,22 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   if (!hasResultSet) {
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
   }
+  
+  delta <- Sys.time() - startTime
+  logTrace(paste("Executing SQL took", delta, attr(delta, "units")))
   invisible(rowsAffected)
 }
 
 #' @export
 lowLevelExecuteSql.DatabaseConnectorDbiConnection <- function(connection, sql) {
+  logTrace(paste("Executing SQL:", truncateSql(sql)))
+  startTime <- Sys.time()
+  
   rowsAffected <- DBI::dbExecute(connection@dbiConnection, sql)
+  
+  delta <- Sys.time() - startTime
+  logTrace(paste("Executing SQL took", delta, attr(delta, "units")))
+  
   invisible(rowsAffected)
 }
 
@@ -360,7 +380,7 @@ supportsBatchUpdates <- function(connection) {
 #' @description
 #' This function executes SQL consisting of one or more statements.
 #'
-#' @param connection          The connection to the database server.
+#' @template Connection
 #' @param sql                 The SQL to be executed
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
@@ -368,8 +388,7 @@ supportsBatchUpdates <- function(connection) {
 #'                            code.
 #' @param reportOverallTime   When true, the function will display the overall time taken to execute
 #'                            all statements.
-#' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
-#'                            'errorReportSql.txt' in the current working directory.
+#' @template ErrorReportFile
 #' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and
 #'                            executed there. This will be faster if you have many small SQL statements, but
 #'                            there will be no progress bar, and no per-statement error messages. If the
@@ -400,7 +419,7 @@ supportsBatchUpdates <- function(connection) {
 executeSql <- function(connection,
                        sql,
                        profile = FALSE,
-                       progressBar = TRUE,
+                       progressBar = !as.logical(Sys.getenv("TESTTHAT", unset = FALSE)),
                        reportOverallTime = TRUE,
                        errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                        runAsBatch = FALSE) {
@@ -437,12 +456,16 @@ executeSql <- function(connection,
       if (profile) {
         SqlRender::writeSql(paste(batchSql, collapse = "\n\n"), sprintf("statements_%s_%s.sql", start, end))
       }
+      logTrace(paste("Executing SQL:", truncateSql(batchSql)))
       tryCatch(
         {
           startQuery <- Sys.time()
           rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
           delta <- Sys.time() - startQuery
-          inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
+          if (profile) {
+            inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
+          }
+          logTrace(paste("Statements took", delta, attr(delta, "units")))
         },
         error = function(err) {
           .createErrorReport(dbms(connection), err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
@@ -468,8 +491,8 @@ executeSql <- function(connection,
         {
           startQuery <- Sys.time()
           lowLevelExecuteSql(connection, sqlStatement)
+          delta <- Sys.time() - startQuery
           if (profile) {
-            delta <- Sys.time() - startQuery
             inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
           }
         },
@@ -502,17 +525,17 @@ executeSql <- function(connection,
 convertFields <- function(dbms, result) {
   if (dbms == "impala") {
     for (colname in colnames(result)) {
-      if (grepl("DATE", colname)) {
+      if (grepl("DATE$", colname, ignore.case = TRUE)) {
         result[[colname]] <- as.Date(result[[colname]], "%Y-%m-%d")
       }
     }
   }
   if (dbms == "sqlite") {
     for (colname in colnames(result)) {
-      if (grepl("DATE$", colname)) {
+      if (grepl("DATE$", colname, ignore.case = TRUE)) {
         result[[colname]] <- as.Date(as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT"))
       }
-      if (grepl("DATETIME$", colname)) {
+      if (grepl("DATETIME$", colname, ignore.case = TRUE)) {
         result[[colname]] <- as.POSIXct(as.numeric(result[[colname]]), origin = "1970-01-01", tz = "GMT")
       }
     }
@@ -550,15 +573,11 @@ trySettingAutoCommit <- function(connection, value) {
 #' @description
 #' This function sends SQL to the server, and returns the results.
 #'
-#' @param connection           The connection to the database server.
+#' @template Connection
 #' @param sql                  The SQL to be send.
-#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
-#'                             'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
-#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
-#'                          32-bit integers will be represented using R's native \code{Integer} class.
-#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                             64-bit integers will be represented using \code{bit64::integer64}.
+#' @template ErrorReportFile
+#' @template SnakeCaseToCamelCase
+#' @template IntegerAsNumeric
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
@@ -591,6 +610,7 @@ querySql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
+
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {
@@ -626,7 +646,7 @@ querySql <- function(connection,
 #' @description
 #' This function renders, translates, and executes SQL consisting of one or more statements.
 #'
-#' @param connection          The connection to the database server.
+#' @template Connection
 #' @param sql                 The SQL to be executed
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
@@ -634,8 +654,7 @@ querySql <- function(connection,
 #'                            code.
 #' @param reportOverallTime   When true, the function will display the overall time taken to execute
 #'                            all statements.
-#' @param errorReportFile     The file where an error report will be written if an error occurs. Defaults to
-#'                            'errorReportSql.txt' in the current working directory.
+#' @template ErrorReportFile
 #' @param runAsBatch          When true the SQL statements are sent to the server as a single batch, and
 #'                            executed there. This will be faster if you have many small SQL statements, but
 #'                            there will be no progress bar, and no per-statement error messages. If the
@@ -645,8 +664,8 @@ querySql <- function(connection,
 #' @param ...                 Parameters that will be used to render the SQL.
 #'
 #' @details
-#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
-#' calling \code{\link{executeSql}}.
+#' This function calls the `render` and `translate` functions in the `SqlRender` package before
+#' calling [executeSql()].
 #'
 #' @examples
 #' \dontrun{
@@ -675,6 +694,10 @@ renderTranslateExecuteSql <- function(connection,
                                       oracleTempSchema = NULL,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
@@ -700,21 +723,17 @@ renderTranslateExecuteSql <- function(connection,
 #' @description
 #' This function renders, and translates SQL, sends it to the server, and returns the results as a data.frame.
 #'
-#' @param connection           The connection to the database server.
+#' @template Connection
 #' @param sql                  The SQL to be send.
-#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
-#'                             'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
+#' @template ErrorReportFile
+#' @template SnakeCaseToCamelCase
 #' @template TempEmulationSchema
-#' @param integerAsNumeric Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
-#'                          32-bit integers will be represented using R's native \code{Integer} class.
-#' @param integer64AsNumeric  Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                            64-bit integers will be represented using \code{bit64::integer64}.
+#' @template IntegerAsNumeric
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
-#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
-#' calling \code{\link{querySql}}.
+#' This function calls the `render` and `translate` functions in the `SqlRender` package before
+#' calling [querySql()].
 #'
 #' @return
 #' A data frame.
@@ -745,6 +764,10 @@ renderTranslateQuerySql <- function(connection,
                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                     ...) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
   if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
     warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
          .frequency = "regularly",
@@ -800,25 +823,19 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE) {
 #'
 #' The batch sizes are determined by the java virtual machine and will depend on the data.
 #'
-#' @param connection           The connection to the database server.
+#' @template Connection
 #' @param sql                  The SQL to be send.
 #' @param fun                  Function to apply to batch. Must take data.frame and integer position as parameters.
 #' @param args                 List of arguments to be passed to function call.
-#' @param errorReportFile      The file where an error report will be written if an error occurs. Defaults to
-#'                             'errorReportSql.txt' in the current working directory.
-#' @param snakeCaseToCamelCase If true, field names are assumed to use snake_case, and are converted to camelCase.
-#' @param tempEmulationSchema  Some database platforms like Oracle and Impala do not truly support temp tables. To
-#'                             emulate temp tables, provide a schema with write privileges where temp tables
-#'                             can be created.
-#' @param integerAsNumeric     Logical: should 32-bit integers be converted to numeric (double) values? If FALSE
-#'                             32-bit integers will be represented using R's native \code{Integer} class.
-#' @param integer64AsNumeric   Logical: should 64-bit integers be converted to numeric (double) values? If FALSE
-#'                             64-bit integers will be represented using \code{bit64::integer64}.
+#' @template ErrorReportFile
+#' @template SnakeCaseToCamelCase
+#' @template TempEmulationSchema
+#' @template IntegerAsNumeric
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
-#' This function calls the \code{render} and \code{translate} functions in the SqlRender package before
-#' calling \code{\link{querySql}}.
+#' This function calls the `render` and `translate` functions in the `SqlRender` package before
+#' calling [querySql()].
 #'
 #' @return
 #' Invisibly returns a list of outputs from each call to the provided function.
@@ -876,6 +893,7 @@ renderTranslateQueryApplyBatched <- function(connection,
                                              args = list(),
                                              errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                              snakeCaseToCamelCase = FALSE,
+                                             oracleTempSchema = NULL,
                                              tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                              integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                              integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -890,12 +908,20 @@ renderTranslateQueryApplyBatched.default <- function(connection,
                                                      args = list(),
                                                      errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                                      snakeCaseToCamelCase = FALSE,
+                                                     oracleTempSchema = NULL,
                                                      tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                      integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                                      ...) {
   if (!is.function(fun)) {
     abort("fun argument must be a function")
+  }
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema"
+    )
+    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -951,12 +977,20 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
                                                                             args = list(),
                                                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                                                             snakeCaseToCamelCase = FALSE,
+                                                                            oracleTempSchema = NULL,
                                                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                                                             ...) {
   if (!is.function(fun)) {
     abort("fun argument must be a function")
+  }
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
+         .frequency = "regularly",
+         .frequency_id = "oracleTempSchema"
+    )
+    tempEmulationSchema <- oracleTempSchema
   }
   
   sql <- SqlRender::render(sql, ...)
@@ -988,12 +1022,12 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
 #' Drop all emulated temp tables.
 #'
 #' @description
-#' On some DBMSs, like Oracle and BigQuery, \code{DatabaseConnector} through \code{SqlRender} emulates temp tables
+#' On some DBMSs, like Oracle and BigQuery, `DatabaseConnector` through `SqlRender` emulates temp tables
 #' in a schema provided by the user. Ideally, these tables are deleted by the application / R script creating them,
 #' but for various reasons orphan temp tables may remain. This function drops all emulated temp tables created in this
 #' session only.
 #'
-#' @param connection           The connection to the database server.
+#' @template Connection
 #' @param tempEmulationSchema  Some database platforms like Oracle and Impala do not truly support temp tables. To
 #'                             emulate temp tables, provide a schema with write privileges where temp tables
 #'                             can be created.
@@ -1004,6 +1038,14 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
 #' @export
 dropEmulatedTempTables <- function(connection,
                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (is(connection, "Pool")) {
+    connection <- pool::poolCheckout(connection)
+    on.exit(pool::poolReturn(connection))
+  }
+  if (!requiresTempEmulation(dbms(connection))) {
+    # No temp tables emulated: do nothing
+    return()
+  }
   if (is.null(tempEmulationSchema))
     abort("The `tempEmulationSchema` must be specified.")
   prefix <- SqlRender::getTempTablePrefix()
@@ -1012,9 +1054,58 @@ dropEmulatedTempTables <- function(connection,
   if (length(tableNames) > 0) {
     inform(sprintf("Dropping tables '%s' from schema '%s'.", paste(tableNames, collapse = "', '"), tempEmulationSchema))
     tableNames <- tolower(paste(tempEmulationSchema, tableNames, sep = "."))
-    sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    if (dbms(connection) == "spark") {
+      sql <- paste(sprintf("DROP TABLE %s;", tableNames), collapse = "\n")
+    } else {
+      sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", tableNames, tableNames), collapse = "\n")
+    }
     sql <- SqlRender::translate(sql, dbms(connection))
     executeSql(connection, sql)
   }
-  return(tableNames)
+  invisible(tableNames)
+}
+
+#' Does the DBMS require temp table emulation?
+#'
+#' @param dbms The type of DBMS running on the server. See [connect()] or [createConnectionDetails()] for 
+#' valid values.
+#'
+#' @return
+#' TRUE if the DBMS requires temp table emulation, FALSE otherwise.
+#'
+#' @examples
+#' requiresTempEmulation("postgresql")
+#' requiresTempEmulation("oracle")
+#' 
+#' @export
+requiresTempEmulation <- function(dbms){
+  return(dbms %in% c("oracle", "spark", "impala", "bigquery", "snowflake"))
+}
+
+#' Assert the temp emulation schema is set
+#'
+#' @description 
+#' Asserts the temp emulation schema is set for DBMSs requiring temp table emulation. 
+#' 
+#' If you know your code uses temp tables, it is a good idea to call this function first,
+#' so it can throw an informative error if the user forgot to set the temp emulation schema.
+#' 
+#' @param dbms                The type of DBMS running on the server. See [connect()] or 
+#'                            [createConnectionDetails()] for valid values.
+#' @param tempEmulationSchema The temp emulation schema specified by the user. 
+#'
+#' @return
+#' Does not return anything. Throws an error if the DBMS requires temp emulation but the 
+#' temp emulation schema is not set.
+#' 
+#' @export
+assertTempEmulationSchemaSet <- function(dbms,
+                                         tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
+  if (requiresTempEmulation(dbms) && (is.null(tempEmulationSchema) || tempEmulationSchema == "")) {
+    rlang::abort(c(
+      sprintf("Temp table emulation is required for %s but the temp emulation schema is not set.", dbms),
+      "i" = "Please use options(sqlRenderTempEmulationSchema = \"some_schema\") to specify a schema where you have write access."
+    ))
+  }
+  invisible(NULL)
 }

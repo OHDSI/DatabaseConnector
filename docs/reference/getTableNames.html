@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">5.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
       </span>
     </div>
 
@@ -33,6 +33,9 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/Connecting.html">Connecting to a database</a>
+    </li>
+    <li>
+      <a href="../articles/DbiAndDbplyr.html">Using DatabaseConnector through DBI and dbplyr</a>
     </li>
     <li>
       <a href="../articles/Querying.html">Querying a database</a>
@@ -69,25 +72,30 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getTableNames</span><span class="op">(</span><span class="va">connection</span>, <span class="va">databaseSchema</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getTableNames</span><span class="op">(</span><span class="va">connection</span>, databaseSchema <span class="op">=</span> <span class="cn">NULL</span>, cast <span class="op">=</span> <span class="st">"lower"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>connection</dt>
-<dd><p>The connection to the database server.</p></dd>
+<dd><p>The connection to the database server created using either
+<code><a href="connect.html">connect()</a></code> or <code>dbConnect()</code>.</p></dd>
 
 
 <dt>databaseSchema</dt>
 <dd><p>The name of the database schema. See details for platform-specific details.</p></dd>
+
+
+<dt>cast</dt>
+<dd><p>Should the table names be cast to uppercase or lowercase before being returned?
+Valid options are "upper" , "lower" (default), "none" (no casting is done)</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
 
-<p>A character vector of table names. To ensure consistency across platforms, these table names are in
-upper case.</p>
+<p>A character vector of table names.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -110,7 +118,7 @@ specify the schema.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

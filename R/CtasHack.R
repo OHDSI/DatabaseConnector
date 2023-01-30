@@ -1,6 +1,6 @@
 # @file CtasHack.R
 #
-# Copyright 2022 Observational Health Data Sciences and Informatics
+# Copyright 2023 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -83,6 +83,13 @@ formatRow <- function(data, aliases = c(), castValues, sqlDataTypes) {
 }
 
 ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema) {
+  logTrace(sprintf("Inserting %d rows into table '%s' using CTAS hack", nrow(data), sqlTableName))
+  
+  assign("noLogging", TRUE, envir = globalVars)
+  on.exit(
+    assign("noLogging", NULL, envir = globalVars)
+  )
+  startTime <- Sys.time()
   if (dbms(connection) == "hive") {
     batchSize <- 750
   } else {
@@ -168,4 +175,6 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
     tempTable = tempTable,
     tempEmulationSchema = tempEmulationSchema
   )
+  delta <- Sys.time() - startTime
+  inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
 }
