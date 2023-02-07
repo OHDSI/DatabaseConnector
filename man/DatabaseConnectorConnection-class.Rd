@@ -139,6 +139,7 @@ connection.
 This should include views and temporary objects, but not all database backends
 (in particular \pkg{RMariaDB} and \pkg{RMySQL}) support this.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListTables")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

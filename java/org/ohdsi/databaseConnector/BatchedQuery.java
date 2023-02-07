@@ -20,6 +20,7 @@ public class BatchedQuery {
 	public static int				INTEGER64		= 5;
 	public static int				INTEGER			= 6;
 	public static int				FETCH_SIZE		= 2048;
+	public static double            MAX_BATCH_SIZE  = 1000000;
 	private static SimpleDateFormat	DATE_FORMAT		= new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
@@ -70,7 +71,7 @@ public class BatchedQuery {
 				bytesPerRow += 512;
 			else
 				bytesPerRow += 24;
-		batchSize = (int) Math.round((available / 10d) / (double) bytesPerRow);
+		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((available / 10d) / (double) bytesPerRow));
 		columns = new Object[columnTypes.length];
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)

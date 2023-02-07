@@ -1,3 +1,11 @@
+DatabaseConnector 6.0.1
+=======================
+
+Bugfixes:
+
+1. Fixed `capacity < 0` error message when using a large Java heap space.
+
+
 DatabaseConnector 6.0.0
 =======================
 
