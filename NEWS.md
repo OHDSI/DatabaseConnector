@@ -5,6 +5,8 @@ Bugfixes:
 
 1. Fixed `capacity < 0` error message when using a large Java heap space.
 
+2. Fixed 'optional feature not supported' error when connecting to DataBricks using JDBC.
+
 
 DatabaseConnector 6.0.0
 =======================

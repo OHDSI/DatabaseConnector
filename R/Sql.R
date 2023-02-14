@@ -207,7 +207,8 @@ lowLevelQuerySql.default <- function(connection,
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
     query,
-    dbms(connection)
+    dbms(connection),
+    supportsAutoCommit(dbms(connection))
   )
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
@@ -428,9 +429,10 @@ executeSql <- function(connection,
   }
   
   startTime <- Sys.time()
+  dbms <- dbms(connection)
   
   if (inherits(connection, "DatabaseConnectorJdbcConnection") &&
-      dbms(connection) == "redshift" &&
+      dbms == "redshift" &&
       rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     # Turn off autocommit for RedShift to avoid this issue:
     # https://github.com/OHDSI/DatabaseConnector/issues/90
@@ -468,7 +470,7 @@ executeSql <- function(connection,
           logTrace(paste("Statements took", delta, attr(delta, "units")))
         },
         error = function(err) {
-          .createErrorReport(dbms(connection), err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
+          .createErrorReport(dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
         },
         finally = {
           rJava::.jcall(statement, "V", "close")
@@ -497,7 +499,7 @@ executeSql <- function(connection,
           }
         },
         error = function(err) {
-          .createErrorReport(dbms(connection), err$message, sqlStatement, errorReportFile)
+          .createErrorReport(dbms, err$message, sqlStatement, errorReportFile)
         }
       )
       if (progressBar) {
@@ -509,7 +511,8 @@ executeSql <- function(connection,
     }
   }
   
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
+  if (inherits(connection, "DatabaseConnectorJdbcConnection") && 
+      (!supportsAutoCommit(dbms) || !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit"))) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
   
@@ -610,7 +613,6 @@ querySql <- function(connection,
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
-
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {

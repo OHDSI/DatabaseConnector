@@ -35,6 +35,7 @@ public class BatchedQuery {
 	private Connection				connection;
 	private boolean					done;
 	private ByteBuffer				byteBuffer;
+	private boolean                 supportsAutoCommit;
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
@@ -89,6 +90,8 @@ public class BatchedQuery {
 	}
 	
 	private void trySettingAutoCommit(boolean value) throws SQLException {
+		if (!supportsAutoCommit)
+			return;
 		try {
 			connection.setAutoCommit(value);
 		} catch (SQLFeatureNotSupportedException  exception) {
@@ -96,9 +99,10 @@ public class BatchedQuery {
 		}
 	}
 	
-	public BatchedQuery(Connection connection, String query, String dbms) throws SQLException {
+	public BatchedQuery(Connection connection, String query, String dbms, boolean supportsAutoCommit) throws SQLException {
 		this.connection = connection;
-		if (connection.getAutoCommit())
+		this.supportsAutoCommit = supportsAutoCommit;
+		if (supportsAutoCommit && connection.getAutoCommit())
 			trySettingAutoCommit(false);
 		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		statement.setFetchSize(FETCH_SIZE);

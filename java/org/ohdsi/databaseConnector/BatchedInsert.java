@@ -23,16 +23,20 @@ public class BatchedInsert {
 	private int				columnCount;
 	private int				rowCount;
 	private String			sql;
+	private boolean         supportsAutoCommit;
 	
-	public BatchedInsert(Connection connection, String sql, int columnCount) throws SQLException {
+	public BatchedInsert(Connection connection, String sql, int columnCount, boolean supportsAutoCommit) throws SQLException {
 		this.connection = connection;
 		this.sql = sql;
 		this.columnCount = columnCount;
+		this.supportsAutoCommit = supportsAutoCommit;
 		columns = new Object[columnCount];
 		columnTypes = new int[columnCount];
 	}
 	
 	private void trySettingAutoCommit(boolean value) throws SQLException  {
+		if (!supportsAutoCommit)
+			return;
 		try {
 			connection.setAutoCommit(value);
 		} catch (SQLFeatureNotSupportedException exception) {

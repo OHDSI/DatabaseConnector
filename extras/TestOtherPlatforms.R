@@ -41,6 +41,30 @@ connectionDetailsSparkOdbc <- createConnectionDetails(
 cdmDatabaseSchemaSpark <- "eunomia"
 scratchDatabaseSchemaSpark <- "eunomia"
 
+# DataBricks
+connectionDetailsDataBricksJdbc <- createConnectionDetails(
+  dbms = "spark",
+  connectionString = keyring::key_get("dataBricksConnectionString"),
+  user = keyring::key_get("dataBricksUser"),
+  password = keyring::key_get("dataBricksPassword")
+)
+connectionDetailsDataBricksOdbc <- createConnectionDetails(
+  dbms = "spark",
+  server = keyring::key_get("dataBricksServer"),
+  port = keyring::key_get("dataBricksPort"),
+  user = keyring::key_get("dataBricksUser"),
+  password = keyring::key_get("dataBricksPassword"),
+  extraSettings = list(
+    HTTPPath = keyring::key_get("dataBricksHttpPath"),
+    SSL = 1,
+    ThriftTransport = 2,
+    AuthMech = 3
+    )
+)
+cdmDatabaseSchemaDataBricks <- "eunomia"
+scratchDatabaseSchemaDataBricks <- "eunomia"
+
+
 # Open and close connection -----------------------------------------------
 
 # BigQuery
@@ -50,6 +74,15 @@ expect_true(disconnect(connection))
 
 # Azure
 connection <- connect(connectionDetailsAzure)
+expect_true(inherits(connection, "DatabaseConnectorConnection"))
+expect_true(disconnect(connection))
+
+# DataBricks
+connection <- connect(connectionDetailsDataBricksJdbc)
+expect_true(inherits(connection, "DatabaseConnectorConnection"))
+expect_true(disconnect(connection))
+
+connection <- connect(connectionDetailsDataBricksOdbc)
 expect_true(inherits(connection, "DatabaseConnectorConnection"))
 expect_true(disconnect(connection))
 
@@ -97,6 +130,46 @@ expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 63)
 disconnect(connection)
 
 
+# DataBricks JDBC
+connection <- connect(connectionDetailsDataBricksJdbc)
+renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchemaDataBricks)
+
+# Fetch data.frame:
+count <- querySql(connection, renderedSql)
+expect_equal(count[1, 1], 125)
+count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchemaDataBricks)
+expect_equal(count[1, 1], 125)
+
+# Fetch Andromeda:
+andromeda <- Andromeda::andromeda()
+querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 125)
+renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchemaDataBricks, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 125)
+
+disconnect(connection)
+
+
+# DataBricks ODBC
+connection <- connect(connectionDetailsDataBricksOdbc)
+renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchemaDataBricks)
+
+# Fetch data.frame:
+count <- querySql(connection, renderedSql)
+expect_equal(count[1, 1], 125)
+count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchemaDataBricks)
+expect_equal(count[1, 1], 125)
+
+# Fetch Andromeda:
+andromeda <- Andromeda::andromeda()
+querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 125)
+renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchemaDataBricks, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 125)
+
+disconnect(connection)
+
+
 # Get table names ----------------------------------------------------------------------
 
 # BigQuery
@@ -111,6 +184,16 @@ tables <- getTableNames(connection, cdmDatabaseSchemaAzure)
 expect_true("person" %in% tables)
 disconnect(connection)
 
+# DataBricks
+connection <- connect(connectionDetailsDataBricksJdbc)
+tables <- getTableNames(connection, cdmDatabaseSchemaDataBricks)
+expect_true("person" %in% tables)
+disconnect(connection)
+
+connection <- connect(connectionDetailsDataBricksOdbc)
+tables <- getTableNames(connection, cdmDatabaseSchemaDataBricks)
+expect_true("person" %in% tables)
+disconnect(connection)
 
 # insertTable ---------------------------------------------------------------------------------
 set.seed(0)
@@ -208,6 +291,68 @@ executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.in
 disconnect(connection)
 
 
+# DataBricks
+connection <- connect(connectionDetailsDataBricksJdbc)
+insertTable(connection = connection,
+            tableName = paste(scratchDatabaseSchemaDataBricks, "insert_test", sep= "."),
+            data = data,
+            createTable = TRUE,
+            tempTable = FALSE)
+
+# Check data on server is same as local
+data2 <- renderTranslateQuerySql(
+  connection = connection, 
+  sql = "SELECT * FROM @scratch_database_schema.insert_test", 
+  scratch_database_schema = scratchDatabaseSchemaAzure,
+  integer64AsNumeric = FALSE)
+names(data2) <- tolower(names(data2))
+data <- data[order(data$person_id), ]
+data2 <- data2[order(data2$person_id), ]
+row.names(data) <- NULL
+row.names(data2) <- NULL
+expect_equal(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
+
+# Check data types
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+columnInfo <- dbColumnInfo(res)
+dbClearResult(res)
+expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+
+disconnect(connection)
+
+
+connection <- connect(connectionDetailsDataBricksOdbc)
+insertTable(connection = connection,
+            tableName = paste(scratchDatabaseSchemaDataBricks, "insert_test", sep= "."),
+            data = data,
+            createTable = TRUE,
+            tempTable = FALSE)
+
+# Check data on server is same as local
+data2 <- renderTranslateQuerySql(
+  connection = connection, 
+  sql = "SELECT * FROM @scratch_database_schema.insert_test", 
+  scratch_database_schema = scratchDatabaseSchemaAzure,
+  integer64AsNumeric = FALSE)
+names(data2) <- tolower(names(data2))
+data <- data[order(data$person_id), ]
+data2 <- data2[order(data2$person_id), ]
+row.names(data) <- NULL
+row.names(data2) <- NULL
+expect_equal(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
+
+# Check data types
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+columnInfo <- dbColumnInfo(res)
+dbClearResult(res)
+expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+
+disconnect(connection)
+
 # Test dropEmulatedTempTables ----------------------------------------------
 
 # BigQuery
@@ -240,6 +385,19 @@ hash <- computeDataHash(connection = connection,
 expect_true(is.character(hash))
 disconnect(connection)
 
+# DataBricks
+connection <- connect(connectionDetailsDataBricksJdbc)
+hash <- computeDataHash(connection = connection,
+                        databaseSchema = cdmDatabaseSchemaDataBricks)
+expect_true(is.character(hash))
+disconnect(connection)
+
+connection <- connect(connectionDetailsDataBricksOdbc)
+hash <- computeDataHash(connection = connection,
+                        databaseSchema = cdmDatabaseSchemaDataBricks)
+expect_true(is.character(hash))
+disconnect(connection)
+
 # Test dbplyr ------------------------------------------------------------------
 
 source("tests/testthat/dbplyrTestFunction.R")
@@ -252,6 +410,19 @@ testDbplyrFunctions(connectionDetails = connectionDetailsBigQuery,
 # Azure
 testDbplyrFunctions(connectionDetails = connectionDetailsAzure, 
                     cdmDatabaseSchema = cdmDatabaseSchemaAzure)
+
+# DataBricks
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaDataBricks)
+testDbplyrFunctions(connectionDetails = connectionDetailsDataBricksJdbc, 
+                    cdmDatabaseSchema = cdmDatabaseSchemaDataBricks)
+
+testDbplyrFunctions(connectionDetails = connectionDetailsDataBricksOdbc, 
+                    cdmDatabaseSchema = cdmDatabaseSchemaDataBricks)
+
+
+
+
+
 
 # Spark
 connectionDetails <- createConnectionDetails(dbms = "spark",
