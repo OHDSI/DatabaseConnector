@@ -7,6 +7,8 @@ Bugfixes:
 
 2. Fixed 'optional feature not supported' error when connecting to DataBricks using JDBC.
 
+3. Fixed `insertTable()` on Snowflake when data includes `POSIXct` type.
+
 
 DatabaseConnector 6.0.0
 =======================

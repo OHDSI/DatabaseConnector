@@ -62,8 +62,17 @@ connectionDetailsDataBricksOdbc <- createConnectionDetails(
     )
 )
 cdmDatabaseSchemaDataBricks <- "eunomia"
-scratchDatabaseSchemaDataBricks <- "eunomia"
+scratchDatabaseSchemaDataBricks <- "scratch"
 
+# Snowflake
+connectionDetailsSnowflake <- createConnectionDetails(
+  dbms = "snowflake",
+  connectionString = keyring::key_get("snowflakeConnectionString"),
+  user = keyring::key_get("snowflakeUser"),
+  password = keyring::key_get("snowflakePassword")
+)
+cdmDatabaseSchemaSnowflake <- "ohdsi.eunomia"
+scratchDatabaseSchemaSnowflake <- "ohdsi.scratch"
 
 # Open and close connection -----------------------------------------------
 
@@ -83,6 +92,11 @@ expect_true(inherits(connection, "DatabaseConnectorConnection"))
 expect_true(disconnect(connection))
 
 connection <- connect(connectionDetailsDataBricksOdbc)
+expect_true(inherits(connection, "DatabaseConnectorConnection"))
+expect_true(disconnect(connection))
+
+# Snowflake
+connection <- connect(connectionDetailsSnowflake)
 expect_true(inherits(connection, "DatabaseConnectorConnection"))
 expect_true(disconnect(connection))
 
@@ -170,6 +184,26 @@ expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 125)
 disconnect(connection)
 
 
+# Snowflake
+connection <- connect(connectionDetailsSnowflake)
+renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchemaSnowflake)
+
+# Fetch data.frame:
+count <- querySql(connection, renderedSql)
+expect_equal(count[1, 1], 125)
+count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchemaSnowflake)
+expect_equal(count[1, 1], 125)
+
+# Fetch Andromeda:
+andromeda <- Andromeda::andromeda()
+querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 125)
+renderTranslateQuerySqlToAndromeda(connection, sql, cdm_database_schema = cdmDatabaseSchemaSnowflake, andromeda = andromeda, andromedaTableName = "test2", snakeCaseToCamelCase = TRUE)
+expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 125)
+
+disconnect(connection)
+
+
 # Get table names ----------------------------------------------------------------------
 
 # BigQuery
@@ -192,6 +226,12 @@ disconnect(connection)
 
 connection <- connect(connectionDetailsDataBricksOdbc)
 tables <- getTableNames(connection, cdmDatabaseSchemaDataBricks)
+expect_true("person" %in% tables)
+disconnect(connection)
+
+# Snowflake
+connection <- connect(connectionDetailsSnowflake)
+tables <- getTableNames(connection, cdmDatabaseSchemaSnowflake)
 expect_true("person" %in% tables)
 disconnect(connection)
 
@@ -291,10 +331,11 @@ executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.in
 disconnect(connection)
 
 
-# DataBricks
+# DataBricks JDBC
 connection <- connect(connectionDetailsDataBricksJdbc)
 insertTable(connection = connection,
-            tableName = paste(scratchDatabaseSchemaDataBricks, "insert_test", sep= "."),
+            databaseSchema = scratchDatabaseSchemaDataBricks,
+            tableName ="insert_test",
             data = data,
             createTable = TRUE,
             tempTable = FALSE)
@@ -323,9 +364,11 @@ executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.in
 disconnect(connection)
 
 
+# DataBricks ODBC
 connection <- connect(connectionDetailsDataBricksOdbc)
 insertTable(connection = connection,
-            tableName = paste(scratchDatabaseSchemaDataBricks, "insert_test", sep= "."),
+            databaseSchema = scratchDatabaseSchemaDataBricks,
+            tableName = "insert_test",
             data = data,
             createTable = TRUE,
             tempTable = FALSE)
@@ -350,6 +393,39 @@ dbClearResult(res)
 expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
 
 executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+
+disconnect(connection)
+
+
+# Snowflake
+connection <- connect(connectionDetailsSnowflake)
+
+insertTable(connection = connection,
+            tableName = paste(scratchDatabaseSchemaSnowflake, "insert_test", sep= "."),
+            data = data,
+            createTable = TRUE,
+            tempTable = FALSE)
+
+# Check data on server is same as local
+data2 <- renderTranslateQuerySql(
+  connection = connection, 
+  sql = "SELECT * FROM @scratch_database_schema.insert_test", 
+  scratch_database_schema = scratchDatabaseSchemaSnowflake,
+  integer64AsNumeric = FALSE)
+names(data2) <- tolower(names(data2))
+data <- data[order(data$big_ints), ]
+data2 <- data2[order(data2$big_ints), ]
+row.names(data) <- NULL
+row.names(data2) <- NULL
+expect_equal(data, data2) # Currently failing because of weird timestamp bug, probably in JDBC driver
+
+# Check data types
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaSnowflake))
+columnInfo <- dbColumnInfo(res)
+dbClearResult(res)
+expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER"))
+
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaSnowflake))
 
 disconnect(connection)
 
@@ -365,7 +441,20 @@ insertTable(connection = connection,
             tempEmulationSchema = scratchDatabaseSchemaBigQuery)
 
 droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = scratchDatabaseSchemaBigQuery)
-expect_equal(droppedTables, sprintf("%s.%stemp", tempEmulationSchema, SqlRender::getTempTablePrefix()))
+expect_equal(droppedTables, sprintf("%s.%stemp", scratchDatabaseSchemaBigQuery, SqlRender::getTempTablePrefix()))
+disconnect(connection)
+
+# Snowflake
+connection <- connect(connectionDetailsSnowflake)
+insertTable(connection = connection,
+            tableName = "temp",
+            data = cars,
+            createTable = TRUE,
+            tempTable = TRUE,
+            tempEmulationSchema = scratchDatabaseSchemaSnowflake)
+
+droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = scratchDatabaseSchemaSnowflake)
+expect_equal(droppedTables, sprintf("%s.%stemp", scratchDatabaseSchemaSnowflake, SqlRender::getTempTablePrefix()))
 disconnect(connection)
 
 
@@ -398,6 +487,13 @@ hash <- computeDataHash(connection = connection,
 expect_true(is.character(hash))
 disconnect(connection)
 
+# Snowflake
+connection <- connect(connectionDetailsSnowflake)
+hash <- computeDataHash(connection = connection,
+                        databaseSchema = cdmDatabaseSchemaSnowflake)
+expect_true(is.character(hash))
+disconnect(connection)
+
 # Test dbplyr ------------------------------------------------------------------
 
 source("tests/testthat/dbplyrTestFunction.R")
@@ -419,9 +515,10 @@ testDbplyrFunctions(connectionDetails = connectionDetailsDataBricksJdbc,
 testDbplyrFunctions(connectionDetails = connectionDetailsDataBricksOdbc, 
                     cdmDatabaseSchema = cdmDatabaseSchemaDataBricks)
 
-
-
-
+# Snowflake
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaSnowflake)
+testDbplyrFunctions(connectionDetails = connectionDetailsSnowflake, 
+                    cdmDatabaseSchema = cdmDatabaseSchemaSnowflake)
 
 
 # Spark
@@ -442,15 +539,7 @@ connectionDetails <- createConnectionDetails(dbms = "spark",
 
 
 
-# connectionDetails <- DatabaseConnector:::createDbiConnectionDetails(
-#   dbms = "spark",
-#   drv = odbc::odbc(),
-#   Driver = "Simba Spark ODBC Driver",
-#   Host = keyring::key_get("sparkServer"),
-#   uid = keyring::key_get("sparkUser"),
-#   pwd = keyring::key_get("sparkPassword"),
-#   Port = keyring::key_get("sparkPort")
-# )
+
 
 connection <- connect(connectionDetails)
 insertTable(
@@ -478,6 +567,18 @@ getTableNames(connection, "eunomia")
 # Use pure ODBC:
 db <- DBI::dbConnect(odbc::odbc(),
                      Driver = "Simba Spark ODBC Driver",
+                     Host = keyring::key_get("dataBricksServer"),
+                     uid = keyring::key_get("dataBricksUser"),
+                     pwd = keyring::key_get("dataBricksPassword"),
+                     UseNativeQuery = 1,
+                     HTTPPath = keyring::key_get("dataBricksHttpPath"),
+                     SSL = 1,
+                     ThriftTransport = 2,
+                     AuthMech = 3,
+                     Port = keyring::key_get("dataBricksPort"))
+
+db <- DBI::dbConnect(odbc::odbc(),
+                     Driver = "Simba Spark ODBC Driver",
                      Host = keyring::key_get("sparkServer"),
                      uid = keyring::key_get("sparkUser"),
                      pwd = keyring::key_get("sparkPassword"),
@@ -493,6 +594,11 @@ DBI::dbExecute(db, "USE eunomia;")
 DBI::dbExecute(db, "DROP TABLE \"test\";")
 DBI::dbListTables(db, schema = "eunomia")
 DBI::dbGetQuery(db, "SELECT * FROM eunomia.person LIMIT 1;")
+
+DBI::dbExecute(db, "DROP TABLE scratch.test;")
+DBI::dbWriteTable(db, DBI::Id(schema = "scratch", table = "test"), cars)
+
+
 
 DBI::dbDisconnect(db)
 

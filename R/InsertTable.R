@@ -358,7 +358,7 @@ insertTable.default <- function(connection,
           } else if (is.numeric(column)) {
             rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
           } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
-            rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
+            rJava::.jcall(batchedInsert, "V", "setDateTime", i, format(column, format="%Y-%m-%d %H:%M:%S"))
           } else if (is(column, "Date")) {
             rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
           } else {

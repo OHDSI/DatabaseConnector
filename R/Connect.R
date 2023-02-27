@@ -636,14 +636,22 @@ connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
   jarPath <- findPathToJar("^SparkJDBC42\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
+  connectionString <- connectionDetails$connectionString()
+  if (is.null(connectionString) || connectionString == "") {
     abort("Error: Connection string required for connecting to Spark.")
   }
+  if (!grepl("UseNativeQuery", connectionString)) {
+    if (!endsWith(connectionString, ";")) {
+      connectionString <- paste0(connectionString, ";")
+    }
+    connectionString <- paste0(connectionString, "UseNativeQuery=1")
+  }
   if (is.null(connectionDetails$user())) {
-    connection <- connectUsingJdbcDriver(driver, connectionDetails$connectionString(), dbms = connectionDetails$dbms)
+    connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {
-    connection <- connectUsingJdbcDriver(driver,
-      connectionDetails$connectionString(),
+    connection <- connectUsingJdbcDriver(
+      jdbcDriver = driver,
+      url = connectionString,
       user = connectionDetails$user(),
       password = connectionDetails$password(),
       dbms = connectionDetails$dbms
