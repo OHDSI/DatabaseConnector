@@ -27,11 +27,11 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   longestObsPeriod <- observationPeriod %>%
     mutate(duration = dateDiff("day", observation_period_start_date, observation_period_end_date)) %>%
     arrange(desc(duration)) %>%
-    relocate(duration) %>%
+    # relocate(duration) %>% # relocate of field containing custom function no longer works in dbplr 2.3.1.
     head(1) %>%
     collect()
   expect_gt(longestObsPeriod$duration, 1)
-  expect_equal(which(names(longestObsPeriod) == "duration"), 1)
+  # expect_equal(which(names(longestObsPeriod) == "duration"), 1)
   
   topAges <- person %>%
     inner_join(observationPeriod, by = "person_id") %>%
