@@ -9,6 +9,8 @@ Bugfixes:
 
 3. Fixed `insertTable()` on Snowflake when data includes `POSIXct` type.
 
+4. Fixed 'out of Java heap space' when fetching data with (large) strings. This is achieved by checking the available Java heap space at every 10,000 rows, stopping the batch when less than half is still available. Additionally, all strings from the previous batch are de-referenced before starting a new batch.
+
 
 DatabaseConnector 6.0.0
 =======================

@@ -226,7 +226,6 @@ lowLevelQuerySql.default <- function(connection,
                                  integer64AsNumeric = integer64AsNumeric,
                                  integerAsNumeric = integerAsNumeric
     )
-    
     columns <- rbind(columns, batch)
   }
   delta <- Sys.time() - startTime

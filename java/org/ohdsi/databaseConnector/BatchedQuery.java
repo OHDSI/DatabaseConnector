@@ -21,6 +21,7 @@ public class BatchedQuery {
 	public static int				INTEGER			= 6;
 	public static int				FETCH_SIZE		= 2048;
 	public static double            MAX_BATCH_SIZE  = 1000000;
+	public static long              CHECK_MEM_ROWS  = 10000;
 	private static SimpleDateFormat	DATE_FORMAT		= new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
@@ -36,6 +37,7 @@ public class BatchedQuery {
 	private boolean					done;
 	private ByteBuffer				byteBuffer;
 	private boolean                 supportsAutoCommit;
+	private long                    availableMemoryAtStart;
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
@@ -54,12 +56,17 @@ public class BatchedQuery {
 	}
 	
 	public static double getAvailableHeapSpace() {
-		System.gc();
+		return(getAvailableHeapSpace(true));
+	}
+	
+	private static long getAvailableHeapSpace(boolean collectGarbage) {
+		if (collectGarbage)
+			System.gc();
 		return Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
 	}
 	
 	private void reserveMemory() {
-		double available = getAvailableHeapSpace();
+		availableMemoryAtStart = getAvailableHeapSpace(true);
 		int bytesPerRow = 0;
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
@@ -72,7 +79,7 @@ public class BatchedQuery {
 				bytesPerRow += 512;
 			else
 				bytesPerRow += 24;
-		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((available / 10d) / (double) bytesPerRow));
+		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
 		columns = new Object[columnTypes.length];
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
@@ -87,6 +94,15 @@ public class BatchedQuery {
 				columns[columnIndex] = new String[batchSize];
 		byteBuffer = ByteBuffer.allocate(8 * batchSize);
 		rowCount = 0;
+	}
+
+	private void cleanUpStrings() {
+		for (int columnIndex = 0; columnIndex < columns.length; columnIndex++) 
+			if (columnTypes[columnIndex] == STRING) {
+				String[] column = ((String[]) columns[columnIndex]);
+				for (int i = 0; i < column.length; i++) 
+					column[i] = null;
+			}
 	}
 	
 	private void trySettingAutoCommit(boolean value) throws SQLException {
@@ -141,42 +157,51 @@ public class BatchedQuery {
 	}
 	
 	public void fetchBatch() throws SQLException {
+		cleanUpStrings();
 		rowCount = 0;
-		while (rowCount < batchSize && resultSet.next()) {
-			for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
-				if (columnTypes[columnIndex] == NUMERIC) {
-					((double[]) columns[columnIndex])[rowCount] = resultSet.getDouble(columnIndex + 1);
-					if (resultSet.wasNull())
-						((double[]) columns[columnIndex])[rowCount] = Double.NaN;
-				} else if (columnTypes[columnIndex] == INTEGER64) {
-					((long[]) columns[columnIndex])[rowCount] = resultSet.getLong(columnIndex + 1);
-					if (resultSet.wasNull())
-						((long[]) columns[columnIndex])[rowCount] = Long.MIN_VALUE;
-				} else if (columnTypes[columnIndex] == INTEGER) {
-					((int[]) columns[columnIndex])[rowCount] = resultSet.getInt(columnIndex + 1);
-					if (resultSet.wasNull())
-						((int[]) columns[columnIndex])[rowCount] = Integer.MIN_VALUE;
-				} else if (columnTypes[columnIndex] == STRING)
-					((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
-				else if (columnTypes[columnIndex] == DATE) {
-					Date date = resultSet.getDate(columnIndex + 1);
-					if (date == null)
-						((String[]) columns[columnIndex])[rowCount] = null;
-					else
-						((String[]) columns[columnIndex])[rowCount] = DATE_FORMAT.format(date);
-				} else {
-					Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
-					if (timestamp == null)
-						((String[]) columns[columnIndex])[rowCount] = null;
-					else
-						((String[]) columns[columnIndex])[rowCount] = DATETIME_FORMAT.format(timestamp);
-					
+		while (rowCount < batchSize) {
+			if (resultSet.next()) {
+				for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
+					if (columnTypes[columnIndex] == NUMERIC) {
+						((double[]) columns[columnIndex])[rowCount] = resultSet.getDouble(columnIndex + 1);
+						if (resultSet.wasNull())
+							((double[]) columns[columnIndex])[rowCount] = Double.NaN;
+					} else if (columnTypes[columnIndex] == INTEGER64) {
+						((long[]) columns[columnIndex])[rowCount] = resultSet.getLong(columnIndex + 1);
+						if (resultSet.wasNull())
+							((long[]) columns[columnIndex])[rowCount] = Long.MIN_VALUE;
+					} else if (columnTypes[columnIndex] == INTEGER) {
+						((int[]) columns[columnIndex])[rowCount] = resultSet.getInt(columnIndex + 1);
+						if (resultSet.wasNull())
+							((int[]) columns[columnIndex])[rowCount] = Integer.MIN_VALUE;
+					} else if (columnTypes[columnIndex] == STRING)
+						((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
+					else if (columnTypes[columnIndex] == DATE) {
+						Date date = resultSet.getDate(columnIndex + 1);
+						if (date == null)
+							((String[]) columns[columnIndex])[rowCount] = null;
+						else
+							((String[]) columns[columnIndex])[rowCount] = DATE_FORMAT.format(date);
+					} else {
+						Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
+						if (timestamp == null)
+							((String[]) columns[columnIndex])[rowCount] = null;
+						else
+							((String[]) columns[columnIndex])[rowCount] = DATETIME_FORMAT.format(timestamp);
+
+					}
+				rowCount++;
+				if (rowCount % CHECK_MEM_ROWS == 0) {
+					if (getAvailableHeapSpace(false) < availableMemoryAtStart / 2)
+						if (getAvailableHeapSpace(true) < availableMemoryAtStart / 2)
+							break;
 				}
-			rowCount++;
-		}
-		if (rowCount < batchSize) {
-			done = true;
-			trySettingAutoCommit(true);
+			} else {
+				done = true;
+				trySettingAutoCommit(true);
+				break;
+			}
+
 		}
 		totalRowCount += rowCount;
 	}
