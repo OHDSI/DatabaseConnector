@@ -691,13 +691,15 @@ connectSnowflake <- function(connectionDetails) {
     abort("Error: Connection string required for connecting to Snowflake.")
   }
   if (is.null(connectionDetails$user())) {
-    connection <- connectUsingJdbcDriver(driver, connectionDetails$connectionString(), dbms = connectionDetails$dbms)
+    connection <- connectUsingJdbcDriver(driver, connectionDetails$connectionString(), dbms = connectionDetails$dbms,
+                    "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ")
   } else {
     connection <- connectUsingJdbcDriver(driver,
       connectionDetails$connectionString(),
       user = connectionDetails$user(),
       password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
+      dbms = connectionDetails$dbms,
+      "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ"
     )
   }
   return(connection)
