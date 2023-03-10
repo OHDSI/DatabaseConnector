@@ -336,6 +336,7 @@ insertTable.default <- function(connection,
       batchedInsert <- rJava::.jnew(
         "org.ohdsi.databaseConnector.BatchedInsert",
         connection@jConnection,
+        connection@dbms,
         insertSql,
         ncol(data),
         supportsAutoCommit(dbms)
