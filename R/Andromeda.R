@@ -263,21 +263,6 @@ querySqlToAndromeda <- function(connection,
         integerAsNumeric = integerAsNumeric,
         integer64AsNumeric = integer64AsNumeric
       )
-      # if (inherits(andromeda, "SQLiteConnection")) {
-      #   columnNames <- colnames(andromeda[[andromedaTableName]])
-      #   if (snakeCaseToCamelCase) {
-      #     newColumnNames <- SqlRender::snakeCaseToCamelCase(columnNames)
-      #   } else {
-      #     newColumnNames <- toupper(columnNames)
-      #   }
-      #   names(andromeda[[andromedaTableName]]) <- newColumnNames
-      # } else {
-      #   if (snakeCaseToCamelCase) {
-      #     andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], SqlRender::snakeCaseToCamelCase)
-      #   } else {
-      #     andromeda[[andromedaTableName]] <- dplyr::rename_with(andromeda[[andromedaTableName]], toupper)
-      #   }
-      # }
       invisible(andromeda)
     },
     error = function(err) {

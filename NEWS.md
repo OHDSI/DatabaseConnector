@@ -17,6 +17,8 @@ Bugfixes:
 
 5. Fixing DATETIME shifts on Snowflake.
 
+6. Fixing unit tests for upcoming Andromeda version (using arrow instead of SQLite).
+
 
 DatabaseConnector 6.0.0
 =======================

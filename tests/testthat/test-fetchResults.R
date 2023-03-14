@@ -36,12 +36,8 @@ test_that("Fetch results", {
                                      snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
-  if (inherits(andromeda, "SQLiteConnection")) {
-    Andromeda::close(andromeda)
-  } else {
-    close(andromeda)
-  }
-  
+  Andromeda::close(andromeda)
+
   disconnect(connection)
   
   # SQL Server --------------------------------------
@@ -73,12 +69,8 @@ test_that("Fetch results", {
                                      snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-  if (inherits(andromeda, "SQLiteConnection")) {
-    Andromeda::close(andromeda)
-  } else {
-    close(andromeda)
-  }
-  
+  Andromeda::close(andromeda)
+
   disconnect(connection)
   
   # Oracle ---------------------------------------
@@ -143,12 +135,8 @@ test_that("Fetch results", {
                                      snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
-  if (inherits(andromeda, "SQLiteConnection")) {
-    Andromeda::close(andromeda)
-  } else {
-    close(andromeda)
-  }
-  
+  Andromeda::close(andromeda)
+
   disconnect(connection)
   
   # RedShift ----------------------------------------------
@@ -180,12 +168,8 @@ test_that("Fetch results", {
                                      snakeCaseToCamelCase = TRUE
   )
   expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 91)
-  if (inherits(andromeda, "SQLiteConnection")) {
-    Andromeda::close(andromeda)
-  } else {
-    close(andromeda)
-  }
-  
+  Andromeda::close(andromeda)
+
   disconnect(connection)
   
   # SQLite --------------------------------------------------
@@ -216,12 +200,8 @@ test_that("Fetch results", {
   querySqlToAndromeda(connection, "SELECT * FROM main.person;", andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
   expect_equivalent(nrow(dplyr::collect(andromeda$test)), 100)
   
-  if (inherits(andromeda, "SQLiteConnection")) {
-    Andromeda::close(andromeda)
-  } else {
-    close(andromeda)
-  }
-  
+  Andromeda::close(andromeda)
+
   disconnect(connection)
   unlink(databaseFile)  
   
