@@ -1,5 +1,9 @@
-DatabaseConnector 6.0.1
+DatabaseConnector 6.1.0
 =======================
+
+Changes:
+
+1. Adding support for DuckDb
 
 Bugfixes:
 
@@ -10,6 +14,8 @@ Bugfixes:
 3. Fixed `insertTable()` on Snowflake when data includes `POSIXct` type.
 
 4. Fixed 'out of Java heap space' when fetching data with (large) strings. This is achieved by checking the available Java heap space at every 10,000 rows, stopping the batch when less than half is still available. Additionally, all strings from the previous batch are de-referenced before starting a new batch.
+
+5. Fixing DATETIME shifts on Snowflake.
 
 
 DatabaseConnector 6.0.0

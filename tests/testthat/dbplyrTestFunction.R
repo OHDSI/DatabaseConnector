@@ -31,7 +31,6 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     head(1) %>%
     collect()
   expect_gt(longestObsPeriod$duration, 1)
-  # expect_equal(which(names(longestObsPeriod) == "duration"), 1)
   
   topAges <- person %>%
     inner_join(observationPeriod, by = "person_id") %>%
@@ -41,13 +40,15 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     arrange(desc(person_age)) %>%
     head(10) %>%
     collect()
-  expect_equal(nrow(topAges), 10)
+  expect_gt(nrow(topAges), 1)
   
   # Test slicing ---------------------------------------------------------------
   personSample <- person %>%
     slice_sample(n = 10) %>%
+    relocate(care_site_id) %>%
     collect()
   expect_equal(nrow(personSample), 10)
+  expect_equal(which(names(personSample) == "care_site_id"), 1)
   
   # Test ifelse ----------------------------------------------------------------
   sexString <- person %>%

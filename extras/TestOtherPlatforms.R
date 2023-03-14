@@ -413,11 +413,11 @@ data2 <- renderTranslateQuerySql(
   scratch_database_schema = scratchDatabaseSchemaSnowflake,
   integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
-data <- data[order(data$big_ints), ]
-data2 <- data2[order(data2$big_ints), ]
+data <- data[order(data$value), ]
+data2 <- data2[order(data2$value), ]
 row.names(data) <- NULL
 row.names(data2) <- NULL
-expect_equal(data, data2) # Currently failing because of weird timestamp bug, probably in JDBC driver
+expect_equal(data, data2) 
 
 # Check data types
 res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaSnowflake))
@@ -537,11 +537,29 @@ connectionDetails <- createConnectionDetails(dbms = "spark",
                                              user = keyring::key_get("sparkUser"),
                                              password = keyring::key_get("sparkPassword"))
 
+# DataQualityDashboard ---------------------------------------------------------
+
+DataQualityDashboard::executeDqChecks(
+  connectionDetails = connectionDetailsBigQuery,
+  cdmDatabaseSchema = cdmDatabaseSchemaBigQuery,
+  resultsDatabaseSchema = scratchDatabaseSchemaBigQuery,
+  cdmSourceName = "Synpuf",
+  outputFolder = "d:/temp/dqd",
+  outputFile = "d:/temp/dqd/output.txt",
+  writeToTable = FALSE
+)
 
 
 
 
-connection <- connect(connectionDetails)
+
+
+# Random stuff -----------------------------------------------------------------
+
+connection <- connect(connectionDetailsBigQuery)
+
+querySql(connection, "SELECT * FROM synpuf_2m.cdm_source;")
+
 insertTable(
   connection = connection,
   databaseSchema = "eunomia",

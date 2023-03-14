@@ -79,4 +79,31 @@ test_that("Compute data hash", {
   
   disconnect(connection)
   unlink(dbFile)
+  
+  # DuckDB --------------------------------------------------------------------
+  dbFile <- tempfile(fileext = "duckdb")
+  details <- createConnectionDetails(
+    dbms = "duckdb",
+    server = dbFile
+  )
+  connection <- connect(details)
+  DatabaseConnector::insertTable(
+    connection = connection,
+    databaseSchema = "main",
+    tableName = "cars",
+    data = cars,
+    createTable = TRUE
+  )
+  DatabaseConnector::insertTable(
+    connection = connection,
+    databaseSchema = "main",
+    tableName = "iris",
+    data = iris,
+    createTable = TRUE
+  )
+  hash <- computeDataHash(connection, "main")
+  expect_true(is.character(hash))
+  
+  disconnect(connection)
+  unlink(dbFile)
 })

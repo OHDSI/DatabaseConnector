@@ -67,7 +67,41 @@ test_that("Test dbplyr on SQLite", {
     data = data.frame(person_id = seq_len(100), 
                       year_of_birth = round(runif(100, 1900, 2000)),
                       race_concept_id = as.numeric(NA),
-                      gender_concept_id = rep(c(8507, 8532), 50))
+                      gender_concept_id = rep(c(8507, 8532), 50),
+                      care_site_id = round(runif(100, 1, 1e7)))
+  )
+  insertTable(
+    connection = connection,
+    databaseSchema = cdmDatabaseSchema,
+    tableName = "observation_period",
+    data = data.frame(person_id = seq_len(100), 
+                      observation_period_start_date = rep(as.Date("2000-01-01"), 100),
+                      observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50),
+                      period_type_concept_id = rep(0, 100))
+  )
+  disconnect(connection)
+  testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
+  unlink(databaseFile)  
+})
+
+test_that("Test dbplyr on DuckDB", {
+  # SQLite -------------------------------------------------
+  databaseFile <- tempfile(fileext = ".duckdb")
+  cdmDatabaseSchema <- "main"
+  connectionDetails <- createConnectionDetails(
+    dbms = "duckdb",
+    server = databaseFile
+  )
+  connection <- connect(connectionDetails)
+  insertTable(
+    connection = connection,
+    databaseSchema = cdmDatabaseSchema,
+    tableName = "person",
+    data = data.frame(person_id = seq_len(100), 
+                      year_of_birth = round(runif(100, 1900, 2000)),
+                      race_concept_id = as.numeric(NA),
+                      gender_concept_id = rep(c(8507, 8532), 50),
+                      care_site_id = round(runif(100, 1, 1e7)))
   )
   insertTable(
     connection = connection,

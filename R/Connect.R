@@ -280,6 +280,8 @@ connect <- function(connectionDetails = NULL,
     
     if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
       connectSqlite(connectionDetails)
+    } else if (connectionDetails$dbms == "duckdb") {
+      connectDuckdb(connectionDetails)
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
       connectSparkUsingOdbc(connectionDetails)
     } else {
@@ -780,17 +782,17 @@ connectUsingDbi <- function(dbiConnectionDetails) {
   return(connection)
 }
 
-connectUsingDuckdb <- function(server) {
-  dbiConnection <- DBI::dbConnect(duckdb::duckdb(), dbdir = server)
-  connection <- new("DatabaseConnectorDbiConnection",
-                    server = server,
-                    dbiConnection = dbiConnection,
-                    identifierQuote = "'",
-                    stringQuote = "'",
-                    dbms = "duckdb",
-                    uuid = generateRandomString()
+connectDuckdb <- function(connectionDetails) {
+  inform("Connecting using DuckDB driver")
+  ensure_installed("duckdb")
+  connection <- connectUsingDbi(
+    createDbiConnectionDetails(
+      dbms = connectionDetails$dbms,
+      drv = duckdb::duckdb(),
+      dbdir = connectionDetails$server(),
+      bigint = "integer64"
+    )
   )
-  # registerWithRStudio(connection) # TODO
   return(connection)
 }
 
