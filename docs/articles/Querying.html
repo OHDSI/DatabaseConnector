@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.1.0</span>
       </span>
     </div>
 
@@ -88,9 +88,10 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Querying a database</h1>
-                        <h4 data-toc-skip class="author">Martijn J. Schuemie</h4>
+                        <h4 data-toc-skip class="author">Martijn J.
+Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2023-01-30</h4>
+            <h4 data-toc-skip class="date">2023-03-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/Querying.Rmd" class="external-link"><code>vignettes/Querying.Rmd</code></a></small>
       <div class="hidden name"><code>Querying.Rmd</code></div>
@@ -102,12 +103,20 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette describes how to use the <code>DatabaseConnector</code> package to query a database. It assumes you already know how to create a connection as described in the ‘Connecting to a database’ vignette.</p>
+<p>This vignette describes how to use the <code>DatabaseConnector</code>
+package to query a database. It assumes you already know how to create a
+connection as described in the ‘Connecting to a database’ vignette.</p>
 </div>
 <div class="section level2">
 <h2 id="querying">Querying<a class="anchor" aria-label="anchor" href="#querying"></a>
 </h2>
-<p>The main functions for querying database are the <code><a href="../reference/querySql.html">querySql()</a></code> and <code><a href="../reference/executeSql.html">executeSql()</a></code> functions. The difference between these functions is that <code><a href="../reference/querySql.html">querySql()</a></code> expects data to be returned by the database, and can handle only one SQL statement at a time. In contrast, <code><a href="../reference/executeSql.html">executeSql()</a></code> does not expect data to be returned, and accepts multiple SQL statements in a single SQL string.</p>
+<p>The main functions for querying database are the
+<code><a href="../reference/querySql.html">querySql()</a></code> and <code><a href="../reference/executeSql.html">executeSql()</a></code> functions. The
+difference between these functions is that <code><a href="../reference/querySql.html">querySql()</a></code>
+expects data to be returned by the database, and can handle only one SQL
+statement at a time. In contrast, <code><a href="../reference/executeSql.html">executeSql()</a></code> does not
+expect data to be returned, and accepts multiple SQL statements in a
+single SQL string.</p>
 <p>Some examples:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
@@ -123,11 +132,22 @@
 <span><span class="co">## 3         3              8507          1977</span></span></code></pre>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/executeSql.html">executeSql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"TRUNCATE TABLE foo; DROP TABLE foo; CREATE TABLE foo (bar INT);"</span><span class="op">)</span></span></code></pre></div>
-<p>Both function provide extensive error reporting: When an error is thrown by the server, the error message and the offending piece of SQL are written to a text file to allow better debugging. The <code><a href="../reference/executeSql.html">executeSql()</a></code> function also by default shows a progress bar, indicating the percentage of SQL statements that has been executed. If those attributes are not desired, the package also offers the <code><a href="../reference/lowLevelQuerySql.html">lowLevelQuerySql()</a></code> and <code><a href="../reference/lowLevelExecuteSql.html">lowLevelExecuteSql()</a></code> functions.</p>
+<p>Both function provide extensive error reporting: When an error is
+thrown by the server, the error message and the offending piece of SQL
+are written to a text file to allow better debugging. The
+<code><a href="../reference/executeSql.html">executeSql()</a></code> function also by default shows a progress bar,
+indicating the percentage of SQL statements that has been executed. If
+those attributes are not desired, the package also offers the
+<code><a href="../reference/lowLevelQuerySql.html">lowLevelQuerySql()</a></code> and <code><a href="../reference/lowLevelExecuteSql.html">lowLevelExecuteSql()</a></code>
+functions.</p>
 <div class="section level3">
 <h3 id="querying-using-andromeda-objects">Querying using Andromeda objects<a class="anchor" aria-label="anchor" href="#querying-using-andromeda-objects"></a>
 </h3>
-<p>Sometimes the data to be fetched from the database is too large to fit into memory. In this case one can use the <code>Andromeda</code> package to store R data objects on file, and use them as if they are available in memory. <code>DatabaseConnector</code> can download data directly into Andromeda objects:</p>
+<p>Sometimes the data to be fetched from the database is too large to
+fit into memory. In this case one can use the <code>Andromeda</code>
+package to store R data objects on file, and use them as if they are
+available in memory. <code>DatabaseConnector</code> can download data
+directly into Andromeda objects:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/OHDSI/Andromeda" class="external-link">Andromeda</a></span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Andromeda/man/andromeda_constructor.html" class="external-link">andromeda</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -135,33 +155,59 @@
 <span>                    sql <span class="op">=</span> <span class="st">"SELECT * FROM person"</span>, </span>
 <span>                    andromeda <span class="op">=</span> <span class="va">x</span>, </span>
 <span>                    andromedaTableName <span class="op">=</span> <span class="st">"person"</span><span class="op">)</span></span></code></pre></div>
-<p>Where <code>x</code> is now an <code>Andromeda</code> object with table <code>person</code>.</p>
+<p>Where <code>x</code> is now an <code>Andromeda</code> object with
+table <code>person</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="querying-different-platforms-using-the-same-sql">Querying different platforms using the same SQL<a class="anchor" aria-label="anchor" href="#querying-different-platforms-using-the-same-sql"></a>
 </h3>
-<p>One challenge when writing code that is intended to run on multiple database platforms is that each platform has its own unique SQL dialect. To tackle this problem the <a href="https://ohdsi.github.io/SqlRender/" class="external-link">SqlRender package</a> was developed. <code>SqlRender</code> can translate SQL from a single starting dialect (SQL Server SQL) into any of the platforms supported by DatabaseConnector. The following convenience functions are available that first call the <code>render()</code> and <code>translate()</code> functions in <code>SqlRender</code>: <code><a href="../reference/renderTranslateExecuteSql.html">renderTranslateExecuteSql()</a></code>, <code><a href="../reference/renderTranslateQuerySql.html">renderTranslateQuerySql()</a></code>, <code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code>. For example:</p>
+<p>One challenge when writing code that is intended to run on multiple
+database platforms is that each platform has its own unique SQL dialect.
+To tackle this problem the <a href="https://ohdsi.github.io/SqlRender/" class="external-link">SqlRender package</a> was
+developed. <code>SqlRender</code> can translate SQL from a single
+starting dialect (SQL Server SQL) into any of the platforms supported by
+DatabaseConnector. The following convenience functions are available
+that first call the <code>render()</code> and <code>translate()</code>
+functions in <code>SqlRender</code>:
+<code><a href="../reference/renderTranslateExecuteSql.html">renderTranslateExecuteSql()</a></code>,
+<code><a href="../reference/renderTranslateQuerySql.html">renderTranslateQuerySql()</a></code>,
+<code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code>. For example:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">persons</span> <span class="op">&lt;-</span> <span class="fu">renderTranslatequerySql</span><span class="op">(</span><span class="va">conn</span>, </span>
 <span>                                   sql <span class="op">=</span> <span class="st">"SELECT TOP 10 * FROM @schema.person"</span>,</span>
 <span>                                   schema <span class="op">=</span> <span class="st">"cdm_synpuf"</span><span class="op">)</span></span></code></pre></div>
-<p>Note that the SQL Server-specific ‘TOP 10’ syntax will be translated to for example ‘LIMIT 10’ on PostgreSQL, and that the SQL parameter <code>@schema</code> will be instantiated with the provided value ‘cdm_synpuf’.</p>
-<p>Note that, on some platforms like Oracle, when using temp tables, it might be required to provide the <code>tempEmulationSchema</code> argument, since these platforms do not support tables the way other platforms do.</p>
+<p>Note that the SQL Server-specific ‘TOP 10’ syntax will be translated
+to for example ‘LIMIT 10’ on PostgreSQL, and that the SQL parameter
+<code>@schema</code> will be instantiated with the provided value
+‘cdm_synpuf’.</p>
+<p>Note that, on some platforms like Oracle, when using temp tables, it
+might be required to provide the <code>tempEmulationSchema</code>
+argument, since these platforms do not support tables the way other
+platforms do.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="inserting-tables">Inserting tables<a class="anchor" aria-label="anchor" href="#inserting-tables"></a>
 </h2>
-<p>Although it is also possible to insert data in the database by sending SQL statements using the <code><a href="../reference/executeSql.html">executeSql()</a></code> function, it is often convenient and faster to use the <code><a href="../reference/insertTable.html">insertTable()</a></code> function:</p>
+<p>Although it is also possible to insert data in the database by
+sending SQL statements using the <code><a href="../reference/executeSql.html">executeSql()</a></code> function, it
+is often convenient and faster to use the <code><a href="../reference/insertTable.html">insertTable()</a></code>
+function:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/insertTable.html">insertTable</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"mtcars"</span>, <span class="va">mtcars</span>, createTable <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>In this example, we’re uploading the mtcars data frame to a table called ‘mtcars’ on the server, that will be automatically created.</p>
+<p>In this example, we’re uploading the mtcars data frame to a table
+called ‘mtcars’ on the server, that will be automatically created.</p>
 </div>
 <div class="section level2">
 <h2 id="logging-all-queries">Logging all queries<a class="anchor" aria-label="anchor" href="#logging-all-queries"></a>
 </h2>
-<p>For several reasons it might be helpful to log all queries sent to the server (and the time to completion), for example to understand performance issues. For this one can use the <code>ParallelLogger</code> package. If the <code>LOG_DATABASECONNECTOR_SQL</code> option is set to <code>TRUE</code>, each query will be logged at the ‘trace’ level. For example:</p>
+<p>For several reasons it might be helpful to log all queries sent to
+the server (and the time to completion), for example to understand
+performance issues. For this one can use the <code>ParallelLogger</code>
+package. If the <code>LOG_DATABASECONNECTOR_SQL</code> option is set to
+<code>TRUE</code>, each query will be logged at the ‘trace’ level. For
+example:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>LOG_DATABASECONNECTOR_SQL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu">ParallelLogger</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/ParallelLogger/reference/addDefaultFileLogger.html" class="external-link">addDefaultFileLogger</a></span><span class="op">(</span><span class="st">"sqlLog.txt"</span>, name <span class="op">=</span> <span class="st">"TEST_LOGGER"</span><span class="op">)</span></span>

@@ -1,9 +1,9 @@
-pandoc: 2.16.1
+pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   Connecting: Connecting.html
   DbiAndDbplyr: DbiAndDbplyr.html
   Querying: Querying.html
-last_built: 2023-01-30T10:12Z
+last_built: 2023-03-15T11:03Z
 
