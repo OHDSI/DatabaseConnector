@@ -72,6 +72,21 @@ test_that("Get table names", {
   expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
   expect_true(DBI::dbExistsTable(connection, "person"))
   disconnect(connection)
+  
+  # DuckDB --------------------------------------------------
+  dbFile <- tempfile()
+  details <- createConnectionDetails(
+    dbms = "duckdb",
+    server = dbFile
+  )
+  connection <- connect(details)
+  executeSql(connection, "CREATE TABLE person (x INT);")
+  tables <- getTableNames(connection, "main")
+  expect_true("person" %in% tables)
+  expect_true(existsTable(connection, "main", "person"))
+  expect_true(DBI::dbExistsTable(connection, "person"))
+  disconnect(connection)
+  unlink(dbFile)
 })
 
 test_that("Cleaning of database or schema name", {

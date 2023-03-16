@@ -217,6 +217,42 @@ test_that("insertTable", {
   expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "float8", "varchar", "int8"))
   
   disconnect(connection)
+  
+  
+  # DuckDb ---------------------------------------------------------------
+  dbFile <- tempfile()
+  details <- createConnectionDetails(
+    dbms = "duckdb",
+    server = dbFile
+  )
+  connection <- connect(details)
+  insertTable(
+    connection = connection,
+    tableName = "temp",
+    data = data,
+    createTable = TRUE,
+    tempTable = FALSE
+  )
+  
+  # Check data on server is same as local
+  data2 <- querySql(connection, "SELECT * FROM temp", integer64AsNumeric = FALSE)
+  names(data2) <- tolower(names(data2))
+  data <- data[order(data$person_id), ]
+  data2 <- data2[order(data2$person_id), ]
+  row.names(data) <- NULL
+  row.names(data2) <- NULL
+  attr(data$some_datetime, "tzone") <- NULL
+  attr(data2$some_datetime, "tzone") <- NULL
+  expect_equal(data, data2, check.attributes = FALSE)
+  
+  # Check data types
+  res <- dbSendQuery(connection, "SELECT * FROM temp")
+  columnInfo <- dbColumnInfo(res)
+  dbClearResult(res)
+  expect_equal(as.character(columnInfo$type), c("Date", "POSIXct", "integer", "numeric", "character", "numeric"))
+  
+  disconnect(connection)
+  unlink(dbFile)
 })
 
 test_that("Test temp emulation helper functions", {

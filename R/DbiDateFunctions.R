@@ -106,7 +106,7 @@ eoMonth <- function(date) {
 #' 
 #' @export
 dateFromParts <- function(year, month, day) {
-  return(as.Date(paste(year, month, day, sep='-')))
+  return(as.Date(paste(year, month, day, sep='-'), optional = TRUE))
 }
 
 #' Extract the year from a date

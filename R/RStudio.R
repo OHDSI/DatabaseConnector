@@ -307,6 +307,8 @@ getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) 
   } else if (dbms(conn) == "spark") {
     schemas <- DBI::dbGetQuery(conn@dbiConnection, "SHOW DATABASES")
     return(schemas[, 1])
+  } else if (conn@dbms == "duckdb") {
+    return(dbGetQuery(conn, "SELECT schema_name FROM information_schema.schemata")$schema_name)
   } else {
     schemas <- DBI::dbGetQuery(conn@dbiConnection, "SELECT schema_name FROM information_schema.schemata;")
     return(schemas[, 1])

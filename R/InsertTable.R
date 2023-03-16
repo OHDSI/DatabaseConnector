@@ -85,18 +85,6 @@ validateInt64Insert <- function() {
   }
 }
 
-
-trySettingAutoCommit <- function(connection, value) {
-  tryCatch(
-    {
-      rJava::.jcall(connection@jConnection, "V", "setAutoCommit", value)
-    },
-    error = function(cond) {
-      # do nothing
-    }
-  )
-}
-
 #' Insert a table on the server
 #'
 #' @description
@@ -213,6 +201,7 @@ insertTable.default <- function(connection,
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
   }
+  dbms <- dbms(connection)
   if (!is.null(useMppBulkLoad) && useMppBulkLoad != "") {
     warn("The 'useMppBulkLoad' argument is deprecated. Use 'bulkLoad' instead.",
       .frequency = "regularly",
@@ -238,7 +227,7 @@ insertTable.default <- function(connection,
   if (dropTableIfExists) {
     createTable <- TRUE
   }
-  if (tempTable & substr(tableName, 1, 1) != "#" & dbms(connection) != "redshift") {
+  if (tempTable & substr(tableName, 1, 1) != "#" & dbms != "redshift") {
     tableName <- paste("#", tableName, sep = "")
   }
   if (!is.null(databaseSchema)) {
@@ -264,10 +253,10 @@ insertTable.default <- function(connection,
   }
   data <- convertLogicalFields(data)
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
-  useBulkLoad <- (bulkLoad && dbms(connection) %in% c("hive", "redshift") && createTable) ||
-    (bulkLoad && dbms(connection) %in% c("pdw", "postgresql") && !tempTable)
-  useCtasHack <- dbms(connection) %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
-  if (dbms(connection) == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
+  useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift") && createTable) ||
+    (bulkLoad && dbms %in% c("pdw", "postgresql") && !tempTable)
+  useCtasHack <- dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
+  if (dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
     abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
   }
   
@@ -288,7 +277,7 @@ insertTable.default <- function(connection,
     )
   }
 
-  if (createTable && !useCtasHack && !(bulkLoad && dbms(connection) == "hive")) {
+  if (createTable && !useCtasHack && !(bulkLoad && dbms == "hive")) {
     sql <- paste("CREATE TABLE ", sqlTableName, " (", sqlTableDefinition, ");", sep = "")
     renderTranslateExecuteSql(
       connection = connection,
@@ -305,13 +294,13 @@ insertTable.default <- function(connection,
       abort("Bulk load credentials could not be confirmed. Please review them or set 'bulkLoad' to FALSE")
     }
     inform("Attempting to use bulk loading...")
-    if (dbms(connection) == "redshift") {
+    if (dbms == "redshift") {
       bulkLoadRedshift(connection, sqlTableName, data)
-    } else if (dbms(connection) == "pdw") {
+    } else if (dbms == "pdw") {
       bulkLoadPdw(connection, sqlTableName, sqlDataTypes, data)
-    } else if (dbms(connection) == "hive") {
+    } else if (dbms == "hive") {
       bulkLoadHive(connection, sqlTableName, sqlFieldNames, data)
-    } else if (dbms(connection) == "postgresql") {
+    } else if (dbms == "postgresql") {
       bulkLoadPostgres(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data)
     }
   } else if (useCtasHack) {
@@ -335,16 +324,11 @@ insertTable.default <- function(connection,
       ")"
     )
     insertSql <- SqlRender::translate(insertSql,
-      targetDialect = dbms(connection),
+      targetDialect = dbms,
       tempEmulationSchema = tempEmulationSchema
     )
     batchSize <- 10000
 
-    autoCommit <- rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")
-    if (autoCommit) {
-      trySettingAutoCommit(connection, FALSE)
-      on.exit(trySettingAutoCommit(connection, TRUE))
-    }
     if (nrow(data) > 0) {
       if (progressBar) {
         pb <- txtProgressBar(style = 3)
@@ -352,8 +336,10 @@ insertTable.default <- function(connection,
       batchedInsert <- rJava::.jnew(
         "org.ohdsi.databaseConnector.BatchedInsert",
         connection@jConnection,
+        connection@dbms,
         insertSql,
-        ncol(data)
+        ncol(data),
+        supportsAutoCommit(dbms)
       )
       for (start in seq(1, nrow(data), by = batchSize)) {
         if (progressBar) {
@@ -373,7 +359,7 @@ insertTable.default <- function(connection,
           } else if (is.numeric(column)) {
             rJava::.jcall(batchedInsert, "V", "setNumeric", i, column)
           } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
-            rJava::.jcall(batchedInsert, "V", "setDateTime", i, as.character(column))
+            rJava::.jcall(batchedInsert, "V", "setDateTime", i, format(column, format="%Y-%m-%d %H:%M:%S"))
           } else if (is(column, "Date")) {
             rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
           } else {
@@ -382,7 +368,7 @@ insertTable.default <- function(connection,
           return(NULL)
         }
         lapply(1:ncol(data), setColumn, start = start, end = end)
-        if (dbms(connection) == "bigquery") {
+        if (dbms == "bigquery") {
           if (!rJava::.jcall(batchedInsert, "Z", "executeBigQueryBatch"))
             stop("Error uploading data")
         } else {

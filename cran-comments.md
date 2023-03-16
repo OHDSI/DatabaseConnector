@@ -1,4 +1,4 @@
-This update includes 13 changes and 1 bugfix (see NEWS.md)
+This update includes 1 changes and 6 bugfixes (see NEWS.md)
 
 ---
 
