@@ -1,3 +1,11 @@
+DatabaseConnector 6.1.1
+=======================
+
+Bugfixes:
+
+1. Not asking to delete old files when not in interactive mode and calling `downloadJdbcDrivers()`.
+
+
 DatabaseConnector 6.1.0
 =======================
 

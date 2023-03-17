@@ -105,7 +105,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
       oldFiles <- list.files(pathToDriver, "Redshift")
       if (length(oldFiles) > 0) {
         message(sprintf("Prior JAR files have already been detected: '%s'. Do you want to delete them?", paste(oldFiles, collapse = "', '")))
-        if (utils::menu(c("Yes", "No")) == 1) {
+        if (interactive() && utils::menu(c("Yes", "No")) == 1) {
           unlink(file.path(pathToDriver, oldFiles))
         }
       }
