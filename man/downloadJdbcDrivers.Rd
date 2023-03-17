@@ -20,6 +20,8 @@ downloadJdbcDrivers(
 \item "oracle" for Oracle
 \item "spark" for Spark
 \item "snowflake" for Snowflake
+\item "bigquery" for Google BigQuery
+\item "all" for all aforementioned platforms
 }}
 
 \item{pathToDriver}{The full path to the folder where the JDBC driver .jar files should be downloaded to.
@@ -40,10 +42,11 @@ The following versions of the JDBC drivers are currently used:
 \itemize{
 \item PostgreSQL: V42.2.18
 \item RedShift: V2.1.0.9
-\item SQL Server: V8.4.1.zip
+\item SQL Server: V9.2.0
 \item Oracle: V19.8
 \item Spark: V2.6.21
 \item Snowflake: V3.13.22
+\item BigQuery: v1.2.14.1017
 }
 }
 \examples{

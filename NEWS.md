@@ -1,5 +1,9 @@
-DatabaseConnector 6.1.1
+DatabaseConnector 6.2.0
 =======================
+
+Changes:
+
+1. Can now use `downloadJdbcDrivers()` to download BigQuery drivers (directly from Google). This deliberately does not download the latest version, since at the time of writing that one conflicts with DatabaseConnector.
 
 Bugfixes:
 

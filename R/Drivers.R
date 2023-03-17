@@ -32,6 +32,8 @@ jdbcDrivers <- new.env()
 #' - "oracle" for Oracle
 #' - "spark" for Spark
 #' - "snowflake" for Snowflake
+#' - "bigquery" for Google BigQuery
+#' - "all" for all aforementioned platforms
 #'  
 #' @param method The method used for downloading files. See `?download.file` for details and options.
 #' @param ... Further arguments passed on to `download.file`.
@@ -41,10 +43,11 @@ jdbcDrivers <- new.env()
 #' 
 #' - PostgreSQL: V42.2.18
 #' - RedShift: V2.1.0.9
-#' - SQL Server: V8.4.1.zip
+#' - SQL Server: V9.2.0
 #' - Oracle: V19.8
 #' - Spark: V2.6.21
 #' - Snowflake: V3.13.22
+#' - BigQuery: v1.2.14.1017
 #' 
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
@@ -79,27 +82,25 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     dir.create(pathToDriver, recursive = TRUE)
   }
 
-  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark"))
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark", "bigquery"))
 
   if (dbms == "pdw" || dbms == "synapse") {
     dbms <- "sql server"
   }
-
-  baseUrl <- "https://ohdsi.github.io/DatabaseConnectorJars/"
-
-  jdbcDriverNames <- c(
-    "postgresql" = "postgresqlV42.2.18.zip",
-    "redshift" = "redShiftV2.1.0.9.zip",
-    "sql server" = "sqlServerV9.2.0.zip",
-    "oracle" = "oracleV19.8.zip",
-    "spark" = "SimbaSparkV2.6.21.zip",
-    "snowflake" = "SnowflakeV3.13.22.zip"
-  )
   
+  jdbcDriverSources <- utils::read.csv(text = 
+    "row,dbms, fileName, baseUrl
+    1,postgresql,postgresqlV42.2.18.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    2,redshift,redShiftV2.1.0.9.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    5,spark,SimbaSparkV2.6.21.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    6,snowflake,SnowflakeV3.13.22.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.2.14.1017.zip,https://storage.googleapis.com/simba-bq-release/jdbc/"
+  )
   if (dbms == "all") {
-    dbms <- names(jdbcDriverNames)
+    dbms <- jdbcDriverSources$dbms
   }
-
   for (db in dbms) {
     if (db == "redshift") {
       oldFiles <- list.files(pathToDriver, "Redshift")
@@ -110,19 +111,19 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
         }
       }
     }
-    
-    driverName <- jdbcDriverNames[[db]]
+    driverSource <- jdbcDriverSources[jdbcDriverSources$dbms == db, ]
+
     result <- download.file(
-      url = paste0(baseUrl, driverName),
-      destfile = paste(pathToDriver, driverName, sep = "/"),
+      url = paste0(driverSource$baseUrl, driverSource$fileName),
+      destfile = file.path(pathToDriver, driverSource$fileName),
       method = method
     )
 
-    extractedFilename <- unzip(file.path(pathToDriver, driverName), exdir = pathToDriver)
+    extractedFilename <- unzip(file.path(pathToDriver, driverSource$fileName), exdir = pathToDriver)
     unzipSuccess <- is.character(extractedFilename)
 
     if (unzipSuccess) {
-      file.remove(file.path(pathToDriver, driverName))
+      file.remove(file.path(pathToDriver, driverSource$fileName))
     }
     if (unzipSuccess && result == 0) {
       inform(paste0("DatabaseConnector ", db, " JDBC driver downloaded to '", pathToDriver, "'."))

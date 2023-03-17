@@ -56,7 +56,7 @@ NULL
 #' functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 #' variable, for example in your .Renviron file (recommended).
 #'
-#' # SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark RedShift, Azure Synapse
+#' # SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery
 #' 
 #' Use the [downloadJdbcDrivers()] function to download these drivers from the OHDSI GitHub pages.
 #'
@@ -65,11 +65,6 @@ NULL
 #' Read the instructions
 #' [here](https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html)
 #' on how to obtain the Netezza JDBC driver.
-#'
-#' # BigQuery
-#' 
-#' Go to [Google's site](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers) and
-#' download the latest JDBC driver. Unzip the file, and locate the appropriate jar files.
 #'
 #' # Impala
 #' 

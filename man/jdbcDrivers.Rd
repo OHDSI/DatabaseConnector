@@ -9,7 +9,7 @@ use the \code{pathToDriver} argument in the \code{\link[=connect]{connect()}} or
 functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 variable, for example in your .Renviron file (recommended).
 }
-\section{SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark RedShift, Azure Synapse}{
+\section{SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery}{
 Use the \code{\link[=downloadJdbcDrivers]{downloadJdbcDrivers()}} function to download these drivers from the OHDSI GitHub pages.
 }
 
@@ -17,11 +17,6 @@ Use the \code{\link[=downloadJdbcDrivers]{downloadJdbcDrivers()}} function to do
 Read the instructions
 \href{https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html}{here}
 on how to obtain the Netezza JDBC driver.
-}
-
-\section{BigQuery}{
-Go to \href{https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers}{Google's site} and
-download the latest JDBC driver. Unzip the file, and locate the appropriate jar files.
 }
 
 \section{Impala}{
