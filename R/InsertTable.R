@@ -422,6 +422,12 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       }
     }
   }
+  if (dbms(connection) == "spark") {
+    # Spark automatically converts table names to lowercase, but will throw an error
+    # that the table already exists when using dbWriteTable to append, and the table 
+    # name is not all lowercase.
+    tableName <- tolower(tableName)
+  }
   data <- convertLogicalFields(data)
   
   logTrace(sprintf("Inserting %d rows into table '%s' ", nrow(data), tableName))
