@@ -19,6 +19,9 @@ public class BatchedInsert {
 	public static int		DATE						= 3;
 	public static int		DATETIME					= 4;
 	public static int		BIGINT						= 5;
+	private static String   SPARK                       = "spark";
+	private static String   SNOWFLAKE                   = "snowflake";
+	private static String   BIGQUERY                    = "bigquery";
 	
 	public static final int	BIG_DATA_BATCH_INSERT_LIMIT	= 1000;
 
@@ -31,20 +34,18 @@ public class BatchedInsert {
 	private int				columnCount;
 	private int				rowCount;
 	private String			sql;
-	private boolean         supportsAutoCommit;
 	
-	public BatchedInsert(Connection connection, String dbms, String sql, int columnCount, boolean supportsAutoCommit) throws SQLException {
+	public BatchedInsert(Connection connection, String dbms, String sql, int columnCount) throws SQLException {
 		this.connection = connection;
 		this.dbms = dbms;
 		this.sql = sql;
 		this.columnCount = columnCount;
-		this.supportsAutoCommit = supportsAutoCommit;
 		columns = new Object[columnCount];
 		columnTypes = new int[columnCount];
 	}
 	
 	private void trySettingAutoCommit(boolean value) throws SQLException  {
-		if (!supportsAutoCommit)
+		if (dbms.equals(SPARK))
 			return;
 		try {
 			connection.setAutoCommit(value);
@@ -99,7 +100,7 @@ public class BatchedInsert {
 			else {
 				// snowflake driver uses time zone information from client so we need to
 				// use UTC timezone during parsing the value
-				if ("snowflake".equalsIgnoreCase(dbms))
+				if (dbms.equals(SNOWFLAKE))
 					setTimestampForSnowflake(statement, statementIndex, value);
 				else
 					statement.setTimestamp(statementIndex, java.sql.Timestamp.valueOf(value));
@@ -120,6 +121,9 @@ public class BatchedInsert {
 	}
 
 	public boolean executeBatch() throws SQLException, ParseException {
+		if (dbms.equals(BIGQUERY))
+	      return executeBigQueryBatch();	
+	
 		checkColumns();
 		try {
 			trySettingAutoCommit(false);
@@ -130,7 +134,8 @@ public class BatchedInsert {
 				statement.addBatch();
 			}
 			statement.executeBatch();
-			connection.commit();
+			if (!dbms.equals(SPARK))
+				connection.commit();
 			statement.close();
 			connection.clearWarnings();
 			trySettingAutoCommit(true);
@@ -148,7 +153,7 @@ public class BatchedInsert {
 	 * insert with multiple values.
 	 * @throws SQLException 
 	 */
-	public boolean executeBigQueryBatch() throws SQLException, ParseException {
+	private boolean executeBigQueryBatch() throws SQLException, ParseException {
 		checkColumns();
 		try {
 			trySettingAutoCommit(false);

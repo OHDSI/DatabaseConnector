@@ -338,8 +338,7 @@ insertTable.default <- function(connection,
         connection@jConnection,
         connection@dbms,
         insertSql,
-        ncol(data),
-        supportsAutoCommit(dbms)
+        ncol(data)
       )
       for (start in seq(1, nrow(data), by = batchSize)) {
         if (progressBar) {
@@ -368,12 +367,8 @@ insertTable.default <- function(connection,
           return(NULL)
         }
         lapply(1:ncol(data), setColumn, start = start, end = end)
-        if (dbms == "bigquery") {
-          if (!rJava::.jcall(batchedInsert, "Z", "executeBigQueryBatch"))
-            stop("Error uploading data")
-        } else {
-          if (!rJava::.jcall(batchedInsert, "Z", "executeBatch"))
-            stop("Error uploading data")
+        if (!rJava::.jcall(batchedInsert, "Z", "executeBatch")) {
+          stop("Error uploading data")
         }
       }
       if (progressBar) {

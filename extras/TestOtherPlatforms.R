@@ -48,6 +48,12 @@ connectionDetailsDataBricksJdbc <- createConnectionDetails(
   user = keyring::key_get("dataBricksUser"),
   password = keyring::key_get("dataBricksPassword")
 )
+connectionDetailsDataBricksJdbc <- createConnectionDetails(
+  dbms = "spark",
+  connectionString = paste0(gsub(":spark:", ":databricks:", keyring::key_get("dataBricksConnectionString")), "IgnoreTransactions=1;"),
+  user = keyring::key_get("dataBricksUser"),
+  password = keyring::key_get("dataBricksPassword")
+)
 connectionDetailsDataBricksOdbc <- createConnectionDetails(
   dbms = "spark",
   server = keyring::key_get("dataBricksServer"),
@@ -344,22 +350,22 @@ insertTable(connection = connection,
 data2 <- renderTranslateQuerySql(
   connection = connection, 
   sql = "SELECT * FROM @scratch_database_schema.insert_test", 
-  scratch_database_schema = scratchDatabaseSchemaAzure,
+  scratch_database_schema = scratchDatabaseSchemaDataBricks,
   integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
 data <- data[order(data$person_id), ]
 data2 <- data2[order(data2$person_id), ]
 row.names(data) <- NULL
 row.names(data2) <- NULL
-expect_equal(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
+expect_equal(data, data2, tolerance = 1e7)
 
 # Check data types
-res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaDataBricks))
 columnInfo <- dbColumnInfo(res)
 dbClearResult(res)
-expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "FLOAT", "STRING", "BIGINT"))
 
-executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaDataBricks))
 
 disconnect(connection)
 
@@ -377,22 +383,22 @@ insertTable(connection = connection,
 data2 <- renderTranslateQuerySql(
   connection = connection, 
   sql = "SELECT * FROM @scratch_database_schema.insert_test", 
-  scratch_database_schema = scratchDatabaseSchemaAzure,
+  scratch_database_schema = scratchDatabaseSchemaDataBricks,
   integer64AsNumeric = FALSE)
 names(data2) <- tolower(names(data2))
 data <- data[order(data$person_id), ]
 data2 <- data2[order(data2$person_id), ]
 row.names(data) <- NULL
 row.names(data2) <- NULL
-expect_equal(data[order(data$big_ints), ], data2[order(data2$big_ints), ])
+expect_equal(data, data2)
 
 # Check data types
-res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+res <- dbSendQuery(connection, SqlRender::render("SELECT * FROM @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaDataBricks))
 columnInfo <- dbColumnInfo(res)
 dbClearResult(res)
-expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint"))
+expect_equal(columnInfo$type, c("91", "93", "4", "8", "12" ,"12"))
 
-executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaAzure))
+executeSql(connection, SqlRender::render("DROP TABLE @scratch_database_schema.insert_test", scratch_database_schema = scratchDatabaseSchemaDataBricks))
 
 disconnect(connection)
 

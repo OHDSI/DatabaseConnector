@@ -24,6 +24,7 @@ public class BatchedQuery {
 	public static long              CHECK_MEM_ROWS  = 10000;
 	private static SimpleDateFormat	DATE_FORMAT		= new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static String           SPARK           = "spark";
 	
 	private Object[]				columns;
 	private int[]					columnTypes;
@@ -36,8 +37,8 @@ public class BatchedQuery {
 	private Connection				connection;
 	private boolean					done;
 	private ByteBuffer				byteBuffer;
-	private boolean                 supportsAutoCommit;
 	private long                    availableMemoryAtStart;
+	private String                  dbms;
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
 		double[] result = new double[value.length];
@@ -105,21 +106,20 @@ public class BatchedQuery {
 			}
 	}
 	
-	private void trySettingAutoCommit(boolean value) throws SQLException {
-		if (!supportsAutoCommit)
+	private void trySettingAutoCommit(boolean value) throws SQLException  {
+		if (dbms.equals(SPARK))
 			return;
 		try {
 			connection.setAutoCommit(value);
-		} catch (SQLFeatureNotSupportedException  exception) {
-			System.out.println(exception.getMessage());
+		} catch (SQLFeatureNotSupportedException exception) {
+			// Do nothing
 		}
 	}
 	
-	public BatchedQuery(Connection connection, String query, String dbms, boolean supportsAutoCommit) throws SQLException {
+	public BatchedQuery(Connection connection, String query, String dbms) throws SQLException {
 		this.connection = connection;
-		this.supportsAutoCommit = supportsAutoCommit;
-		if (supportsAutoCommit && connection.getAutoCommit())
-			trySettingAutoCommit(false);
+		this.dbms = dbms;
+		trySettingAutoCommit(false);
 		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		statement.setFetchSize(FETCH_SIZE);
 		resultSet = statement.executeQuery(query);

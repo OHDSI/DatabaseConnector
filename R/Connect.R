@@ -637,10 +637,10 @@ connectBigQuery <- function(connectionDetails) {
 
 connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
-  jarPath <- findPathToJar("^SparkJDBC42\\.jar$", connectionDetails$pathToDriver)
-  # jarPath <- findPathToJar("^DatabricksJDBC42\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
-  # driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
+  # jarPath <- findPathToJar("^SparkJDBC42\\.jar$", connectionDetails$pathToDriver)
+  jarPath <- findPathToJar("^DatabricksJDBC42\\.jar$", connectionDetails$pathToDriver)
+  # driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
+  driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
   connectionString <- connectionDetails$connectionString()
   if (is.null(connectionString) || connectionString == "") {
     abort("Error: Connection string required for connecting to Spark.")

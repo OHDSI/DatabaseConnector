@@ -1,5 +1,5 @@
 # Assumes connectionDetails points to the test server to upload to
-databaseSchema <- "ohdsi.eunomia"
+databaseSchema <- "eunomia"
 
 library(DatabaseConnector)
 
@@ -27,8 +27,8 @@ for (i in seq_along(tableNames)) {
     databaseSchema = databaseSchema,
     tableName = tableNames[i],
     data = table,
-    dropTableIfExists = TRUE,
-    createTable = TRUE,
+    dropTableIfExists = F,
+    createTable = F,
     progressBar = TRUE
   )
 }

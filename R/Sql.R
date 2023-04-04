@@ -207,8 +207,7 @@ lowLevelQuerySql.default <- function(connection,
     "org.ohdsi.databaseConnector.BatchedQuery",
     connection@jConnection,
     query,
-    dbms(connection),
-    supportsAutoCommit(dbms(connection))
+    dbms(connection)
   )
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
@@ -509,9 +508,8 @@ executeSql <- function(connection,
       close(pb)
     }
   }
-  
-  if (inherits(connection, "DatabaseConnectorJdbcConnection") && 
-      (!supportsAutoCommit(dbms) || !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit"))) {
+  # Spark throws error 'Cannot use commit while Connection is in auto-commit mode.'. However, also throws error when trying to set autocommit on or off:
+  if (dbms != "spark" && inherits(connection, "DatabaseConnectorJdbcConnection") && !rJava::.jcall(connection@jConnection, "Z", "getAutoCommit")) {
     rJava::.jcall(connection@jConnection, "V", "commit")
   }
   

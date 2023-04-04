@@ -138,8 +138,3 @@ extractQueryTimesFromThread <- function(thread, logLines) {
   )
   return(result) 
 }
-
-supportsAutoCommit <- function(dbms) {
-  return(dbms != "spark")
-}
-

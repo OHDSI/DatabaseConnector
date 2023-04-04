@@ -265,8 +265,7 @@ setMethod(
       "org.ohdsi.databaseConnector.BatchedQuery",
       conn@jConnection,
       statement,
-      dbms,
-      supportsAutoCommit(dbms)
+      dbms
     )
     result <- new("DatabaseConnectorJdbcResult",
                   content = batchedQuery,
