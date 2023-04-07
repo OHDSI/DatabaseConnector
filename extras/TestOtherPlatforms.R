@@ -25,32 +25,26 @@ cdmDatabaseSchemaAzure <- "[sql-synthea-1M].cdm_synthea_1M"
 scratchDatabaseSchemaAzure <- "[sql-synthea-1M].mschuemie"
 
 # Spark
-connectionDetailsSparkJdbc <- createConnectionDetails(
-  dbms = "spark",
-  connectionString = keyring::key_get("sparkConnectionString"),
-  user = keyring::key_get("sparkUser"),
-  password = keyring::key_get("sparkPassword")
-)
-connectionDetailsSparkOdbc <- createConnectionDetails(
-  dbms = "spark",
-  server = keyring::key_get("sparkServer"),
-  port = keyring::key_get("sparkPort"),
-  user = keyring::key_get("sparkUser"),
-  password = keyring::key_get("sparkPassword")
-)
-cdmDatabaseSchemaSpark <- "eunomia"
-scratchDatabaseSchemaSpark <- "eunomia"
+# connectionDetailsSparkJdbc <- createConnectionDetails(
+#   dbms = "spark",
+#   connectionString = keyring::key_get("sparkConnectionString"),
+#   user = keyring::key_get("sparkUser"),
+#   password = keyring::key_get("sparkPassword")
+# )
+# connectionDetailsSparkOdbc <- createConnectionDetails(
+#   dbms = "spark",
+#   server = keyring::key_get("sparkServer"),
+#   port = keyring::key_get("sparkPort"),
+#   user = keyring::key_get("sparkUser"),
+#   password = keyring::key_get("sparkPassword")
+# )
+# cdmDatabaseSchemaSpark <- "eunomia"
+# scratchDatabaseSchemaSpark <- "eunomia"
 
 # DataBricks
 connectionDetailsDataBricksJdbc <- createConnectionDetails(
   dbms = "spark",
   connectionString = keyring::key_get("dataBricksConnectionString"),
-  user = keyring::key_get("dataBricksUser"),
-  password = keyring::key_get("dataBricksPassword")
-)
-connectionDetailsDataBricksJdbc <- createConnectionDetails(
-  dbms = "spark",
-  connectionString = paste0(gsub(":spark:", ":databricks:", keyring::key_get("dataBricksConnectionString")), "IgnoreTransactions=1;"),
   user = keyring::key_get("dataBricksUser"),
   password = keyring::key_get("dataBricksPassword")
 )
@@ -390,6 +384,7 @@ data <- data[order(data$person_id), ]
 data2 <- data2[order(data2$person_id), ]
 row.names(data) <- NULL
 row.names(data2) <- NULL
+attr(data2$some_datetime, "tzone") <- NULL
 expect_equal(data, data2)
 
 # Check data types
@@ -448,6 +443,32 @@ insertTable(connection = connection,
 
 droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = scratchDatabaseSchemaBigQuery)
 expect_equal(droppedTables, sprintf("%s.%stemp", scratchDatabaseSchemaBigQuery, SqlRender::getTempTablePrefix()))
+disconnect(connection)
+
+# DataBricks JDBC
+connection <- connect(connectionDetailsDataBricksJdbc)
+insertTable(connection = connection,
+            tableName = "temp",
+            data = cars,
+            createTable = TRUE,
+            tempTable = TRUE,
+            tempEmulationSchema = scratchDatabaseSchemaDataBricks)
+
+droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = scratchDatabaseSchemaDataBricks)
+expect_equal(droppedTables, sprintf("%s.%stemp", scratchDatabaseSchemaDataBricks, SqlRender::getTempTablePrefix()))
+disconnect(connection)
+
+# DataBricks ODBC
+connection <- connect(connectionDetailsDataBricksOdbc)
+insertTable(connection = connection,
+            tableName = "temp",
+            data = cars,
+            createTable = TRUE,
+            tempTable = TRUE,
+            tempEmulationSchema = scratchDatabaseSchemaDataBricks)
+
+droppedTables <- dropEmulatedTempTables(connection = connection, tempEmulationSchema = scratchDatabaseSchemaDataBricks)
+expect_equal(droppedTables, sprintf("%s.%stemp", scratchDatabaseSchemaDataBricks, SqlRender::getTempTablePrefix()))
 disconnect(connection)
 
 # Snowflake

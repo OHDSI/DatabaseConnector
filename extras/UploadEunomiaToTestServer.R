@@ -22,13 +22,16 @@ for (i in seq_along(tableNames)) {
     connection = eunomiaConn,
     sql = "SELECT * FROM main.@table_name;",
     table_name = tableNames[i])
+  if (tableNames[i] == "cost") {
+    colnames(table)[colnames(table) == "REVEUE_CODE_SOURCE_VALUE"] <- "REVENUE_CODE_SOURCE_VALUE"
+  }
   insertTable(
     connection = connection,
     databaseSchema = databaseSchema,
     tableName = tableNames[i],
     data = table,
-    dropTableIfExists = F,
-    createTable = F,
+    dropTableIfExists = TRUE,
+    createTable = TRUE,
     progressBar = TRUE
   )
 }

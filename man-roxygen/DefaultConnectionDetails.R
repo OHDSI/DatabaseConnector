@@ -107,19 +107,22 @@
 #' 
 #'  - `server`. The path to the SQLIte file.
 #' 
-#' Spark:
+#' Spark / Databricks:
 #' 
 #' Currently both JDBC and ODBC connections are supported for Spark. Set the 
 #' `connectionString` argument to use JDBC, otherwise ODBC is used:
 #' 
-#'  - `connectionString`. The JDBC connection string (e.g. starting with
-#'         'jdbc:spark://my-org.dev.cloud.databricks.com...').
+#'  - `connectionString`. The JDBC connection string (e.g. something like
+#'         'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
 #'  - `user`. The user name used to access the server.
 #'  - `password`. The password for that user.
-#'  - `server`. The host name of the server (when using ODBC)
+#'  - `server`. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
 #'  - `port`. Specifies the port on the server (when using ODBC)
 #'  - `extraSettings`. Additional settings for the ODBC connection, for example 
-#'         `extraSettings = list(HTTPPath = "http://databricks.server.com")`.
+#'         `extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345",
+#'                               SSL = 1,
+#'                               ThriftTransport = 2,
+#'                               AuthMech = 3)`
 #' 
 #' Snowflake:
 #' 

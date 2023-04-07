@@ -154,19 +154,19 @@ SQLite:
 \item \code{server}. The path to the SQLIte file.
 }
 
-Spark:
+Spark / Databricks:
 
 Currently both JDBC and ODBC connections are supported for Spark. Set the
 \code{connectionString} argument to use JDBC, otherwise ODBC is used:
 \itemize{
-\item \code{connectionString}. The JDBC connection string (e.g. starting with
-'jdbc:spark://my-org.dev.cloud.databricks.com...').
+\item \code{connectionString}. The JDBC connection string (e.g. something like
+'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
 \item \code{user}. The user name used to access the server.
 \item \code{password}. The password for that user.
-\item \code{server}. The host name of the server (when using ODBC)
+\item \code{server}. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
 \item \code{port}. Specifies the port on the server (when using ODBC)
 \item \code{extraSettings}. Additional settings for the ODBC connection, for example
-\code{extraSettings = list(HTTPPath = "http://databricks.server.com")}.
+\code{extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345", SSL = 1, ThriftTransport = 2, AuthMech = 3)}
 }
 
 Snowflake:
