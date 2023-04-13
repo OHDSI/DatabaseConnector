@@ -47,7 +47,7 @@ jdbcDrivers <- new.env()
 #' - Oracle: V19.8
 #' - Spark: V2.6.21
 #' - Snowflake: V3.13.22
-#' - BigQuery: v1.2.14.1017
+#' - BigQuery: v1.3.2.1003
 #' 
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
@@ -96,7 +96,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     5,spark,DatabricksJDBC42-2.6.32.1054.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.32/
     6,snowflake,SnowflakeV3.13.22.zip,https://ohdsi.github.io/DatabaseConnectorJars/
-    7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.2.14.1017.zip,https://storage.googleapis.com/simba-bq-release/jdbc/"
+    7,bigquery,SimbaBigQueryJDBC42-1.3.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/"
   )
   if (dbms == "all") {
     dbms <- jdbcDriverSources$dbms
