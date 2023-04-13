@@ -3,11 +3,18 @@ DatabaseConnector 6.2.0
 
 Changes:
 
-1. Can now use `downloadJdbcDrivers()` to download BigQuery drivers (directly from Google). This deliberately does not download the latest version, since at the time of writing that one conflicts with DatabaseConnector.
+1. Can now use `downloadJdbcDrivers()` to download BigQuery drivers (directly from Google). 
+
+2. Updating Spark JDBC driver to latest version.
 
 Bugfixes:
 
 1. Not asking to delete old files when not in interactive mode and calling `downloadJdbcDrivers()`.
+
+2. Fixing error in RStudio table preview on Postgres when database name contains uppercase characters.
+
+3. Several bugfixes for Spark.
+
 
 
 DatabaseConnector 6.1.0

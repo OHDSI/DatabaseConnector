@@ -96,17 +96,17 @@ SQLite:
 server. The path to the SQLIte file.
 
 
-Spark:
+Spark / Databricks:
 Currently both JDBC and ODBC connections are supported for Spark. Set the
 connectionString argument to use JDBC, otherwise ODBC is used:
-connectionString. The JDBC connection string (e.g. starting with
-'jdbc:spark://my-org.dev.cloud.databricks.com...').
+connectionString. The JDBC connection string (e.g. something like
+'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
 user. The user name used to access the server.
 password. The password for that user.
-server. The host name of the server (when using ODBC)
+server. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
 port. Specifies the port on the server (when using ODBC)
 extraSettings. Additional settings for the ODBC connection, for example
-extraSettings = list(HTTPPath = &quot;http://databricks.server.com&quot;).
+extraSettings = list(HTTPPath = &quot;/sql/1.0/warehouses/abcde12345&quot;, SSL = 1, ThriftTransport = 2, AuthMech = 3)
 
 
 Snowflake:
@@ -151,7 +151,7 @@ set before calling connect() for the first time.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.0</span>
       </span>
     </div>
 
@@ -272,16 +272,16 @@ as "ssl=true")</p></li>
 as "SSLKeyStorePwd=*****")</p></li>
 <li><p><code>pathToDriver</code>. The path to the folder containing the Impala JDBC driver JAR files.</p></li>
 </ul><p>SQLite:</p><ul><li><p><code>server</code>. The path to the SQLIte file.</p></li>
-</ul><p>Spark:</p>
+</ul><p>Spark / Databricks:</p>
 <p>Currently both JDBC and ODBC connections are supported for Spark. Set the
-<code>connectionString</code> argument to use JDBC, otherwise ODBC is used:</p><ul><li><p><code>connectionString</code>. The JDBC connection string (e.g. starting with
-'jdbc:spark://my-org.dev.cloud.databricks.com...').</p></li>
+<code>connectionString</code> argument to use JDBC, otherwise ODBC is used:</p><ul><li><p><code>connectionString</code>. The JDBC connection string (e.g. something like
+'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').</p></li>
 <li><p><code>user</code>. The user name used to access the server.</p></li>
 <li><p><code>password</code>. The password for that user.</p></li>
-<li><p><code>server</code>. The host name of the server (when using ODBC)</p></li>
+<li><p><code>server</code>. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')</p></li>
 <li><p><code>port</code>. Specifies the port on the server (when using ODBC)</p></li>
 <li><p><code>extraSettings</code>. Additional settings for the ODBC connection, for example
-<code>extraSettings = list(HTTPPath = "http://databricks.server.com")</code>.</p></li>
+<code>extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345", SSL = 1, ThriftTransport = 2, AuthMech = 3)</code></p></li>
 </ul><p>Snowflake:</p><ul><li><p><code>connectionString</code>. The connection string (e.g. starting with
 'jdbc:snowflake://host:port/?db=database').</p></li>
 <li><p><code>user</code>. The user name used to access the server.</p></li>
