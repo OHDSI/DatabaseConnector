@@ -50,7 +50,7 @@ Suggests:
     pool,
     ParallelLogger
 Remotes:
-    ohdsi/SqlRender
+    ohdsi/SqlRender@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
