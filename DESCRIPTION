@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 6.2.0
-Date: 2023-04-13
+Version: 6.2.1
+Date: 2023-04-20
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -20,7 +20,7 @@ Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.13.0),
+    SqlRender (>= 1.15.0),
     methods,
     stringr,
     readr,
@@ -49,6 +49,8 @@ Suggests:
     duckdb,
     pool,
     ParallelLogger
+Remotes:
+    ohdsi/SqlRender
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

@@ -85,7 +85,7 @@ test_that("Test dbplyr on SQLite", {
 })
 
 test_that("Test dbplyr on DuckDB", {
-  # SQLite -------------------------------------------------
+  # DuckDb -------------------------------------------------
   databaseFile <- tempfile(fileext = ".duckdb")
   cdmDatabaseSchema <- "main"
   connectionDetails <- createConnectionDetails(

@@ -42,6 +42,17 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_gt(nrow(topAges), 1)
   
+  # Test copy_inline -----------------------------------------------------------
+  rows <- dbplyr::copy_inline(connection, mtcars) %>% 
+    filter(hp > 200) %>%
+    arrange(wt, mpg) %>%
+    collect()
+  rows2 <- mtcars %>% 
+    filter(hp > 200) %>%
+    arrange(wt, mpg) %>%
+    collect()
+  expect_equivalent(rows, rows2, tolerance = 1e-6)
+
   # Test slicing ---------------------------------------------------------------
   personSample <- person %>%
     slice_sample(n = 10) %>%
@@ -152,4 +163,5 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   
   dropEmulatedTempTables(connection)
   # disconnect(connection)
+  invisible(NULL)
 }

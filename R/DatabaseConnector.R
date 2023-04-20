@@ -71,7 +71,7 @@ NULL
 #' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html), pick
 #' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 #'
-#' #SQLite
+#' # SQLite
 #' 
 #' For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
 #' using `install.packages("RSQLite")`.
