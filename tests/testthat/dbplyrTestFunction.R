@@ -92,6 +92,16 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_equal(nrow(filteredRow), 1)
   
+  aPersonId <- person %>%
+    head(1) %>%
+    pull(person_id)
+  localTable = tibble(person_id = aPersonId, person_name = "Pedro")
+  remoteTable <- copy_to(connection, localTable, overwrite = TRUE)
+  result <- remoteTable %>%
+    left_join(person, by = join_by(person_id)) %>%
+    collect()
+  expect_equal(result$person_name, "Pedro")
+  
   # Test joins and unions ------------------------------------------------------
   
   # Casting duration to numeric because platforms like SQL Server compute the mean by first computing the sum, which
