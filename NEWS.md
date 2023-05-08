@@ -15,6 +15,8 @@ Bugfixes:
 
 3. Several bugfixes for Spark.
 
+4. Workaround for `rJava` and `rlang` interaction causing `no field, method or inner class called 'use_cli_format'`errors to be thrown when Java throws an error.
+
 
 
 DatabaseConnector 6.1.0

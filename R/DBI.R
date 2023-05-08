@@ -260,13 +260,20 @@ setMethod(
     }
     # For Oracle, remove trailing semicolon:
     statement <- gsub(";\\s*$", "", statement)
-    
-    batchedQuery <- rJava::.jnew(
-      "org.ohdsi.databaseConnector.BatchedQuery",
-      conn@jConnection,
-      statement,
-      dbms
+    tryCatch(
+      batchedQuery <- rJava::.jnew(
+        "org.ohdsi.databaseConnector.BatchedQuery",
+        conn@jConnection,
+        statement,
+        dbms
+      ),
+      error = function(error) {
+        # Rethrowing error to avoid 'no field, method or inner class called 'use_cli_format''
+        # error by rlang (see https://github.com/OHDSI/DatabaseConnector/issues/235)
+        rlang::abort(error$message)
+      }
     )
+    
     result <- new("DatabaseConnectorJdbcResult",
                   content = batchedQuery,
                   type = "batchedQuery",
@@ -368,7 +375,14 @@ setMethod("dbGetRowCount", "DatabaseConnectorDbiResult", function(res, ...) {
 #' @rdname DatabaseConnectorJdbcResult-class
 #' @export
 setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, ...) {
-  rJava::.jcall(res@content, "V", "fetchBatch")
+  tryCatch(
+    rJava::.jcall(res@content, "V", "fetchBatch"),
+    error = function(error) {
+      # Rethrowing error to avoid 'no field, method or inner class called 'use_cli_format'  
+      # error by rlang (see https://github.com/OHDSI/DatabaseConnector/issues/235)
+      rlang::abort(error$message)
+    }
+  )
   columns <- parseJdbcColumnData(res@content, ...)
   columns <- convertFields(res@dbms, columns)
   columns <- dbFetchIntegerToNumeric(columns)
