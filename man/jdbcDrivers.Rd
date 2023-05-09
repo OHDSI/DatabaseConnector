@@ -22,9 +22,9 @@ on how to obtain the Netezza JDBC driver.
 \section{Impala}{
 Go to \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick
 your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
+}
 
-#SQLite
-
+\section{SQLite}{
 For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
 using \code{install.packages("RSQLite")}.
 }

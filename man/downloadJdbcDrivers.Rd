@@ -46,7 +46,7 @@ The following versions of the JDBC drivers are currently used:
 \item Oracle: V19.8
 \item Spark: V2.6.21
 \item Snowflake: V3.13.22
-\item BigQuery: v1.2.14.1017
+\item BigQuery: v1.3.2.1003
 }
 }
 \examples{
