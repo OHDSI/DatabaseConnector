@@ -1,3 +1,11 @@
+DatabaseConnector 6.2.1
+=======================
+
+Bugfixes:
+
+1. Workaround for `rJava` and `rlang` interaction causing `no field, method or inner class called 'use_cli_format'`errors to be thrown when Java throws an error.
+
+
 DatabaseConnector 6.2.0
 =======================
 
@@ -14,9 +22,6 @@ Bugfixes:
 2. Fixing error in RStudio table preview on Postgres when database name contains uppercase characters.
 
 3. Several bugfixes for Spark.
-
-4. Workaround for `rJava` and `rlang` interaction causing `no field, method or inner class called 'use_cli_format'`errors to be thrown when Java throws an error.
-
 
 
 DatabaseConnector 6.1.0
