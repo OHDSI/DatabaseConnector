@@ -79,7 +79,9 @@ setClass("DatabaseConnectorConnection",
          contains = "Microsoft SQL Server",
          slots = list(
            identifierQuote = "character",
-           stringQuote = "character", dbms = "character", uuid = "character"
+           stringQuote = "character", 
+           dbms = "character", 
+           uuid = "character"
          )
 )
 
@@ -182,13 +184,17 @@ setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "charact
   if (any(is.na(x))) {
     abort("Cannot pass NA to dbQuoteIdentifier()")
   }
-  if (nzchar(conn@identifierQuote)) {
-    x <- gsub(conn@identifierQuote, paste0(
-      conn@identifierQuote,
-      conn@identifierQuote
-    ), x, fixed = TRUE)
+  if (startsWith(x, "[")[1]) {
+    return(DBI::SQL(x))
   }
-  return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
+  # if (nzchar(conn@identifierQuote)) {
+  #   x <- gsub(conn@identifierQuote, paste0(
+  #     conn@identifierQuote,
+  #     conn@identifierQuote
+  #   ), x, fixed = TRUE)
+  # }
+  # return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
+  return(DBI::SQL(paste0("[", encodeString(x), "]")))
 })
 
 #' @rdname DatabaseConnectorConnection-class
