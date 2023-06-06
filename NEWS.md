@@ -1,3 +1,11 @@
+DatabaseConnector 6.2.2
+=======================
+
+Bugfixes:
+
+1. Fixing connection issue for 'Hive'.
+
+
 DatabaseConnector 6.2.1
 =======================
 
