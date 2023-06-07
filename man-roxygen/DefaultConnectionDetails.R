@@ -114,8 +114,8 @@
 #' 
 #'  - `connectionString`. The JDBC connection string (e.g. something like
 #'         'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
-#'  - `user`. The user name used to access the server.
-#'  - `password`. The password for that user.
+#'  - `user`. The user name used to access the server. This can be set to 'token' when using a personal token (recommended).
+#'  - `password`. The password for that user. This should be your personal token  when using a personal token (recommended).
 #'  - `server`. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
 #'  - `port`. Specifies the port on the server (when using ODBC)
 #'  - `extraSettings`. Additional settings for the ODBC connection, for example 
