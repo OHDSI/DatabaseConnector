@@ -266,7 +266,15 @@ insertTable.default <- function(connection,
   sqlFieldNames <- paste(.sql.qescape(names(data), TRUE), collapse = ",")
   
   if (dropTableIfExists) {
-    sql <- "DROP TABLE IF EXISTS @tableName;"
+    warn("CUIMC patch activated.",
+         .frequency = "regularly",
+         .frequency_id = "cuimc"
+    )
+    if (tempTable) {
+      sql <- "IF OBJECT_ID('tempdb..@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
+    } else {
+      sql <- "IF OBJECT_ID('@tableName', 'U') IS NOT NULL DROP TABLE @tableName;"
+    }    
     renderTranslateExecuteSql(
       connection = connection,
       sql = sql,
