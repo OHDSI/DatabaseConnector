@@ -45,7 +45,7 @@ scratchDatabaseSchemaAzure <- "[sql-synthea-1M].mschuemie"
 connectionDetailsDataBricksJdbc <- createConnectionDetails(
   dbms = "spark",
   connectionString = keyring::key_get("dataBricksConnectionString"),
-  user = keyring::key_get("dataBricksUser"),
+  user = "token", keyring::key_get("dataBricksUser"),
   password = keyring::key_get("dataBricksPassword")
 )
 connectionDetailsDataBricksOdbc <- createConnectionDetails(
@@ -685,5 +685,13 @@ dbGetQuery(connection, "SELECT TOP 5 * FROM eunomia.person;")
 querySql(connection, "SELECT  FROM eunomia.person;")
 disconnect(connection)
 
+
+# ODBC
+db <- DBI::dbConnect(odbc::odbc(),
+                     server = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
+                     uid = Sys.getenv("CDM5_SQL_SERVER_USER"),
+                     pwd = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
+                     driver = "SQL Server",
+                     Trusted_Connection=TRUE)
 
 

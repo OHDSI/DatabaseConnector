@@ -37,7 +37,7 @@ public class BatchedQuery {
 	private Connection				connection;
 	private boolean					done;
 	private ByteBuffer				byteBuffer;
-	private long                    availableMemoryAtStart;
+	private long                    remainingMemoryThreshold;
 	private String                  dbms;
 	
 	private static double[] convertToInteger64ForR(long[] value, ByteBuffer byteBuffer) {
@@ -67,7 +67,9 @@ public class BatchedQuery {
 	}
 	
 	private void reserveMemory() {
-		availableMemoryAtStart = getAvailableHeapSpace(true);
+		long availableMemoryAtStart = getAvailableHeapSpace(true);
+		// Try to estimate bytes needed per row. Note that we could severely underestimate if data contains very large 
+		// strings.
 		int bytesPerRow = 0;
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
@@ -81,6 +83,7 @@ public class BatchedQuery {
 			else
 				bytesPerRow += 24;
 		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
+		remainingMemoryThreshold = Math.max(bytesPerRow * CHECK_MEM_ROWS * 10, availableMemoryAtStart / 10);
 		columns = new Object[columnTypes.length];
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
@@ -192,8 +195,8 @@ public class BatchedQuery {
 					}
 				rowCount++;
 				if (rowCount % CHECK_MEM_ROWS == 0) {
-					if (getAvailableHeapSpace(false) < availableMemoryAtStart / 2)
-						if (getAvailableHeapSpace(true) < availableMemoryAtStart / 2)
+					if (getAvailableHeapSpace(false) < remainingMemoryThreshold)
+						if (getAvailableHeapSpace(true) < remainingMemoryThreshold)
 							break;
 				}
 			} else {

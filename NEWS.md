@@ -1,6 +1,12 @@
 DatabaseConnector 6.2.2
 =======================
 
+Changes:
+
+1. Changing heuristic for detecting when almost running out of Java heap.
+
+2. Setting default `fetchRingBufferSize` for RedShift to 100MB (instead of 1GB) to preven Java out of heap errors, and overall better performance.
+
 Bugfixes:
 
 1. Fixing connection issue for 'Hive'.

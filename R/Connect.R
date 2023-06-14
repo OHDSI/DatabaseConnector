@@ -504,10 +504,15 @@ connectRedShift <- function(connectionDetails) {
     }
     connectionString <- paste("jdbc:redshift://", host, ":", port, "/", database, sep = "")
     if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = "?")
+      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
     }
   } else {
     connectionString <- connectionDetails$connectionString()
+  }
+  # Default fetchRingBufferSize is 1GB, which is a bit extreme and causing Java out of heap
+  # error, so set to something more reasonable if the users didn't already do that:
+  if (!grepl("fetchRingBufferSize", connectionString)) {
+    connectionString <- paste(connectionString, "fetchRingBufferSize=100M", sep = ";")
   }
   if (is.null(connectionDetails$user())) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
