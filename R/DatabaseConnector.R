@@ -39,7 +39,7 @@ NULL
                                }
   )
   if (computedChecksum != "" && (storedChecksum != computedChecksum)) {
-    warning("Java library version does not match R package version! Please try reinstalling the SqlRender package.
+    warning("Java library version does not match R package version! Please try reinstalling the DatabaseConnector package.
             Make sure to close all instances of R, and open only one instance before reinstalling. Also make sure your
             R workspace is not reloaded on startup. Delete your .Rdata file if necessary")
   }
