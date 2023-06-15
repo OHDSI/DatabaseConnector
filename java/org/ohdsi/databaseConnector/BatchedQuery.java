@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.Date;
 
 public class BatchedQuery {
 	public static int				NUMERIC			= 1;
@@ -22,7 +22,6 @@ public class BatchedQuery {
 	public static int				FETCH_SIZE		= 2048;
 	public static double            MAX_BATCH_SIZE  = 1000000;
 	public static long              CHECK_MEM_ROWS  = 10000;
-	private static SimpleDateFormat	DATE_FORMAT		= new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static String           SPARK           = "spark";
 	
@@ -80,6 +79,8 @@ public class BatchedQuery {
 				bytesPerRow += 16; // 8 more in ByteBuffer
 			else if (columnTypes[columnIndex] == STRING)
 				bytesPerRow += 512;
+			else if (columnTypes[columnIndex] == DATE)
+				bytesPerRow += 4;
 			else
 				bytesPerRow += 24;
 		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
@@ -94,6 +95,8 @@ public class BatchedQuery {
 				columns[columnIndex] = new long[batchSize];
 			else if (columnTypes[columnIndex] == STRING)
 				columns[columnIndex] = new String[batchSize];
+			else if (columnTypes[columnIndex] == DATE)
+				columns[columnIndex] = new int[batchSize];
 			else
 				columns[columnIndex] = new String[batchSize];
 		byteBuffer = ByteBuffer.allocate(8 * batchSize);
@@ -182,9 +185,9 @@ public class BatchedQuery {
 					else if (columnTypes[columnIndex] == DATE) {
 						Date date = resultSet.getDate(columnIndex + 1);
 						if (date == null)
-							((String[]) columns[columnIndex])[rowCount] = null;
+							((int[]) columns[columnIndex])[rowCount] = Integer.MIN_VALUE;
 						else
-							((String[]) columns[columnIndex])[rowCount] = DATE_FORMAT.format(date);
+							((int[]) columns[columnIndex])[rowCount] = (int)date.toLocalDate().toEpochDay();
 					} else {
 						Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
 						if (timestamp == null)

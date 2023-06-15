@@ -96,66 +96,39 @@ parseJdbcColumnData <- function(content,
   if (is.null(columnTypes)) {
     columnTypes <- rJava::.jcall(content, "[I", "getColumnTypes")
   }
-  
   columns <- vector("list", length(columnTypes))
-  
-  for (i in seq_len(length(columnTypes))) {
+  for (i in seq_along(columnTypes)) {
     if (columnTypes[i] == 1) {
-      column <- rJava::.jcall(
-        content,
-        "[D",
-        "getNumeric",
-        as.integer(i)
-      )
+      column <- rJava::.jcall(content, "[D", "getNumeric", as.integer(i))
       # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
       column[is.nan(column)] <- NA
-      columns[[i]] <- c(columns[[i]], column)
     } else if (columnTypes[i] == 5) {
-      column <- rJava::.jcall(
-        content,
-        "[D",
-        "getInteger64",
-        as.integer(i)
-      )
+      column <- rJava::.jcall(content, "[D", "getInteger64", as.integer(i))
       oldClass(column) <- "integer64"
-      if (is.null(columns[[i]])) {
-        columns[[i]] <- column
-      } else {
-        columns[[i]] <- c(columns[[i]], column)
-      }
-      
       if (integer64AsNumeric) {
-        columns[[i]] <- convertInteger64ToNumeric(columns[[i]])
+        column <- convertInteger64ToNumeric(column)
       }
     } else if (columnTypes[i] == 6) {
-      columns[[i]] <- c(
-        columns[[i]],
-        rJava::.jcall(
-          content,
-          "[I",
-          "getInteger",
-          as.integer(i)
-        )
-      )
+      column <- rJava::.jcall(content, "[I", "getInteger", as.integer(i))
       if (integerAsNumeric) {
-        columns[[i]] <- as.numeric(columns[[i]])
+        column <- as.numeric(column)
+      }
+    } else if (columnTypes[i] == 3) {
+      column <- rJava::.jcall(content, "[I", "getInteger", as.integer(i))
+      column <- as.Date(column)
+      if (datesAsString) {
+        column <- format(column, "%Y-%m-%d")
       }
     } else {
-      columns[[i]] <- c(
-        columns[[i]],
-        rJava::.jcall(content, "[Ljava/lang/String;", "getString", i)
-      )
-      
+      column <- rJava::.jcall(content, "[Ljava/lang/String;", "getString", i)
       if (!datesAsString) {
-        if (columnTypes[i] == 3) {
-          columns[[i]] <- as.Date(columns[[i]])
-        } else if (columnTypes[i] == 4) {
-          columns[[i]] <- as.POSIXct(columns[[i]])
+        if (columnTypes[i] == 4) {
+          column <- as.POSIXct(column)
         }
       }
     }
+    columns[[i]] <- column
   }
-  
   names(columns) <- rJava::.jcall(content, "[Ljava/lang/String;", "getColumnNames")
   # More efficient than as.data.frame, as it avoids converting row.names to character:
   columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
