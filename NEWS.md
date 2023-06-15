@@ -9,6 +9,8 @@ Changes:
 
 3. Using integers instead of strings to pass dates from Java to R for improved speed.
 
+4. Using doubles instead of strings to pass datetimes from Java to R for improved speed.
+
 Bugfixes:
 
 1. Fixing connection issue for 'Hive'.

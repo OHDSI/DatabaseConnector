@@ -100,8 +100,6 @@ parseJdbcColumnData <- function(content,
   for (i in seq_along(columnTypes)) {
     if (columnTypes[i] == 1) {
       column <- rJava::.jcall(content, "[D", "getNumeric", as.integer(i))
-      # rJava doesn't appear to be able to return NAs, so converting NaNs to NAs:
-      column[is.nan(column)] <- NA
     } else if (columnTypes[i] == 5) {
       column <- rJava::.jcall(content, "[D", "getInteger64", as.integer(i))
       oldClass(column) <- "integer64"
@@ -119,6 +117,9 @@ parseJdbcColumnData <- function(content,
       if (datesAsString) {
         column <- format(column, "%Y-%m-%d")
       }
+    } else if (columnTypes[i] == 4) {
+      column <- rJava::.jcall(content, "[D", "getNumeric", as.integer(i))
+      column <- as.POSIXct(column)
     } else {
       column <- rJava::.jcall(content, "[Ljava/lang/String;", "getString", i)
       if (!datesAsString) {

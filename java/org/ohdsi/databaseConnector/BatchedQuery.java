@@ -9,7 +9,6 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.sql.Date;
 
 public class BatchedQuery {
@@ -22,8 +21,10 @@ public class BatchedQuery {
 	public static int				FETCH_SIZE		= 2048;
 	public static double            MAX_BATCH_SIZE  = 1000000;
 	public static long              CHECK_MEM_ROWS  = 10000;
-	private static SimpleDateFormat	DATETIME_FORMAT	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static String           SPARK           = "spark";
+    public static double 			NA_DOUBLE 		= Double.longBitsToDouble(0x7ff00000000007a2L);
+    public static int 				NA_INTEGER   	= Integer.MIN_VALUE;
+    public static long 				NA_LONG   		= Long.MIN_VALUE;
 	
 	private Object[]				columns;
 	private int[]					columnTypes;
@@ -69,20 +70,20 @@ public class BatchedQuery {
 		long availableMemoryAtStart = getAvailableHeapSpace(true);
 		// Try to estimate bytes needed per row. Note that we could severely underestimate if data contains very large 
 		// strings.
-		int bytesPerRow = 0;
+		int bytesPerRow = 8; // Always have the byte buffer
 		for (int columnIndex = 0; columnIndex < columnTypes.length; columnIndex++)
 			if (columnTypes[columnIndex] == NUMERIC)
 				bytesPerRow += 8;
 			else if (columnTypes[columnIndex] == INTEGER)
 				bytesPerRow += 4;
 			else if (columnTypes[columnIndex] == INTEGER64)
-				bytesPerRow += 16; // 8 more in ByteBuffer
-			else if (columnTypes[columnIndex] == STRING)
-				bytesPerRow += 512;
+				bytesPerRow += 8;
 			else if (columnTypes[columnIndex] == DATE)
 				bytesPerRow += 4;
-			else
-				bytesPerRow += 24;
+			else if (columnTypes[columnIndex] == DATETIME)
+				bytesPerRow += 8;
+			else // String
+				bytesPerRow += 512;
 		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
 		remainingMemoryThreshold = Math.max(bytesPerRow * CHECK_MEM_ROWS * 10, availableMemoryAtStart / 10);
 		columns = new Object[columnTypes.length];
@@ -97,6 +98,8 @@ public class BatchedQuery {
 				columns[columnIndex] = new String[batchSize];
 			else if (columnTypes[columnIndex] == DATE)
 				columns[columnIndex] = new int[batchSize];
+			else if (columnTypes[columnIndex] == DATETIME)
+				columns[columnIndex] = new double[batchSize];
 			else
 				columns[columnIndex] = new String[batchSize];
 		byteBuffer = ByteBuffer.allocate(8 * batchSize);
@@ -171,29 +174,29 @@ public class BatchedQuery {
 					if (columnTypes[columnIndex] == NUMERIC) {
 						((double[]) columns[columnIndex])[rowCount] = resultSet.getDouble(columnIndex + 1);
 						if (resultSet.wasNull())
-							((double[]) columns[columnIndex])[rowCount] = Double.NaN;
+							((double[]) columns[columnIndex])[rowCount] = NA_DOUBLE;
 					} else if (columnTypes[columnIndex] == INTEGER64) {
 						((long[]) columns[columnIndex])[rowCount] = resultSet.getLong(columnIndex + 1);
 						if (resultSet.wasNull())
-							((long[]) columns[columnIndex])[rowCount] = Long.MIN_VALUE;
+							((long[]) columns[columnIndex])[rowCount] = NA_LONG;
 					} else if (columnTypes[columnIndex] == INTEGER) {
 						((int[]) columns[columnIndex])[rowCount] = resultSet.getInt(columnIndex + 1);
 						if (resultSet.wasNull())
-							((int[]) columns[columnIndex])[rowCount] = Integer.MIN_VALUE;
+							((int[]) columns[columnIndex])[rowCount] = NA_INTEGER;
 					} else if (columnTypes[columnIndex] == STRING)
 						((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
 					else if (columnTypes[columnIndex] == DATE) {
 						Date date = resultSet.getDate(columnIndex + 1);
 						if (date == null)
-							((int[]) columns[columnIndex])[rowCount] = Integer.MIN_VALUE;
+							((int[]) columns[columnIndex])[rowCount] = NA_INTEGER;
 						else
 							((int[]) columns[columnIndex])[rowCount] = (int)date.toLocalDate().toEpochDay();
 					} else {
 						Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
 						if (timestamp == null)
-							((String[]) columns[columnIndex])[rowCount] = null;
+							((double[]) columns[columnIndex])[rowCount] = NA_DOUBLE;
 						else
-							((String[]) columns[columnIndex])[rowCount] = DATETIME_FORMAT.format(timestamp);
+							((double[]) columns[columnIndex])[rowCount] = timestamp.getTime() / 1000;
 
 					}
 				rowCount++;
