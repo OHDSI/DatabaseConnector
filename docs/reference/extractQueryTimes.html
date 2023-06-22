@@ -19,7 +19,7 @@ This function parses the log file, producing a data frame with time per query.">
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.2</span>
       </span>
     </div>
 
@@ -100,21 +100,20 @@ the default file logger.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting using SQLite driver</span>
 <span class="r-in"><span><span class="va">logFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".log"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">ParallelLogger</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/ParallelLogger/reference/addDefaultFileLogger.html" class="external-link">addDefaultFileLogger</a></span><span class="op">(</span>fileName <span class="op">=</span> <span class="va">logFile</span>, name <span class="op">=</span> <span class="st">"MY_LOGGER"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Currently in a tryCatch or withCallingHandlers block, so unable to add global calling handlers. ParallelLogger will not capture R messages, errors, and warnings, only explicit calls to ParallelLogger. (This message will not be shown again this R session)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>LOG_DATABASECONNECTOR_SQL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="executeSql.html">executeSql</a></span><span class="op">(</span><span class="va">connection</span>, <span class="st">"CREATE TABLE test (x INT);"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Executing SQL took 0.0117 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Executing SQL took 0.28 secs</span>
 <span class="r-in"><span><span class="fu"><a href="querySql.html">querySql</a></span><span class="op">(</span><span class="va">connection</span>, <span class="st">"SELECT * FROM test;"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] X</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">extractQueryTimes</span><span class="op">(</span><span class="va">logFile</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       query           startTime milliseconds      thread</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 CREATE TABLE test (x INT) 2023-05-09 06:53:12            1 Main thread</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        SELECT * FROM test 2023-05-09 06:53:12            2 Main thread</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 CREATE TABLE test (x INT) 2023-06-22 14:41:15            1 Main thread</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        SELECT * FROM test 2023-06-22 14:41:16            4 Main thread</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">ParallelLogger</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/ParallelLogger/reference/unregisterLogger.html" class="external-link">unregisterLogger</a></span><span class="op">(</span><span class="st">"MY_LOGGER"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>

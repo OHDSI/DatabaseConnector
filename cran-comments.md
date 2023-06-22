@@ -1,4 +1,4 @@
-This update includes 1 bugfix (see NEWS.md), and modifies the System Requirements Java notation as requested by Prof. Ripley. 
+This update includes 4 changes and 1 bugfix (see NEWS.md).
 
 ---
 

@@ -54,6 +54,13 @@ rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
                                           number_sections = TRUE))
 
 # May need to delete Sexpr expressions from description sections to avoid purr error:
+fixRdFile <- function(fileName) {
+  page <- SqlRender::readSql(fileName)
+  page <- gsub("\\Sexpr[^\n]*\n", "", page)
+  SqlRender::writeSql(page, fileName)
+}
+fixRdFile("man/DatabaseConnectorConnection-class.Rd")
+fixRdFile("man/dbGetInfo-DatabaseConnectorDriver-method.Rd")
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 

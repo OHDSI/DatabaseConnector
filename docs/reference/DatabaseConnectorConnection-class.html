@@ -3,8 +3,66 @@
 connection.
 This should include views and temporary objects, but not all database backends
 (in particular RMariaDB and RMySQL) support this.
+}
 
-"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The databaseSchema argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
+
+
+Other DBIConnection generics: 
+DBIConnection-class,
+dbAppendTable(),
+dbCreateTable(),
+dbDataType(),
+dbDisconnect(),
+dbExecute(),
+dbExistsTable(),
+dbGetException(),
+dbGetInfo(),
+dbGetQuery(),
+dbIsReadOnly(),
+dbIsValid(),
+dbListFields(),
+dbListObjects(),
+dbListResults(),
+dbReadTable(),
+dbRemoveTable(),
+dbSendQuery(),
+dbSendStatement(),
+dbWriteTable()
+
+internal"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
@@ -22,7 +80,7 @@ This should include views and temporary objects, but not all database backends
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.2</span>
       </span>
     </div>
 
@@ -77,8 +135,66 @@ This should include views and temporary objects, but not all database backends
 connection.
 This should include views and temporary objects, but not all database backends
 (in particular <span class="pkg">RMariaDB</span> and <span class="pkg">RMySQL</span>) support this.</p>
+<p>}
+
+The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
+SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
+'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
+The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
+specify the schema.
 
 
+Other DBIConnection generics: 
+<code><a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBIConnection-class</a></code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbAppendTable.html" class="external-link">dbAppendTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbCreateTable.html" class="external-link">dbCreateTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbDataType.html" class="external-link">dbDataType</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbExistsTable.html" class="external-link">dbExistsTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetException.html" class="external-link">dbGetException</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListFields.html" class="external-link">dbListFields</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListObjects.html" class="external-link">dbListObjects</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbListResults.html" class="external-link">dbListResults</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbReadTable.html" class="external-link">dbReadTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbRemoveTable.html" class="external-link">dbRemoveTable</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement</a>()</code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable</a>()</code>
+
+internal</p>
     </div>
 
     <div id="ref-usage">
@@ -236,73 +352,6 @@ it is also removed from the list of database tables.</p>
 
 
 <p>The returned names are suitable for quoting with <code>dbQuoteIdentifier()</code>.</p>
-    </div>
-    <div id="details">
-    <h2>Details</h2>
-    <p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-<p>The <code>databaseSchema</code> argument is interpreted differently according to the different platforms:
-SQL Server and PDW: The databaseSchema schema should specify both the database and the schema, e.g.
-'my_database.dbo'. Impala: the databaseSchema should specify the database. Oracle:
-The databaseSchema should specify the Oracle 'user'. All other : The databaseSchema should
-specify the schema.</p>
-    </div>
-    <div id="see-also">
-    <h2>See also</h2>
-    <div class="dont-index"><p>Other DBIConnection generics: 
-<code><a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBIConnection-class</a></code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbAppendTable.html" class="external-link">dbAppendTable</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbCreateTable.html" class="external-link">dbCreateTable</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbDataType.html" class="external-link">dbDataType</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbExistsTable.html" class="external-link">dbExistsTable</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbGetException.html" class="external-link">dbGetException</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbGetInfo.html" class="external-link">dbGetInfo</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbIsReadOnly.html" class="external-link">dbIsReadOnly</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbIsValid.html" class="external-link">dbIsValid</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbListFields.html" class="external-link">dbListFields</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbListObjects.html" class="external-link">dbListObjects</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbListResults.html" class="external-link">dbListResults</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbReadTable.html" class="external-link">dbReadTable</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbRemoveTable.html" class="external-link">dbRemoveTable</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement</a>()</code>,
-<code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable</a>()</code></p></div>
     </div>
 
   </div>

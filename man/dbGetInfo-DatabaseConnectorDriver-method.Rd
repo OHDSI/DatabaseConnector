@@ -54,7 +54,7 @@ as returned by \code{\link[DBI:dbHasCompleted]{dbHasCompleted()}}.
 Retrieves information on objects of class \linkS4class{DBIDriver},
 \linkS4class{DBIConnection} or \linkS4class{DBIResult}.
 
-}
+\}
 \seealso{
 Other DBIDriver generics: 
 \code{\link[DBI]{DBIDriver-class}},

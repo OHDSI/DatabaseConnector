@@ -21,6 +21,12 @@ test_that("Insert and retrieve dates from duckdb", {
     createTable = TRUE,
     camelCaseToSnakeCase = TRUE
   )
+  sql <- "SELECT DATEADD(day, (-1 * 7), start_date) FROM main.test;"
+  sql <- SqlRender::translate(sql, "duckdb")
+  writeLines(sql)
+  sql <- "SELECT (start_date + INTERVAL'(-1 * 7) day') FROM main.test;"
+  querySql(connection, sql)
+  
   data2 <- renderTranslateQuerySql(
     connection = connection, 
     sql = "SELECT * FROM main.test;",

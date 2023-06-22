@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.2</span>
       </span>
     </div>
 
@@ -88,10 +88,9 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Connecting to a database</h1>
-                        <h4 data-toc-skip class="author">Martijn J.
-Schuemie</h4>
+                        <h4 data-toc-skip class="author">Martijn J. Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2023-05-09</h4>
+            <h4 data-toc-skip class="date">2023-06-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/Connecting.Rmd" class="external-link"><code>vignettes/Connecting.Rmd</code></a></small>
       <div class="hidden name"><code>Connecting.Rmd</code></div>
@@ -103,15 +102,13 @@ Schuemie</h4>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette describes how you can use the
-<code>DatabaseConnector</code> package to connect to a database.</p>
+<p>This vignette describes how you can use the <code>DatabaseConnector</code> package to connect to a database.</p>
 <p><code>DatabaseConnector</code> supports these database platforms:</p>
 <ul>
 <li>Microsoft SQL Server</li>
 <li>Oracle</li>
 <li>PostgresSql</li>
-<li>Microsoft Parallel Data Warehouse (PDW, a.k.a. Analytics Platform
-System)</li>
+<li>Microsoft Parallel Data Warehouse (PDW, a.k.a. Analytics Platform System)</li>
 <li>Amazon Redshift</li>
 <li>Apache Impala</li>
 <li>Google BigQuery</li>
@@ -123,68 +120,42 @@ System)</li>
 <div class="section level2">
 <h2 id="obtaining-drivers">Obtaining drivers<a class="anchor" aria-label="anchor" href="#obtaining-drivers"></a>
 </h2>
-<p>Before <code>DatabaseConnector</code> can be used to connect to a
-database, the drivers for your platform need to be downloaded to a
-location in the local file system, which we’ll refer to as the JAR
-folder.</p>
+<p>Before <code>DatabaseConnector</code> can be used to connect to a database, the drivers for your platform need to be downloaded to a location in the local file system, which we’ll refer to as the JAR folder.</p>
 <div class="section level3">
 <h3 id="the-jar-folder">The JAR folder<a class="anchor" aria-label="anchor" href="#the-jar-folder"></a>
 </h3>
-<p>The JAR folder is just a folder in the local file system where the
-database drivers are stored. It is highly recommended to use the
-<code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable to
-point to this folder, which you can for example set using:</p>
+<p>The JAR folder is just a folder in the local file system where the database drivers are stored. It is highly recommended to use the <code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable to point to this folder, which you can for example set using:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"DATABASECONNECTOR_JAR_FOLDER"</span> <span class="op">=</span> <span class="st">"c:/temp/jdbcDrivers"</span><span class="op">)</span></span></code></pre></div>
-<p>Even better would be to add this entry to your <code>.Renviron</code>
-file:</p>
+<p>Even better would be to add this entry to your <code>.Renviron</code> file:</p>
 <pre><code><span><span class="va">DATABASECONNECTOR_JAR_FOLDER</span> <span class="op">=</span> <span class="st">'c:/temp/jdbcDrivers'</span></span></code></pre>
-<p>That way, the environmental variable will be automatically set
-whenever you start R. A convenient way to edit your
-<code>.Renviron</code> file is by using <code>usethis</code>:</p>
+<p>That way, the environmental variable will be automatically set whenever you start R. A convenient way to edit your <code>.Renviron</code> file is by using <code>usethis</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"usethis"</span><span class="op">)</span></span>
 <span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_environ</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>If you don’t use the <code>DATABASECONNECTOR_JAR_FOLDER</code>
-environmental variable, you will need to provide the
-<code>pathToDriver</code> argument every time you call the
-<code>downloadJdbcDrivers</code>, <code>connect</code>,
-<code>dbConnect</code>, or <code>createConnectionDetails</code>
-functions.</p>
+<p>If you don’t use the <code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable, you will need to provide the <code>pathToDriver</code> argument every time you call the <code>downloadJdbcDrivers</code>, <code>connect</code>, <code>dbConnect</code>, or <code>createConnectionDetails</code> functions.</p>
 </div>
 <div class="section level3">
-<h3 id="obtaining-drivers-for-sql-server-oracle-postgresql-pdw-spark-redshift">Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark,
-RedShift<a class="anchor" aria-label="anchor" href="#obtaining-drivers-for-sql-server-oracle-postgresql-pdw-spark-redshift"></a>
+<h3 id="obtaining-drivers-for-sql-server-oracle-postgresql-pdw-spark-redshift">Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift<a class="anchor" aria-label="anchor" href="#obtaining-drivers-for-sql-server-oracle-postgresql-pdw-spark-redshift"></a>
 </h3>
-<p>For your convenience these JDBC drivers are hosted on the OHDSI
-GitHub pages, and can be downloaded using the
-<code>downloadJdbcDrivers</code> function. You’ll first need to specify
-the JAR folder as described in the previous section, for example
-using</p>
+<p>For your convenience these JDBC drivers are hosted on the OHDSI GitHub pages, and can be downloaded using the <code>downloadJdbcDrivers</code> function. You’ll first need to specify the JAR folder as described in the previous section, for example using</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"DATABASECONNECTOR_JAR_FOLDER"</span> <span class="op">=</span> <span class="st">"c:/temp/jdbcDrivers"</span><span class="op">)</span></span></code></pre></div>
 <p>And next download the driver. For example, for PostgreSQL:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers</a></span><span class="op">(</span><span class="st">"postgresql"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## DatabaseConnector JDBC drivers downloaded to 'c:/temp/jdbcDrivers'.</span></span></code></pre>
-<p>Note that if we hadn’t specified the
-<code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable, we
-would have to specify the <code>pathToDriver</code> argument when
-calling <code>downloadJdbcDrivers</code>.</p>
+<p>Note that if we hadn’t specified the <code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable, we would have to specify the <code>pathToDriver</code> argument when calling <code>downloadJdbcDrivers</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="obtaining-drivers-for-bigquery-netezza-and-impala">Obtaining drivers for BigQuery, Netezza and Impala<a class="anchor" aria-label="anchor" href="#obtaining-drivers-for-bigquery-netezza-and-impala"></a>
 </h3>
-<p>Because of licensing reasons the drivers for BigQuery, Netezza and
-Impala are not included but must be obtained by the user. see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html" class="external-link">these
-instructions on how to download these drivers</a>, which you can also
-see by typing <code><a href="../reference/jdbcDrivers.html">?jdbcDrivers</a></code>.</p>
+<p>Because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html" class="external-link">these instructions on how to download these drivers</a>, which you can also see by typing <code><a href="../reference/jdbcDrivers.html">?jdbcDrivers</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="obtaining-drivers-for-sqlite">Obtaining drivers for SQLite<a class="anchor" aria-label="anchor" href="#obtaining-drivers-for-sqlite"></a>
 </h3>
-<p>For SQLite we actually don’t use a JDBC driver. Instead, we use the
-RSQLite package, which can be installed using</p>
+<p>For SQLite we actually don’t use a JDBC driver. Instead, we use the RSQLite package, which can be installed using</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RSQLite"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -192,38 +163,25 @@ RSQLite package, which can be installed using</p>
 <div class="section level2">
 <h2 id="creating-a-connection">Creating a connection<a class="anchor" aria-label="anchor" href="#creating-a-connection"></a>
 </h2>
-<p>To connect to a database a number of details need to be specified,
-such as the database platform, the location of the server, the user
-name, password, and path to the driver. We can call the
-<code><a href="../reference/connect.html">connect()</a></code> function and specify these details directly:</p>
+<p>To connect to a database a number of details need to be specified, such as the database platform, the location of the server, the user name, password, and path to the driver. We can call the <code><a href="../reference/connect.html">connect()</a></code> function and specify these details directly:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
 <span>                server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span>
 <span>                user <span class="op">=</span> <span class="st">"joe"</span>,</span>
 <span>                password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Connecting using PostgreSQL driver</span></span></code></pre>
-<p>See <a href="http://ohdsi.github.io/DatabaseConnector/reference/connect.html" class="external-link">this
-webpage</a> or type <code><a href="../reference/connect.html">?connect</a></code> for information on which
-details are required for each platform. Note that we did not need to
-specify the <code>pathToDriver</code> argument because we previously
-already set the <code>DATABASECONNECTOR_JAR_FOLDER</code> environmental
-variable.</p>
+<p>See <a href="http://ohdsi.github.io/DatabaseConnector/reference/connect.html" class="external-link">this webpage</a> or type <code><a href="../reference/connect.html">?connect</a></code> for information on which details are required for each platform. Note that we did not need to specify the <code>pathToDriver</code> argument because we previously already set the <code>DATABASECONNECTOR_JAR_FOLDER</code> environmental variable.</p>
 <p>Don’t forget to close any connection afterwards:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></code></pre></div>
-<p>Instead of providing the server name, it is also possible to provide
-the JDBC connection string if this is more convenient:</p>
+<p>Instead of providing the server name, it is also possible to provide the JDBC connection string if this is more convenient:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
 <span>                connectionString <span class="op">=</span> <span class="st">"jdbc:postgresql://localhost:5432/postgres"</span>,</span>
 <span>                user <span class="op">=</span> <span class="st">"joe"</span>,</span>
 <span>                password <span class="op">=</span> <span class="st">"secret"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Connecting using PostgreSQL driver</span></span></code></pre>
-<p>Sometimes we may want to first specify the connection details, and
-defer connecting until later. This may be convenient for example when
-the connection is established inside a function, and the details need to
-be passed as an argument. We can use the
-<code>createConnectionDetails</code> function for this purpose:</p>
+<p>Sometimes we may want to first specify the connection details, and defer connecting until later. This may be convenient for example when the connection is established inside a function, and the details need to be passed as an argument. We can use the <code>createConnectionDetails</code> function for this purpose:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">details</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createConnectionDetails.html">createConnectionDetails</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"postgresql"</span>,</span>
 <span>                                   server <span class="op">=</span> <span class="st">"localhost/postgres"</span>,</span>
@@ -235,25 +193,12 @@ be passed as an argument. We can use the
 <div class="section level2">
 <h2 id="using-windows-authentication-for-sql-server">Using Windows Authentication for SQL Server<a class="anchor" aria-label="anchor" href="#using-windows-authentication-for-sql-server"></a>
 </h2>
-<p>In some organizations using Microsoft SQL Server and Windows, it is
-possible to use Windows Authentication to connect to the server, meaning
-you won’t have to provide a user name and password, since your Windows
-credentials will be used. This will require downloading the SQL Server
-authentication DLL file, and placing it somewhere on your system path.
-If you don’t have rights to add files to a place on your system path,
-you can place it anywhere, and set the <code>PATH_TO_AUTH_DLL</code>
-environmental variable, either using the <code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv()</a></code>, or
-by adding it to your <code>.Renviron</code> file. See <a href="http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1" class="external-link">this
-webpage</a> or type <code><a href="../reference/connect.html">?connect</a></code> for details on where to get
-the DLL (and what specific version).</p>
+<p>In some organizations using Microsoft SQL Server and Windows, it is possible to use Windows Authentication to connect to the server, meaning you won’t have to provide a user name and password, since your Windows credentials will be used. This will require downloading the SQL Server authentication DLL file, and placing it somewhere on your system path. If you don’t have rights to add files to a place on your system path, you can place it anywhere, and set the <code>PATH_TO_AUTH_DLL</code> environmental variable, either using the <code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv()</a></code>, or by adding it to your <code>.Renviron</code> file. See <a href="http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1" class="external-link">this webpage</a> or type <code><a href="../reference/connect.html">?connect</a></code> for details on where to get the DLL (and what specific version).</p>
 </div>
 <div class="section level2">
 <h2 id="connecting-to-a-sqlite-database">Connecting to a SQLite database<a class="anchor" aria-label="anchor" href="#connecting-to-a-sqlite-database"></a>
 </h2>
-<p><code>DatabaseConnector</code> also supports SQLite through the <a href="https://cran.r-project.org/web/packages/RSQLite/index.html" class="external-link">RSQLite
-package</a>, mainly for testing and demonstration purposes. Provide the
-path to the SQLite file as the <code>server</code> argument when
-connecting. If no file exists it will be created:</p>
+<p><code>DatabaseConnector</code> also supports SQLite through the <a href="https://cran.r-project.org/web/packages/RSQLite/index.html" class="external-link">RSQLite package</a>, mainly for testing and demonstration purposes. Provide the path to the SQLite file as the <code>server</code> argument when connecting. If no file exists it will be created:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span>dbms <span class="op">=</span> <span class="st">"sqlite"</span>, server <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Connecting using SQLite driver</span></span></code></pre>
@@ -262,7 +207,7 @@ connecting. If no file exists it will be created:</p>
 <span><span class="fu"><a href="../reference/insertTable.html">insertTable</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">conn</span>, </span>
 <span>            tableName <span class="op">=</span> <span class="st">"cars"</span>, </span>
 <span>            data <span class="op">=</span> <span class="va">cars</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Inserting data took 0.0309 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Inserting data took 0.114 secs</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT COUNT(*) FROM main.cars;"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   COUNT(*)</span></span>
