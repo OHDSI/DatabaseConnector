@@ -113,7 +113,7 @@ parseJdbcColumnData <- function(content,
       }
     } else if (columnTypes[i] == 3) {
       column <- rJava::.jcall(content, "[I", "getInteger", as.integer(i))
-      column <- as.Date(column)
+      column <- as.Date(column, origin = "1970-01-01")
       if (datesAsString) {
         column <- format(column, "%Y-%m-%d")
       }

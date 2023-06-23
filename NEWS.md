@@ -1,3 +1,11 @@
+DatabaseConnector 6.2.3
+=======================
+
+Bugfixes:
+
+1. Fixing error about missing origin when fetching dates on older R versions.
+
+
 DatabaseConnector 6.2.2
 =======================
 
