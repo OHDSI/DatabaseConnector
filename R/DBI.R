@@ -374,20 +374,37 @@ setMethod("dbGetRowCount", "DatabaseConnectorDbiResult", function(res, ...) {
 
 #' @rdname DatabaseConnectorJdbcResult-class
 #' @export
-setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, ...) {
-  tryCatch(
-    rJava::.jcall(res@content, "V", "fetchBatch"),
-    error = function(error) {
-      # Rethrowing error to avoid 'no field, method or inner class called 'use_cli_format'  
-      # error by rlang (see https://github.com/OHDSI/DatabaseConnector/issues/235)
-      rlang::abort(error$message)
+setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, n = -1, ...) {
+  tryCatch({
+    if (n == -1 | is.infinite(n)) {
+      columns <- getAllBatches(batchedQuery = res@content,
+                               datesAsString = FALSE,
+                               integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
+                                                              default = TRUE),
+                               integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
+                                                            default = TRUE))
+    } else {
+      warn("The 'n' argument is set to something other than -1 or Inf, and will be ignored. Fetching as many rows as fits in the Java VM.",
+           .frequency = "regularly",
+           .frequency_id = "dbFetchN"
+      )
+      rJava::.jcall(res@content, "V", "fetchBatch")
+      columns <- parseJdbcColumnData(batchedQuery = res@content,
+                                     datesAsString = FALSE,
+                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric",
+                                                                    default = TRUE),
+                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
+                                                                  default = TRUE))
     }
-  )
-  columns <- parseJdbcColumnData(res@content, ...)
-  columns <- convertFields(res@dbms, columns)
-  columns <- dbFetchIntegerToNumeric(columns)
-  colnames(columns) <- tolower(colnames(columns))
-  return(columns)
+    columns <- convertFields(res@dbms, columns)
+    colnames(columns) <- tolower(colnames(columns))
+    return(columns)
+  },
+  error = function(error) {
+    # Rethrowing error to avoid 'no field, method or inner class called 'use_cli_format'  
+    # error by rlang (see https://github.com/OHDSI/DatabaseConnector/issues/235)
+    rlang::abort(error$message)
+  })
 })
 
 #' @rdname DatabaseConnectorDbiResult-class
@@ -808,3 +825,4 @@ dbFetchIntegerToNumeric <- function(columns) {
   }
   return(columns)
 }
+

@@ -84,7 +84,7 @@ convertInteger64ToNumeric <- function(x) {
   return(bit64::as.double.integer64(x))
 }
 
-parseJdbcColumnData <- function(content,
+parseJdbcColumnData <- function(batchedQuery,
                                 columnTypes = NULL,
                                 datesAsString = FALSE,
                                 integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
@@ -94,34 +94,34 @@ parseJdbcColumnData <- function(content,
                                                                default = TRUE
                                 )) {
   if (is.null(columnTypes)) {
-    columnTypes <- rJava::.jcall(content, "[I", "getColumnTypes")
+    columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
   }
   columns <- vector("list", length(columnTypes))
   for (i in seq_along(columnTypes)) {
     if (columnTypes[i] == 1) {
-      column <- rJava::.jcall(content, "[D", "getNumeric", as.integer(i))
+      column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
     } else if (columnTypes[i] == 5) {
-      column <- rJava::.jcall(content, "[D", "getInteger64", as.integer(i))
+      column <- rJava::.jcall(batchedQuery, "[D", "getInteger64", as.integer(i))
       oldClass(column) <- "integer64"
       if (integer64AsNumeric) {
         column <- convertInteger64ToNumeric(column)
       }
     } else if (columnTypes[i] == 6) {
-      column <- rJava::.jcall(content, "[I", "getInteger", as.integer(i))
+      column <- rJava::.jcall(batchedQuery, "[I", "getInteger", as.integer(i))
       if (integerAsNumeric) {
         column <- as.numeric(column)
       }
     } else if (columnTypes[i] == 3) {
-      column <- rJava::.jcall(content, "[I", "getInteger", as.integer(i))
+      column <- rJava::.jcall(batchedQuery, "[I", "getInteger", as.integer(i))
       column <- as.Date(column, origin = "1970-01-01")
       if (datesAsString) {
         column <- format(column, "%Y-%m-%d")
       }
     } else if (columnTypes[i] == 4) {
-      column <- rJava::.jcall(content, "[D", "getNumeric", as.integer(i))
+      column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
       column <- as.POSIXct(column)
     } else {
-      column <- rJava::.jcall(content, "[Ljava/lang/String;", "getString", i)
+      column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i)
       if (!datesAsString) {
         if (columnTypes[i] == 4) {
           column <- as.POSIXct(column)
@@ -130,7 +130,7 @@ parseJdbcColumnData <- function(content,
     }
     columns[[i]] <- column
   }
-  names(columns) <- rJava::.jcall(content, "[Ljava/lang/String;", "getColumnNames")
+  names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
   # More efficient than as.data.frame, as it avoids converting row.names to character:
   columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
   return(columns)
@@ -185,7 +185,16 @@ lowLevelQuerySql.default <- function(connection,
   )
   
   on.exit(rJava::.jcall(batchedQuery, "V", "clear"))
-  
+  columns <- getAllBatches(batchedQuery = batchedQuery,
+                           datesAsString = datesAsString,
+                           integer64AsNumeric = integer64AsNumeric,
+                           integerAsNumeric = integerAsNumeric)
+  delta <- Sys.time() - startTime
+  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
+  return(columns)
+}
+
+getAllBatches <- function(batchedQuery, datesAsString, integer64AsNumeric, integerAsNumeric) {
   columnTypes <- rJava::.jcall(batchedQuery, "[I", "getColumnTypes")
   if (any(columnTypes == 5)) {
     validateInt64Query()
@@ -201,8 +210,6 @@ lowLevelQuerySql.default <- function(connection,
     )
     columns <- rbind(columns, batch)
   }
-  delta <- Sys.time() - startTime
-  logTrace(paste("Querying SQL took", delta, attr(delta, "units")))
   return(columns)
 }
 

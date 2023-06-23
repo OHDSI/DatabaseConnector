@@ -1,6 +1,10 @@
 DatabaseConnector 6.2.3
 =======================
 
+Changes: 
+
+1. The `dbFetch()` function now respects `n = -1` and `n = Inf` arguments. Will throw warning if other value is used.
+
 Bugfixes:
 
 1. Fixing error about missing origin when fetching dates on older R versions.
