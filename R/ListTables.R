@@ -39,6 +39,12 @@ setMethod(
           catalog = cleanSchemaName(databaseSchema[1]),
           schema = cleanSchemaName(databaseSchema[2])
         )
+      } else if (!is.null(databaseSchema) && dbms(conn) == "duckdb") {
+        if (grepl("\\.", databaseSchema)) {
+          databaseSchema <- strsplit(databaseSchema, "\\.")[[1]][2]
+        }
+        sql <- sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s';", databaseSchema)
+        tables <- querySql(conn, sql)[[1]]
       } else {
         tables <- DBI::dbListTables(conn@dbiConnection, schema = databaseSchema)
       }

@@ -9,6 +9,8 @@ Bugfixes:
 
 1. Fixing error about missing origin when fetching dates on older R versions.
 
+2. Fixing RStudio connection panel information for DuckDB.
+
 
 DatabaseConnector 6.2.2
 =======================

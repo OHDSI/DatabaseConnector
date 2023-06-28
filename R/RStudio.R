@@ -76,7 +76,7 @@ unregisterWithRStudio <- function(connection) {
 }
 
 hasCatalogs <- function(connection) {
-  return(dbms(connection) %in% c("pdw", "postgresql", "sql server", "synapse", "redshift", "snowflake", "spark", "bigquery"))
+  return(dbms(connection) %in% c("pdw", "postgresql", "sql server", "synapse", "redshift", "snowflake", "spark", "bigquery", "duckdb"))
 }
 
 listDatabaseConnectorColumns <- function(connection,
@@ -308,7 +308,7 @@ getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) 
     schemas <- DBI::dbGetQuery(conn@dbiConnection, "SHOW DATABASES")
     return(schemas[, 1])
   } else if (conn@dbms == "duckdb") {
-    return(dbGetQuery(conn, "SELECT schema_name FROM information_schema.schemata")$schema_name)
+    return(dbGetQuery(conn, sprintf("SELECT schema_name FROM information_schema.schemata WHERE catalog_name = '%s'", catalog))$schema_name)
   } else {
     schemas <- DBI::dbGetQuery(conn@dbiConnection, "SELECT schema_name FROM information_schema.schemata;")
     return(schemas[, 1])
@@ -332,5 +332,13 @@ getCatalogs.default <- function(connection) {
 }
 
 getCatalogs.DatabaseConnectorDbiConnection <- function(connection) {
-  return(DBI::dbGetInfo(connection@dbiConnection)$dbname)
+  if (connection@dbms == "duckdb") {
+    sql <- "
+    SELECT DISTINCT catalog_name 
+    FROM information_schema.schemata
+    WHERE catalog_name NOT IN ('system', 'temp');"
+    return(dbGetQuery(connection, sql)$catalog_name)
+  } else {
+    return(DBI::dbGetInfo(connection@dbiConnection)$dbname)
+  }
 }
