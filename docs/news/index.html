@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.3</span>
       </span>
     </div>
 
@@ -67,18 +67,28 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="6.2.2" id="databaseconnector-622">DatabaseConnector 6.2.2<a class="anchor" aria-label="anchor" href="#databaseconnector-622"></a></h2>
+<h2 class="page-header" data-toc-text="6.2.3" id="databaseconnector-623">DatabaseConnector 6.2.3<a class="anchor" aria-label="anchor" href="#databaseconnector-623"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li>The <code>dbFetch()</code> function now respects <code>n = -1</code> and <code>n = Inf</code> arguments. Will throw warning if other value is used.</li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li><p>Fixing error about missing origin when fetching dates on older R versions.</p></li>
+<li><p>Fixing RStudio connection panel information for DuckDB.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="6.2.2" id="databaseconnector-622">DatabaseConnector 6.2.2<small>2023-06-23</small><a class="anchor" aria-label="anchor" href="#databaseconnector-622"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li><p>Changing heuristic for detecting when almost running out of Java heap.</p></li>
 <li><p>Setting default <code>fetchRingBufferSize</code> for RedShift to 100MB (instead of 1GB) to preven Java out of heap errors, and overall better performance.</p></li>
 <li><p>Using integers instead of strings to pass dates from Java to R for improved speed.</p></li>
 <li><p>Using doubles instead of strings to pass datetimes from Java to R for improved speed.</p></li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixing connection issue for ‘Hive’.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Fixing connection issue for ‘Hive’.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="6.2.1" id="databaseconnector-621">DatabaseConnector 6.2.1<small>2023-05-10</small><a class="anchor" aria-label="anchor" href="#databaseconnector-621"></a></h2>
 <p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Workaround for <code>rJava</code> and <code>rlang</code> interaction causing <code>no field, method or inner class called 'use_cli_format'</code>errors to be thrown when Java throws an error.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Workaround for <code>rJava</code> and <code>rlang</code> interaction causing <code>no field, method or inner class called 'use_cli_format'</code>errors to be thrown when Java throws an error.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="6.2.0" id="databaseconnector-620">DatabaseConnector 6.2.0<small>2023-04-13</small><a class="anchor" aria-label="anchor" href="#databaseconnector-620"></a></h2>
 <p>Changes:</p>
@@ -92,7 +102,8 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="6.1.0" id="databaseconnector-610">DatabaseConnector 6.1.0<small>2023-03-15</small><a class="anchor" aria-label="anchor" href="#databaseconnector-610"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding support for DuckDb</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Adding support for DuckDb</li>
+</ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Fixed <code>capacity &lt; 0</code> error message when using a large Java heap space.</p></li>
 <li><p>Fixed ‘optional feature not supported’ error when connecting to DataBricks using JDBC.</p></li>
 <li><p>Fixed <code><a href="../reference/insertTable.html">insertTable()</a></code> on Snowflake when data includes <code>POSIXct</code> type.</p></li>
@@ -117,7 +128,8 @@
 <li><p>Querying to Andromeda when using a DBI driver (instead of a JDBC driver) now also uses batching to avoid running out of memory.</p></li>
 <li><p>Adding <code>appendToTable</code> argument to <code><a href="../reference/querySqlToAndromeda.html">querySqlToAndromeda()</a></code>, <code><a href="../reference/renderTranslateQuerySqlToAndromeda.html">renderTranslateQuerySqlToAndromeda()</a></code>, and <code><a href="../reference/lowLevelQuerySqlToAndromeda.html">lowLevelQuerySqlToAndromeda()</a></code>.</p></li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fix error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> and all column names require quotes.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Fix error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> and all column names require quotes.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.1.0" id="databaseconnector-510">DatabaseConnector 5.1.0<small>2022-09-23</small><a class="anchor" aria-label="anchor" href="#databaseconnector-510"></a></h2>
 <p>Changes:</p>
@@ -133,11 +145,13 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.4" id="databaseconnector-504">DatabaseConnector 5.0.4<small>2022-06-28</small><a class="anchor" aria-label="anchor" href="#databaseconnector-504"></a></h2>
 <p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Prevent error when <code>connectionString</code> is empty string (instead of <code>NULL</code>).</li></ol></div>
+<ol style="list-style-type: decimal"><li>Prevent error when <code>connectionString</code> is empty string (instead of <code>NULL</code>).</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.3" id="databaseconnector-503">DatabaseConnector 5.0.3<small>2022-06-08</small><a class="anchor" aria-label="anchor" href="#databaseconnector-503"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Ensuring Andromeda works with different backends (e.g. arrow).</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Ensuring Andromeda works with different backends (e.g. arrow).</li>
+</ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Fixing ‘DBMS not supported’ error when connecting to Hive.</p></li>
 <li><p>Fixing error when bulk uploading to Postgress with NULL values.</p></li>
 <li><p>Fixing warning when automatically converting <code>Integer64</code> to <code>numeric</code> in R 4.2.0.</p></li>
@@ -153,12 +167,15 @@
 <li><p>Splitting vignette into two, because many users will only need to now how to connect to their database.</p></li>
 <li><p>Improved error messaging related to the driver folder.</p></li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixing <code><a href="../reference/getTableNames.html">getTableNames()</a></code> when the database or schema name contains escaped characters.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Fixing <code><a href="../reference/getTableNames.html">getTableNames()</a></code> when the database or schema name contains escaped characters.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.1" id="databaseconnector-501">DatabaseConnector 5.0.1<a class="anchor" aria-label="anchor" href="#databaseconnector-501"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Added <code><a href="../reference/dropEmulatedTempTables.html">dropEmulatedTempTables()</a></code> function.</li></ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixed R-Studio connection panel for BigQuery.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Added <code><a href="../reference/dropEmulatedTempTables.html">dropEmulatedTempTables()</a></code> function.</li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Fixed R-Studio connection panel for BigQuery.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.0" id="databaseconnector-500">DatabaseConnector 5.0.0<small>2021-11-18</small><a class="anchor" aria-label="anchor" href="#databaseconnector-500"></a></h2>
 <p>Changes:</p>
@@ -177,7 +194,8 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="4.0.2" id="databaseconnector-402">DatabaseConnector 4.0.2<small>2021-04-15</small><a class="anchor" aria-label="anchor" href="#databaseconnector-402"></a></h2>
 <p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Fixing handling of tibbles when inserting tables to avoid issues with date fields.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Fixing handling of tibbles when inserting tables to avoid issues with date fields.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="4.0.1" id="databaseconnector-401">DatabaseConnector 4.0.1<a class="anchor" aria-label="anchor" href="#databaseconnector-401"></a></h2>
 <p>Changes:</p>
@@ -227,24 +245,30 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.3" id="databaseconnector-243">DatabaseConnector 2.4.3<a class="anchor" aria-label="anchor" href="#databaseconnector-243"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding bulk upload for Hive.</li></ol><p>Bugfixes:</p>
-<ol start="2" style="list-style-type: decimal"><li>Reducing batch size when performing CTAS hack on Hive to avoid error.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Adding bulk upload for Hive.</li>
+</ol><p>Bugfixes:</p>
+<ol start="2" style="list-style-type: decimal"><li>Reducing batch size when performing CTAS hack on Hive to avoid error.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.2" id="databaseconnector-242">DatabaseConnector 2.4.2<small>2020-01-15</small><a class="anchor" aria-label="anchor" href="#databaseconnector-242"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>BigQuery insertTable now also uses CTAS hack for improved speed and avoiding insert size limitations.</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>BigQuery insertTable now also uses CTAS hack for improved speed and avoiding insert size limitations.</li>
+</ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Preventing scientific notation when bulk uploading to PDW to avoid error.</p></li>
 <li><p>Fixing null error when calling getSchemaNames for BigQuery.</p></li>
 </ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.1" id="databaseconnector-241">DatabaseConnector 2.4.1<small>2019-07-18</small><a class="anchor" aria-label="anchor" href="#databaseconnector-241"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.</li></ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>No longer dropping ‘#’ prefix for temp table names when inserting data for RedShift.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Adding ability to set the path where the DLL is located for Windows Integrated Authentication for SQL Server and PDW.</li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>No longer dropping ‘#’ prefix for temp table names when inserting data for RedShift.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.0" id="databaseconnector-240">DatabaseConnector 2.4.0<a class="anchor" aria-label="anchor" href="#databaseconnector-240"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Adding runAsBatch argument to executeSql and renderTranslateExecuteSql functions to allow running as a batch (often faster).</li>
+</ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Not adding ‘#’ prefix when performing insert into RedShift.</p></li>
 <li><p>Disabling autocommit when sending updates to RedShift to prevent errors with new JDBC driver.</p></li>
 <li><p>Preventing ‘FeatureNotSupportedError’ from terminating query on platforms that do no support autocommit.</p></li>
@@ -259,11 +283,13 @@
 <li><p>Added support for inserting BIGINTs (large integers stored as numeric in R)</p></li>
 <li><p>Applying CTAS hack to improve insertion performance for RedShift (was already used for PDW)</p></li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Executing multi-statement SQL where one statement returns results no longer causes error.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Executing multi-statement SQL where one statement returns results no longer causes error.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.2.1" id="databaseconnector-221">DatabaseConnector 2.2.1<small>2018-11-25</small><a class="anchor" aria-label="anchor" href="#databaseconnector-221"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Now supporting proper insertion and extraction of DATETIME fields</li></ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Now supporting proper insertion and extraction of DATETIME fields</li>
+</ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li>Closing output stream when writing to zip file to avoid orphan file locks</li>
 <li>Fixed the problem that Jar file is not detected when setting JDBC driver manually</li>
 </ol></div>
@@ -276,14 +302,16 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.4" id="databaseconnector-214">DatabaseConnector 2.1.4<small>2018-08-21</small><a class="anchor" aria-label="anchor" href="#databaseconnector-214"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li>Faster inserts by building batches in Java instead of R</li></ol></div>
+<ol style="list-style-type: decimal"><li>Faster inserts by building batches in Java instead of R</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.3" id="databaseconnector-213">DatabaseConnector 2.1.3<small>2018-06-28</small><a class="anchor" aria-label="anchor" href="#databaseconnector-213"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li>Updated to DBI specification 1.0</li>
 <li>Defaulting connect arguments to NULL to prevent missing argument warnings in RStudio</li>
 </ol><p>Bugfixes:</p>
-<ol style="list-style-type: decimal"><li>Now generating unique display names for RStudio’s Connections tab to prevent problems when opening two connections to the same server.</li></ol></div>
+<ol style="list-style-type: decimal"><li>Now generating unique display names for RStudio’s Connections tab to prevent problems when opening two connections to the same server.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.2" id="databaseconnector-212">DatabaseConnector 2.1.2<small>2018-05-24</small><a class="anchor" aria-label="anchor" href="#databaseconnector-212"></a></h2>
 <p>Changes: initial submission to CRAN</p>
