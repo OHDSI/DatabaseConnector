@@ -34,7 +34,9 @@ This vignette describes how you can use the `DatabaseConnector` package to conne
 * Google BigQuery
 * IBM Netezza
 * SQLite
-* Spark
+* (DataBricks)Spark
+* Snowflake
+* Synapse
 
 # Obtaining drivers 
 
@@ -64,7 +66,7 @@ usethis::edit_r_environ()
 If you don't use the `DATABASECONNECTOR_JAR_FOLDER` environmental variable, you will need to provide the `pathToDriver` argument every time you call the `downloadJdbcDrivers`, `connect`, `dbConnect`, or `createConnectionDetails` functions.
 
 
-## Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift
+## Obtaining drivers for SQL Server, Oracle, PostgreSQL, PDW, Spark, RedShift, Snowflake, BigQuery, and Synapse
 
 For your convenience these JDBC drivers are hosted on the OHDSI GitHub pages, and can be downloaded using the `downloadJdbcDrivers` function. You'll first need to specify the JAR folder as described in the previous section, for example using
 
@@ -75,6 +77,7 @@ Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "c:/temp/jdbcDrivers")
 And next download the driver. For example, for PostgreSQL:
 
 ```{r eval=FALSE}
+library(DatabaseConnector)
 downloadJdbcDrivers("postgresql")
 ```
 ```{r echo=FALSE}
@@ -84,17 +87,18 @@ writeLines("DatabaseConnector JDBC drivers downloaded to 'c:/temp/jdbcDrivers'."
 Note that if we hadn't specified the `DATABASECONNECTOR_JAR_FOLDER` environmental variable, we would have to specify the `pathToDriver` argument when calling `downloadJdbcDrivers`.
 
 
-## Obtaining drivers for BigQuery, Netezza and Impala
+## Obtaining drivers for Netezza and Impala
 
 Because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. see [these instructions on how to download these drivers](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html), which you can also see by typing `?jdbcDrivers`.
 
 
-##  Obtaining drivers for SQLite
+##  Obtaining drivers for SQLite or DuckDb
 
-For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed using 
+For SQLite and DuckDb we actually don't use a JDBC driver. Instead, we use the RSQLite and duckdb packages, respectively, which can be installed using 
 
 ```{r eval=FALSE}
 install.packages("RSQLite")
+install.packages("duckdb")
 ```
 
 
