@@ -3,29 +3,7 @@
 \docType{class}
 \name{DatabaseConnectorJdbcResult-class}
 \alias{DatabaseConnectorJdbcResult-class}
-\alias{dbHasCompleted,DatabaseConnectorJdbcResult-method}
-\alias{dbColumnInfo,DatabaseConnectorJdbcResult-method}
-\alias{dbGetStatement,DatabaseConnectorJdbcResult-method}
-\alias{dbGetRowCount,DatabaseConnectorJdbcResult-method}
-\alias{dbFetch,DatabaseConnectorJdbcResult-method}
-\alias{dbClearResult,DatabaseConnectorJdbcResult-method}
-\alias{dbGetRowsAffected,DatabaseConnectorJdbcResult-method}
 \title{DatabaseConnector JDBC results class.}
-\usage{
-\S4method{dbHasCompleted}{DatabaseConnectorJdbcResult}(res, ...)
-
-\S4method{dbColumnInfo}{DatabaseConnectorJdbcResult}(res, ...)
-
-\S4method{dbGetStatement}{DatabaseConnectorJdbcResult}(res, ...)
-
-\S4method{dbGetRowCount}{DatabaseConnectorJdbcResult}(res, ...)
-
-\S4method{dbFetch}{DatabaseConnectorJdbcResult}(res, n = -1, ...)
-
-\S4method{dbClearResult}{DatabaseConnectorJdbcResult}(res, ...)
-
-\S4method{dbGetRowsAffected}{DatabaseConnectorJdbcResult}(res, ...)
-}
 \description{
 DatabaseConnector JDBC results class.
 }

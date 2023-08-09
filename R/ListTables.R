@@ -16,9 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' @inherit
-#' DBI::dbListTables title description params details references return seealso
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbListTables title description params details references return seealso
+#' 
 #' @template DatabaseSchema
 #' @param ... Not used
 #'

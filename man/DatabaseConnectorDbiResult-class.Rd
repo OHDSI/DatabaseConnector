@@ -3,29 +3,7 @@
 \docType{class}
 \name{DatabaseConnectorDbiResult-class}
 \alias{DatabaseConnectorDbiResult-class}
-\alias{dbHasCompleted,DatabaseConnectorDbiResult-method}
-\alias{dbColumnInfo,DatabaseConnectorDbiResult-method}
-\alias{dbGetStatement,DatabaseConnectorDbiResult-method}
-\alias{dbGetRowCount,DatabaseConnectorDbiResult-method}
-\alias{dbFetch,DatabaseConnectorDbiResult-method}
-\alias{dbClearResult,DatabaseConnectorDbiResult-method}
-\alias{dbGetRowsAffected,DatabaseConnectorDbiResult-method}
 \title{DatabaseConnector DBI results class.}
-\usage{
-\S4method{dbHasCompleted}{DatabaseConnectorDbiResult}(res, ...)
-
-\S4method{dbColumnInfo}{DatabaseConnectorDbiResult}(res, ...)
-
-\S4method{dbGetStatement}{DatabaseConnectorDbiResult}(res, ...)
-
-\S4method{dbGetRowCount}{DatabaseConnectorDbiResult}(res, ...)
-
-\S4method{dbFetch}{DatabaseConnectorDbiResult}(res, n = -1, ...)
-
-\S4method{dbClearResult}{DatabaseConnectorDbiResult}(res, ...)
-
-\S4method{dbGetRowsAffected}{DatabaseConnectorDbiResult}(res, ...)
-}
 \description{
 DatabaseConnector DBI results class.
 }

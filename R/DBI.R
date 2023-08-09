@@ -31,15 +31,12 @@ setMethod("dbUnloadDriver", "DatabaseConnectorDriver", function(drv, ...) {
   TRUE
 })
 
-#' @inherit
-#' methods::show title description params details references return seealso
-#' @export
 setMethod("show", "DatabaseConnectorDriver", function(object) {
   cat("<DatabaseConnectorDriver>\n")
 })
 
-#' @inherit
-#' DBI::dbGetInfo title description params details references return seealso
+#' @inherit DBI::dbGetInfo title description params details references return seealso 
+#' 
 #' @export
 setMethod("dbGetInfo", "DatabaseConnectorDriver", function(dbObj, ...) {
   return(list(
@@ -108,38 +105,38 @@ NULL
 #' @exportMethod dbIsReadOnly
 NULL
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbDisconnect title description params details references return seealso
+#' 
 #' @export
 setMethod("dbDisconnect", "DatabaseConnectorConnection", function(conn) {
   disconnect(conn)
 })
 
-#' @rdname DatabaseConnectorConnection-class
-#' @export
 setMethod("show", "DatabaseConnectorConnection", function(object) {
   cat("<DatabaseConnectorConnection>", getServer(object))
 })
 
-#' @rdname DatabaseConnectorJdbcConnection-class
+#' @inherit DBI::dbIsValid title description params details references return seealso
+#' 
 #' @export
 setMethod("dbIsValid", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
   return(!rJava::is.jnull(dbObj@jConnection))
 })
 
-#' @rdname DatabaseConnectorDbiConnection-class
+#' @inherit DBI::dbIsValid title description params details references return seealso
+#' 
 #' @export
 setMethod("dbIsValid", "DatabaseConnectorDbiConnection", function(dbObj, ...) {
   return(DBI::dbIsValid(dbObj@dbiConnection))
 })
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbGetInfo title description params details references return seealso
+#' 
 #' @export
 setMethod("dbGetInfo", "DatabaseConnectorConnection", function(dbObj, ...) {
   return(list(db.version = "15.0"))
 })
 
-#' @rdname DatabaseConnectorConnection-class
-#' @export
 setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn,
                                                                                                x, ...) {
   if (length(x) == 0L) {
@@ -157,8 +154,6 @@ setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "charact
   return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
 })
 
-#' @rdname DatabaseConnectorConnection-class
-#' @export
 setMethod(
   "dbQuoteString",
   signature("DatabaseConnectorConnection", "character"),
@@ -205,7 +200,10 @@ setClass("DatabaseConnectorDbiResult",
          )
 )
 
-#' @rdname DatabaseConnectorJdbcConnection-class
+#' @inherit DBI::dbSendQuery title description params details references return seealso
+#' 
+#' @param translate Translate the query using SqlRender?
+#' 
 #' @export
 setMethod(
   "dbSendQuery",
@@ -252,7 +250,10 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorDbiConnection-class
+#' @inherit DBI::dbSendQuery title description params details references return seealso
+#' 
+#' @param translate Translate the query using SqlRender?
+#' 
 #' @export
 setMethod(
   "dbSendQuery",
@@ -279,7 +280,7 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbHasCompleted title description params details references return seealso
 #' @export
 setMethod("dbHasCompleted", "DatabaseConnectorJdbcResult", function(res, ...) {
   if (res@type == "rowsAffected") {
@@ -289,13 +290,13 @@ setMethod("dbHasCompleted", "DatabaseConnectorJdbcResult", function(res, ...) {
   }
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbHasCompleted title description params details references return seealso
 #' @export
 setMethod("dbHasCompleted", "DatabaseConnectorDbiResult", function(res, ...) {
   return(DBI::dbHasCompleted(res@resultSet, ...))
 })
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbColumnInfo title description params details references return seealso
 #' @export
 setMethod("dbColumnInfo", "DatabaseConnectorJdbcResult", function(res, ...) {
   columnTypeIds <- rJava::.jcall(res@content, "[I", "getColumnTypes")
@@ -308,37 +309,37 @@ setMethod("dbColumnInfo", "DatabaseConnectorJdbcResult", function(res, ...) {
   return(data.frame(name = columnNames, field.type = columnSqlTypes, data.type = columnTypes))
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbColumnInfo title description params details references return seealso
 #' @export
 setMethod("dbColumnInfo", "DatabaseConnectorDbiResult", function(res, ...) {
   return(DBI::dbColumnInfo(res@resultSet, ...))
 })
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbGetStatement title description params details references return seealso
 #' @export
 setMethod("dbGetStatement", "DatabaseConnectorJdbcResult", function(res, ...) {
   return(res@statement)
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbGetStatement title description params details references return seealso
 #' @export
 setMethod("dbGetStatement", "DatabaseConnectorDbiResult", function(res, ...) {
   return(DBI::dbGetStatement(res@resultSet, ...))
 })
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbGetRowCount title description params details references return seealso
 #' @export
 setMethod("dbGetRowCount", "DatabaseConnectorJdbcResult", function(res, ...) {
   return(rJava::.jcall(res@content, "I", "getTotalRowCount"))
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbGetRowCount title description params details references return seealso
 #' @export
 setMethod("dbGetRowCount", "DatabaseConnectorDbiResult", function(res, ...) {
   return(DBI::dbGetRowCount(res@resultSet, ...))
 })
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbFetch title description params details references return seealso
 #' @export
 setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, n = -1, ...) {
   tryCatch({
@@ -373,7 +374,7 @@ setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, n = -1, ...) {
   })
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbFetch title description params details references return seealso
 #' @export
 setMethod("dbFetch", "DatabaseConnectorDbiResult", function(res, ...) {
   columns <- DBI::dbFetch(res@resultSet, ...)
@@ -383,7 +384,8 @@ setMethod("dbFetch", "DatabaseConnectorDbiResult", function(res, ...) {
   return(columns)
 })
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbClearResult title description params details references return seealso
+#' 
 #' @export
 setMethod("dbClearResult", "DatabaseConnectorJdbcResult", function(res, ...) {
   if (res@type == "batchedQuery") {
@@ -392,13 +394,15 @@ setMethod("dbClearResult", "DatabaseConnectorJdbcResult", function(res, ...) {
   return(TRUE)
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbClearResult title description params details references return seealso
+#' 
 #' @export
 setMethod("dbClearResult", "DatabaseConnectorDbiResult", function(res, ...) {
   return(DBI::dbClearResult(res@resultSet, ...))
 })
 
-#' @rdname DatabaseConnectorJdbcResult-class
+#' @inherit DBI::dbGetRowsAffected title description params details references return seealso
+#' 
 #' @export
 setMethod("dbGetRowsAffected", "DatabaseConnectorJdbcResult", function(res, ...) {
   if (res@type != "rowsAffected") {
@@ -407,13 +411,17 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorJdbcResult", function(res, ...)
   return(rJava::.jsimplify(res@content))
 })
 
-#' @rdname DatabaseConnectorDbiResult-class
+#' @inherit DBI::dbGetRowsAffected title description params details references return seealso
+#' 
 #' @export
 setMethod("dbGetRowsAffected", "DatabaseConnectorDbiResult", function(res, ...) {
   return(DBI::dbGetRowsAffected(res@resultSet, ...))
 })
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbGetQuery title description params details references return seealso
+#' 
+#' @param translate Translate the query using SqlRender?
+#' 
 #' @export
 setMethod(
   "dbGetQuery",
@@ -431,7 +439,10 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbSendStatement title description params details references return seealso
+#' 
+#' @param translate Translate the query using SqlRender?
+#' 
 #' @export
 setMethod(
   "dbSendStatement",
@@ -453,7 +464,10 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbExecute title description params details references return seealso
+#' 
+#' @param translate Translate the query using SqlRender?
+#' 
 #' @export
 setMethod(
   "dbExecute",
@@ -479,7 +493,7 @@ setMethod(
 
 # Misc ----------------------------------------------------------------------
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbListFields title description params details references return seealso
 #' 
 #' @template DatabaseSchema
 #'
@@ -500,8 +514,7 @@ setMethod(
   }
 )
 
-
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbExistsTable title description params details references return seealso
 #' 
 #' @template DatabaseSchema
 #' 
@@ -520,7 +533,7 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbWriteTable title description params details references return seealso
 #' 
 #' @template DatabaseSchema
 #' @param overwrite          Overwrite an existing table (if exists)?
@@ -558,12 +571,12 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbAppendTable title description params details references return seealso
 #' 
 #' @param temporary          Should the table created as a temp table?
 #' @template TempEmulationSchema
 #' @template DatabaseSchema
-#
+#'
 #' @export
 setMethod(
   "dbAppendTable",
@@ -591,7 +604,7 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbCreateTable title description params details references return seealso
 #' 
 #' @param temporary          Should the table created as a temp table?
 #' @template TempEmulationSchema
@@ -624,7 +637,7 @@ setMethod(
   }
 )
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbReadTable title description params details references return seealso
 #' 
 #' @template DatabaseSchema
 #' @template TempEmulationSchema
@@ -658,7 +671,7 @@ setMethod("dbReadTable",
             return(querySql(conn, sql))
           })
 
-#' @rdname DatabaseConnectorConnection-class
+#' @inherit DBI::dbRemoveTable title description params details references return seealso
 #' 
 #' @template DatabaseSchema
 #' @template TempEmulationSchema
@@ -791,4 +804,3 @@ dbFetchIntegerToNumeric <- function(columns) {
   }
   return(columns)
 }
-

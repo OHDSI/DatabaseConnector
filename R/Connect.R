@@ -784,13 +784,12 @@ ensureDatabaseConnectorConnectionClassExists <- function() {
   class <- getClassDef("Microsoft SQL Server", where = class_cache, inherits = FALSE)
   if (is.null(class) || methods::isVirtualClass(class)) {
     setClass("Microsoft SQL Server",
-             contains = "DBIConnection",
              where = class_cache)
   }
   class <- getClassDef("DatabaseConnectorConnection", where = class_cache, inherits = FALSE)
   if (is.null(class) || methods::isVirtualClass(class)) {
     setClass("DatabaseConnectorConnection", 
-             contains = "Microsoft SQL Server",
+             contains = c("Microsoft SQL Server", "DBIConnection"),
              slots = list(
                identifierQuote = "character",
                stringQuote = "character",
