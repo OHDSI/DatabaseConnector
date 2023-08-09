@@ -2,7 +2,14 @@
 % Please edit documentation in R/DBI.R
 \name{dbConnect,DatabaseConnectorDriver-method}
 \alias{dbConnect,DatabaseConnectorDriver-method}
-\title{Create a connection to a DBMS}
+\title{#' Microsoft SQL Server class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+setClass("Microsoft SQL Server",
+contains = "DBIConnection"
+)}
 \usage{
 \S4method{dbConnect}{DatabaseConnectorDriver}(drv, ...)
 }
@@ -18,6 +25,43 @@ this package.
 \description{
 Connect to a database. This function is synonymous with the \code{\link[=connect]{connect()}} function. except
 a dummy driver needs to be specified
+}
+\details{
+#' DatabaseConnectorConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+setClass("DatabaseConnectorConnection",
+contains = "Microsoft SQL Server",
+slots = list(
+identifierQuote = "character",
+stringQuote = "character", dbms = "character", uuid = "character"
+)
+)
+#' DatabaseConnectorJdbcConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import rJava
+setClass("DatabaseConnectorJdbcConnection",
+contains = "DatabaseConnectorConnection",
+slots = list(jConnection = "jobjRef")
+)
+
+#' DatabaseConnectorDbiConnection class.
+#'
+#' @keywords internal
+#' @export
+#' @import DBI
+setClass("DatabaseConnectorDbiConnection",
+contains = "DatabaseConnectorConnection",
+slots = list(
+dbiConnection = "DBIConnection",
+server = "character"
+)
+)
+Create a connection to a DBMS
 }
 \examples{
 \dontrun{

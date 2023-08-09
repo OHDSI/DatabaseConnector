@@ -760,6 +760,30 @@ connectUsingJdbcDriver <- function(jdbcDriver,
       abort(paste0("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")"))
     }
   }
+  class <- getClassDef("Microsoft SQL Server", where = class_cache, inherits = FALSE)
+  if (is.null(class) || methods::isVirtualClass(class)) {
+    setClass("Microsoft SQL Server",
+             contains = "DBIConnection", 
+             where = class_cache)
+  }
+  class <- getClassDef("DatabaseConnectorConnection", where = class_cache, inherits = FALSE)
+  if (is.null(class) || methods::isVirtualClass(class)) {
+    setClass("DatabaseConnectorConnection", 
+             contains = "Microsoft SQL Server",
+             slots = list(
+               identifierQuote = "character",
+               stringQuote = "character", dbms = "character", uuid = "character"
+             ),
+             where = class_cache)
+  }
+  class <- getClassDef("DatabaseConnectorJdbcConnection", where = class_cache, inherits = FALSE)
+  if (is.null(class) || methods::isVirtualClass(class)) {
+    setClass("DatabaseConnectorJdbcConnection",
+             contains = "DatabaseConnectorConnection", 
+             slots = list(jConnection = "jobjRef"),
+             where = class_cache)
+  }
+  
   connection <- new("DatabaseConnectorJdbcConnection",
     jConnection = jConnection,
     identifierQuote = "",

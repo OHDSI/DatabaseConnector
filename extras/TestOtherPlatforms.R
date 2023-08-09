@@ -688,10 +688,12 @@ disconnect(connection)
 
 # ODBC
 db <- DBI::dbConnect(odbc::odbc(),
-                     server = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
-                     uid = Sys.getenv("CDM5_SQL_SERVER_USER"),
-                     pwd = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
-                     driver = "SQL Server",
-                     Trusted_Connection=TRUE)
+                     Driver = "SQL Server",
+                     Server = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
+                     Database = Sys.getenv("CDM5_SQL_SERVER_CDM_DATABASE"),
+                     UID = Sys.getenv("CDM5_SQL_SERVER_USER"),
+                     PWD = Sys.getenv("CDM5_SQL_SERVER_PASSWORD"),
+                     TrustServerCertificate = "yes",
+                     Port = 1433)
 
 

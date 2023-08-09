@@ -60,51 +60,26 @@ DatabaseConnectorDriver <- function() {
 # Connection
 # -----------------------------------------------------------------------------------------
 
-#' Microsoft SQL Server class.
-#'
-#' @keywords internal
-#' @export
-#' @import DBI
-setClass("Microsoft SQL Server",
-         contains = "DBIConnection"
-)
+# Borrowed from the odbc package:
+class_cache <- new.env(parent = emptyenv())
+
+# Simple class prototype to avoid messages about unknown classes from setMethod
+setClass("Microsoft SQL Server", where = class_cache)
+
+setClass("DatabaseConnectorConnection", where = class_cache)
+
+setClass("DatabaseConnectorJdbcConnection", where = class_cache)
+
+setClass("DatabaseConnectorDbiConnection", where = class_cache)
 
 
-#' DatabaseConnectorConnection class.
-#'
-#' @keywords internal
-#' @export
-#' @import DBI
-setClass("DatabaseConnectorConnection",
-         contains = "Microsoft SQL Server",
-         slots = list(
-           identifierQuote = "character",
-           stringQuote = "character", dbms = "character", uuid = "character"
-         )
-)
-
-#' DatabaseConnectorJdbcConnection class.
-#'
-#' @keywords internal
-#' @export
-#' @import rJava
-setClass("DatabaseConnectorJdbcConnection",
-         contains = "DatabaseConnectorConnection",
-         slots = list(jConnection = "jobjRef")
-)
-
-#' DatabaseConnectorDbiConnection class.
-#'
-#' @keywords internal
-#' @export
-#' @import DBI
-setClass("DatabaseConnectorDbiConnection",
-         contains = "DatabaseConnectorConnection",
-         slots = list(
-           dbiConnection = "DBIConnection",
-           server = "character"
-         )
-)
+# setClass("DatabaseConnectorDbiConnection",
+#          contains = "DatabaseConnectorConnection",
+#          slots = list(
+#            dbiConnection = "DBIConnection",
+#            server = "character"
+#          )
+# )
 
 #' Create a connection to a DBMS
 #'
