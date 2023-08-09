@@ -72,15 +72,6 @@ setClass("DatabaseConnectorJdbcConnection", where = class_cache)
 
 setClass("DatabaseConnectorDbiConnection", where = class_cache)
 
-
-# setClass("DatabaseConnectorDbiConnection",
-#          contains = "DatabaseConnectorConnection",
-#          slots = list(
-#            dbiConnection = "DBIConnection",
-#            server = "character"
-#          )
-# )
-
 #' Create a connection to a DBMS
 #'
 #' @description
