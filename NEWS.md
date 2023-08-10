@@ -1,3 +1,11 @@
+DatabaseConnector 6.2.4
+=======================
+
+Changes:
+
+1. The `DatabaseConnectorConnection` class is now defined at runtime, preventing the "Found more than one class 'Microsoft SQL Server'" error when using the `odbc` package while `DatabaseConnector` is installed.
+
+
 DatabaseConnector 6.2.3
 =======================
 
