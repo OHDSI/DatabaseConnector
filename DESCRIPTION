@@ -49,8 +49,6 @@ Suggests:
     duckdb,
     pool,
     ParallelLogger
-Remotes:
-    ohdsi/SqlRender@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
