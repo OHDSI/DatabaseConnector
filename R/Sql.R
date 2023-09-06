@@ -119,7 +119,7 @@ parseJdbcColumnData <- function(batchedQuery,
       }
     } else if (columnTypes[i] == 4) {
       column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
-      column <- as.POSIXct(column)
+      column <- as.POSIXct(column, origin = "1970-01-01")
     } else {
       column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i)
       if (!datesAsString) {

@@ -575,7 +575,15 @@ DataQualityDashboard::executeDqChecks(
   outputFile = "d:/temp/dqd/output.txt",
   writeToTable = FALSE
 )
-
+# Achilles ---------------------------------------------------------------------
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaBigQuery)
+Achilles::achilles(
+  connectionDetails = connectionDetailsBigQuery,
+  cdmDatabaseSchema = cdmDatabaseSchemaBigQuery,
+  resultsDatabaseSchema = scratchDatabaseSchemaBigQuery,
+  sourceName = "Test",
+  cdmVersion = 5)
+  
 
 
 
@@ -696,4 +704,12 @@ db <- DBI::dbConnect(odbc::odbc(),
                      TrustServerCertificate = "yes",
                      Port = 1433)
 
+
+# Quotes -----------------------------------------------------------------------
+connection <- connect(connectionDetailsBigQuery)
+renderTranslateQuerySql(connection, "SELECT TOP 1 \"person_id\" FROM @schema.person;", schema = cdmDatabaseSchemaBigQuery)
+
+querySql(connection, "SELECT `person_id` FROM synpuf_2m.person LIMIT 1;")
+
+disconnect(connection)
 

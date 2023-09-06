@@ -5,6 +5,12 @@ Changes:
 
 1. The `DatabaseConnectorConnection` class is now defined at runtime, preventing the "Found more than one class 'Microsoft SQL Server'" error when using the `odbc` package while `DatabaseConnector` is installed.
 
+Bugfixes:
+
+1. Fixing test for whether packages exist, which was causing errors on some Linux versions.
+
+2. Fixing error about missing origin when fetching datetimes on older R versions.
+
 
 DatabaseConnector 6.2.3
 =======================
