@@ -68,11 +68,12 @@ scratchDatabaseSchemaDataBricks <- "scratch"
 connectionDetailsSnowflake <- createConnectionDetails(
   dbms = "snowflake",
   connectionString = keyring::key_get("snowflakeConnectionString"),
+  # connectionString = paste(keyring::key_get("snowflakeConnectionString"), "QUOTED_IDENTIFIERS_IGNORE_CASE=TRUE", sep="&"),
   user = keyring::key_get("snowflakeUser"),
   password = keyring::key_get("snowflakePassword")
 )
-cdmDatabaseSchemaSnowflake <- "ohdsi.eunomia"
-scratchDatabaseSchemaSnowflake <- "ohdsi.scratch"
+cdmDatabaseSchemaSnowflake <- "ATLAS.SYNPUF110K_CDM_53"
+scratchDatabaseSchemaSnowflake <- "ATLAS.RESULTS"
 
 # Open and close connection -----------------------------------------------
 
@@ -709,7 +710,11 @@ db <- DBI::dbConnect(odbc::odbc(),
 connection <- connect(connectionDetailsBigQuery)
 renderTranslateQuerySql(connection, "SELECT TOP 1 \"person_id\" FROM @schema.person;", schema = cdmDatabaseSchemaBigQuery)
 
-querySql(connection, "SELECT `person_id` FROM synpuf_2m.person LIMIT 1;")
+querySql(connection, "SELECT \"PERSON_ID\" FROM ATLAS.SYNPUF110K_CDM_53.person LIMIT 1;")
 
 disconnect(connection)
 
+
+connection <- connect(connectionDetailsSnowflake)
+renderTranslateQuerySql(connection, "SELECT TOP 1 \"person_id\" FROM @schema.person;", schema = cdmDatabaseSchemaSnowflake)
+disconnect(connection)

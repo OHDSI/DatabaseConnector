@@ -709,7 +709,8 @@ connectSnowflake <- function(connectionDetails) {
       user = connectionDetails$user(),
       password = connectionDetails$password(),
       dbms = connectionDetails$dbms,
-      "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ"
+      "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ",
+      "QUOTED_IDENTIFIERS_IGNORE_CASE"="TRUE"
     )
   }
   return(connection)

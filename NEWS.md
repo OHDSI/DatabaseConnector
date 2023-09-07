@@ -1,3 +1,11 @@
+DatabaseConnector 6.3.0
+=======================
+
+Changes:
+
+1. On Snowflake always using `QUOTED_IDENTIFIERS_IGNORE_CASE=TRUE` to avoid name mismatches when using quotes.
+
+
 DatabaseConnector 6.2.4
 =======================
 
