@@ -95,8 +95,11 @@ tables <- getTableNames(connection, databaseSchema)
 sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse= "\n")
 executeSql(connection, sql)
 
-schemas <- querySql(connection, "SELECT schema_name FROM information_schema.schemata;")
-schemas <- schemas[sapply(schemas, substr, start = 1, stop = 1) == 'r']
+schemas <- querySql(connection, "SELECT schema_name FROM information_schema.schemata;")[, 1]
+schemas <- schemas[grepl("^r[0-9]+$", schemas)]
+sql <- paste(sprintf("DROP SCHEMA %s CASCADE;", schemas), collapse= "\n")
+executeSql(connection, sql)
+
 disconnect(connection)
 
 # SQL Server
