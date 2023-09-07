@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.2.4</span>
       </span>
     </div>
 
@@ -45,7 +45,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://ohdsi.github.io/Hades" class="external-link"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
+  <a href="https://ohdsi.github.io/Hades" class="external-link">hadesLogo</a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/" class="external-link">
@@ -67,7 +67,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="6.2.3" id="databaseconnector-623">DatabaseConnector 6.2.3<a class="anchor" aria-label="anchor" href="#databaseconnector-623"></a></h2>
+<h2 class="page-header" data-toc-text="6.2.4" id="databaseconnector-624">DatabaseConnector 6.2.4<a class="anchor" aria-label="anchor" href="#databaseconnector-624"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li>The <code>DatabaseConnectorConnection</code> class is now defined at runtime, preventing the “Found more than one class ‘Microsoft SQL Server’” error when using the <code>odbc</code> package while <code>DatabaseConnector</code> is installed.</li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li><p>Fixing test for whether packages exist, which was causing errors on some Linux versions.</p></li>
+<li><p>Fixing error about missing origin when fetching datetimes on older R versions.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="6.2.3" id="databaseconnector-623">DatabaseConnector 6.2.3<small>2023-06-29</small><a class="anchor" aria-label="anchor" href="#databaseconnector-623"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li>The <code>dbFetch()</code> function now respects <code>n = -1</code> and <code>n = Inf</code> arguments. Will throw warning if other value is used.</li>
 </ol><p>Bugfixes:</p>

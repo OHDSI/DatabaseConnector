@@ -1,4 +1,4 @@
-This update includes 1 changes and 2 bugfixes (see NEWS.md).
+This update includes 1 changes and 2 bugfixes, including the fix requested by Prof. Hornik. (see NEWS.md).
 
 ---
 

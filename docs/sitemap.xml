@@ -94,7 +94,22 @@
     <loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
   </url>
   <url>
+    <loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbClearResult-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbClearResult-DatabaseConnectorJdbcResult-method.html</loc>
+  </url>
+  <url>
     <loc>/reference/dbClearResult-DatabaseConnectorResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbColumnInfo-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbColumnInfo-DatabaseConnectorJdbcResult-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbColumnInfo-DatabaseConnectorResult-method.html</loc>
@@ -106,6 +121,9 @@
     <loc>/reference/dbCreateTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
   </url>
   <url>
+    <loc>/reference/dbCreateTable-DatabaseConnectorConnection-method.html</loc>
+  </url>
+  <url>
     <loc>/reference/dbDisconnect-DatabaseConnectorConnection-method.html</loc>
   </url>
   <url>
@@ -115,7 +133,16 @@
     <loc>/reference/dbExistsTable-DatabaseConnectorConnection-character-method.html</loc>
   </url>
   <url>
+    <loc>/reference/dbFetch-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbFetch-DatabaseConnectorJdbcResult-method.html</loc>
+  </url>
+  <url>
     <loc>/reference/dbFetch-DatabaseConnectorResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetInfo-DatabaseConnectorConnection-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbGetInfo-DatabaseConnectorDriver-method.html</loc>
@@ -124,13 +151,37 @@
     <loc>/reference/dbGetQuery-DatabaseConnectorConnection-character-method.html</loc>
   </url>
   <url>
+    <loc>/reference/dbGetRowCount-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetRowCount-DatabaseConnectorJdbcResult-method.html</loc>
+  </url>
+  <url>
     <loc>/reference/dbGetRowCount-DatabaseConnectorResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetRowsAffected-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetRowsAffected-DatabaseConnectorJdbcResult-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbGetRowsAffected-DatabaseConnectorResult-method.html</loc>
   </url>
   <url>
+    <loc>/reference/dbGetStatement-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbGetStatement-DatabaseConnectorJdbcResult-method.html</loc>
+  </url>
+  <url>
     <loc>/reference/dbGetStatement-DatabaseConnectorResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbHasCompleted-DatabaseConnectorDbiResult-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbHasCompleted-DatabaseConnectorJdbcResult-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbHasCompleted-DatabaseConnectorResult-method.html</loc>
@@ -163,6 +214,9 @@
     <loc>/reference/dbReadTable-DatabaseConnectorConnection-character-method.html</loc>
   </url>
   <url>
+    <loc>/reference/dbRemoveTable-DatabaseConnectorConnection-ANY-method.html</loc>
+  </url>
+  <url>
     <loc>/reference/dbRemoveTable-DatabaseConnectorConnection-character-method.html</loc>
   </url>
   <url>
@@ -179,6 +233,9 @@
   </url>
   <url>
     <loc>/reference/dbUnloadDriver-DatabaseConnectorDriver-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbWriteTable-DatabaseConnectorConnection-ANY-method.html</loc>
   </url>
   <url>
     <loc>/reference/dbWriteTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>

@@ -33,7 +33,6 @@ and after calling \code{dbFetch()}.
 Returns the total number of rows actually fetched with calls to \code{\link[DBI:dbFetch]{dbFetch()}}
 for this result set.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetRowCount")}
 }
 \seealso{
 Other DBIResult generics: 

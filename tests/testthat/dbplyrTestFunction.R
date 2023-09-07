@@ -145,7 +145,6 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   
   # Test row_number ------------------------------------------------------------
   top10PersonsHardWay <- person %>%
-    head(100) %>%
     mutate(rn = row_number(person_id)) %>%
     filter(rn <= 10) %>%
     collect()
