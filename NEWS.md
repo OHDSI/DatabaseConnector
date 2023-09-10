@@ -1,3 +1,11 @@
+DatabaseConnector 7.0.0
+=======================
+
+- Drop support for some databases. 
+- Remove wrappers for RSQLite and duckdb
+- Only export DBI interface
+
+
 DatabaseConnector 6.2.4
 =======================
 

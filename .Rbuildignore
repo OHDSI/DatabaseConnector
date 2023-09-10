@@ -16,3 +16,4 @@ docs
 .github
 errorReportSql.txt
 ^CRAN-SUBMISSION$
+^LICENSE\.md$

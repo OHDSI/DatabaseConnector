@@ -26,29 +26,8 @@ setMethod(
   "dbListTables",
   "DatabaseConnectorConnection",
   function(conn, databaseSchema = NULL, ...) {
-    errorMessages <- checkmate::makeAssertCollection()
-    checkmate::assertCharacter(databaseSchema, len = 1, null.ok = TRUE, add = errorMessages)
-    checkmate::reportAssertions(collection = errorMessages)
     
-    if (is(conn, "DatabaseConnectorDbiConnection")) {
-      if (!is.null(databaseSchema) && dbms(conn) == "spark" && grepl("\\.", databaseSchema)) {
-        databaseSchema <- strsplit(databaseSchema, "\\.")[[1]]
-        tables <- DBI::dbListTables(
-          conn@dbiConnection, 
-          catalog = cleanSchemaName(databaseSchema[1]),
-          schema = cleanSchemaName(databaseSchema[2])
-        )
-      } else if (!is.null(databaseSchema) && dbms(conn) == "duckdb") {
-        if (grepl("\\.", databaseSchema)) {
-          databaseSchema <- strsplit(databaseSchema, "\\.")[[1]][2]
-        }
-        sql <- sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s';", databaseSchema)
-        tables <- querySql(conn, sql)[[1]]
-      } else {
-        tables <- DBI::dbListTables(conn@dbiConnection, schema = databaseSchema)
-      }
-      return(tolower(tables))
-    }
+    # checkmate::assertCharacter(databaseSchema, len = 1, null.ok = TRUE)
     
     if (is.null(databaseSchema)) {
       database <- rJava::.jnull("java/lang/String")
@@ -103,8 +82,6 @@ setMethod(
 #' Valid options are "upper" , "lower" (default), "none" (no casting is done)
 #'
 #' @return A character vector of table names. 
-#'
-#' @export
 getTableNames <- function(connection, databaseSchema = NULL, cast = "lower") {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertTRUE(DBI::dbIsValid(connection))
@@ -156,7 +133,6 @@ getTableNames <- function(connection, databaseSchema = NULL, cast = "lower") {
 #' @return
 #' A logical value indicating whether the table exits.
 #'
-#' @export
 existsTable <- function(connection, databaseSchema, tableName) {
   tables <- getTableNames(connection, databaseSchema)
   tableName <- tolower(cleanTableName(tableName))

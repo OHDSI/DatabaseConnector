@@ -28,15 +28,10 @@ This vignette describes how you can use the `DatabaseConnector` package to conne
 * Microsoft SQL Server
 * Oracle
 * PostgresSql
-* Microsoft Parallel Data Warehouse (PDW, a.k.a. Analytics Platform System)
 * Amazon Redshift
-* Apache Impala
 * Google BigQuery
-* IBM Netezza
-* SQLite
-* (DataBricks)Spark
+* DataBricks - Spark
 * Snowflake
-* Synapse
 
 # Obtaining drivers 
 
@@ -87,31 +82,18 @@ writeLines("DatabaseConnector JDBC drivers downloaded to 'c:/temp/jdbcDrivers'."
 Note that if we hadn't specified the `DATABASECONNECTOR_JAR_FOLDER` environmental variable, we would have to specify the `pathToDriver` argument when calling `downloadJdbcDrivers`.
 
 
-## Obtaining drivers for Netezza and Impala
-
-Because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. see [these instructions on how to download these drivers](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html), which you can also see by typing `?jdbcDrivers`.
-
-
-##  Obtaining drivers for SQLite or DuckDb
-
-For SQLite and DuckDb we actually don't use a JDBC driver. Instead, we use the RSQLite and duckdb packages, respectively, which can be installed using 
-
-```{r eval=FALSE}
-install.packages("RSQLite")
-install.packages("duckdb")
-```
-
-
 # Creating a connection
 
 To connect to a database a number of details need to be specified, such as the database platform, the location of the server, the user name, password, and path to the driver. We can call the `connect()` function and specify these details directly:
 
 ```{r eval=FALSE}
-conn <- connect(dbms = "postgresql",
-                server = "localhost/postgres",
-                user = "joe",
-                password = "secret")
+conn <- DBI::dbConnect(DatabaseConnectorDriver(),
+                       dbms = "postgresql",
+                       server = "localhost/postgres",
+                       user = "joe",
+                       password = "secret")
 ```
+
 ```{r echo=FALSE}
 writeLines("Connecting using PostgreSQL driver")
 ```
@@ -121,52 +103,22 @@ See [this webpage](http://ohdsi.github.io/DatabaseConnector/reference/connect.ht
 Don't forget to close any connection afterwards:
 
 ```{r eval=FALSE}
-disconnect(conn)
+DBI::dbDisconnect(conn)
 ```  
 
 Instead of providing the server name, it is also possible to provide the JDBC connection string if this is more convenient:
 
 ```{r eval=FALSE}
-conn <- connect(dbms = "postgresql",
-                connectionString = "jdbc:postgresql://localhost:5432/postgres",
-                user = "joe",
-                password = "secret")
+conn <- DBI::dbConnect(dbms = "postgresql",
+                       connectionString = "jdbc:postgresql://localhost:5432/postgres",
+                       user = "joe",
+                       password = "secret")
 ```
+
 ```{r echo=FALSE}
 writeLines("Connecting using PostgreSQL driver")
 ```
-
-Sometimes we may want to first specify the connection details, and defer connecting until later. This may be convenient for example when the connection is established inside a function, and the details need to be passed as an argument. We can use the `createConnectionDetails` function for this purpose:
-
-```{r eval=FALSE}
-details <- createConnectionDetails(dbms = "postgresql",
-                                   server = "localhost/postgres",
-                                   user = "joe",
-                                   password = "secret")
-conn <- connect(details)
-```
-```{r echo=FALSE}
-writeLines("Connecting using PostgreSQL driver")
-```
-
 
 # Using Windows Authentication for SQL Server
 
 In some organizations using Microsoft SQL Server and Windows, it is possible to use Windows Authentication to connect to the server, meaning you won't have to provide a user name and password, since your Windows credentials will be used. This will require downloading the SQL Server authentication DLL file, and placing it somewhere on your system path. If you don't have rights to add files to a place on your system path, you can place it anywhere, and set the `PATH_TO_AUTH_DLL` environmental variable, either using the `Sys.setenv()`, or by adding it to your `.Renviron` file. See [this webpage](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1) or type `?connect` for details on where to get the DLL (and what specific version).
-
-# Connecting to a SQLite database
-
-`DatabaseConnector` also supports SQLite through the [RSQLite package](https://cran.r-project.org/web/packages/RSQLite/index.html), mainly for testing and demonstration purposes. Provide the path to the SQLite file as the `server` argument when connecting. If no file exists it will be created:
-
-```{r}
-conn <- connect(dbms = "sqlite", server = tempfile())
-
-# Upload cars dataset as table:
-insertTable(connection = conn, 
-            tableName = "cars", 
-            data = cars)
-
-querySql(conn, "SELECT COUNT(*) FROM main.cars;")
-
-disconnect(conn)
-```

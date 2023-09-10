@@ -4,9 +4,9 @@
 \name{DatabaseConnector-package}
 \alias{DatabaseConnector}
 \alias{DatabaseConnector-package}
-\title{DatabaseConnector: Connecting to Various Database Platforms}
+\title{DatabaseConnector: Connect to OHDSI Supported Database Platforms with DBI}
 \description{
-An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Snowflake', 'Spark', and 'SQLite'). Also includes support for fetching data as 'Andromeda' objects. Uses either 'Java Database Connectivity' ('JDBC') or other 'DBI' drivers to connect to databases.
+An R Database Interface (DBI) compatible interface to several database platforms using Java Database Connectivity (JDBC). Supported platforms are PostgreSQL, Oracle, Microsoft SQL Server, Amazon Redshift, Google BigQuery, Snowflake, Spark.
 }
 \seealso{
 Useful links:
@@ -18,10 +18,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Martijn Schuemie \email{schuemie@ohdsi.org}
+\strong{Maintainer}: Adam Black \email{black@ohdsi.org} (\href{https://orcid.org/0000-0001-5576-8701}{ORCID})
 
 Authors:
 \itemize{
+  \item Martijn Schuemie \email{schuemie@ohdsi.org}
   \item Marc Suchard
 }
 

@@ -17,36 +17,15 @@
 # limitations under the License.
 
 getSqlDataTypes <- function(column) {
-  if (is.integer(column)) {
-    return("INTEGER")
-  } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
-    return("DATETIME2")
-  } else if (is(column, "Date")) {
-    return("DATE")
-  } else if (bit64::is.integer64(column)) {
-    return("BIGINT")
-  } else if (is.numeric(column)) {
-    return("FLOAT")
-  } else {
-    if (is.factor(column)) {
-      maxLength <-
-        max(suppressWarnings(nchar(
-          stringr::str_conv(string = as.character(column), encoding = "UTF-8")
-        )), na.rm = TRUE)
-    } else if (all(is.na(column))) {
-      maxLength <- NA
-    } else {
-      maxLength <-
-        max(suppressWarnings(nchar(
-          stringr::str_conv(string = as.character(column), encoding = "UTF-8")
-        )), na.rm = TRUE)
-    }
-    if (is.na(maxLength) || maxLength <= 255) {
-      return("VARCHAR(255)")
-    } else {
-      return(sprintf("VARCHAR(%s)", maxLength))
-    }
-  }
+  switch(TRUE,
+    is.integer(column) ~ "INTEGER",
+    is(column, "POSIXct") || is(column, "POSIXt") ~ "DATETIME2",
+    is(column, "Date") ~ "DATE",
+    bit64::is.integer64(column) ~ "BIGINT",
+    is.numeric(column) ~ "FLOAT",
+    is.factor(column) ~ varchar(column),
+    "VARCHAR(MAX)"
+  )
 }
 
 .sql.qescape <- function(s, identifier = FALSE, quote = "\"") {
@@ -98,7 +77,6 @@ validateInt64Insert <- function() {
 #' @param dropTableIfExists   Drop the table if the table already exists before writing?
 #' @param createTable         Create a new table? If false, will append to existing table.
 #' @param tempTable           Should the table created as a temp table?
-#' @template TempEmulationSchema 
 #' @param bulkLoad            If using Redshift, PDW, Hive or Postgres, use more performant bulk loading
 #'                            techniques. Does not work for temp tables (except for HIVE). See Details for
 #'                            requirements for the various platforms.
@@ -134,7 +112,7 @@ validateInt64Insert <- function() {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(
+#' DBI::dbConnect(DatabaseConnectorDriver(),
 #'   dbms = "mysql",
 #'   server = "localhost",
 #'   user = "root",
@@ -146,7 +124,7 @@ validateInt64Insert <- function() {
 #' disconnect(conn)
 #'
 #' ## bulk data insert with Redshift or PDW
-#' connectionDetails <- createConnectionDetails(
+#' DBI::dbConnect(DatabaseConnectorDriver(),
 #'   dbms = "redshift",
 #'   server = "localhost",
 #'   user = "root",
@@ -166,7 +144,6 @@ validateInt64Insert <- function() {
 #'   bulkLoad = TRUE
 #' ) # or, Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)
 #' }
-#' @export
 insertTable <- function(connection,
                         databaseSchema = NULL,
                         tableName,
@@ -174,16 +151,11 @@ insertTable <- function(connection,
                         dropTableIfExists = TRUE,
                         createTable = TRUE,
                         tempTable = FALSE,
-                        oracleTempSchema = NULL,
-                        tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-                        bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
-                        useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
-                        progressBar = FALSE,
-                        camelCaseToSnakeCase = FALSE) {
+                        bulkLoad = FALSE,
+                        progressBar = FALSE) {
   UseMethod("insertTable", connection)
 }
 
-#' @export
 insertTable.default <- function(connection,
                                 databaseSchema = NULL,
                                 tableName,
@@ -191,12 +163,8 @@ insertTable.default <- function(connection,
                                 dropTableIfExists = TRUE,
                                 createTable = TRUE,
                                 tempTable = FALSE,
-                                oracleTempSchema = NULL,
-                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-                                bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
-                                useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
-                                progressBar = FALSE,
-                                camelCaseToSnakeCase = FALSE) {
+                                bulkLoad = FALSE,
+                                progressBar = FALSE) {
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
@@ -381,7 +349,6 @@ insertTable.default <- function(connection,
   }
 }
 
-#' @export
 insertTable.DatabaseConnectorDbiConnection <- function(connection,
                                                        databaseSchema = NULL,
                                                        tableName,
@@ -389,7 +356,6 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
                                                        dropTableIfExists = TRUE,
                                                        createTable = TRUE,
                                                        tempTable = FALSE,
-                                                       oracleTempSchema = NULL,
                                                        tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                        bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
                                                        useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
@@ -412,18 +378,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   
   tableName <- gsub("^#", "", tableName)
-  if (dbms(connection) == "sqlite") {
-    # Convert dates and datetime to UNIX timestamp:
-    for (i in 1:ncol(data)) {
-      column <- data[[i]]
-      if (inherits(column, "Date")) {
-        data[, i] <- as.numeric(as.POSIXct(as.character(column), origin = "1970-01-01", tz = "GMT"))
-      }
-      if (inherits(column, "POSIXct")) {
-        data[, i] <- as.numeric(as.POSIXct(column, origin = "1970-01-01", tz = "GMT"))
-      }
-    }
-  }
+
   if (dbms(connection) == "spark") {
     # Spark automatically converts table names to lowercase, but will throw an error
     # that the table already exists when using dbWriteTable to append, and the table 

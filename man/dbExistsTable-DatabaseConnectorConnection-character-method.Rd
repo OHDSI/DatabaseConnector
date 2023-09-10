@@ -4,7 +4,7 @@
 \alias{dbExistsTable,DatabaseConnectorConnection,character-method}
 \title{Does a table exist?}
 \usage{
-\S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
+\S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, schema = NULL, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
@@ -20,9 +20,9 @@ e.g. \code{Id(schema = "my_schema", table = "table_name")}
 given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
 }}
 
-\item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
-
 \item{...}{Other parameters passed on to methods.}
+
+\item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 }
 \value{
 \code{dbExistsTable()} returns a logical scalar, \code{TRUE} if the table or view
@@ -33,6 +33,7 @@ This includes temporary tables if supported by the database.
 \description{
 Returns if a table given by name exists in the database.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbExistsTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

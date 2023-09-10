@@ -4,17 +4,7 @@
 \alias{dbCreateTable,DatabaseConnectorConnection-method}
 \title{Create a table in the database}
 \usage{
-\S4method{dbCreateTable}{DatabaseConnectorConnection}(
-  conn,
-  name,
-  fields,
-  databaseSchema = NULL,
-  oracleTempSchema = NULL,
-  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-  ...,
-  row.names = NULL,
-  temporary = FALSE
-)
+\S4method{dbCreateTable}{DatabaseConnectorConnection}(conn, name, fields, ..., row.names = NULL, temporary = FALSE)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
@@ -39,7 +29,11 @@ Field types are unescaped.
 A data frame: field types are generated using
 \code{\link[DBI:dbDataType]{dbDataType()}}.}
 
-\item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
+\item{...}{Other parameters passed on to methods.}
+
+\item{row.names}{Must be \code{NULL}.}
+
+\item{temporary}{Should the table created as a temp table?}
 
 \item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 
@@ -47,11 +41,7 @@ A data frame: field types are generated using
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
-\item{...}{Other parameters passed on to methods.}
-
-\item{row.names}{Must be \code{NULL}.}
-
-\item{temporary}{Should the table created as a temp table?}
+\item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 }
 \value{
 \code{dbCreateTable()} returns \code{TRUE}, invisibly.
@@ -64,6 +54,7 @@ Backends with a different SQL syntax can override \code{sqlCreateTable()},
 backends with entirely different ways to create tables need to
 override this method.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbCreateTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

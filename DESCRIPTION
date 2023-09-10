@@ -1,26 +1,26 @@
 Package: DatabaseConnector
 Type: Package
-Title: Connecting to Various Database Platforms
-Version: 6.2.4
-Date: 2023-09-07
+Title: Connect to OHDSI Supported Database Platforms with DBI
+Version: 7.0.0
+Date: 2023-09-09
 Authors@R: c(
-    person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
+    person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut")),
     person("Marc", "Suchard", role = c("aut")),
+    person("Adam", "Black", , "black@ohdsi.org", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-5576-8701")),
     person("Observational Health Data Science and Informatics", role = c("cph")),
     person("Microsoft Inc.", role = c("cph"), comment = "SQL Server JDBC driver"),
     person("PostgreSQL Global Development Group", role = c("cph"), comment = "PostgreSQL JDBC driver"),
     person("Oracle Inc.", role = c("cph"), comment = "Oracle  JDBC driver"),
     person("Amazon Inc.", role = c("cph"), comment = "RedShift  JDBC driver")
   )
-Description: An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 
-    'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Snowflake', 'Spark', and 'SQLite'). Also includes support for
-    fetching data as 'Andromeda' objects. Uses either 'Java Database Connectivity' ('JDBC') or other 'DBI' drivers to connect to databases.
+Description: An R Database Interface (DBI) compatible interface to several database platforms 
+    using Java Database Connectivity (JDBC). Supported platforms are
+    PostgreSQL, Oracle, Microsoft SQL Server, Amazon Redshift, Google BigQuery, Snowflake, Spark.
 SystemRequirements: Java (>= 8)
 Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.15.2),
     methods,
     stringr,
     readr,
@@ -40,15 +40,9 @@ Suggests:
     DBItest,
     knitr,
     rmarkdown,
-    RSQLite,
     ssh,
-    Andromeda,
     dplyr,
-    RPostgres,
-    odbc,
-    duckdb,
-    pool,
-    ParallelLogger
+    pool
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

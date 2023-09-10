@@ -16,178 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-checkIfDbmsIsSupported <- function(dbms) {
-  supportedDbmss <- c(
-    "oracle",
-    "hive",
-    "postgresql",
-    "redshift",
-    "sql server",
-    "pdw",
-    "netezza",
-    "impala",
-    "bigquery",
-    "sqlite",
-    "sqlite extended",
-    "spark",
-    "snowflake",
-    "synapse",
-    "duckdb"
-  )
-  if (!dbms %in% supportedDbmss) {
-    abort(sprintf(
-      "DBMS '%s' not supported. Please use one of these values: '%s'",
-      dbms,
-      paste(supportedDbmss, collapse = "', '")
-    ))
-  }
-}
+supportedDbms <- c(
+  "oracle",
+  "postgresql",
+  "redshift",
+  "sql server",
+  "bigquery",
+  "spark",
+  "snowflake")
 
-checkDetailValidation <- function(connectionDetails, name) {
-  tryCatch(
-    invisible(connectionDetails[[name]]()),
-    error = function(e) {
-      abort(
-        sprintf(
-          paste(
-            "Unable to evaluate the '%s' argument of the connection details.",
-            "Most likely this is because the connection is being established",
-            "in a separate R thread that has no access to variables in the main",
-            "thread. This problem will not occur when using",
-            "a secure approach to credentials such as keyring. See",
-            "?createConnectionDetails for more information."
-          ),
-          name
-        )
-      )
-    }
-  )
-}
-
-assertDetailsCanBeValidated <- function(connectionDetails) {
-  checkDetailValidation(connectionDetails, "server")
-  checkDetailValidation(connectionDetails, "port")
-  checkDetailValidation(connectionDetails, "user")
-  checkDetailValidation(connectionDetails, "password")
-  checkDetailValidation(connectionDetails, "connectionString")
-}
-
-#' @title
-#' createConnectionDetails
-#'
-#' @description
-#' Creates a list containing all details needed to connect to a
-#' database. There are three ways to call this function:
-#' 
-#' - `createConnectionDetails(dbms, user, password, server, port, extraSettings, oracleDriver, pathToDriver)`
-#' - `createConnectionDetails(dbms, connectionString, pathToDriver)`
-#' - `createConnectionDetails(dbms, connectionString, user, password, pathToDriver)`
-#'
-#' @usage
-#' NULL
-#'
-#' @template Dbms
-#' @template DefaultConnectionDetails
-#'
-#' @details
-#' This function creates a list containing all details needed to connect to a database. The list can
-#' then be used in the [connect()] function.
-#'
-#' It is highly recommended to use a secure approach to storing credentials, so not to have your
-#' credentials in plain text in your R scripts. The examples demonstrate how to use the
-#' `keyring` package.
-#'
-#' @return
-#' A list with all the details needed to connect to a database.
-#'
-#' @examples
-#' \dontrun{
-#' # Needs to be done only once on a machine. Credentials will then be stored in
-#' # the operating system's secure credential manager:
-#' keyring::key_set_with_value("server", password = "localhost/postgres")
-#' keyring::key_set_with_value("user", password = "root")
-#' keyring::key_set_with_value("password", password = "secret")
-#'
-#' # Create connection details using keyring. Note: the connection details will
-#' # not store the credentials themselves, but the reference to get the credentials.
-#' connectionDetails <- createConnectionDetails(
-#'   dbms = "postgresql",
-#'   server = keyring::key_get("server"),
-#'   user = keyring::key_get("user"),
-#'   password = keyring::key_get("password"),
-#' )
-#' conn <- connect(connectionDetails)
-#' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
-#' disconnect(conn)
-#' }
-#' @export
-createConnectionDetails <- function(dbms,
-                                    user = NULL,
-                                    password = NULL,
-                                    server = NULL,
-                                    port = NULL,
-                                    extraSettings = NULL,
-                                    oracleDriver = "thin",
-                                    connectionString = NULL,
-                                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
-  checkIfDbmsIsSupported(dbms)
-  pathToDriver <- path.expand(pathToDriver)
-  checkPathToDriver(pathToDriver, dbms)
-
-  result <- list(
-    dbms = dbms,
-    extraSettings = extraSettings,
-    oracleDriver = oracleDriver,
-    pathToDriver = pathToDriver
-  )
-
-  userExpression <- rlang::enquo(user)
-  result$user <- function() rlang::eval_tidy(userExpression)
-
-  passWordExpression <- rlang::enquo(password)
-  result$password <- function() rlang::eval_tidy(passWordExpression)
-
-  serverExpression <- rlang::enquo(server)
-  result$server <- function() rlang::eval_tidy(serverExpression)
-
-  portExpression <- rlang::enquo(port)
-  result$port <- function() rlang::eval_tidy(portExpression)
-
-  csExpression <- rlang::enquo(connectionString)
-  result$connectionString <- function() rlang::eval_tidy(csExpression)
-
-  class(result) <- c("ConnectionDetails", "DefaultConnectionDetails")
-  return(result)
-}
-
-
-#' Create DBI connection details
-#' 
-#' @description 
-#' For advanced users only. This function will allow `DatabaseConnector` to wrap any DBI driver. Using a driver that 
-#' `DatabaseConnector` hasn't been tested with may give unpredictable performance. Use at your own risk. No
-#' support will be provided. 
-#'
-#' @template Dbms
-#' @param drv   An object that inherits from DBIDriver, or an existing DBIConnection object
-#'              (in order to clone an existing connection).
-#' @param ...   authentication arguments needed by the DBMS instance; these typically
-#'              include user, password, host, port, dbname, etc. For details see the appropriate DBIDriver
-#'
-#' @return
-#' A list with all the details needed to connect to a database.
-#'
-#' @export
-createDbiConnectionDetails <- function(dbms, drv, ...) {
-  result <- list(...)
-  result$dbms <- dbms
-  result$drv <- drv
-  class(result) <- c("ConnectionDetails", "DbiConnectionDetails")
-  return(result)
-}
-
-#' @title
-#' connect
+#' @title dbConnect
 #'
 #' @description
 #' Creates a connection to a database server .There are four ways to call this
@@ -215,7 +53,7 @@ createDbiConnectionDetails <- function(dbms, drv, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(
+#' DBI::dbConnect(DatabaseConnectorDriver(),
 #'   dbms = "postgresql",
 #'   server = "localhost/postgres",
 #'   user = "root",
@@ -246,7 +84,6 @@ createDbiConnectionDetails <- function(dbms, drv, ...) {
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #' }
-#' @export
 connect <- function(connectionDetails = NULL,
                     dbms = NULL,
                     user = NULL,
@@ -259,7 +96,7 @@ connect <- function(connectionDetails = NULL,
                     pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
   if (missing(connectionDetails) || is.null(connectionDetails)) {
     # warn("Use of dbms, server, etc. when calling connect() is deprecated. Use connectionDetails instead.")
-    connectionDetails <- createConnectionDetails(
+    DBI::dbConnect(DatabaseConnectorDriver(),
       dbms = dbms,
       user = user,
       password = password,
@@ -527,94 +364,6 @@ connectRedShift <- function(connectionDetails) {
   return(connection)
 }
 
-connectNetezza <- function(connectionDetails) {
-  inform("Connecting using Netezza driver")
-  jarPath <- findPathToJar("^nzjdbc\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("org.netezza.Driver", jarPath)
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    if (!grepl("/", connectionDetails$server())) {
-      abort("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
-    }
-    parts <- unlist(strsplit(connectionDetails$server(), "/"))
-    host <- parts[1]
-    database <- parts[2]
-    if (is.null(connectionDetails$port())) {
-      port <- "5480"
-    } else {
-      port <- connectionDetails$port()
-    }
-    connectionString <- paste0("jdbc:netezza://", host, ":", port, "/", database)
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = "?")
-    }
-  } else {
-    connectionString <- connectionDetails$connectionString()
-  }
-  if (is.null(connectionDetails$user())) {
-    connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
-  } else {
-    connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
-    )
-  }
-  return(connection)
-}
-
-connectImpala <- function(connectionDetails) {
-  inform("Connecting using Impala driver")
-  jarPath <- findPathToJar("^ImpalaJDBC42\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc.Driver", jarPath)
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    if (is.null(connectionDetails$port())) {
-      port <- "21050"
-    } else {
-      port <- connectionDetails$port()
-    }
-    connectionString <- paste0("jdbc:impala://", connectionDetails$server(), ":", port)
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
-    }
-  } else {
-    connectionString <- connectionDetails$connectionString()
-  }
-  if (is.null(connectionDetails$user())) {
-    connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
-  } else {
-    connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
-    )
-  }
-  return(connection)
-}
-
-connectHive <- function(connectionDetails) {
-  inform("Connecting using Hive driver")
-  jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
-
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    connectionString <- paste0("jdbc:hive2://", connectionDetails$server(), ":", connectionDetails$port(), "/")
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
-    }
-  } else {
-    connectionString <- connectionDetails$connectionString()
-  }
-  connection <- connectUsingJdbcDriver(driver,
-    connectionString,
-    user = connectionDetails$user(),
-    password = connectionDetails$password(),
-    dbms = connectionDetails$dbms
-  )
-  return(connection)
-}
-
 connectBigQuery <- function(connectionDetails) {
   inform("Connecting using BigQuery driver")
   files <- list.files(path = connectionDetails$pathToDriver, full.names = TRUE)
@@ -670,29 +419,6 @@ connectSpark <- function(connectionDetails) {
   return(connection)
 }
 
-connectSparkUsingOdbc <- function(connectionDetails) {
-  inform("Connecting using Spark ODBC driver")
-  ensure_installed("odbc")
-  dbiConnectionDetails <- createDbiConnectionDetails(
-    dbms = connectionDetails$dbms,
-    drv = odbc::odbc(),
-    Driver = "Simba Spark ODBC Driver",
-    Host = connectionDetails$server(),
-    uid = connectionDetails$user(),
-    pwd = connectionDetails$password(),
-    Port = connectionDetails$port()
-    # UseNativeQuery=1
-  )
-  if (!is.null(connectionDetails$extraSettings)) {
-    dbiConnectionDetails <- append(
-      dbiConnectionDetails,
-      connectionDetails$extraSettings
-    )
-  }
-  connection <- connectUsingDbi(dbiConnectionDetails)
-  return(connection)
-}
-
 connectSnowflake <- function(connectionDetails) {
   inform("Connecting using Snowflake driver")
   jarPath <- findPathToJar("^snowflake-jdbc-.*\\.jar$", connectionDetails$pathToDriver)
@@ -712,20 +438,6 @@ connectSnowflake <- function(connectionDetails) {
       "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ"
     )
   }
-  return(connection)
-}
-
-connectSqlite <- function(connectionDetails) {
-  inform("Connecting using SQLite driver")
-  ensure_installed("RSQLite")
-  connection <- connectUsingDbi(
-    createDbiConnectionDetails(
-      dbms = connectionDetails$dbms,
-      drv = RSQLite::SQLite(),
-      dbname = connectionDetails$server(),
-      extended_types = (connectionDetails$dbms == "sqlite extended")
-    )
-  )
   return(connection)
 }
 
@@ -761,14 +473,14 @@ connectUsingJdbcDriver <- function(jdbcDriver,
     }
   }
   ensureDatabaseConnectorConnectionClassExists()
-  class <- getClassDef("DatabaseConnectorJdbcConnection", where = class_cache, inherits = FALSE)
-  if (is.null(class) || methods::isVirtualClass(class)) {
-    setClass("DatabaseConnectorJdbcConnection",
-             contains = "DatabaseConnectorConnection", 
-             slots = list(jConnection = "jobjRef"),
-             where = class_cache)
-  }
-  connection <- new("DatabaseConnectorJdbcConnection",
+  # class <- getClassDef("DatabaseConnectorConnection", where = class_cache, inherits = FALSE)
+  # if (is.null(class) || methods::isVirtualClass(class)) {
+  #   setClass("DatabaseConnectorJdbcConnection",
+  #            contains = "DatabaseConnectorConnection", 
+  #            slots = list(jConnection = "jobjRef"),
+  #            where = class_cache)
+  # }
+  connection <- new("DatabaseConnectorConnection",
     jConnection = jConnection,
     identifierQuote = "",
     stringQuote = "'",
@@ -828,20 +540,6 @@ connectUsingDbi <- function(dbiConnectionDetails) {
   return(connection)
 }
 
-connectDuckdb <- function(connectionDetails) {
-  inform("Connecting using DuckDB driver")
-  ensure_installed("duckdb")
-  connection <- connectUsingDbi(
-    createDbiConnectionDetails(
-      dbms = connectionDetails$dbms,
-      drv = duckdb::duckdb(),
-      dbdir = connectionDetails$server(),
-      bigint = "integer64"
-    )
-  )
-  return(connection)
-}
-
 generateRandomString <- function(length = 20) {
   return(paste(sample(c(letters, 0:9), length, TRUE), collapse = ""))
 }
@@ -855,7 +553,7 @@ generateRandomString <- function(length = 20) {
 #'
 #' @examples
 #' \dontrun{
-#' connectionDetails <- createConnectionDetails(
+#' DBI::dbConnect(DatabaseConnectorDriver(),
 #'   dbms = "postgresql",
 #'   server = "localhost",
 #'   user = "root",
@@ -865,30 +563,13 @@ generateRandomString <- function(length = 20) {
 #' count <- querySql(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
 #' }
-#' @export
 disconnect <- function(connection) {
-  UseMethod("disconnect", connection)
-}
-
-#' @export
-disconnect.default <- function(connection) {
   if (rJava::is.jnull(connection@jConnection)) {
-    warn("Connection is already closed")
+    rlang::warn("Connection is already closed")
   } else {
     unregisterWithRStudio(connection)
   }
   rJava::.jcall(connection@jConnection, "V", "close")
-  invisible(TRUE)
-}
-
-#' @export
-disconnect.DatabaseConnectorDbiConnection <- function(connection) {
-  if (connection@dbms == "duckdb") {
-    DBI::dbDisconnect(connection@dbiConnection, shutdown = TRUE)
-  } else {
-    DBI::dbDisconnect(connection@dbiConnection)
-  }
-  unregisterWithRStudio(connection)
   invisible(TRUE)
 }
 
@@ -898,47 +579,4 @@ setPathToDll <- function() {
     inform(paste("Looking for authentication DLL in path specified in PATH_TO_AUTH_DLL:", pathToDll))
     rJava::J("org.ohdsi.databaseConnector.Authentication")$addPathToJavaLibrary(pathToDll)
   }
-}
-
-#' Get the database platform from a connection
-#'
-#' The SqlRender package provides functions that translate SQL from OHDSI-SQL to
-#' a target SQL dialect. These function need the name of the database platform to
-#' translate to. The `dbms` function returns the dbms for any DBI
-#' connection that can be passed along to SqlRender translation functions (see example).
-#'
-#' @template Connection
-#'
-#' @return The name of the database (dbms) used by SqlRender
-#' @export
-#'
-#' @examples
-#' library(DatabaseConnector)
-#' con <- connect(dbms = "sqlite", server = ":memory:")
-#' dbms(con)
-#' #> [1] "sqlite"
-#' SqlRender::translate("DATEADD(d, 365, dateColumn)", targetDialect = dbms(con))
-#' #> "CAST(STRFTIME('%s', DATETIME(dateColumn, 'unixepoch', (365)||' days')) AS REAL)"
-#' disconnect(con)
-dbms <- function(connection) {
-  if (is(connection, "Pool")) {
-    connection <- pool::poolCheckout(connection)
-    on.exit(pool::poolReturn(connection))
-  }
-
-  if (!inherits(connection, "DBIConnection")) abort("connection must be a DBIConnection")
-
-  if (!is.null(attr(connection, "dbms"))) {
-    return(attr(connection, "dbms"))
-  }
-
-  switch(class(connection),
-    "Microsoft SQL Server" = "sql server",
-    "PqConnection" = "postgresql",
-    "RedshiftConnection" = "redshift",
-    "BigQueryConnection" = "bigquery",
-    "SQLiteConnection" = "sqlite",
-    "duckdb_connection" = "duckdb"
-    # add mappings from various DBI connection classes to SqlRender dbms here
-  )
 }
