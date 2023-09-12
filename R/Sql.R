@@ -302,16 +302,18 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
-  hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+  if (dbms(connection) == "spark") {
+    # For some queries the DataBricks JDBC driver will throw an error saying no ROWCOUNT is returned
+    # when using executeLargeUpdate, so using execute instead. 
+    rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+    rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
+  } else {
+    rowsAffected <- rJava::.jcall(statement, "J", "executeLargeUpdate", as.character(sql), check = FALSE)
+  }
   
   if (dbms(connection) == "bigquery") {
     delayIfNecessaryForDdl(sql)
     delayIfNecessaryForInsert(sql)
-  }
-  
-  rowsAffected <- 0
-  if (!hasResultSet) {
-    rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
   }
   
   delta <- Sys.time() - startTime
@@ -421,9 +423,9 @@ executeSql <- function(connection,
   
   batched <- runAsBatch && supportsBatchUpdates(connection)
   sqlStatements <- SqlRender::splitSql(sql)
+  rowsAffected <- c()
   if (batched) {
     batchSize <- 1000
-    rowsAffected <- 0
     for (start in seq(1, length(sqlStatements), by = batchSize)) {
       end <- min(start + batchSize - 1, length(sqlStatements))
       
@@ -441,7 +443,7 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
@@ -471,7 +473,7 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          lowLevelExecuteSql(connection, sqlStatement)
+          rowsAffected <- c(rowsAffected, lowLevelExecuteSql(connection, sqlStatement))
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
@@ -498,9 +500,7 @@ executeSql <- function(connection,
     delta <- Sys.time() - startTime
     inform(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
   }
-  if (batched) {
     invisible(rowsAffected)
-  }
 }
 
 convertFields <- function(dbms, result) {

@@ -10,7 +10,7 @@ test_that("Test dbplyr on Postgres", {
     password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA")
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 })
 

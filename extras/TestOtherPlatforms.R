@@ -75,6 +75,17 @@ connectionDetailsSnowflake <- createConnectionDetails(
 cdmDatabaseSchemaSnowflake <- "ATLAS.SYNPUF110K_CDM_53"
 scratchDatabaseSchemaSnowflake <- "ATLAS.RESULTS"
 
+# Snowflake
+connectionDetailsSnowflake <- createConnectionDetails(
+  dbms = "snowflake",
+  server = Sys.getenv("CDM_SNOWFLAKE_SERVER"),
+  user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+  password = Sys.getenv("CDM_SNOWFLAKE_PASSWORD")
+)
+connection <- connect(connectionDetailsSnowflake)
+cdmDatabaseSchemaSnowflake <- "ATLAS.SYNPUF110K_CDM_53"
+scratchDatabaseSchemaSnowflake <- "ATLAS.RESULTS"
+
 # Open and close connection -----------------------------------------------
 
 # BigQuery
@@ -520,6 +531,67 @@ connection <- connect(connectionDetailsSnowflake)
 hash <- computeDataHash(connection = connection,
                         databaseSchema = cdmDatabaseSchemaSnowflake)
 expect_true(is.character(hash))
+disconnect(connection)
+
+# Test updates -----------------------------------------------------------------
+sql <- "CREATE TABLE #temp (x INT);
+    INSERT INTO #temp (x) SELECT 123;
+    DELETE FROM #temp WHERE x = 123;
+    DROP TABLE #temp;"
+
+# BigQuery 
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaBigQuery)
+connection <- connect(connectionDetailsBigQuery)
+
+expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
+
+expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
+
+rowsAffected <- dbSendStatement(connection, sql)
+expect_equal(dbGetRowsAffected(rowsAffected), 2)
+dbClearResult(rowsAffected)
+
+disconnect(connection)
+
+# Azure 
+connection <- connect(connectionDetailsAzure)
+
+expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
+
+expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
+
+rowsAffected <- dbSendStatement(connection, sql)
+expect_equal(dbGetRowsAffected(rowsAffected), 2)
+dbClearResult(rowsAffected)
+
+disconnect(connection)
+
+# Databricks  JDBC
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaDataBricks)
+connection <- connect(connectionDetailsDataBricksJdbc)
+
+expect_equal(renderTranslateExecuteSql(connection, sql), c(-1, -1, 0, -1))
+
+expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(-1, -1, 0, -1))
+
+rowsAffected <- dbSendStatement(connection, sql)
+expect_equal(dbGetRowsAffected(rowsAffected), -3)
+dbClearResult(rowsAffected)
+
+disconnect(connection)
+
+# Databricks  ODBC
+options(sqlRenderTempEmulationSchema = scratchDatabaseSchemaDataBricks)
+connection <- connect(connectionDetailsDataBricksOdbc)
+
+expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 0, 0, 0))
+
+expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 0, 0, 0))
+
+rowsAffected <- dbSendStatement(connection, sql)
+expect_equal(dbGetRowsAffected(rowsAffected), 0)
+dbClearResult(rowsAffected)
+
 disconnect(connection)
 
 # Test dbplyr ------------------------------------------------------------------

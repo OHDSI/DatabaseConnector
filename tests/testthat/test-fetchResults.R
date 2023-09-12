@@ -14,7 +14,7 @@ test_that("Fetch results", {
     password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA")
   sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
   
@@ -214,7 +214,7 @@ test_that("dbFetch works", {
     password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA")
   sql <- "SELECT * FROM @cdm_database_schema.vocabulary LIMIT 10"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
   

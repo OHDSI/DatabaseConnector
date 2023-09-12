@@ -5,7 +5,7 @@ test_that("renderTranslateQueryApplyBatched works", {
     password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA")
   sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary;"
 
   fun <- function(data, position, myString) {

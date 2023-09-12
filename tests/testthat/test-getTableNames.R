@@ -9,9 +9,9 @@ test_that("Get table names", {
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
   connection <- connect(details)
-  tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"))
   expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
+  expect_true(existsTable(connection, Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"), "person"))
   expect_true(DBI::dbExistsTable(connection, "person"))
   disconnect(connection)
 
@@ -104,9 +104,9 @@ test_that("Get table names using DBI drivers", {
                                        host = Sys.getenv("CDM5_POSTGRESQL_HOST"),
                                        user = Sys.getenv("CDM5_POSTGRESQL_USER"),
                                        password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
-  tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"))
   expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"), "person"))
+  expect_true(existsTable(connection, Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"), "person"))
   DBI::dbDisconnect(connection)
   
   # SQL Server with odbc driver ----------------------------------
