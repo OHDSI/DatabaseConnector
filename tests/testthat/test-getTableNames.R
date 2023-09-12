@@ -23,9 +23,9 @@ test_that("Get table names", {
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
   connection <- connect(details)
-  tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"))
   expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"), "person"))
+  expect_true(existsTable(connection, Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"), "person"))
   # This does not work on SQL Server:
   # expect_true(DBI::dbExistsTable(connection, "person"))
   disconnect(connection)
@@ -38,9 +38,9 @@ test_that("Get table names", {
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
   connection <- connect(details)
-  tables <- getTableNames(connection, Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"))
-  expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"), "person"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA"))
+    expect_true("person" %in% tables)
+  expect_true(existsTable(connection, Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA"), "person"))
   expect_true(DBI::dbExistsTable(connection, "person"))
   disconnect(connection)
 
@@ -67,9 +67,9 @@ test_that("Get table names", {
     server = Sys.getenv("CDM5_REDSHIFT_SERVER")
   )
   connection <- connect(details)
-  tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"))
   expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
+  expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"), "person"))
   expect_true(DBI::dbExistsTable(connection, "person"))
   disconnect(connection)
   
@@ -118,9 +118,9 @@ test_that("Get table names using DBI drivers", {
                                PWD      = Sys.getenv("CDM5_SQL_SERVER_PASSWORD"),
                                TrustServerCertificate = "yes",
                                Port     = 1433)
-  tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"))
   expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"), "person"))
+  expect_true(existsTable(connection, Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"), "person"))
   DBI::dbDisconnect(connection)
   
   # Sqlite --------------------------------------------------
@@ -152,8 +152,8 @@ test_that("Get table names using DBI drivers", {
                                user     = Sys.getenv("CDM5_REDSHIFT_USER"),
                                password = Sys.getenv("CDM5_REDSHIFT_PASSWORD"))
   
-  tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
+  tables <- getTableNames(connection, Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"))
   expect_true("person" %in% tables)
-  expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"), "person"))
+  expect_true(existsTable(connection, Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"), "person"))
   DBI::dbDisconnect(connection)
 })

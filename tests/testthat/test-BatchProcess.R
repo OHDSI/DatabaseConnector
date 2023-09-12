@@ -32,7 +32,7 @@ test_that("renderTranslateQueryApplyBatched works", {
     password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA")
   sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary;"
   data <- renderTranslateQueryApplyBatched(connection,
     sql,
@@ -52,7 +52,7 @@ test_that("renderTranslateQueryApplyBatched works", {
     password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA")
 
   sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary;"
   data <- renderTranslateQueryApplyBatched(connection,
@@ -73,7 +73,7 @@ test_that("renderTranslateQueryApplyBatched works", {
     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
     server = Sys.getenv("CDM5_REDSHIFT_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA")
 
   sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary;"
   data <- renderTranslateQueryApplyBatched(connection,

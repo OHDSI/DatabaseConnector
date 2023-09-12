@@ -47,20 +47,20 @@ test_that("Fetch results", {
     password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA")
   sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
   
   # Fetch data.frame:
   count <- querySql(connection, renderedSql)
-  expect_equal(count[1, 1], 71)
+  expect_equal(count[1, 1], 58)
   count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
-  expect_equal(count[1, 1], 71)
+  expect_equal(count[1, 1], 58)
   
   # Fetch Andromeda:
   andromeda <- Andromeda::andromeda()
   querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
-  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 71)
+  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 58)
   renderTranslateQuerySqlToAndromeda(connection,
                                      sql,
                                      cdm_database_schema = cdmDatabaseSchema,
@@ -68,7 +68,7 @@ test_that("Fetch results", {
                                      andromedaTableName = "test2",
                                      snakeCaseToCamelCase = TRUE
   )
-  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
+  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
   Andromeda::close(andromeda)
 
   disconnect(connection)
@@ -80,7 +80,7 @@ test_that("Fetch results", {
     password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA")
   sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
   
@@ -119,14 +119,14 @@ test_that("Fetch results", {
   
   # Fetch data.frame:
   count <- querySql(connection, renderedSql)
-  expect_equal(count[1, 1], 71)
+  expect_equal(count[1, 1], 58)
   count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
-  expect_equal(count[1, 1], 71)
+  expect_equal(count[1, 1], 58)
   
   # Fetch Andromeda:
   andromeda <- Andromeda::andromeda()
   querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
-  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 71)
+  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 58)
   renderTranslateQuerySqlToAndromeda(connection,
                                      sql,
                                      cdm_database_schema = cdmDatabaseSchema,
@@ -134,7 +134,7 @@ test_that("Fetch results", {
                                      andromedaTableName = "test2",
                                      snakeCaseToCamelCase = TRUE
   )
-  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 71)
+  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
   Andromeda::close(andromeda)
 
   disconnect(connection)
@@ -146,20 +146,20 @@ test_that("Fetch results", {
     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
     server = Sys.getenv("CDM5_REDSHIFT_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA")
   sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
   
   # Fetch data.frame:
   count <- querySql(connection, renderedSql)
-  expect_equal(count[1, 1], 91)
+  expect_equal(count[1, 1], 58)
   count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
-  expect_equal(count[1, 1], 91)
+  expect_equal(count[1, 1], 58)
   
   # Fetch Andromeda:
   andromeda <- Andromeda::andromeda()
   querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
-  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 91)
+  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 58)
   renderTranslateQuerySqlToAndromeda(connection,
                                      sql,
                                      cdm_database_schema = cdmDatabaseSchema,
@@ -167,7 +167,7 @@ test_that("Fetch results", {
                                      andromedaTableName = "test2",
                                      snakeCaseToCamelCase = TRUE
   )
-  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 91)
+  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 58)
   Andromeda::close(andromeda)
 
   disconnect(connection)
@@ -233,7 +233,7 @@ test_that("dbFetch works", {
     password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA")
   
   sql <- "SELECT * FROM @cdm_database_schema.vocabulary FETCH FIRST 10 ROWS ONLY"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
@@ -251,7 +251,7 @@ test_that("dbFetch works", {
     password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA")
   
   sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
@@ -269,7 +269,7 @@ test_that("dbFetch works", {
     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
     server = Sys.getenv("CDM5_REDSHIFT_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA")
   
   sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary"
   renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
