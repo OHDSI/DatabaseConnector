@@ -20,10 +20,14 @@ test_that("Send updates to server", {
   )
   connection <- connect(details)
 
-  expect_null(renderTranslateExecuteSql(connection, sql))
+  expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
 
-  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
+  expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
 
+  rowsAffected <- dbSendStatement(connection, sql)
+  expect_equal(dbGetRowsAffected(rowsAffected), 2)
+  dbClearResult(rowsAffected)
+  
   disconnect(connection)
 
   # SQL Server --------------------------------------------------
@@ -35,9 +39,13 @@ test_that("Send updates to server", {
   )
   connection <- connect(details)
 
-  expect_null(renderTranslateExecuteSql(connection, sql))
-
-  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
+  expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
+  
+  expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
+  
+  rowsAffected <- dbSendStatement(connection, sql)
+  expect_equal(dbGetRowsAffected(rowsAffected), 2)
+  dbClearResult(rowsAffected)
 
   disconnect(connection)
 
@@ -50,9 +58,13 @@ test_that("Send updates to server", {
   )
   connection <- connect(details)
 
-  expect_null(renderTranslateExecuteSql(connection, sql))
-
-  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
+  expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
+  
+  expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
+  
+  rowsAffected <- dbSendStatement(connection, sql)
+  expect_equal(dbGetRowsAffected(rowsAffected), 2)
+  dbClearResult(rowsAffected)
 
   disconnect(connection)
 
@@ -65,9 +77,13 @@ test_that("Send updates to server", {
   )
   connection <- connect(details)
 
-  expect_null(renderTranslateExecuteSql(connection, sql))
-
-  expect_true(sum(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE)) > 0)
+  expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
+  
+  expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
+  
+  rowsAffected <- dbSendStatement(connection, sql)
+  expect_equal(dbGetRowsAffected(rowsAffected), 2)
+  dbClearResult(rowsAffected)
 
   disconnect(connection)
 })

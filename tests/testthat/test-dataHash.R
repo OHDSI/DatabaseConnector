@@ -9,7 +9,7 @@ test_that("Compute data hash", {
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
   connection <- connect(details)
-  hash <- computeDataHash(connection, Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA"))
+  hash <- computeDataHash(connection, Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"))
   expect_true(is.character(hash))
 
   disconnect(connection)
@@ -22,7 +22,7 @@ test_that("Compute data hash", {
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
   connection <- connect(details)
-  hash <- computeDataHash(connection, Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA"))
+  hash <- computeDataHash(connection, Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"))
   expect_true(is.character(hash))
   
   disconnect(connection)
@@ -35,7 +35,7 @@ test_that("Compute data hash", {
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
   connection <- connect(details)
-  hash <- computeDataHash(connection, Sys.getenv("CDM5_ORACLE_CDM_SCHEMA"))
+  hash <- computeDataHash(connection, Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA"))
   expect_true(is.character(hash))
   
   disconnect(connection)
@@ -48,7 +48,7 @@ test_that("Compute data hash", {
     server = Sys.getenv("CDM5_REDSHIFT_SERVER")
   )
   connection <- connect(details)
-  hash <- computeDataHash(connection, Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA"))
+  hash <- computeDataHash(connection, Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"))
   expect_true(is.character(hash))
   
   disconnect(connection)

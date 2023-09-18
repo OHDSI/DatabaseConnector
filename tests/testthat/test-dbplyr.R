@@ -10,7 +10,7 @@ test_that("Test dbplyr on Postgres", {
     password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
     server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA")
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 })
 
@@ -22,7 +22,7 @@ test_that("Test dbplyr on SQL Server", {
     password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
     server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA")
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 })
 
@@ -34,7 +34,7 @@ test_that("Test dbplyr on Oracle", {
     password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA")
   options(sqlRenderTempEmulationSchema = Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA"))
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 })
@@ -47,7 +47,7 @@ test_that("Test dbplyr on RedShift", {
     password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
     server = Sys.getenv("CDM5_REDSHIFT_SERVER")
   )
-  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM_SCHEMA")
+  cdmDatabaseSchema <- Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA")
   testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
 })
 
