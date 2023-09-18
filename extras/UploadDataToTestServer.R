@@ -64,7 +64,7 @@ toDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
 
 tableNames <- getTableNames(fromConnection, fromDatabaseSchema)
 for (i in seq_along(tableNames)) {
-  # for (i in 15:length(tableNames)) {
+  # for (i in 31:length(tableNames)) {
   message(sprintf("Copying table %s", tableNames[i]))
   andromeda <- Andromeda::andromeda()
   renderTranslateQuerySqlToAndromeda(
