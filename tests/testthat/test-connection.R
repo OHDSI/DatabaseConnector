@@ -253,17 +253,17 @@ test_that("Open and close connection using connection strings with separate user
   # expect_equal(dbms(connection), "spark")
   # expect_true(disconnect(connection))
 
-  # Snowflake --------------------------------------------------
-  # Disable Snowflake unit tests until we have a testing server
-  # details <- createConnectionDetails(
-  #   dbms = "snowflake",
-  #   connectionString = Sys.getenv("CDM5_SNOWFLAKE_CONNECTION_STRING"),
-  #   user = Sys.getenv("CDM5_SNOWFLAKE_USER"),
-  #   password = URLdecode(Sys.getenv("CDM5_SNOWFLAKE_PASSWORD"))
-  # )
-  # connection <- connect(details)
-  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
-  # expect_true(disconnect(connection))
+  # Snowflake  --------------------------------------------------
+  details <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  connection <- connect(details)
+  expect_true(inherits(connection, "DatabaseConnectorConnection"))
+  expect_equal(dbms(connection), "snowflake")
+  expect_true(disconnect(connection))
 })
 
 test_that("Error is thrown when using incorrect dbms argument", {

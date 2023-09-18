@@ -63,6 +63,7 @@ as a placeholder for prepared queries can override \code{\link[DBI:sqlAppendTabl
 Other backends (with different placeholders or with entirely different
 ways to create tables) need to override the \code{dbAppendTable()} method.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbAppendTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

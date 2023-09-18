@@ -205,6 +205,39 @@ test_that("Fetch results", {
   disconnect(connection)
   unlink(databaseFile)  
   
+  # Snowflake ----------------------------------------------
+  connection <- connect(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  cdmDatabaseSchema <- Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA")
+  sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
+  renderedSql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema)
+  
+  # Fetch data.frame:
+  count <- querySql(connection, renderedSql)
+  expect_equal(count[1, 1], 104)
+  count <- renderTranslateQuerySql(connection, sql, cdm_database_schema = cdmDatabaseSchema)
+  expect_equal(count[1, 1], 104)
+  
+  # Fetch Andromeda:
+  andromeda <- Andromeda::andromeda()
+  querySqlToAndromeda(connection, renderedSql, andromeda = andromeda, andromedaTableName = "test", snakeCaseToCamelCase = TRUE)
+  expect_equivalent(dplyr::collect(andromeda$test)$rowCount[1], 104)
+  renderTranslateQuerySqlToAndromeda(connection,
+                                     sql,
+                                     cdm_database_schema = cdmDatabaseSchema,
+                                     andromeda = andromeda,
+                                     andromedaTableName = "test2",
+                                     snakeCaseToCamelCase = TRUE
+  )
+  expect_equivalent(dplyr::collect(andromeda$test2)$rowCount[1], 104)
+  Andromeda::close(andromeda)
+  
+  disconnect(connection)
+  
 })
 
 test_that("dbFetch works", {

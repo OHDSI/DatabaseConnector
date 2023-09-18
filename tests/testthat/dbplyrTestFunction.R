@@ -6,7 +6,8 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   assertTempEmulationSchemaSet(connectionDetails$dbms)
   
   connection <- connect(connectionDetails)
-  on.exit(disconnect(connection))
+  on.exit(dropEmulatedTempTables(connection))
+  on.exit(disconnect(connection), add = TRUE)
   
   person <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "person"))
   observationPeriod <- tbl(connection, inDatabaseSchema(cdmDatabaseSchema, "observation_period"))
@@ -178,7 +179,6 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   # names(dumbNameCars) <- c("Car speed", "Dist. to Stop")
   # copy_to(connection, dumbNameCars, name = "dn_cars")
   
-  dropEmulatedTempTables(connection)
   # disconnect(connection)
   invisible(NULL)
 }

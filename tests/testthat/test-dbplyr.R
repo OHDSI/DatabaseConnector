@@ -117,6 +117,19 @@ test_that("Test dbplyr on DuckDB", {
   unlink(databaseFile)  
 })
 
+test_that("Test dbplyr on Snowflake", {
+  # Snowflake ----------------------------------------------
+  connectionDetails <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  cdmDatabaseSchema <- Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA")
+  options(sqlRenderTempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA"))
+  testDbplyrFunctions(connectionDetails, cdmDatabaseSchema)
+})
+
 test_that("Test dbplyr date functions on non-dbplyr data", {
   date <- c(as.Date("2000-02-01"), as.Date("2000-12-31"), as.Date("2000-01-31"))
 

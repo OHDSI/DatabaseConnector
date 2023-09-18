@@ -32,6 +32,7 @@ the result is always free-d by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
 For passing query parameters, see \code{\link[DBI:dbBind]{dbBind()}}, in particular
 the "The command execution flow" section.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbExecute")}
 }
 \details{
 You can also use \code{dbExecute()} to call a stored procedure

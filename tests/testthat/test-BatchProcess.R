@@ -111,4 +111,26 @@ test_that("renderTranslateQueryApplyBatched works", {
 
   disconnect(connection)
   unlink(dbFile)
+  
+  # Snowflake  --------------------------------------------------
+  details <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  connection <- connect(details)
+  cdmDatabaseSchema <- Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA")
+  
+  sql <- "SELECT TOP 10 * FROM @cdm_database_schema.vocabulary;"
+  data <- renderTranslateQueryApplyBatched(connection,
+                                           sql,
+                                           fun,
+                                           args,
+                                           cdm_database_schema = cdmDatabaseSchema
+  )
+  data <- do.call(rbind, data)
+  expect_true("test" %in% colnames(data))
+  expect_true(all(data$test == "MY STRING"))
+  disconnect(connection)
 })

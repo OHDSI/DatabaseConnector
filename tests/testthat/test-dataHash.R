@@ -106,4 +106,17 @@ test_that("Compute data hash", {
   
   disconnect(connection)
   unlink(dbFile)
+  
+  # Snowflake ------------------------------------------------------------------
+  details <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  connection <- connect(details)
+  hash <- computeDataHash(connection, Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"))
+  expect_true(is.character(hash))
+  
+  disconnect(connection)
 })

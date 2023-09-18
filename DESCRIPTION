@@ -20,7 +20,7 @@ Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.15.2),
+    SqlRender (>= 1.16.0),
     methods,
     stringr,
     readr,
@@ -49,6 +49,8 @@ Suggests:
     duckdb,
     pool,
     ParallelLogger
+Remotes:
+  ohdsi/SqlRender@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

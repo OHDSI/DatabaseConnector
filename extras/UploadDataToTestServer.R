@@ -52,7 +52,7 @@ fromConnection <- connect(
   password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
   server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
 )
-fromDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM_SCHEMA")
+fromDatabaseSchema <- Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA")
 
 toConnection <- connect(
   dbms = "postgresql",

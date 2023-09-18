@@ -87,6 +87,20 @@ test_that("Get table names", {
   expect_true(DBI::dbExistsTable(connection, "person"))
   disconnect(connection)
   unlink(dbFile)
+  
+  # Snowflake --------------------------------------------------
+  details <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  connection <- connect(details)
+  tables <- getTableNames(connection, Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"))
+  expect_true("person" %in% tables)
+  expect_true(existsTable(connection, Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"), "person"))
+  expect_true(DBI::dbExistsTable(connection, "person"))
+  disconnect(connection)
 })
 
 test_that("Cleaning of database or schema name", {

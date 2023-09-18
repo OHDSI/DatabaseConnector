@@ -253,6 +253,45 @@ test_that("insertTable", {
   
   disconnect(connection)
   unlink(dbFile)
+  
+  
+  # Snowflake -----------------------------------------
+  details <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  )
+  schema <- Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
+  connection <- connect(details)
+  insertTable(
+    connection = connection,
+    databaseSchema = schema,
+    tableName = "temp",
+    data = data,
+    createTable = TRUE,
+    tempTable = FALSE
+  )
+  
+  # Check data on server is same as local
+  sql <- SqlRender::render("SELECT * FROM @schema.temp", schema = schema)
+  data2 <- querySql(connection, sql, integer64AsNumeric = FALSE)
+  names(data2) <- tolower(names(data2))
+  data <- data[order(data$person_id), ]
+  data2 <- data2[order(data2$person_id), ]
+  row.names(data) <- NULL
+  row.names(data2) <- NULL
+  expect_equal(data, data2, check.attributes = FALSE)
+  
+  # Check data types
+  res <- dbSendQuery(connection, sprintf("SELECT * FROM %s.temp", schema))
+  columnInfo <- dbColumnInfo(res)
+  dbClearResult(res)
+  expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER"))
+  
+  dropEmulatedTempTables(connection)
+  
+  disconnect(connection)
 })
 
 test_that("Test temp emulation helper functions", {

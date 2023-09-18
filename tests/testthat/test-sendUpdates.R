@@ -86,6 +86,27 @@ test_that("Send updates to server", {
   dbClearResult(rowsAffected)
 
   disconnect(connection)
+  
+  # Snowflake --------------------------------------------------
+  details <- createConnectionDetails(
+    dbms = "redshift",
+    user = Sys.getenv("CDM5_REDSHIFT_USER"),
+    password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+    server = Sys.getenv("CDM5_REDSHIFT_SERVER")
+  )
+  options(sqlRenderTempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA"))
+  connection <- connect(details)
+  
+  expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
+  
+  expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(0, 1, 1, 0))
+  
+  rowsAffected <- dbSendStatement(connection, sql)
+  expect_equal(dbGetRowsAffected(rowsAffected), 2)
+  dbClearResult(rowsAffected)
+  
+  disconnect(connection)
+  
 })
 
 test_that("Logging update times", {
