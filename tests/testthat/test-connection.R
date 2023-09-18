@@ -153,23 +153,6 @@ test_that("Open and close connection using connection strings with embedded user
   # connection <- connect(details)
   # expect_true(inherits(connection, "DatabaseConnectorConnection"))
   # expect_true(disconnect(connection))
-
-  # Snowflake --------------------------------------------------
-  # Disable Snowflake unit tests until we have a testing server
-  # connectionString <- sprintf(
-  #   "%s;UID=%s;PWD=%s",
-  #   Sys.getenv("CDM5_SNOWFLAKE_CONNECTION_STRING"),
-  #   Sys.getenv("CDM5_SNOWFLAKE_USER"),
-  #   URLdecode(Sys.getenv("CDM5_SNOWFLAKE_PASSWORD"))
-  # )
-  # 
-  # details <- createConnectionDetails(
-  #   dbms = "snowflake",
-  #   connectionString = connectionString
-  # )
-  # connection <- connect(details)
-  # expect_true(inherits(connection, "DatabaseConnectorConnection"))
-  # expect_true(disconnect(connection))
 })
 
 test_that("Open and close connection using connection strings with separate user and pw", {

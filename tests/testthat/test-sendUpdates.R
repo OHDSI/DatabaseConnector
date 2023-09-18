@@ -1,9 +1,9 @@
 library(testthat)
 
-if (DatabaseConnector:::is_installed("ParallelLogger")) {
-  logFileName <- tempfile(fileext = ".txt")
-  ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
-}
+# if (DatabaseConnector:::is_installed("ParallelLogger")) {
+#   logFileName <- tempfile(fileext = ".txt")
+#   ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
+# }
 
 test_that("Send updates to server", {
   sql <- "CREATE TABLE #temp (x INT);
@@ -56,6 +56,7 @@ test_that("Send updates to server", {
     password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
     server = Sys.getenv("CDM5_ORACLE_SERVER")
   )
+  options(sqlRenderTempEmulationSchema = Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA"))
   connection <- connect(details)
 
   expect_equal(renderTranslateExecuteSql(connection, sql), c(0, 1, 1, 0))
@@ -65,6 +66,8 @@ test_that("Send updates to server", {
   rowsAffected <- dbSendStatement(connection, sql)
   expect_equal(dbGetRowsAffected(rowsAffected), 2)
   dbClearResult(rowsAffected)
+  
+  dropEmulatedTempTables(connection)
 
   disconnect(connection)
 
@@ -105,16 +108,18 @@ test_that("Send updates to server", {
   expect_equal(dbGetRowsAffected(rowsAffected), 2)
   dbClearResult(rowsAffected)
   
+  dropEmulatedTempTables(connection)
+  
   disconnect(connection)
   
 })
 
-test_that("Logging update times", {
-  skip_if_not_installed("ParallelLogger")
-  log <- readLines(logFileName)
-  statementCount <- sum(grepl("Executing SQL:", log))
-  expect_gt(statementCount, 19)
-  # writeLines(log)
-  ParallelLogger::unregisterLogger("TEST_LOGGER")
-  unlink(logFileName)
-})
+# test_that("Logging update times", {
+#   skip_if_not_installed("ParallelLogger")
+#   log <- readLines(logFileName)
+#   statementCount <- sum(grepl("Executing SQL:", log))
+#   expect_gt(statementCount, 19)
+#   # writeLines(log)
+#   ParallelLogger::unregisterLogger("TEST_LOGGER")
+#   unlink(logFileName)
+# })

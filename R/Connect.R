@@ -34,12 +34,29 @@ checkIfDbmsIsSupported <- function(dbms) {
     "synapse",
     "duckdb"
   )
+  deprecated <- c(
+    "hive",
+    "impala",
+    "netezza",
+    "pdw"
+  )
   if (!dbms %in% supportedDbmss) {
     abort(sprintf(
       "DBMS '%s' not supported. Please use one of these values: '%s'",
       dbms,
       paste(supportedDbmss, collapse = "', '")
     ))
+  }
+  if (dbms %in% deprecated) {
+    warn(sprintf(
+      paste(c("DBMS '%s' has been deprecated. Current functionality is provided as is.",
+            "No futher support will be provided.",
+            "Please consider switching to a different database platform."),
+            collapse = " "),
+      dbms),
+      .frequency = "regularly",
+      .frequency_id = "deprecated_dbms"
+    )
   }
 }
 
