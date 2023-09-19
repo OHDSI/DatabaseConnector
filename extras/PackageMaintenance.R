@@ -81,6 +81,13 @@ databaseSchema <- Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
 tables <- getTableNames(connection, databaseSchema, cast = "none")
 sql <- paste(sprintf("DROP TABLE %s.%s;", databaseSchema, tables), collapse= "\n")
 executeSql(connection, sql)
+
+databaseSchema <- Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA")
+tables <- getTableNames(connection, databaseSchema, cast = "none")
+tables <- tables[grepl("", tables)]
+sql <- paste(sprintf("DROP TABLE %s.%s;", databaseSchema, tables), collapse= "\n")
+executeSql(connection, sql)
+
 disconnect(connection)
 
 # Postgres
