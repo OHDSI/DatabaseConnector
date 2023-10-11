@@ -86,7 +86,31 @@ for (i in seq_along(tableNames)) {
   # querySql(toConnection, "SELECT * FROM cdmv5.condition_era LIMIT 10;")
   Andromeda::close(andromeda)
 }
+
+
+# change timestamp fields to dates if needed:
 toTableNames <- getTableNames(toConnection, toDatabaseSchema)
+for (i in seq_along(toTableNames)) {
+  tableName <- toTableNames[i]
+  row <- renderTranslateQuerySql(toConnection,
+                                 sql = "SELECT TOP 1 * FROM @schema.@table;",
+                                 schema = toDatabaseSchema,
+                                 table = tableName)
+  dateFieldIdx <- which(grepl("_DATE$", colnames(row)))
+  for (j in dateFieldIdx) {
+    if (!is(row[,j], "Date")) {
+      writeLines(sprintf("Incorrect type of field %s in table %s: %s", colnames(row)[j], tableName, class(row[,j])[1]))
+      sql <- "ALTER TABLE @schema.@table ALTER COLUMN @column TYPE date;"
+      renderTranslateExecuteSql(toConnection,
+                                sql = sql,
+                                schema = toDatabaseSchema,
+                                table = tableName,
+                                column = colnames(row)[j])
+    }
+  }
+  
+}
+
 disconnect(fromConnection)
 disconnect(toConnection)
 
