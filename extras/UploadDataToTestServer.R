@@ -44,7 +44,7 @@ disconnect(eunomiaConn)
 # Copy data from one test server to another ------------------------------------
 
 library(DatabaseConnector)
-options(andromedaTempFolder = "d:/andromedaTemp")
+options(andromedaTempFolder = "e:/andromedaTemp")
 
 fromConnection <- connect(
   dbms = "sql server",
@@ -61,6 +61,15 @@ toConnection <- connect(
   server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
 )
 toDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
+
+# toConnection <- connect(
+#   dbms = "postgresql",
+#   user = Sys.getenv("LOCAL_POSTGRES_USER"),
+#   password = Sys.getenv("LOCAL_POSTGRES_PASSWORD"),
+#   server = Sys.getenv("LOCAL_POSTGRES_SERVER")
+# )
+# toDatabaseSchema <- Sys.getenv("LOCAL_POSTGRES_CDM_SCHEMA")
+
 
 tableNames <- getTableNames(fromConnection, fromDatabaseSchema)
 for (i in seq_along(tableNames)) {
@@ -108,8 +117,17 @@ for (i in seq_along(toTableNames)) {
                                 column = colnames(row)[j])
     }
   }
-  
 }
+
+# Create indices:
+sql <- readLines("https://raw.githubusercontent.com/OHDSI/CommonDataModel/v5.4.0/inst/ddl/5.4/postgresql/OMOPCDM_postgresql_5.4_indices.sql")
+sql <- sql[!grepl("note_nlp", sql)]
+
+renderTranslateExecuteSql(
+  connection = toConnection,
+  sql = paste(sql, collapse = "\n"),
+  cdmDatabaseSchema = toDatabaseSchema
+)
 
 disconnect(fromConnection)
 disconnect(toConnection)
