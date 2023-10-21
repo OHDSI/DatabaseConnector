@@ -9,6 +9,20 @@ test_that("Open and close duckdb connection", {
   unlink(databaseFile)
 })
 
+test_that("Open and close duckdb without DATABASECONNECTOR_JAR_FOLDER", {
+  withr::with_envvar(
+    new=c("DATABASECONNECTOR_JAR_FOLDER"=""),
+    {
+    databaseFile <- tempfile()
+    connection <- DatabaseConnector::connect(dbms = "duckdb", server = databaseFile)
+    expect_s4_class(connection, "DatabaseConnectorDbiConnection")
+    disconnect(connection)
+    unlink(databaseFile)
+    }
+    
+  )
+})
+
 test_that("Insert and retrieve dates from duckdb", {
   databaseFile <- tempfile()
   connection <- DatabaseConnector::connect(dbms = "duckdb", server = databaseFile)
