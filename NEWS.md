@@ -5,6 +5,8 @@ Changes:
 
 1. On Snowflake always using `QUOTED_IDENTIFIERS_IGNORE_CASE=TRUE` to avoid name mismatches when using quotes.
 
+2. Updated Redshift drivers.
+
 
 DatabaseConnector 6.2.4
 =======================
