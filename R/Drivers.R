@@ -91,7 +91,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
   jdbcDriverSources <- utils::read.csv(text = 
     "row,dbms, fileName, baseUrl
     1,postgresql,postgresqlV42.2.18.zip,https://ohdsi.github.io/DatabaseConnectorJars/
-    2,redshift,redShiftV2.1.0.9.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    2,redshift,redshift-jdbc42-2.1.0.20.zip,https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/
     3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     5,spark,DatabricksJDBC42-2.6.32.1054.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.32/

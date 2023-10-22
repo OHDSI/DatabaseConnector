@@ -501,8 +501,8 @@ connectPostgreSql <- function(connectionDetails) {
 
 connectRedShift <- function(connectionDetails) {
   inform("Connecting using Redshift driver")
-  jarPath <- findPathToJar("^RedshiftJDBC.*\\.jar$", connectionDetails$pathToDriver)
-  if (grepl("RedshiftJDBC42", jarPath)) {
+  jarPath <- findPathToJar("^[Rr]edshift.*\\.jar$", connectionDetails$pathToDriver)
+  if (grepl("RedshiftJDBC42", jarPath) || grepl("redshift-jdbc42", jarPath)) {
     driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc42.Driver", jarPath)
   } else {
     driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
