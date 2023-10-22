@@ -42,6 +42,14 @@ data$big_ints[8] <- 3.3043e+10
 
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Insert data", testServer), {
+    if (testServer$connectionDetails$dbms == "redshift") {
+      # Inserting on RedShift is slow (Without bulk upload), so 
+      # taking subset:
+      dataCopy1 <- data[1:10, ]
+    } else {
+      dataCopy1 <- data
+    }
+    
     connection <- connect(testServer$connectionDetails)
     options(sqlRenderTempEmulationSchema = testServer$tempEmulationSchema)
     on.exit(dropEmulatedTempTables(connection))
@@ -49,21 +57,21 @@ for (testServer in testServers) {
     insertTable(
       connection = connection,
       tableName = "#temp",
-      data = data,
+      data = dataCopy1,
       createTable = TRUE,
       tempTable = TRUE
     )
     
     # Check data on server is same as local
-    data2 <- renderTranslateQuerySql(connection, "SELECT * FROM #temp;", integer64AsNumeric = FALSE)
-    names(data2) <- tolower(names(data2))
-    data <- data[order(data$person_id), ]
-    data2 <- data2[order(data2$person_id), ]
-    row.names(data) <- NULL
-    row.names(data2) <- NULL
-    attr(data$some_datetime, "tzone") <- NULL
-    attr(data2$some_datetime, "tzone") <- NULL
-    expect_equal(data, data2, check.attributes = FALSE, tolerance = 1e-7)
+    dataCopy2 <- renderTranslateQuerySql(connection, "SELECT * FROM #temp;", integer64AsNumeric = FALSE)
+    names(dataCopy2) <- tolower(names(dataCopy2))
+    dataCopy1 <- data[order(dataCopy1$person_id), ]
+    dataCopy2 <- dataCopy2[order(dataCopy2$person_id), ]
+    row.names(dataCopy1) <- NULL
+    row.names(dataCopy2) <- NULL
+    attr(dataCopy1$some_datetime, "tzone") <- NULL
+    attr(dataCopy2$some_datetime, "tzone") <- NULL
+    expect_equal(dataCopy1, dataCopy2, check.attributes = FALSE, tolerance = 1e-7)
     
     # Check data types
     res <- dbSendQuery(connection, "SELECT * FROM #temp;")
