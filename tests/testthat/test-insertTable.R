@@ -42,8 +42,8 @@ data$big_ints[8] <- 3.3043e+10
 
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Insert data", testServer), {
-    if (testServer$connectionDetails$dbms == "redshift") {
-      # Inserting on RedShift is slow (Without bulk upload), so 
+    if (testServer$connectionDetails$dbms %in% c("redshift", "bigquery")) {
+      # Inserting on RedShift or BigQuery is slow (Without bulk upload), so 
       # taking subset:
       dataCopy1 <- data[1:10, ]
     } else {
@@ -94,6 +94,8 @@ for (testServer in testServers) {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER"))
     } else if (dbms == "spark") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "FLOAT", "STRING", "BIGINT"))
+    } else if (dbms == "bigquery") {
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64"))
     } else {
       warning("Unable to check column types for ", dbms)
     } 

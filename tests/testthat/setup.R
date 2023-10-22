@@ -1,4 +1,5 @@
 library(DatabaseConnector)
+
 # Download the JDBC drivers used in the tests ----------------------------------
 if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   oldJarFolder <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
@@ -10,6 +11,7 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   downloadJdbcDrivers("redshift")
   downloadJdbcDrivers("spark")
   downloadJdbcDrivers("snowflake")
+  downloadJdbcDrivers("bigquery")
   
   if (testthat::is_testing()) {
     withr::defer({
@@ -19,6 +21,13 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
     testthat::teardown_env()
     )
   }
+}
+
+# Helper functions -------------------------------------------------------------
+addDbmsToLabel <- function(label, testServer) {
+  # Test sections are not shown in R check, so also printing them here:
+  writeLines(sprintf("Test: %s (%s)", label, testServer$connectionDetails$dbms))
+  return(sprintf("%s (%s)", label, testServer$connectionDetails$dbms))
 }
 
 # Create a list with testing server details ------------------------------
@@ -138,6 +147,27 @@ testServers[[length(testServers) + 1]] <- list(
   tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
 )
 
+# BigQuery
+bqKeyFile <- tempfile(fileext = ".json")
+writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
+if (testthat::is_testing()) {
+  withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
+}
+bqConnectionString <- gsub("<keyfile path>",
+                           normalizePath(bqKeyFile, winslash = "/"),
+                           Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
+testServers[[length(testServers) + 1]] <- list(
+  connectionDetails = details <- createConnectionDetails(
+    dbms = "bigquery",
+    user = "",
+    password = "",
+    connectionString = !!bqConnectionString
+  ),
+  NULL,
+  cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
+  tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
+)
+
 # SQLite
 sqliteFile <- tempfile(fileext = ".sqlite")
 if (testthat::is_testing()) {
@@ -233,10 +263,3 @@ testServers[[length(testServers) + 1]] <- list(
   cdmDatabaseSchema = cdmDatabaseSchema,
   tempEmulationSchema = NULL
 )
-
-addDbmsToLabel <- function(label, testServer) {
-  # Test sections are not shown in R check, so also printing them here:
-  writeLines(sprintf("Test: %s (%s)", label, testServer$connectionDetails$dbms))
-  return(sprintf("%s (%s)", label, testServer$connectionDetails$dbms))
-}
-
