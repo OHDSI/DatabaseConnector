@@ -43,8 +43,9 @@ data$big_ints[8] <- 3.3043e+10
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Insert data", testServer), {
     connection <- connect(testServer$connectionDetails)
-    on.exit(disconnect(connection))
     options(sqlRenderTempEmulationSchema = testServer$tempEmulationSchema)
+    on.exit(dropEmulatedTempTables(connection))
+    on.exit(disconnect(connection), add = TRUE)
     insertTable(
       connection = connection,
       tableName = "#temp",
@@ -62,7 +63,7 @@ for (testServer in testServers) {
     row.names(data2) <- NULL
     attr(data$some_datetime, "tzone") <- NULL
     attr(data2$some_datetime, "tzone") <- NULL
-    expect_equal(data, data2, check.attributes = FALSE)
+    expect_equal(data, data2, check.attributes = FALSE, tolerance = 1e-7)
     
     # Check data types
     res <- dbSendQuery(connection, "SELECT * FROM #temp;")
@@ -83,10 +84,11 @@ for (testServer in testServers) {
       expect_equal(as.character(columnInfo$type), c("Date", "POSIXct", "integer", "numeric", "character", "numeric"))
     } else if (dbms == "snowflake") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER"))
+    } else if (dbms == "spark") {
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "FLOAT", "STRING", "BIGINT"))
     } else {
       warning("Unable to check column types for ", dbms)
     } 
-    dropEmulatedTempTables(connection)
   })
 }
 
@@ -108,8 +110,9 @@ data <- data.frame(
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Converting logical to numeric in insertTable", testServer), {
     connection <- connect(testServer$connectionDetails)
-    on.exit(disconnect(connection))
     options(sqlRenderTempEmulationSchema = testServer$tempEmulationSchema)
+    on.exit(dropEmulatedTempTables(connection))
+    on.exit(disconnect(connection), add = TRUE)
     expect_warning(
       insertTable(
         connection = connection,
@@ -124,6 +127,5 @@ for (testServer in testServers) {
     names(data2) <- tolower(names(data2))
     data2 <- data2[order(data2$id), ]
     expect_equal(data, data2, check.attributes = FALSE)
-    dropEmulatedTempTables(connection)
   })
 }

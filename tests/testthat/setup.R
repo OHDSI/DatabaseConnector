@@ -125,6 +125,19 @@ testServers[[length(testServers) + 1]] <- list(
   tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
 )
 
+# Databricks (Spark)
+testServers[[length(testServers) + 1]] <- list(
+  connectionDetails = details <- createConnectionDetails(
+    dbms = "spark",
+    user = Sys.getenv("CDM5_SPARK_USER"),
+    password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
+    connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
+  ),
+  NULL,
+  cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
+  tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
+)
+
 # SQLite
 sqliteFile <- tempfile(fileext = ".sqlite")
 if (testthat::is_testing()) {

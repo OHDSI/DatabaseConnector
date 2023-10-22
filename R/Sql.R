@@ -307,6 +307,9 @@ lowLevelExecuteSql.default <- function(connection, sql) {
     # when using executeLargeUpdate, so using execute instead. 
     rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
+    if (rowsAffected == -1) {
+      rowsAffected <- 0
+    }
   } else {
     rowsAffected <- rJava::.jcall(statement, "J", "executeLargeUpdate", as.character(sql), check = FALSE)
   }
