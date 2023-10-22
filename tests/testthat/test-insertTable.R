@@ -9,7 +9,7 @@ if (DatabaseConnector:::is_installed("ParallelLogger")) {
 set.seed(0)
 day.start <- "1960/01/01"
 day.end <- "2000/12/31"
-time.start <- as.POSIXct("2018-11-12 09:04:07 CET")
+time.start <- as.POSIXct("2018-11-12 09:04:07")
 dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "week")
 timeSeq <- time.start + (1:length(dayseq)) * 60 * 60 * 24
 makeRandomStrings <- function(n = 1, lenght = 12) {
@@ -60,6 +60,8 @@ for (testServer in testServers) {
     data2 <- data2[order(data2$person_id), ]
     row.names(data) <- NULL
     row.names(data2) <- NULL
+    attr(data$some_datetime, "tzone") <- NULL
+    attr(data2$some_datetime, "tzone") <- NULL
     expect_equal(data, data2, check.attributes = FALSE)
     
     # Check data types

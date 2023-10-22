@@ -222,6 +222,8 @@ testServers[[length(testServers) + 1]] <- list(
 )
 
 addDbmsToLabel <- function(label, testServer) {
-  return(paste(label, testServer$connectionDetails$dbms))
+  # Test sections are not shown in R check, so also printing them here:
+  message(sprintf("Test: %s (%s)", label, testServer$connectionDetails$dbms))
+  return(sprintf("%s (%s)", label, testServer$connectionDetails$dbms))
 }
 
