@@ -255,44 +255,33 @@ lowLevelExecuteSql <- function(connection, sql) {
   UseMethod("lowLevelExecuteSql", connection)
 }
 
-delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
+ddlExecutionTimes <- new.env()
+insertExecutionTimes <- new.env()
+
+delayIfNecessary <- function(sql, regex, executionTimes, threshold) {
   regexGroups <- stringr::str_match(sql, stringr::regex(regex, ignore_case = TRUE))
   tableName <- regexGroups[3]
   if (!is.na(tableName) && !is.null(tableName)) {
     currentTime <- Sys.time()
-    lastExecutedTime <- executionTimeList[[tableName]]
+    lastExecutedTime <- executionTimes[[tableName]]
     if (!is.na(lastExecutedTime) && !is.null(lastExecutedTime)) {
-      delta <- currentTime - lastExecutedTime
+      delta <- difftime(currentTime, lastExecutedTime, units = "secs") 
       if (delta < threshold) {
         Sys.sleep(threshold - delta)
       }
     }
-    
-    executionTimeList[[tableName]] <- currentTime
+    executionTimes[[tableName]] <- currentTime
   }
-  return(executionTimeList)
 }
 
 delayIfNecessaryForDdl <- function(sql) {
-  ddlList <- getOption("ddlList")
-  if (is.null(ddlList)) {
-    ddlList <- list()
-  }
-  
   regexForDdl <- "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5)
-  options(ddlList = updatedList)
+  delayIfNecessary(sql, regexForDdl, ddlExecutionTimes, 5)
 }
 
 delayIfNecessaryForInsert <- function(sql) {
-  insetList <- getOption("insetList")
-  if (is.null(insetList)) {
-    insetList <- list()
-  }
-  
   regexForInsert <- "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5)
-  options(insetList = updatedList)
+  delayIfNecessary(sql, regexForInsert, insertExecutionTimes, 5)
 }
 
 #' @export

@@ -6,7 +6,7 @@ sql <- "CREATE TABLE #temp (x INT);
     DROP TABLE #temp;"
 
 for (testServer in testServers) {
-  test_that(addDbmsToLabel("Open and close connection", testServer), {
+  test_that(addDbmsToLabel("Send updates", testServer), {
     connection <- connect(testServer$connectionDetails)
     options(sqlRenderTempEmulationSchema = testServer$tempEmulationSchema)
     on.exit(dropEmulatedTempTables(connection))

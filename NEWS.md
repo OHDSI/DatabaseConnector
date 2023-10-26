@@ -7,6 +7,10 @@ Changes:
 
 2. Updated Redshift drivers.
 
+Bugfixes:
+
+1. Fix bug on BigQuery where wait time was too short to avoid rate limit error.
+
 
 DatabaseConnector 6.2.4
 =======================
