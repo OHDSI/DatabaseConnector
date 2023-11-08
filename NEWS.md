@@ -7,6 +7,8 @@ Changes:
 
 2. Updated Redshift drivers.
 
+3. Added unit tests for all supported platforms.
+
 Bugfixes:
 
 1. Fix bug on BigQuery where wait time was too short to avoid rate limit error.

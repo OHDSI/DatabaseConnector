@@ -29,7 +29,6 @@ or zero rows.
 Fetch the next \code{n} elements (rows) from the result set and return them
 as a data.frame.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbFetch")}
 }
 \details{
 \code{fetch()} is provided for compatibility with older DBI clients - for all

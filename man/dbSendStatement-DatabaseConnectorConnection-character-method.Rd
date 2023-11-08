@@ -33,7 +33,6 @@ returned result object.  You must also call \code{\link[DBI:dbClearResult]{dbCle
 that. For interactive use, you should almost always prefer
 \code{\link[DBI:dbExecute]{dbExecute()}}.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbSendStatement")}
 }
 \details{
 \code{\link[DBI:dbSendStatement]{dbSendStatement()}} comes with a default implementation that simply

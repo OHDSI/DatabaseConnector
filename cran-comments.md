@@ -1,4 +1,4 @@
-This update includes 1 changes and 2 bugfixes, including the fix requested by Prof. Hornik. (see NEWS.md).
+This update includes 3 changes and 1 bugfixes. (see NEWS.md).
 
 ---
 
@@ -14,4 +14,4 @@ There were no ERRORs or WARNINGs.
 
 ## Downstream dependencies
 
-DatabaseConnector is used by CDMConnector, which was tested with this new version. No issues were found.
+DatabaseConnector is used by Achilles, CohortAlgebra, CohortExplorer, TreatmentPatterns, and CDMConnector, which were tested with this new version. No issues were found.
