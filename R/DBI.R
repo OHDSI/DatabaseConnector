@@ -455,7 +455,7 @@ setMethod(
       )
     }
     rowsAffected <- executeSql(connection = conn, sql = statement)
-    rowsAffected <- rJava::.jnew("java/lang/Integer", as.integer(rowsAffected))
+    rowsAffected <- rJava::.jnew("java/lang/Double", as.double(sum(rowsAffected)))
     result <- new("DatabaseConnectorJdbcResult",
                   content = rowsAffected,
                   type = "rowsAffected",

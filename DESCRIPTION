@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 6.2.4
-Date: 2023-09-07
+Version: 6.3.0
+Date: 2023-11-08
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -20,7 +20,7 @@ Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.15.2),
+    SqlRender (>= 1.16.0),
     methods,
     stringr,
     readr,

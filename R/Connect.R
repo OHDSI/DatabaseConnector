@@ -34,12 +34,29 @@ checkIfDbmsIsSupported <- function(dbms) {
     "synapse",
     "duckdb"
   )
+  deprecated <- c(
+    "hive",
+    "impala",
+    "netezza",
+    "pdw"
+  )
   if (!dbms %in% supportedDbmss) {
     abort(sprintf(
       "DBMS '%s' not supported. Please use one of these values: '%s'",
       dbms,
       paste(supportedDbmss, collapse = "', '")
     ))
+  }
+  if (dbms %in% deprecated) {
+    warn(sprintf(
+      paste(c("DBMS '%s' has been deprecated. Current functionality is provided as is.",
+            "No futher support will be provided.",
+            "Please consider switching to a different database platform."),
+            collapse = " "),
+      dbms),
+      .frequency = "regularly",
+      .frequency_id = "deprecated_dbms"
+    )
   }
 }
 
@@ -484,8 +501,8 @@ connectPostgreSql <- function(connectionDetails) {
 
 connectRedShift <- function(connectionDetails) {
   inform("Connecting using Redshift driver")
-  jarPath <- findPathToJar("^RedshiftJDBC.*\\.jar$", connectionDetails$pathToDriver)
-  if (grepl("RedshiftJDBC42", jarPath)) {
+  jarPath <- findPathToJar("^[Rr]edshift.*\\.jar$", connectionDetails$pathToDriver)
+  if (grepl("RedshiftJDBC42", jarPath) || grepl("redshift-jdbc42", jarPath)) {
     driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc42.Driver", jarPath)
   } else {
     driver <- getJbcDriverSingleton("com.amazon.redshift.jdbc4.Driver", jarPath)
@@ -709,7 +726,8 @@ connectSnowflake <- function(connectionDetails) {
       user = connectionDetails$user(),
       password = connectionDetails$password(),
       dbms = connectionDetails$dbms,
-      "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ"
+      "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ",
+      "QUOTED_IDENTIFIERS_IGNORE_CASE"="TRUE"
     )
   }
   return(connection)

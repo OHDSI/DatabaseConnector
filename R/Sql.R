@@ -255,44 +255,33 @@ lowLevelExecuteSql <- function(connection, sql) {
   UseMethod("lowLevelExecuteSql", connection)
 }
 
-delayIfNecessary <- function(sql, regex, executionTimeList, threshold) {
+ddlExecutionTimes <- new.env()
+insertExecutionTimes <- new.env()
+
+delayIfNecessary <- function(sql, regex, executionTimes, threshold) {
   regexGroups <- stringr::str_match(sql, stringr::regex(regex, ignore_case = TRUE))
   tableName <- regexGroups[3]
   if (!is.na(tableName) && !is.null(tableName)) {
     currentTime <- Sys.time()
-    lastExecutedTime <- executionTimeList[[tableName]]
+    lastExecutedTime <- executionTimes[[tableName]]
     if (!is.na(lastExecutedTime) && !is.null(lastExecutedTime)) {
-      delta <- currentTime - lastExecutedTime
+      delta <- difftime(currentTime, lastExecutedTime, units = "secs") 
       if (delta < threshold) {
         Sys.sleep(threshold - delta)
       }
     }
-    
-    executionTimeList[[tableName]] <- currentTime
+    executionTimes[[tableName]] <- currentTime
   }
-  return(executionTimeList)
 }
 
 delayIfNecessaryForDdl <- function(sql) {
-  ddlList <- getOption("ddlList")
-  if (is.null(ddlList)) {
-    ddlList <- list()
-  }
-  
   regexForDdl <- "(^CREATE\\s+TABLE\\s+IF\\s+EXISTS|^CREATE\\s+TABLE|^DROP\\s+TABLE\\s+IF\\s+EXISTS|^DROP\\s+TABLE)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForDdl, ddlList, 5)
-  options(ddlList = updatedList)
+  delayIfNecessary(sql, regexForDdl, ddlExecutionTimes, 5)
 }
 
 delayIfNecessaryForInsert <- function(sql) {
-  insetList <- getOption("insetList")
-  if (is.null(insetList)) {
-    insetList <- list()
-  }
-  
   regexForInsert <- "(^INSERT\\s+INTO)\\s+([a-zA-Z0-9_$#-]*\\.?\\s*(?:[a-zA-Z0-9_]+)*)"
-  updatedList <- delayIfNecessary(sql, regexForInsert, insetList, 5)
-  options(insetList = updatedList)
+  delayIfNecessary(sql, regexForInsert, insertExecutionTimes, 5)
 }
 
 #' @export
@@ -302,16 +291,21 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
-  hasResultSet <- rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+  if (dbms(connection) == "spark") {
+    # For some queries the DataBricks JDBC driver will throw an error saying no ROWCOUNT is returned
+    # when using executeLargeUpdate, so using execute instead. 
+    rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
+    rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
+    if (rowsAffected == -1) {
+      rowsAffected <- 0
+    }
+  } else {
+    rowsAffected <- rJava::.jcall(statement, "J", "executeLargeUpdate", as.character(sql), check = FALSE)
+  }
   
   if (dbms(connection) == "bigquery") {
     delayIfNecessaryForDdl(sql)
     delayIfNecessaryForInsert(sql)
-  }
-  
-  rowsAffected <- 0
-  if (!hasResultSet) {
-    rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
   }
   
   delta <- Sys.time() - startTime
@@ -421,9 +415,9 @@ executeSql <- function(connection,
   
   batched <- runAsBatch && supportsBatchUpdates(connection)
   sqlStatements <- SqlRender::splitSql(sql)
+  rowsAffected <- c()
   if (batched) {
     batchSize <- 1000
-    rowsAffected <- 0
     for (start in seq(1, length(sqlStatements), by = batchSize)) {
       end <- min(start + batchSize - 1, length(sqlStatements))
       
@@ -441,7 +435,7 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
@@ -471,7 +465,7 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          lowLevelExecuteSql(connection, sqlStatement)
+          rowsAffected <- c(rowsAffected, lowLevelExecuteSql(connection, sqlStatement))
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statement ", i, "took", delta, attr(delta, "units")))
@@ -498,9 +492,7 @@ executeSql <- function(connection,
     delta <- Sys.time() - startTime
     inform(paste("Executing SQL took", signif(delta, 3), attr(delta, "units")))
   }
-  if (batched) {
     invisible(rowsAffected)
-  }
 }
 
 convertFields <- function(dbms, result) {
