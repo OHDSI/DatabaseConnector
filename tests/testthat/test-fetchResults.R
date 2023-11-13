@@ -43,7 +43,7 @@ for (testServer in testServers) {
     # dbFetch only fetches n rows
     sql <- "SELECT * FROM @cdm_database_schema.vocabulary;"
     sql <- SqlRender::render(sql,
-                             cdm_database_schema = cdmDatabaseSchema)
+                             cdm_database_schema = testServer$cdmDatabaseSchema)
     resultSet <- dbSendQuery(connection, sql)
     data <- dbFetch(resultSet, n = 1)
     expect_false(dbHasCompleted(resultSet))
