@@ -46,8 +46,9 @@ for (testServer in testServers) {
                              cdm_database_schema = cdmDatabaseSchema)
     resultSet <- dbSendQuery(connection, sql)
     data <- dbFetch(resultSet, n = 1)
-    dbClearResult(resultSet)
+    expect_false(dbHasCompleted(resultSet))
     expect_equal(nrow(data), 1)
+    dbClearResult(resultSet)
   })
 }    
 
