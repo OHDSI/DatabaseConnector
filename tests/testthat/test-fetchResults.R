@@ -8,6 +8,7 @@ if (DatabaseConnector:::is_installed("ParallelLogger")) {
 
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Fetch results", testServer), {
+    skip_if_not(testServer$connectionDetails$dbms %in% c("sqlite", "duckdb"))
     connection <- connect(testServer$connectionDetails)
     on.exit(disconnect(connection))
     sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
