@@ -1,3 +1,11 @@
+DatabaseConnector 6.3.1
+=======================
+
+Bugfixes:
+
+1. Fixed `dbFetch()` for DBI drivers, no longer ignoring `n` argument.
+
+
 DatabaseConnector 6.3.0
 =======================
 

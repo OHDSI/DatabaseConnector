@@ -39,6 +39,15 @@ for (testServer in testServers) {
     )
     expect_gt(dplyr::collect(andromeda$test2)$rowCount[1], 1)
     Andromeda::close(andromeda)
+    
+    # dbFetch only fetches n rows
+    sql <- "SELECT * FROM @cdm_database_schema.vocabulary;"
+    sql <- SqlRender::render(sql,
+                             cdm_database_schema = cdmDatabaseSchema)
+    resultSet <- dbSendQuery(connection, sql)
+    data <- dbFetch(resultSet, n = 1)
+    dbClearResult(resultSet)
+    expect_equal(nrow(data), 1)
   })
 }    
 
