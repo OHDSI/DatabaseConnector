@@ -5,6 +5,8 @@ Bugfixes:
 
 1. Fixed `dbFetch()` for DBI drivers, no longer ignoring `n` argument.
 
+2. Fix bulk import for Postgres on MacOs.
+
 
 DatabaseConnector 6.3.0
 =======================
