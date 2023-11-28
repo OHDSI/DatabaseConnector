@@ -286,7 +286,6 @@ bulkLoadHive <- function(connection, sqlTableName, sqlFieldNames, data) {
   )
 }
 
-
 bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data) {
   logTrace(sprintf("Inserting %d rows into table '%s' using PostgreSQL bulk load", nrow(data), sqlTableName))
   startTime <- Sys.time()
@@ -306,13 +305,12 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
   password <- attr(connection, "password")()
 
   if (.Platform$OS.type == "windows") {
-    winPsqlPath <- Sys.getenv("POSTGRES_PATH")
-    command <- file.path(winPsqlPath, "psql.exe")
-    if (!file.exists(command)) {
-      abort(paste("Could not find psql.exe in ", winPsqlPath))
-    }
+    command <- file.path(Sys.getenv("POSTGRES_PATH"), "psql.exe")
   } else {
-    command <- "psql"
+    command <- file.path(Sys.getenv("POSTGRES_PATH"), "psql")
+  }
+  if (!file.exists(command)) {
+    abort(paste("Could not find psql.exe in ", Sys.getenv("POSTGRES_PATH")))
   }
   headers <- paste0("(", sqlFieldNames, ")")
   if (is.null(port)) {

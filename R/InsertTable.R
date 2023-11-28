@@ -130,7 +130,8 @@ validateInt64Insert <- function() {
 #'
 #' PostgreSQL:
 #' Uses the 'psql' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
-#' binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.
+#' binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin' on Windows or '/Library/PostgreSQL/16/bin' 
+#' on MacOs.
 #'
 #' @examples
 #' \dontrun{
@@ -217,6 +218,13 @@ insertTable.default <- function(connection,
     )
     tempEmulationSchema <- oracleTempSchema
   }
+  if (Andromeda::isAndromedaTable(data)) {
+    warn("Batch-wise uploading of Andromeda tables currently not supported. Loading entire table in memory.",
+         .frequency = "regularly",
+         .frequency_id = "useMppBulkLoad"
+    )
+    data <- as.data.frame(data)
+  }
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -236,18 +244,16 @@ insertTable.default <- function(connection,
   if (is.vector(data) && !is.list(data)) {
     data <- data.frame(x = data)
   }
-  if (length(data) < 1) {
+  if (ncol(data) < 1) {
     abort("data must have at least one column")
   }
   if (is.null(names(data))) {
     names(data) <- paste("V", 1:length(data), sep = "")
   }
-  if (length(data[[1]]) > 0) {
-    if (!is.data.frame(data)) {
+  if (!is.data.frame(data)) {
+    if (nrow(data) > 0) {
       data <- as.data.frame(data, row.names = 1:length(data[[1]]))
-    }
-  } else {
-    if (!is.data.frame(data)) {
+    } else {
       data <- as.data.frame(data)
     }
   }

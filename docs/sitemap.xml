@@ -10,13 +10,13 @@
     <loc>/articles/DbiAndDbplyr.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
     <loc>/articles/Querying.html</loc>
   </url>
   <url>
     <loc>/articles/UsingDatabaseConnector.html</loc>
+  </url>
+  <url>
+    <loc>/articles/index.html</loc>
   </url>
   <url>
     <loc>/authors.html</loc>
@@ -29,24 +29,6 @@
   </url>
   <url>
     <loc>/pull_request_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/assertTempEmulationSchemaSet.html</loc>
-  </url>
-  <url>
-    <loc>/reference/computeDataHash.html</loc>
-  </url>
-  <url>
-    <loc>/reference/connect.html</loc>
-  </url>
-  <url>
-    <loc>/reference/createConnectionDetails.html</loc>
-  </url>
-  <url>
-    <loc>/reference/createDbiConnectionDetails.html</loc>
-  </url>
-  <url>
-    <loc>/reference/createZipFile.html</loc>
   </url>
   <url>
     <loc>/reference/DatabaseConnector-package.html</loc>
@@ -77,6 +59,27 @@
   </url>
   <url>
     <loc>/reference/DatabaseConnectorResult-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Microsoft-SQL-Server-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/assertTempEmulationSchemaSet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/computeDataHash.html</loc>
+  </url>
+  <url>
+    <loc>/reference/connect.html</loc>
+  </url>
+  <url>
+    <loc>/reference/createConnectionDetails.html</loc>
+  </url>
+  <url>
+    <loc>/reference/createDbiConnectionDetails.html</loc>
+  </url>
+  <url>
+    <loc>/reference/createZipFile.html</loc>
   </url>
   <url>
     <loc>/reference/dateAdd.html</loc>
@@ -202,9 +205,6 @@
     <loc>/reference/dbListTables-DatabaseConnectorConnection-method.html</loc>
   </url>
   <url>
-    <loc>/reference/dbms.html</loc>
-  </url>
-  <url>
     <loc>/reference/dbQuoteIdentifier-DatabaseConnectorConnection-character-method.html</loc>
   </url>
   <url>
@@ -239,6 +239,9 @@
   </url>
   <url>
     <loc>/reference/dbWriteTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dbms.html</loc>
   </url>
   <url>
     <loc>/reference/disconnect.html</loc>
@@ -293,9 +296,6 @@
   </url>
   <url>
     <loc>/reference/lowLevelQuerySqlToAndromeda.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Microsoft-SQL-Server-class.html</loc>
   </url>
   <url>
     <loc>/reference/month.html</loc>

@@ -44,7 +44,7 @@ disconnect(eunomiaConn)
 # Copy data from one test server to another ------------------------------------
 
 library(DatabaseConnector)
-options(andromedaTempFolder = "e:/andromedaTemp")
+# options(andromedaTempFolder = "e:/andromedaTemp")
 
 fromConnection <- connect(
   dbms = "sql server",
@@ -72,6 +72,7 @@ toDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
 
 
 tableNames <- getTableNames(fromConnection, fromDatabaseSchema)
+tableNames <- tableNames[tableNames != "note_nlp"]
 for (i in seq_along(tableNames)) {
   # for (i in 31:length(tableNames)) {
   message(sprintf("Copying table %s", tableNames[i]))
@@ -92,7 +93,6 @@ for (i in seq_along(tableNames)) {
     createTable = TRUE,
     progressBar = TRUE
   )
-  # querySql(toConnection, "SELECT * FROM cdmv5.condition_era LIMIT 10;")
   Andromeda::close(andromeda)
 }
 

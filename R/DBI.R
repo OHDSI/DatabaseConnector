@@ -376,8 +376,8 @@ setMethod("dbFetch", "DatabaseConnectorJdbcResult", function(res, n = -1, ...) {
 
 #' @inherit DBI::dbFetch title description params details references return seealso
 #' @export
-setMethod("dbFetch", "DatabaseConnectorDbiResult", function(res, ...) {
-  columns <- DBI::dbFetch(res@resultSet, ...)
+setMethod("dbFetch", "DatabaseConnectorDbiResult", function(res, n = -1, ...) {
+  columns <- DBI::dbFetch(res@resultSet, n, ...)
   columns <- convertFields(res@dbms, columns)
   columns <- dbFetchIntegerToNumeric(columns)
   colnames(columns) <- tolower(colnames(columns))

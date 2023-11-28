@@ -86,7 +86,8 @@ of the binary.
 
 PostgreSQL:
 Uses the 'psql' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
-binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin'.
+binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin' on Windows or '/Library/PostgreSQL/16/bin'
+on MacOs.
 }
 \examples{
 \dontrun{
