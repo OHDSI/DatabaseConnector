@@ -32,7 +32,7 @@ devtools::spell_check()
 
 # Create manual ----------------------------------------------------------------
 unlink("extras/DatabaseConnector.pdf")
-shell("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
+system("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
 dir.create("inst/doc")
 rmarkdown::render("vignettes/Connecting.Rmd",

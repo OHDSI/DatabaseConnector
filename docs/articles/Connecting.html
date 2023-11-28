@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.3.1</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@
                         <h4 data-toc-skip class="author">Martijn J.
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2023-11-08</h4>
+            <h4 data-toc-skip class="date">2023-11-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/Connecting.Rmd" class="external-link"><code>vignettes/Connecting.Rmd</code></a></small>
       <div class="hidden name"><code>Connecting.Rmd</code></div>
@@ -267,7 +267,7 @@ connecting. If no file exists it will be created:</p>
 <span><span class="fu"><a href="../reference/insertTable.html">insertTable</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">conn</span>, </span>
 <span>            tableName <span class="op">=</span> <span class="st">"cars"</span>, </span>
 <span>            data <span class="op">=</span> <span class="va">cars</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Inserting data took 0.0571 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Inserting data took 0.0251 secs</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT COUNT(*) FROM main.cars;"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   COUNT(*)</span></span>
