@@ -218,6 +218,13 @@ insertTable.default <- function(connection,
     )
     tempEmulationSchema <- oracleTempSchema
   }
+  if (Andromeda::isAndromedaTable(data)) {
+    warn("Batch-wise uploading of Andromeda tables currently not supported. Loading entire table in memory.",
+         .frequency = "regularly",
+         .frequency_id = "useMppBulkLoad"
+    )
+    data <- as.data.frame(data)
+  }
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -233,13 +240,6 @@ insertTable.default <- function(connection,
   }
   if (!is.null(databaseSchema)) {
     tableName <- paste(databaseSchema, tableName, sep = ".")
-  }
-  if (Andromeda::isAndromedaTable(data)) {
-    warn("Batch-wise uploading of Andromeda tables currently not supported. Loading entire table in memory.",
-        .frequency = "regularly",
-        .frequency_id = "useMppBulkLoad"
-    )
-    data <- collect(data)
   }
   if (is.vector(data) && !is.list(data)) {
     data <- data.frame(x = data)
