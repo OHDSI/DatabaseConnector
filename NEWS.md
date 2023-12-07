@@ -1,3 +1,11 @@
+DatabaseConnector 6.3.2
+=======================
+
+Bugfixes:
+
+1. Fixed bug caused in 6.3.1 when Andromeda is not installed.
+
+
 DatabaseConnector 6.3.1
 =======================
 

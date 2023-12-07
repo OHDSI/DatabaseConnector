@@ -218,7 +218,7 @@ insertTable.default <- function(connection,
     )
     tempEmulationSchema <- oracleTempSchema
   }
-  if (Andromeda::isAndromedaTable(data)) {
+  if (is_installed("Andromeda") && Andromeda::isAndromedaTable(data)) {
     warn("Batch-wise uploading of Andromeda tables currently not supported. Loading entire table in memory.",
          .frequency = "regularly",
          .frequency_id = "useMppBulkLoad"
