@@ -544,7 +544,9 @@ setMethod(
 #' @export
 setMethod(
   "dbWriteTable",
-  "DatabaseConnectorConnection",
+  c(conn = "DatabaseConnectorConnection",
+    name = "character",
+    value = "data.frame"),
   function(conn,
            name, value, databaseSchema = NULL, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
