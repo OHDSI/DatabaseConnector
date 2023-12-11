@@ -31,6 +31,7 @@ then you must call \code{\link[DBI:dbClearResult]{dbClearResult()}} when you fin
 records you need. For interactive use, you should almost always prefer
 \code{\link[DBI:dbGetQuery]{dbGetQuery()}}.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbSendQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only.  Some backends may

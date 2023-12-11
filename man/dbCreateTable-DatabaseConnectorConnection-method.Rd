@@ -64,6 +64,7 @@ Backends with a different SQL syntax can override \code{sqlCreateTable()},
 backends with entirely different ways to create tables need to
 override this method.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbCreateTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:
