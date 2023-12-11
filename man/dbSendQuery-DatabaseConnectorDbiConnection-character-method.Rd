@@ -4,7 +4,7 @@
 \alias{dbSendQuery,DatabaseConnectorDbiConnection,character-method}
 \title{Execute a query on a given database connection}
 \usage{
-\S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, translate = TRUE, ...)
+\S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, translate = FALSE, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
@@ -31,6 +31,7 @@ then you must call \code{\link[DBI:dbClearResult]{dbClearResult()}} when you fin
 records you need. For interactive use, you should almost always prefer
 \code{\link[DBI:dbGetQuery]{dbGetQuery()}}.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbSendQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only.  Some backends may

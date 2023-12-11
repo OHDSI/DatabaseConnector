@@ -4,7 +4,7 @@
 \alias{dbSendStatement,DatabaseConnectorConnection,character-method}
 \title{Execute a data manipulation statement on a given database connection}
 \usage{
-\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
+\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, translate = FALSE, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
@@ -33,6 +33,7 @@ returned result object.  You must also call \code{\link[DBI:dbClearResult]{dbCle
 that. For interactive use, you should almost always prefer
 \code{\link[DBI:dbExecute]{dbExecute()}}.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbSendStatement")}
 }
 \details{
 \code{\link[DBI:dbSendStatement]{dbSendStatement()}} comes with a default implementation that simply

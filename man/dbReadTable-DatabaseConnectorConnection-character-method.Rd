@@ -71,6 +71,7 @@ Reads a database table to a data frame, optionally converting
 a column to row names and converting the column names to valid
 R identifiers.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbReadTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

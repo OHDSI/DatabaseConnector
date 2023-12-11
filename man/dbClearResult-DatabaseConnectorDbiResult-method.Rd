@@ -21,6 +21,7 @@ Frees all resources (local and remote) associated with a result set.
 This step is mandatory for all objects obtained by calling
 \code{\link[DBI:dbSendQuery]{dbSendQuery()}} or \code{\link[DBI:dbSendStatement]{dbSendStatement()}}.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbClearResult")}
 }
 \seealso{
 Other DBIResult generics: 

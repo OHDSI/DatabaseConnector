@@ -4,7 +4,7 @@
 \alias{dbGetQuery,DatabaseConnectorConnection,character-method}
 \title{Send query, retrieve results and then clear result set}
 \usage{
-\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
+\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, translate = FALSE, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
@@ -33,6 +33,7 @@ the result is always free-d by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
 For retrieving chunked/paged results or for passing query parameters,
 see \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, in particular the "The data retrieval flow" section.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only

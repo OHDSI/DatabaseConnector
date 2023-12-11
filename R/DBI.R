@@ -208,7 +208,7 @@ setClass("DatabaseConnectorDbiResult",
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorJdbcConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, translate = FALSE, ...) {
     if (rJava::is.jnull(conn@jConnection)) {
       abort("Connection is closed")
     }
@@ -258,7 +258,7 @@ setMethod(
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorDbiConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, translate = FALSE, ...) {
     if (translate) {
       statement <- translateStatement(
         sql = statement,
@@ -426,7 +426,7 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorDbiResult", function(res, ...) 
 setMethod(
   "dbGetQuery",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, translate = FALSE, ...) {
     if (translate) {
       statement <- translateStatement(
         sql = statement,
@@ -447,7 +447,7 @@ setMethod(
 setMethod(
   "dbSendStatement",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, translate = FALSE, ...) {
     if (translate) {
       statement <- translateStatement(
         sql = statement,
@@ -472,7 +472,7 @@ setMethod(
 setMethod(
   "dbExecute",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, translate = FALSE, ...) {
     if (isDbplyrSql(statement) && dbms(conn) %in% c("oracle", "bigquery", "spark", "hive") && grepl("^UPDATE STATISTICS", statement)) {
       # These platforms don't support this, so SqlRender translates to an empty string, which causes errors down the line.
       return(0)
@@ -544,7 +544,9 @@ setMethod(
 #' @export
 setMethod(
   "dbWriteTable",
-  "DatabaseConnectorConnection",
+  c(conn = "DatabaseConnectorConnection",
+    name = "character",
+    value = "data.frame"),
   function(conn,
            name, value, databaseSchema = NULL, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
     if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
