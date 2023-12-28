@@ -4,7 +4,7 @@
 \alias{dbSendStatement,DatabaseConnectorConnection,character-method}
 \title{Execute a data manipulation statement on a given database connection}
 \usage{
-\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
+\S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, translate = FALSE, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by

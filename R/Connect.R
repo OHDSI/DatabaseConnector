@@ -778,7 +778,7 @@ connectUsingJdbcDriver <- function(jdbcDriver,
       abort(paste0("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")"))
     }
   }
-  ensureDatabaseConnectorConnectionClassExists()
+  ensureDatabaseConnectorConnectionClassExists(dbms)
   class <- getClassDef("DatabaseConnectorJdbcConnection", where = class_cache, inherits = FALSE)
   if (is.null(class) || methods::isVirtualClass(class)) {
     setClass("DatabaseConnectorJdbcConnection",
@@ -798,16 +798,30 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   return(connection)
 }
 
-ensureDatabaseConnectorConnectionClassExists <- function() {
-  class <- getClassDef("Microsoft SQL Server", where = class_cache, inherits = FALSE)
+ensureDatabaseConnectorConnectionClassExists <- function(dbms) {
+  checkIfDbmsIsSupported(dbms)
+  dbmsClass <-  switch(dbms,
+                       "oracle" = "Oracle",
+                       "postgresql" = "PqConnection",
+                       "redshift" = "RedshiftConnection",
+                       "sql server" = "Microsoft SQL Server",
+                       "bigquery" = "BigQueryConnection",
+                       "sqlite" = "SQLiteConnection",
+                       "sqlite extended" = "SQLiteConnection",
+                       "spark" = "Spark SQL",
+                       "snowflake" = "Snowflake",
+                       "synapse" = "Microsoft SQL Server",
+                       "duckdb" = "duckdb_connection",
+                       "blah")
+  
+  class <- getClassDef(dbmsClass, where = class_cache, inherits = FALSE)
   if (is.null(class) || methods::isVirtualClass(class)) {
-    setClass("Microsoft SQL Server",
-             where = class_cache)
+    setClass(dbmsClass, where = class_cache)
   }
   class <- getClassDef("DatabaseConnectorConnection", where = class_cache, inherits = FALSE)
   if (is.null(class) || methods::isVirtualClass(class)) {
     setClass("DatabaseConnectorConnection", 
-             contains = c("Microsoft SQL Server", "DBIConnection"),
+             contains = c(dbmsClass, "DBIConnection"),
              slots = list(
                identifierQuote = "character",
                stringQuote = "character",
@@ -822,7 +836,7 @@ connectUsingDbi <- function(dbiConnectionDetails) {
   dbms <- dbiConnectionDetails$dbms
   dbiConnectionDetails$dbms <- NULL
   dbiConnection <- do.call(DBI::dbConnect, dbiConnectionDetails)
-  ensureDatabaseConnectorConnectionClassExists()
+  ensureDatabaseConnectorConnectionClassExists(dbms)
   class <- getClassDef("DatabaseConnectorDbiConnection", where = class_cache, inherits = FALSE)
   if (is.null(class) || methods::isVirtualClass(class)) {
     setClass("DatabaseConnectorDbiConnection",
@@ -956,7 +970,10 @@ dbms <- function(connection) {
     "RedshiftConnection" = "redshift",
     "BigQueryConnection" = "bigquery",
     "SQLiteConnection" = "sqlite",
-    "duckdb_connection" = "duckdb"
+    "duckdb_connection" = "duckdb",
+    "Spark Sql" = "spark",
+    "Snowflake" = "snowflake",
+    "Oracle" = "oracle"
     # add mappings from various DBI connection classes to SqlRender dbms here
   )
 }
