@@ -17,9 +17,12 @@ the number of rows affected by a data manipulation statement
 issued with \code{\link[DBI:dbSendStatement]{dbSendStatement()}}.
 The value is available directly after the call
 and does not change after calling \code{\link[DBI:dbFetch]{dbFetch()}}.
+\code{NA_integer_} or \code{NA_numeric_} are allowed if the number of rows affected is not known.
+
 For queries issued with \code{\link[DBI:dbSendQuery]{dbSendQuery()}},
 zero is returned before
 and after the call to \code{dbFetch()}.
+\code{NA} values are not allowed.
 }
 \description{
 This method returns the number of rows that were added, deleted, or updated
@@ -40,8 +43,12 @@ Other DBIResult generics:
 \code{\link[DBI]{dbHasCompleted}()},
 \code{\link[DBI]{dbIsReadOnly}()},
 \code{\link[DBI]{dbIsValid}()},
-\code{\link[DBI]{dbQuoteIdentifier}()},
 \code{\link[DBI]{dbQuoteLiteral}()},
-\code{\link[DBI]{dbQuoteString}()},
-\code{\link[DBI]{dbUnquoteIdentifier}()}
+\code{\link[DBI]{dbQuoteString}()}
+
+Other command execution generics: 
+\code{\link[DBI]{dbBind}()},
+\code{\link[DBI]{dbClearResult}()},
+\code{\link[DBI]{dbExecute}()},
+\code{\link[DBI]{dbSendStatement}()}
 }
