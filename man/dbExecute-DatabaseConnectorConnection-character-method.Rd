@@ -2,7 +2,7 @@
 % Please edit documentation in R/DBI.R
 \name{dbExecute,DatabaseConnectorConnection,character-method}
 \alias{dbExecute,DatabaseConnectorConnection,character-method}
-\title{Execute an update statement, query number of rows affected, and then close result set}
+\title{Change database state}
 \usage{
 \S4method{dbExecute}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 }
@@ -28,7 +28,7 @@ Executes a statement and returns the number of rows affected.
 \code{dbExecute()} comes with a default implementation
 (which should work with most backends) that calls
 \code{\link[DBI:dbSendStatement]{dbSendStatement()}}, then \code{\link[DBI:dbGetRowsAffected]{dbGetRowsAffected()}}, ensuring that
-the result is always free-d by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
+the result is always freed by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
 For passing query parameters, see \code{\link[DBI:dbBind]{dbBind()}}, in particular
 the "The command execution flow" section.
 
@@ -47,22 +47,36 @@ For queries: \code{\link[DBI:dbSendQuery]{dbSendQuery()}} and \code{\link[DBI:db
 Other DBIConnection generics: 
 \code{\link[DBI]{DBIConnection-class}},
 \code{\link[DBI]{dbAppendTable}()},
+\code{\link[DBI]{dbAppendTableArrow}()},
 \code{\link[DBI]{dbCreateTable}()},
+\code{\link[DBI]{dbCreateTableArrow}()},
 \code{\link[DBI]{dbDataType}()},
 \code{\link[DBI]{dbDisconnect}()},
 \code{\link[DBI]{dbExistsTable}()},
 \code{\link[DBI]{dbGetException}()},
 \code{\link[DBI]{dbGetInfo}()},
 \code{\link[DBI]{dbGetQuery}()},
+\code{\link[DBI]{dbGetQueryArrow}()},
 \code{\link[DBI]{dbIsReadOnly}()},
 \code{\link[DBI]{dbIsValid}()},
 \code{\link[DBI]{dbListFields}()},
 \code{\link[DBI]{dbListObjects}()},
 \code{\link[DBI]{dbListResults}()},
 \code{\link[DBI]{dbListTables}()},
+\code{\link[DBI]{dbQuoteIdentifier}()},
 \code{\link[DBI]{dbReadTable}()},
+\code{\link[DBI]{dbReadTableArrow}()},
 \code{\link[DBI]{dbRemoveTable}()},
 \code{\link[DBI]{dbSendQuery}()},
+\code{\link[DBI]{dbSendQueryArrow}()},
 \code{\link[DBI]{dbSendStatement}()},
-\code{\link[DBI]{dbWriteTable}()}
+\code{\link[DBI]{dbUnquoteIdentifier}()},
+\code{\link[DBI]{dbWriteTable}()},
+\code{\link[DBI]{dbWriteTableArrow}()}
+
+Other command execution generics: 
+\code{\link[DBI]{dbBind}()},
+\code{\link[DBI]{dbClearResult}()},
+\code{\link[DBI]{dbGetRowsAffected}()},
+\code{\link[DBI]{dbSendStatement}()}
 }
