@@ -136,13 +136,16 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
     collect()
   expect_gt(personTwice$n, 1)
   
-  tripleJoin <- person %>%
-    left_join(observationPeriod, by = join_by(person_id)) %>%
-    left_join(observationPeriod %>%
-                select(person_id, dummy = observation_period_start_date),
+  if (dbms(connection) != "duckdb") {
+    # Skipping on DuckDB until DatabaseConnector 7. See #271
+    tripleJoin <- person %>%
+      left_join(observationPeriod, by = join_by(person_id)) %>%
+      left_join(observationPeriod %>%
+                  select(person_id, dummy = observation_period_start_date),
                 by = join_by(person_id)) %>%
-    collect()
-  expect_gt(nrow(tripleJoin), 0)
+      collect()
+    expect_gt(nrow(tripleJoin), 0)
+  }
   
   # Test row_number ------------------------------------------------------------
   top10PersonsHardWay <- person %>%
