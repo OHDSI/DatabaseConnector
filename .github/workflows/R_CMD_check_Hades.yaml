@@ -78,7 +78,8 @@ jobs:
           r-version: ${{ matrix.config.r }}
           
       - name: Configure R with Java
-        run: R CMD javareconf
+        if: runner.os == 'Linux'
+        run: sudo R CMD javareconf
 
       - uses: r-lib/actions/setup-tinytex@v2
 
