@@ -68,6 +68,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Setup Java
+        if: runner.os != 'Linux'
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
@@ -76,10 +77,6 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
-          
-      - name: Configure R with Java
-        if: runner.os == 'Linux'
-        run: sudo R CMD javareconf
 
       - uses: r-lib/actions/setup-tinytex@v2
 
