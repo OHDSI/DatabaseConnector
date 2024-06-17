@@ -118,15 +118,15 @@ parseJdbcColumnData <- function(batchedQuery,
         column <- format(column, "%Y-%m-%d")
       }
     } else if (columnTypes[i] == 4) {
-      column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", as.integer(i))
-      if (length(column) == 0) {
-        timeZone <- ""
-      } else {
-        timeZone <- substr(column, 21, 999)[1]
-      }
-      column <- as.POSIXct(substr(column, 1, 19), format = "%Y-%m-%d %H:%M:%OS", tz = timeZone)
+      column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
+      column <- as.POSIXct(column, origin = "1970-01-01")
     } else {
-      column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", as.integer(i))
+      column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i)
+      if (!datesAsString) {
+        if (columnTypes[i] == 4) {
+          column <- as.POSIXct(column)
+        }
+      }
     }
     columns[[i]] <- column
   }

@@ -1,9 +1,6 @@
 DatabaseConnector 6.3.3
 =======================
 
-Bugfixes:
-
-1. Fixed discrepancies when server and client are not in same time zone.
 
 DatabaseConnector 6.3.2
 =======================
