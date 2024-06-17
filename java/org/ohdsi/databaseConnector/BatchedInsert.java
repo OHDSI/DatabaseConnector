@@ -25,7 +25,7 @@ public class BatchedInsert {
 	
 	public static final int	BIG_DATA_BATCH_INSERT_LIMIT	= 1000;
 
-	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	public static SimpleDateFormat  dateTimeFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	private Object[]		columns;
 	private int[]			columnTypes;
@@ -42,6 +42,7 @@ public class BatchedInsert {
 		this.columnCount = columnCount;
 		columns = new Object[columnCount];
 		columnTypes = new int[columnCount];
+		// TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 	}
 	
 	private void trySettingAutoCommit(boolean value) throws SQLException  {
@@ -103,7 +104,7 @@ public class BatchedInsert {
 				if (dbms.equals(SNOWFLAKE))
 					setTimestampForSnowflake(statement, statementIndex, value);
 				else
-					statement.setTimestamp(statementIndex, java.sql.Timestamp.valueOf(value));
+				statement.setTimestamp(statementIndex, java.sql.Timestamp.valueOf(value));
 			}
 		} else if (columnTypes[columnIndex] == BIGINT) {
 			long value = ((long[]) columns[columnIndex])[rowIndex];
@@ -267,9 +268,8 @@ public class BatchedInsert {
 	}
 
 	private static void setTimestampForSnowflake(PreparedStatement statement, int statementIndex, String value) throws ParseException, SQLException {
-		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		Date date = sdf.parse(value);
+		dateTimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date date = dateTimeFormat.parse(value);
 		statement.setTimestamp(statementIndex, new Timestamp(date.getTime()));
 	}
 }

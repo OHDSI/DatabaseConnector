@@ -63,7 +63,7 @@ for (testServer in testServers) {
     )
     
     # Check data on server is same as local
-    dataCopy2 <- renderTranslateQuerySql(connection, "SELECT * FROM #temp;", integer64AsNumeric = FALSE)
+    dataCopy2 <- renderTranslateQuerySql(connection, "SELECT some_datetime FROM #temp;", integer64AsNumeric = FALSE)
     names(dataCopy2) <- tolower(names(dataCopy2))
     dataCopy1 <- data[order(dataCopy1$person_id), ]
     dataCopy2 <- dataCopy2[order(dataCopy2$person_id), ]
@@ -72,6 +72,16 @@ for (testServer in testServers) {
     attr(dataCopy1$some_datetime, "tzone") <- NULL
     attr(dataCopy2$some_datetime, "tzone") <- NULL
     expect_equal(dataCopy1, dataCopy2, check.attributes = FALSE, tolerance = 1e-7)
+    # 
+    # dataCopy1$some_datetime[1]
+    # dataCopy2$some_datetime[1]
+    # 
+    # format(dataCopy1$some_datetime[1], format="%Y-%m-%d %H:%M:%S")
+    # querySql(connection, "SELECT current_timezone();")
+    # SqlRender::translate("SELECT TOP 1 * FROM #temp;", "spark")
+    # querySql(connection, "SELECT date_format(some_datetime, 'yyyy-MM-dd hh:mm:ss VV') FROM scratch.ir8uu9zutemp WHERE person_id = 2005;")
+    # lowLevelQuerySql(connection, "SELECT some_datetime FROM scratch.ir8uu9zutemp WHERE person_id = 2005;")
+    # executeSql(connection, "SET timezone = UTC;")
     
     # Check data types
     res <- dbSendQuery(connection, "SELECT * FROM #temp;")

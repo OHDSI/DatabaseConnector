@@ -9,7 +9,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.TimeZone;
+import java.text.SimpleDateFormat;
+// import java.util.TimeZone;
 import java.sql.Date;
 
 public class BatchedQuery {
@@ -26,6 +27,7 @@ public class BatchedQuery {
     public static double 			NA_DOUBLE 		= Double.longBitsToDouble(0x7ff00000000007a2L);
     public static int 				NA_INTEGER   	= Integer.MIN_VALUE;
     public static long 				NA_LONG   		= Long.MIN_VALUE;
+    public static SimpleDateFormat  dateTimeFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
 	
 	private Object[]				columns;
 	private int[]					columnTypes;
@@ -82,7 +84,7 @@ public class BatchedQuery {
 			else if (columnTypes[columnIndex] == DATE)
 				bytesPerRow += 4;
 			else if (columnTypes[columnIndex] == DATETIME)
-				bytesPerRow += 8;
+				bytesPerRow += 20;
 			else // String
 				bytesPerRow += 512;
 		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
@@ -100,7 +102,7 @@ public class BatchedQuery {
 			else if (columnTypes[columnIndex] == DATE)
 				columns[columnIndex] = new int[batchSize];
 			else if (columnTypes[columnIndex] == DATETIME)
-				columns[columnIndex] = new double[batchSize];
+				columns[columnIndex] = new String[batchSize];
 			else
 				columns[columnIndex] = new String[batchSize];
 		byteBuffer = ByteBuffer.allocate(8 * batchSize);
@@ -129,7 +131,7 @@ public class BatchedQuery {
 	public BatchedQuery(Connection connection, String query, String dbms) throws SQLException {
 		this.connection = connection;
 		this.dbms = dbms;
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		// TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		trySettingAutoCommit(false);
 		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		statement.setFetchSize(FETCH_SIZE);
@@ -196,9 +198,9 @@ public class BatchedQuery {
 					} else {
 						Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
 						if (timestamp == null)
-							((double[]) columns[columnIndex])[rowCount] = NA_DOUBLE;
+							((String[]) columns[columnIndex])[rowCount] = "";
 						else
-							((double[]) columns[columnIndex])[rowCount] = timestamp.getTime() / 1000;
+							((String[]) columns[columnIndex])[rowCount] = dateTimeFormat.format(timestamp);
 
 					}
 				rowCount++;
