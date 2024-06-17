@@ -5,7 +5,7 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   oldJarFolder <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
   Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = tempfile("jdbcDrivers"))
   dir.create(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))
-  # downloadJdbcDrivers("postgresql")
+  downloadJdbcDrivers("postgresql")
   # downloadJdbcDrivers("sql server")
   # downloadJdbcDrivers("oracle")
   # downloadJdbcDrivers("redshift")
