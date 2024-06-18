@@ -45,8 +45,8 @@ jdbcDrivers <- new.env()
 #' - RedShift: V2.1.0.9
 #' - SQL Server: V9.2.0
 #' - Oracle: V19.8
-#' - Spark: V2.6.21
-#' - Snowflake: V3.13.22
+#' - Spark (Databricks): V2.6.36
+#' - Snowflake: V3.16.01
 #' - BigQuery: v1.3.2.1003
 #' 
 #' @return Invisibly returns the destination if the download was successful.
@@ -94,7 +94,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     2,redshift,redshift-jdbc42-2.1.0.20.zip,https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/
     3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
-    5,spark,DatabricksJDBC42-2.6.32.1054.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.32/
+    5,spark,DatabricksJDBC42-2.6.36.1062.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.36/
     6,snowflake,snowflake-jdbc-3.16.1.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.16.1/
     7,bigquery,SimbaBigQueryJDBC42-1.3.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/"
   )
@@ -120,7 +120,9 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
         method = method
       )
       
-      extractedFilename <- unzip(file.path(pathToDriver, driverSource$fileName), exdir = pathToDriver)
+      extractedFilename <- unzip(file.path(pathToDriver, driverSource$fileName), 
+                                 exdir = pathToDriver,
+                                 junkpaths = TRUE)
       unzipSuccess <- is.character(extractedFilename)
       
       if (unzipSuccess) {
