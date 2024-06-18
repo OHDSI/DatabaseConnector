@@ -10,7 +10,7 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   # downloadJdbcDrivers("oracle")
   # downloadJdbcDrivers("redshift")
   downloadJdbcDrivers("spark")
-  # downloadJdbcDrivers("snowflake")
+  downloadJdbcDrivers("snowflake")
   # downloadJdbcDrivers("bigquery")
   
   if (testthat::is_testing()) {
@@ -122,18 +122,18 @@ testServers <- list()
 # )
 # 
 # # Snowflake
-# testServers[[length(testServers) + 1]] <- list(
-#   connectionDetails = details <- createConnectionDetails(
-#     dbms = "snowflake",
-#     user = Sys.getenv("CDM_SNOWFLAKE_USER"),
-#     password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
-#     connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
-#   ),
-#   NULL,
-#   cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
-#   tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
-# )
-# 
+testServers[[length(testServers) + 1]] <- list(
+  connectionDetails = details <- createConnectionDetails(
+    dbms = "snowflake",
+    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  ),
+  NULL,
+  cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
+  tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
+)
+
 # # Databricks (Spark)
 testServers[[length(testServers) + 1]] <- list(
   connectionDetails = details <- createConnectionDetails(
