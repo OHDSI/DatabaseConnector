@@ -9,11 +9,11 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   downloadJdbcDrivers("sql server")
   downloadJdbcDrivers("oracle")
   downloadJdbcDrivers("redshift")
-  downloadJdbcDrivers("spark")
+  # downloadJdbcDrivers("spark")
   downloadJdbcDrivers("snowflake")
-  # if (.Platform$OS.type == "windows") {
-  #   downloadJdbcDrivers("bigquery")
-  # }
+  if (.Platform$OS.type == "windows") {
+    downloadJdbcDrivers("bigquery")
+  }
   
   if (testthat::is_testing()) {
     withr::defer({
@@ -137,134 +137,134 @@ testServers[[length(testServers) + 1]] <- list(
 )
 
 # # Databricks (Spark)
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = details <- createConnectionDetails(
-    dbms = "spark",
-    user = Sys.getenv("CDM5_SPARK_USER"),
-    password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
-    connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
-  ),
-  NULL,
-  cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
-  tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
-)
+# testServers[[length(testServers) + 1]] <- list(
+#   connectionDetails = details <- createConnectionDetails(
+#     dbms = "spark",
+#     user = Sys.getenv("CDM5_SPARK_USER"),
+#     password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
+#     connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
+#   ),
+#   NULL,
+#   cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
+#   tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
+# )
 
 # BigQuery
 # To avoid rate limit on BigQuery, only test on 1 OS:
-# if (.Platform$OS.type == "windows") {
-#   bqKeyFile <- tempfile(fileext = ".json")
-#   writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
-#   if (testthat::is_testing()) {
-#     withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
-#   }
-#   bqConnectionString <- gsub("<keyfile path>",
-#                              normalizePath(bqKeyFile, winslash = "/"),
-#                              Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
-#   testServers[[length(testServers) + 1]] <- list(
-#     connectionDetails = details <- createConnectionDetails(
-#       dbms = "bigquery",
-#       user = "",
-#       password = "",
-#       connectionString = !!bqConnectionString
-#     ),
-#     NULL,
-#     cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
-#     tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
-#   )
-# }
+if (.Platform$OS.type == "windows") {
+  bqKeyFile <- tempfile(fileext = ".json")
+  writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
+  if (testthat::is_testing()) {
+    withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
+  }
+  bqConnectionString <- gsub("<keyfile path>",
+                             normalizePath(bqKeyFile, winslash = "/"),
+                             Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "bigquery",
+      user = "",
+      password = "",
+      connectionString = !!bqConnectionString
+    ),
+    NULL,
+    cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
+  )
+}
 
 # SQLite
-# sqliteFile <- tempfile(fileext = ".sqlite")
-# if (testthat::is_testing()) {
-#   withr::defer(unlink(sqliteFile, force = TRUE), testthat::teardown_env())
-# }
-# cdmDatabaseSchema <- "main"
-# connectionDetails <- createConnectionDetails(
-#   dbms = "sqlite",
-#   server = sqliteFile
-# )
-# connection <- connect(connectionDetails)
-# insertTable(
-#   connection = connection,
-#   databaseSchema = cdmDatabaseSchema,
-#   tableName = "person",
-#   data = data.frame(person_id = seq_len(100),
-#                     year_of_birth = round(runif(100, 1900, 2000)),
-#                     race_concept_id = as.numeric(NA),
-#                     gender_concept_id = rep(c(8507, 8532), 50),
-#                     care_site_id = round(runif(100, 1, 1e7)))
-# )
-# insertTable(
-#   connection = connection,
-#   databaseSchema = cdmDatabaseSchema,
-#   tableName = "observation_period",
-#   data = data.frame(person_id = seq_len(100),
-#                     observation_period_start_date = rep(as.Date("2000-01-01"), 100),
-#                     observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50),
-#                     period_type_concept_id = rep(0, 100))
-# )
-# insertTable(
-#   connection = connection,
-#   databaseSchema = cdmDatabaseSchema,
-#   tableName = "vocabulary",
-#   data = data.frame(vocabulary_id = c("a", "b"),
-#                     vocabulary_name = c("a", "b"),
-#                     vocabulary_reference= c("a", "b"),
-#                     vocabulary_version = c("a", "b"),
-#                     vocabulary_concpet_id = c(1, 2))
-# )
-# disconnect(connection)
-# testServers[[length(testServers) + 1]] <- list(
-#   connectionDetails = connectionDetails,
-#   NULL,
-#   cdmDatabaseSchema = cdmDatabaseSchema,
-#   tempEmulationSchema = NULL
-# )
-# 
-# # DuckDB
-# duckdbFile <- tempfile(fileext = ".duckdb")
-# if (testthat::is_testing()) {
-#   withr::defer(unlink(duckdbFile, force = TRUE), testthat::teardown_env())
-# }
-# cdmDatabaseSchema <- "main"
-# connectionDetails <- createConnectionDetails(
-#   dbms = "duckdb",
-#   server = duckdbFile
-# )
-# connection <- connect(connectionDetails)
-# insertTable(
-#   connection = connection,
-#   databaseSchema = cdmDatabaseSchema,
-#   tableName = "person",
-#   data = data.frame(person_id = seq_len(100),
-#                     year_of_birth = round(runif(100, 1900, 2000)),
-#                     race_concept_id = as.numeric(NA),
-#                     gender_concept_id = rep(c(8507, 8532), 50),
-#                     care_site_id = round(runif(100, 1, 1e7)))
-# )
-# insertTable(
-#   connection = connection,
-#   databaseSchema = cdmDatabaseSchema,
-#   tableName = "observation_period",
-#   data = data.frame(person_id = seq_len(100),
-#                     observation_period_start_date = rep(as.Date("2000-01-01"), 100),
-#                     observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50),
-#                     period_type_concept_id = rep(0, 100))
-# )
-# insertTable(
-#   connection = connection,
-#   databaseSchema = cdmDatabaseSchema,
-#   tableName = "vocabulary",
-#   data = data.frame(vocabulary_id = c("a", "b"),
-#                     vocabulary_name = c("a", "b"),
-#                     vocabulary_reference= c("a", "b"),
-#                     vocabulary_version = c("a", "b"),
-#                     vocabulary_concpet_id = c(1, 2))
-# )
-# disconnect(connection)
-# testServers[[length(testServers) + 1]] <- list(
-#   connectionDetails = connectionDetails,
-#   NULL,
-#   cdmDatabaseSchema = cdmDatabaseSchema,
-#   tempEmulationSchema = NULL
-# )
+sqliteFile <- tempfile(fileext = ".sqlite")
+if (testthat::is_testing()) {
+  withr::defer(unlink(sqliteFile, force = TRUE), testthat::teardown_env())
+}
+cdmDatabaseSchema <- "main"
+connectionDetails <- createConnectionDetails(
+  dbms = "sqlite",
+  server = sqliteFile
+)
+connection <- connect(connectionDetails)
+insertTable(
+  connection = connection,
+  databaseSchema = cdmDatabaseSchema,
+  tableName = "person",
+  data = data.frame(person_id = seq_len(100),
+                    year_of_birth = round(runif(100, 1900, 2000)),
+                    race_concept_id = as.numeric(NA),
+                    gender_concept_id = rep(c(8507, 8532), 50),
+                    care_site_id = round(runif(100, 1, 1e7)))
+)
+insertTable(
+  connection = connection,
+  databaseSchema = cdmDatabaseSchema,
+  tableName = "observation_period",
+  data = data.frame(person_id = seq_len(100),
+                    observation_period_start_date = rep(as.Date("2000-01-01"), 100),
+                    observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50),
+                    period_type_concept_id = rep(0, 100))
+)
+insertTable(
+  connection = connection,
+  databaseSchema = cdmDatabaseSchema,
+  tableName = "vocabulary",
+  data = data.frame(vocabulary_id = c("a", "b"),
+                    vocabulary_name = c("a", "b"),
+                    vocabulary_reference= c("a", "b"),
+                    vocabulary_version = c("a", "b"),
+                    vocabulary_concpet_id = c(1, 2))
+)
+disconnect(connection)
+testServers[[length(testServers) + 1]] <- list(
+  connectionDetails = connectionDetails,
+  NULL,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  tempEmulationSchema = NULL
+)
+
+# DuckDB
+duckdbFile <- tempfile(fileext = ".duckdb")
+if (testthat::is_testing()) {
+  withr::defer(unlink(duckdbFile, force = TRUE), testthat::teardown_env())
+}
+cdmDatabaseSchema <- "main"
+connectionDetails <- createConnectionDetails(
+  dbms = "duckdb",
+  server = duckdbFile
+)
+connection <- connect(connectionDetails)
+insertTable(
+  connection = connection,
+  databaseSchema = cdmDatabaseSchema,
+  tableName = "person",
+  data = data.frame(person_id = seq_len(100),
+                    year_of_birth = round(runif(100, 1900, 2000)),
+                    race_concept_id = as.numeric(NA),
+                    gender_concept_id = rep(c(8507, 8532), 50),
+                    care_site_id = round(runif(100, 1, 1e7)))
+)
+insertTable(
+  connection = connection,
+  databaseSchema = cdmDatabaseSchema,
+  tableName = "observation_period",
+  data = data.frame(person_id = seq_len(100),
+                    observation_period_start_date = rep(as.Date("2000-01-01"), 100),
+                    observation_period_end_date = rep(as.Date(c("2000-06-01", "2001-12-31")), 50),
+                    period_type_concept_id = rep(0, 100))
+)
+insertTable(
+  connection = connection,
+  databaseSchema = cdmDatabaseSchema,
+  tableName = "vocabulary",
+  data = data.frame(vocabulary_id = c("a", "b"),
+                    vocabulary_name = c("a", "b"),
+                    vocabulary_reference= c("a", "b"),
+                    vocabulary_version = c("a", "b"),
+                    vocabulary_concpet_id = c(1, 2))
+)
+disconnect(connection)
+testServers[[length(testServers) + 1]] <- list(
+  connectionDetails = connectionDetails,
+  NULL,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  tempEmulationSchema = NULL
+)
