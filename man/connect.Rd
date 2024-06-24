@@ -186,7 +186,7 @@ Snowflake:
 InterSystems IRIS:
 \itemize{
 \item \code{connectionString}. The connection string (e.g. starting with
-'jdbc:iris://host:port/namespace'). Alternatively, you can provide
+'jdbc:IRIS://host:port/namespace'). Alternatively, you can provide
 values for \code{server} and \code{port}, in which case the default \code{USER} namespace
 is used to connect.
 \item \code{user}. The user name used to access the server.
