@@ -1,3 +1,13 @@
+DatabaseConnector 6.3.3
+=======================
+
+Changes:
+
+- Updated Snowflake driver to 3.16.1.
+
+- Updated Databricks driver to 2.6.36.
+
+
 DatabaseConnector 6.3.2
 =======================
 

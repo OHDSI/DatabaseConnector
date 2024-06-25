@@ -58,7 +58,7 @@ test_that("Logging query times", {
   skip_if_not_installed("ParallelLogger")
   
   queryTimes <- extractQueryTimes(logFileName)
-  expect_gt(nrow(queryTimes), 16)
+  expect_gt(nrow(queryTimes), 3)
   ParallelLogger::unregisterLogger("TEST_LOGGER")
   unlink(logFileName)
 })

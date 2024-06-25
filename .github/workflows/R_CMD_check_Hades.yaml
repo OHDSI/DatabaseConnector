@@ -20,12 +20,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
+<<<<<<< HEAD
           # - {os: windows-latest, r: 'release'}
           - {os: macOS-latest, r: 'release'}
           # - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+=======
+          - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+>>>>>>> 5169a00ba285048383752184cba4e379d59ba801
 
     env:
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
       CDM5_ORACLE_CDM54_SCHEMA: ${{ secrets.CDM5_ORACLE_CDM54_SCHEMA }}
@@ -65,6 +70,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Setup Java
+        if: runner.os != 'Linux'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '8'
 
       - uses: r-lib/actions/setup-r@v2
         with:
