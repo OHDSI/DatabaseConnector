@@ -417,8 +417,8 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   
-  tableName <- gsub("^#", "", tableName)
-  if (dbms(connection) == "sqlite") {
+  #tableName <- gsub("^#", "", tableName) #EF: SQL Server needs the hashtag for temp tables
+  if (dbms(connection@dbiConnection) == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {
       column <- data[[i]]
@@ -430,7 +430,7 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
       }
     }
   }
-  if (dbms(connection) == "spark") {
+  if (dbms(connection@dbiConnection) == "spark") {
     # Spark automatically converts table names to lowercase, but will throw an error
     # that the table already exists when using dbWriteTable to append, and the table 
     # name is not all lowercase.
