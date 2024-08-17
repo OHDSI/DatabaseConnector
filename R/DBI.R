@@ -54,20 +54,31 @@ DatabaseConnectorDriver <- function() {
 }
 
 
+
+
 # Connection
 # -----------------------------------------------------------------------------------------
 
-# Borrowed from the odbc package:
-class_cache <- new.env(parent = emptyenv())
+setClass("DatabaseConnectorConnection", 
+         contains = c("DBIConnection"),
+         slots = list(
+           identifierQuote = "character",
+           stringQuote = "character",
+           dbms = "character",
+           uuid = "character"
+         ))
 
-# Simple class prototype to avoid messages about unknown classes from setMethod
-setClass("Microsoft SQL Server", where = class_cache)
+setClass("DatabaseConnectorJdbcConnection",
+         contains = "DatabaseConnectorConnection", 
+         slots = list(jConnection = "jobjRef"))
 
-setClass("DatabaseConnectorConnection", where = class_cache)
 
-setClass("DatabaseConnectorJdbcConnection", where = class_cache)
-
-setClass("DatabaseConnectorDbiConnection", where = class_cache)
+setClass("DatabaseConnectorDbiConnection",
+         contains = "DatabaseConnectorConnection", 
+         slots = list(
+           dbiConnection = "DBIConnection",
+           server = "character"
+         ))
 
 #' Create a connection to a DBMS
 #'
