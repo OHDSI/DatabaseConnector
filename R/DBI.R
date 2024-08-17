@@ -72,13 +72,11 @@ setClass("DatabaseConnectorJdbcConnection",
          contains = "DatabaseConnectorConnection", 
          slots = list(jConnection = "jobjRef"))
 
-
 setClass("DatabaseConnectorDbiConnection",
          contains = "DatabaseConnectorConnection", 
          slots = list(
            dbiConnection = "DBIConnection",
-           server = "character"
-         ))
+           server = "character"))
 
 #' Create a connection to a DBMS
 #'
