@@ -175,7 +175,6 @@ insertTable <- function(connection,
                         dropTableIfExists = TRUE,
                         createTable = TRUE,
                         tempTable = FALSE,
-                        oracleTempSchema = NULL,
                         tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                         bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
                         useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
@@ -192,7 +191,6 @@ insertTable.default <- function(connection,
                                 dropTableIfExists = TRUE,
                                 createTable = TRUE,
                                 tempTable = FALSE,
-                                oracleTempSchema = NULL,
                                 tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                 bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
                                 useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
@@ -211,13 +209,7 @@ insertTable.default <- function(connection,
     bulkLoad <- useMppBulkLoad
   }
   bulkLoad <- (!is.null(bulkLoad) && bulkLoad == "TRUE")
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
-  }
+  
   if (is_installed("Andromeda") && Andromeda::isAndromedaTable(data)) {
     warn("Batch-wise uploading of Andromeda tables currently not supported. Loading entire table in memory.",
          .frequency = "regularly",
@@ -395,19 +387,12 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
                                                        dropTableIfExists = TRUE,
                                                        createTable = TRUE,
                                                        tempTable = FALSE,
-                                                       oracleTempSchema = NULL,
                                                        tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                        bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
                                                        useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                                                        progressBar = FALSE,
                                                        camelCaseToSnakeCase = FALSE) {
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
-  }
+
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -474,13 +459,14 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
 }
 
 convertLogicalFields <- function(data) {
-  for (i in 1:ncol(data)) {
-    column <- data[[i]]
-    if (is.logical(column)) {
-      warn(sprintf("Column '%s' is of type 'logical', but this is not supported by many DBMSs. Converting to numeric (1 = TRUE, 0 = FALSE)", 
-                   colnames(data)[i]))
-      data[, i] <- as.integer(column)
-    }
-  }
+  print("don't convert logical fields")
+  # for (i in 1:ncol(data)) {
+  #   column <- data[[i]]
+  #   if (is.logical(column)) {
+  #     warn(sprintf("Column '%s' is of type 'logical', but this is not supported by many DBMSs. Converting to numeric (1 = TRUE, 0 = FALSE)", 
+  #                  colnames(data)[i]))
+  #     data[, i] <- as.integer(column)
+  #   }
+  # }
   return(data)
 }

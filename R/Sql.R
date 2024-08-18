@@ -663,19 +663,11 @@ renderTranslateExecuteSql <- function(connection,
                                       reportOverallTime = TRUE,
                                       errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                       runAsBatch = FALSE,
-                                      oracleTempSchema = NULL,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -731,7 +723,6 @@ renderTranslateQuerySql <- function(connection,
                                     sql,
                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                     snakeCaseToCamelCase = FALSE,
-                                    oracleTempSchema = NULL,
                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -739,13 +730,6 @@ renderTranslateQuerySql <- function(connection,
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -865,7 +849,6 @@ renderTranslateQueryApplyBatched <- function(connection,
                                              args = list(),
                                              errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                              snakeCaseToCamelCase = FALSE,
-                                             oracleTempSchema = NULL,
                                              tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                              integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                              integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -880,20 +863,12 @@ renderTranslateQueryApplyBatched.default <- function(connection,
                                                      args = list(),
                                                      errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                                      snakeCaseToCamelCase = FALSE,
-                                                     oracleTempSchema = NULL,
                                                      tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                      integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                                      ...) {
   if (!is.function(fun)) {
     abort("fun argument must be a function")
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -949,7 +924,6 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
                                                                             args = list(),
                                                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                                                             snakeCaseToCamelCase = FALSE,
-                                                                            oracleTempSchema = NULL,
                                                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -957,14 +931,6 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
   if (!is.function(fun)) {
     abort("fun argument must be a function")
   }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
-  }
-  
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
   sql <- SqlRender::splitSql(sql)

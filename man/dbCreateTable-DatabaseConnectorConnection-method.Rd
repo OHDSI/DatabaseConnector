@@ -9,7 +9,6 @@
   name,
   fields,
   databaseSchema = NULL,
-  oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...,
   row.names = NULL,
@@ -41,8 +40,6 @@ A data frame: field types are generated using
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
-\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
-
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
@@ -52,6 +49,8 @@ can be created.}
 \item{row.names}{Must be \code{NULL}.}
 
 \item{temporary}{Should the table created as a temp table?}
+
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 }
 \value{
 \code{dbCreateTable()} returns \code{TRUE}, invisibly.

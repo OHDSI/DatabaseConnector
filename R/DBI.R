@@ -555,14 +555,8 @@ setMethod(
   "dbWriteTable",
   "DatabaseConnectorConnection",
   function(conn,
-           name, value, databaseSchema = NULL, overwrite = FALSE, append = FALSE, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
-    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-           .frequency = "regularly",
-           .frequency_id = "oracleTempSchema"
-      )
-      tempEmulationSchema <- oracleTempSchema
-    }
+           name, value, databaseSchema = NULL, overwrite = FALSE, append = FALSE, temporary = FALSE, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+
     if (overwrite) {
       append <- FALSE
     }
@@ -591,14 +585,8 @@ setMethod(
   "dbAppendTable",
   signature("DatabaseConnectorConnection", "character"),
   function(conn,
-           name, value, databaseSchema = NULL, temporary = FALSE, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL) {
-    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-           .frequency = "regularly",
-           .frequency_id = "oracleTempSchema"
-      )
-      tempEmulationSchema <- oracleTempSchema
-    }
+           name, value, databaseSchema = NULL, temporary = FALSE, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL) {
+
     insertTable(
       connection = conn,
       databaseSchema = databaseSchema,
@@ -624,14 +612,8 @@ setMethod(
   "dbCreateTable",
   "DatabaseConnectorConnection",
   function(conn,
-           name, fields, databaseSchema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL, temporary = FALSE) {
-    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-           .frequency = "regularly",
-           .frequency_id = "oracleTempSchema"
-      )
-      tempEmulationSchema <- oracleTempSchema
-    }
+           name, fields, databaseSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ..., row.names = NULL, temporary = FALSE) {
+
     insertTable(
       connection = conn, 
       databaseSchema = databaseSchema,
@@ -657,16 +639,9 @@ setMethod("dbReadTable",
           function(conn, 
                    name,
                    databaseSchema = NULL, 
-                   oracleTempSchema = NULL, 
                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                    ...) {
-            if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-              warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-                   .frequency = "regularly",
-                   .frequency_id = "oracleTempSchema"
-              )
-              tempEmulationSchema <- oracleTempSchema
-            }
+
             if (!is.null(databaseSchema)) {
               name <- paste(databaseSchema, name, sep = ".")
             }
@@ -690,14 +665,8 @@ setMethod(
   "dbRemoveTable",
   "DatabaseConnectorConnection",
   function(conn, name,
-           databaseSchema = NULL, oracleTempSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
-    if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-      warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-           .frequency = "regularly",
-           .frequency_id = "oracleTempSchema"
-      )
-      tempEmulationSchema <- oracleTempSchema
-    }
+           databaseSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+
     if (!is.null(databaseSchema)) {
       name <- paste(databaseSchema, name, sep = ".")
     }
