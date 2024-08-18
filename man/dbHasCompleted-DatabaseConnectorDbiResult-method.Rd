@@ -39,8 +39,25 @@ Other DBIResult generics:
 \code{\link[DBI]{dbGetStatement}()},
 \code{\link[DBI]{dbIsReadOnly}()},
 \code{\link[DBI]{dbIsValid}()},
-\code{\link[DBI]{dbQuoteIdentifier}()},
 \code{\link[DBI]{dbQuoteLiteral}()},
-\code{\link[DBI]{dbQuoteString}()},
-\code{\link[DBI]{dbUnquoteIdentifier}()}
+\code{\link[DBI]{dbQuoteString}()}
+
+Other DBIResultArrow generics: 
+\code{\link[DBI]{DBIResultArrow-class}},
+\code{\link[DBI]{dbBind}()},
+\code{\link[DBI]{dbClearResult}()},
+\code{\link[DBI]{dbFetchArrow}()},
+\code{\link[DBI]{dbFetchArrowChunk}()},
+\code{\link[DBI]{dbIsValid}()}
+
+Other data retrieval generics: 
+\code{\link[DBI]{dbBind}()},
+\code{\link[DBI]{dbClearResult}()},
+\code{\link[DBI]{dbFetch}()},
+\code{\link[DBI]{dbFetchArrow}()},
+\code{\link[DBI]{dbFetchArrowChunk}()},
+\code{\link[DBI]{dbGetQuery}()},
+\code{\link[DBI]{dbGetQueryArrow}()},
+\code{\link[DBI]{dbSendQuery}()},
+\code{\link[DBI]{dbSendQueryArrow}()}
 }
