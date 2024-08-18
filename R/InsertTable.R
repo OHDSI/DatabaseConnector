@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-getSqlDataTypes <- function(column) {
+getSqlDataTypes <- function(column) { 
   if (is.integer(column)) {
     return("INTEGER")
   } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
@@ -27,6 +27,8 @@ getSqlDataTypes <- function(column) {
     return("BIGINT")
   } else if (is.numeric(column)) {
     return("FLOAT")
+  } else if (is.logical(column)) {
+    return("BOOLEAN")
   } else {
     if (is.factor(column)) {
       maxLength <-
@@ -294,10 +296,6 @@ insertTable.default <- function(connection,
     inform("Attempting to use bulk loading...")
     if (dbms == "redshift") {
       bulkLoadRedshift(connection, sqlTableName, data)
-    } else if (dbms == "pdw") {
-      bulkLoadPdw(connection, sqlTableName, sqlDataTypes, data)
-    } else if (dbms == "hive") {
-      bulkLoadHive(connection, sqlTableName, sqlFieldNames, data)
     } else if (dbms == "postgresql") {
       bulkLoadPostgres(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data)
     }
@@ -359,6 +357,8 @@ insertTable.default <- function(connection,
             rJava::.jcall(batchedInsert, "V", "setDateTime", i, format(column, format="%Y-%m-%d %H:%M:%S"))
           } else if (is(column, "Date")) {
             rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
+          } else  if (is.logical(column)) {
+            rJava::.jcall(batchedInsert, "V", "setBoolean", i, column)
           } else {
             rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
           }

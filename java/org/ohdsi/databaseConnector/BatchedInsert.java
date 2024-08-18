@@ -19,9 +19,10 @@ public class BatchedInsert {
 	public static int		DATE						= 3;
 	public static int		DATETIME					= 4;
 	public static int		BIGINT						= 5;
-	private static String   SPARK                       = "spark";
-	private static String   SNOWFLAKE                   = "snowflake";
-	private static String   BIGQUERY                    = "bigquery";
+	public static int		BOOLEAN						= 6;
+	private static String   SPARK         = "spark";
+	private static String   SNOWFLAKE     = "snowflake";
+	private static String   BIGQUERY      = "bigquery";
 	
 	public static final int	BIG_DATA_BATCH_INSERT_LIMIT	= 1000;
 
@@ -61,6 +62,9 @@ public class BatchedInsert {
 			if (columnTypes[i] == INTEGER) {
 				if (((int[]) columns[i]).length != rowCount)
 					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
+			} else if (columnTypes[i] == BOOLEAN) {
+				if (((Boolean[]) columns[i]).length != rowCount)
+					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
 			} else if (columnTypes[i] == NUMERIC) {
 				if (((double[]) columns[i]).length != rowCount)
 					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
@@ -81,6 +85,12 @@ public class BatchedInsert {
 				statement.setObject(statementIndex, null);
 			else
 				statement.setInt(statementIndex, value);
+		} else if (columnTypes[columnIndex] == BOOLEAN) {
+			Boolean value = ((Boolean[]) columns[columnIndex])[rowIndex];
+			if (value == null)
+				statement.setObject(statementIndex, null);
+			else
+				statement.setBoolean(statementIndex, value);
 		} else if (columnTypes[columnIndex] == NUMERIC) {
 			double value = ((double[]) columns[columnIndex])[rowIndex];
 			if (Double.isNaN(value))
@@ -212,6 +222,12 @@ public class BatchedInsert {
 		rowCount = column.length;
 	}
 	
+	public void setBoolean(int columnIndex, Boolean[] column) {
+		columns[columnIndex - 1] = column;
+		columnTypes[columnIndex - 1] = BOOLEAN;
+		rowCount = column.length;
+	}
+	
 	public void setNumeric(int columnIndex, double[] column) {
 		columns[columnIndex - 1] = column;
 		columnTypes[columnIndex - 1] = NUMERIC;
@@ -244,6 +260,10 @@ public class BatchedInsert {
 	
 	public void setInteger(int columnIndex, int column) {
 		setInteger(columnIndex, new int[] { column });
+	}
+	
+	public void setBoolean(int columnIndex, Boolean column) {
+		setBoolean(columnIndex, new Boolean[] { column });
 	}
 	
 	public void setNumeric(int columnIndex, double column) {
