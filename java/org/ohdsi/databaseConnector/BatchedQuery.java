@@ -18,6 +18,7 @@ public class BatchedQuery {
 	public static int				DATETIME		= 4;
 	public static int				INTEGER64		= 5;
 	public static int				INTEGER			= 6;
+	public static int				BOOLEAN			= 7;
 	public static int				FETCH_SIZE		= 2048;
 	public static double            MAX_BATCH_SIZE  = 1000000;
 	public static long              CHECK_MEM_ROWS  = 10000;
@@ -25,6 +26,7 @@ public class BatchedQuery {
     public static double 			NA_DOUBLE 		= Double.longBitsToDouble(0x7ff00000000007a2L);
     public static int 				NA_INTEGER   	= Integer.MIN_VALUE;
     public static long 				NA_LONG   		= Long.MIN_VALUE;
+    public static final Boolean		NA_BOOLEAN      = null;
 	
 	private Object[]				columns;
 	private int[]					columnTypes;
@@ -82,6 +84,8 @@ public class BatchedQuery {
 				bytesPerRow += 4;
 			else if (columnTypes[columnIndex] == DATETIME)
 				bytesPerRow += 8;
+			else if (columnTypes[columnIndex] == BOOLEAN)
+				bytesPerRow += 8; // not sure if this is correct
 			else // String
 				bytesPerRow += 512;
 		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
@@ -100,6 +104,8 @@ public class BatchedQuery {
 				columns[columnIndex] = new int[batchSize];
 			else if (columnTypes[columnIndex] == DATETIME)
 				columns[columnIndex] = new double[batchSize];
+			else if (columnTypes[columnIndex] == BOOLEAN)
+				columns[columnIndex] = new Boolean[batchSize];
 			else
 				columns[columnIndex] = new String[batchSize];
 		byteBuffer = ByteBuffer.allocate(8 * batchSize);
@@ -134,12 +140,22 @@ public class BatchedQuery {
 		resultSet = statement.executeQuery(query);
 		resultSet.setFetchSize(FETCH_SIZE);
 		ResultSetMetaData metaData = resultSet.getMetaData();
+		
 		columnTypes = new int[metaData.getColumnCount()];
 		columnSqlTypes = new String[metaData.getColumnCount()];
 		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
 			columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
 			int type = metaData.getColumnType(columnIndex + 1);
 			String className = metaData.getColumnClassName(columnIndex + 1);
+			
+			//System.out.println("======================== debug ====================");
+			//System.out.println("type= " + type);
+			//System.out.println("className= " + className);
+			//System.out.println("columnSqlTypes[columnIndex]= " + columnSqlTypes[columnIndex]);
+			//System.out.println("Types.BOOLEAN=" + Types.BOOLEAN);
+			
+			
+			//Types.BOOLEAN is 16 but for a boolean datatype in the database type is -7. 
 			int precision = metaData.getPrecision(columnIndex + 1);
 			int scale = metaData.getScale(columnIndex + 1);
 			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
@@ -154,6 +170,10 @@ public class BatchedQuery {
 				columnTypes[columnIndex] = DATE;
 			else if (type == Types.TIMESTAMP)
 				columnTypes[columnIndex] = DATETIME;
+			else if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool") {
+				System.out.println("Setting boolean type.");
+				columnTypes[columnIndex] = BOOLEAN;
+			}
 			else
 				columnTypes[columnIndex] = STRING;
 		}
@@ -183,14 +203,18 @@ public class BatchedQuery {
 						((int[]) columns[columnIndex])[rowCount] = resultSet.getInt(columnIndex + 1);
 						if (resultSet.wasNull())
 							((int[]) columns[columnIndex])[rowCount] = NA_INTEGER;
-					} else if (columnTypes[columnIndex] == STRING)
+					} else if (columnTypes[columnIndex] == STRING) {
 						((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
-					else if (columnTypes[columnIndex] == DATE) {
+			        } else if (columnTypes[columnIndex] == DATE) {
 						Date date = resultSet.getDate(columnIndex + 1);
 						if (date == null)
 							((int[]) columns[columnIndex])[rowCount] = NA_INTEGER;
 						else
 							((int[]) columns[columnIndex])[rowCount] = (int)date.toLocalDate().toEpochDay();
+					} else if (columnTypes[columnIndex] == BOOLEAN) {
+						((Boolean[]) columns[columnIndex])[rowCount] = resultSet.getBoolean(columnIndex + 1);
+						if (resultSet.wasNull())
+							((Boolean[]) columns[columnIndex])[rowCount] = NA_BOOLEAN;
 					} else {
 						Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
 						if (timestamp == null)
@@ -246,7 +270,7 @@ public class BatchedQuery {
 		} else
 			return column;
 	}
-	
+ 
 	public int[] getInteger(int columnIndex) {
 		int[] column = ((int[]) columns[columnIndex - 1]);
 		if (column.length > rowCount) {
@@ -255,6 +279,33 @@ public class BatchedQuery {
 			return newColumn;
 		} else
 			return column;
+	}
+	
+	private int[] mapBooleanToInt(Boolean[] booleanArray) {
+		int[] intArray = new int[booleanArray.length];
+
+        // Map Boolean values to int values
+        for (int i = 0; i < booleanArray.length; i++) {
+            if (booleanArray[i] == null) {
+                intArray[i] = -1;    // Map null to -1
+            } else if (booleanArray[i]) {
+                intArray[i] = 1;     // Map true to 1
+            } else {
+                intArray[i] = 0;     // Map false to 0
+            }
+        }
+        return intArray;
+	}
+    // Pass integer to R which is easier than boolean types
+	public int[] getBoolean(int columnIndex) {
+		Boolean[] column = ((Boolean[]) columns[columnIndex - 1]);
+
+		if (column.length > rowCount) {
+			Boolean[] newColumn = new Boolean[rowCount];
+			System.arraycopy(column, 0, newColumn, 0, rowCount);
+			return mapBooleanToInt(newColumn);
+		} else
+			return mapBooleanToInt(column);
 	}
 	
 	public double[] getInteger64(int columnIndex) {

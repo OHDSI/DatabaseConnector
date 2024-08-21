@@ -63,7 +63,7 @@ public class BatchedInsert {
 				if (((int[]) columns[i]).length != rowCount)
 					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
 			} else if (columnTypes[i] == BOOLEAN) {
-				if (((Boolean[]) columns[i]).length != rowCount)
+				if (((int[]) columns[i]).length != rowCount)
 					throw new RuntimeException("Column " + (i + 1) + " data not of correct length");
 			} else if (columnTypes[i] == NUMERIC) {
 				if (((double[]) columns[i]).length != rowCount)
@@ -86,11 +86,16 @@ public class BatchedInsert {
 			else
 				statement.setInt(statementIndex, value);
 		} else if (columnTypes[columnIndex] == BOOLEAN) {
-			Boolean value = ((Boolean[]) columns[columnIndex])[rowIndex];
-			if (value == null)
+			int value = ((int[]) columns[columnIndex])[rowIndex];
+			if (value == -1) {
 				statement.setObject(statementIndex, null);
-			else
-				statement.setBoolean(statementIndex, value);
+			} else if (value == 1) {
+				statement.setBoolean(statementIndex, true);
+			} else if (value == 0) {
+				statement.setBoolean(statementIndex, false);
+			} else {
+				throw new RuntimeException("Boolean values must be encoded as 1 (true) 0 (false) or -1 (NA) and not " + value);
+			}
 		} else if (columnTypes[columnIndex] == NUMERIC) {
 			double value = ((double[]) columns[columnIndex])[rowIndex];
 			if (Double.isNaN(value))
@@ -222,7 +227,11 @@ public class BatchedInsert {
 		rowCount = column.length;
 	}
 	
-	public void setBoolean(int columnIndex, Boolean[] column) {
+	public void setBoolean(int columnIndex, int[] column) {
+		// represent boolean as int 1 for true, 0 for false, -1 for NA
+		// should we use byte type instead of integer? I also tried the Boolean wrapper class but
+		// could not get rJava to pass the boolean type to java as Boolean[]
+		// seems better to pass int type to and from R
 		columns[columnIndex - 1] = column;
 		columnTypes[columnIndex - 1] = BOOLEAN;
 		rowCount = column.length;
@@ -262,8 +271,8 @@ public class BatchedInsert {
 		setInteger(columnIndex, new int[] { column });
 	}
 	
-	public void setBoolean(int columnIndex, Boolean column) {
-		setBoolean(columnIndex, new Boolean[] { column });
+	public void setBoolean(int columnIndex, int column) {
+		setBoolean(columnIndex, new int[] { column });
 	}
 	
 	public void setNumeric(int columnIndex, double column) {

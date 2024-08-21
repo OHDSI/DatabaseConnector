@@ -251,7 +251,6 @@ insertTable.default <- function(connection,
       data <- as.data.frame(data)
     }
   }
-  data <- convertLogicalFields(data)
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift") && createTable) ||
     (bulkLoad && dbms %in% c("pdw", "postgresql") && !tempTable)
@@ -259,7 +258,6 @@ insertTable.default <- function(connection,
   if (dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
     abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
   }
-  
   sqlDataTypes <- sapply(data, getSqlDataTypes)
   sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE), sqlDataTypes, collapse = ", ")
   sqlTableName <- .sql.qescape(tableName, TRUE, quote = "")
@@ -277,7 +275,7 @@ insertTable.default <- function(connection,
     )
   }
   
-  if (createTable && !useCtasHack && !(bulkLoad && dbms == "hive")) {
+  if (createTable && !useCtasHack) {
     sql <- paste("CREATE TABLE ", sqlTableName, " (", sqlTableDefinition, ");", sep = "")
     renderTranslateExecuteSql(
       connection = connection,
@@ -358,6 +356,9 @@ insertTable.default <- function(connection,
           } else if (is(column, "Date")) {
             rJava::.jcall(batchedInsert, "V", "setDate", i, as.character(column))
           } else  if (is.logical(column)) {
+            # encode column as -1 (NA), 1 (TRUE), 0 (FALSE) to pass logical NAs into Java 
+            column <- vapply(as.integer(column), FUN = function(x) ifelse(is.na(x), -1L, x), FUN.VALUE = integer(1L))
+            print(class(column))
             rJava::.jcall(batchedInsert, "V", "setBoolean", i, column)
           } else {
             rJava::.jcall(batchedInsert, "V", "setString", i, as.character(column))
@@ -429,7 +430,6 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
     }
     
   }
-  data <- convertLogicalFields(data)
   
   logTrace(sprintf("Inserting %d rows into table '%s' ", nrow(data), tableName))
   if (!is.null(databaseSchema)) {
@@ -456,17 +456,4 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   delta <- Sys.time() - startTime
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
   invisible(NULL)
-}
-
-convertLogicalFields <- function(data) {
-  print("don't convert logical fields")
-  # for (i in 1:ncol(data)) {
-  #   column <- data[[i]]
-  #   if (is.logical(column)) {
-  #     warn(sprintf("Column '%s' is of type 'logical', but this is not supported by many DBMSs. Converting to numeric (1 = TRUE, 0 = FALSE)", 
-  #                  colnames(data)[i]))
-  #     data[, i] <- as.integer(column)
-  #   }
-  # }
-  return(data)
 }

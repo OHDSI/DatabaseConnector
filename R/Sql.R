@@ -120,6 +120,9 @@ parseJdbcColumnData <- function(batchedQuery,
     } else if (columnTypes[i] == 4) {
       column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
       column <- as.POSIXct(column, origin = "1970-01-01")
+    } else if (columnTypes[i] == 7) {
+      column <- rJava::.jcall(batchedQuery, "[I", "getBoolean", as.integer(i))
+      column <- vapply(column, FUN = function(x) ifelse(x == -1L, NA, as.logical(x)), FUN.VALUE = logical(1))
     } else {
       column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i)
       if (!datesAsString) {
@@ -131,6 +134,7 @@ parseJdbcColumnData <- function(batchedQuery,
     columns[[i]] <- column
   }
   names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
+  
   # More efficient than as.data.frame, as it avoids converting row.names to character:
   columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
   return(columns)
