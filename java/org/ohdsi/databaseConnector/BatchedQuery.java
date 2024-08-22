@@ -148,17 +148,21 @@ public class BatchedQuery {
 			int type = metaData.getColumnType(columnIndex + 1);
 			String className = metaData.getColumnClassName(columnIndex + 1);
 			
-			//System.out.println("======================== debug ====================");
-			//System.out.println("type= " + type);
-			//System.out.println("className= " + className);
-			//System.out.println("columnSqlTypes[columnIndex]= " + columnSqlTypes[columnIndex]);
-			//System.out.println("Types.BOOLEAN=" + Types.BOOLEAN);
+			System.out.println("======================== debug ====================");
+			System.out.println("type= " + type);
+			System.out.println("className= " + className);
+			System.out.println("columnSqlTypes[columnIndex]= " + columnSqlTypes[columnIndex]);
+			System.out.println("Types.BOOLEAN=" + Types.BOOLEAN);
 			
 			
 			//Types.BOOLEAN is 16 but for a boolean datatype in the database type is -7. 
 			int precision = metaData.getPrecision(columnIndex + 1);
+			System.out.println("precision=" + precision);
 			int scale = metaData.getScale(columnIndex + 1);
-			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
+			if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool" 
+					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision == 1)) 
+				columnTypes[columnIndex] = BOOLEAN;
+			else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
 					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && precision != 19 && scale == 0))
 				columnTypes[columnIndex] = INTEGER;
 			else if (type == Types.BIGINT
@@ -170,10 +174,6 @@ public class BatchedQuery {
 				columnTypes[columnIndex] = DATE;
 			else if (type == Types.TIMESTAMP)
 				columnTypes[columnIndex] = DATETIME;
-			else if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool") {
-				System.out.println("Setting boolean type.");
-				columnTypes[columnIndex] = BOOLEAN;
-			}
 			else
 				columnTypes[columnIndex] = STRING;
 		}

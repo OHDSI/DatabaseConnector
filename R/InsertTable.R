@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-getSqlDataTypes <- function(column) { 
+getSqlDataTypes <- function(column, dbms) { 
   if (is.integer(column)) {
     return("INTEGER")
   } else if (is(column, "POSIXct") | is(column, "POSIXt")) {
@@ -28,7 +28,12 @@ getSqlDataTypes <- function(column) {
   } else if (is.numeric(column)) {
     return("FLOAT")
   } else if (is.logical(column)) {
-    return("BOOLEAN")
+    return(switch(
+      dbms,
+      "sql server" = "BIT",
+      "oracle" = "NUMBER(1)", # could also consider `NUMBER(1)` possibly with constraint `COLNAME NUMBER(1) CHECK (COLNAME IN (0, 1))`
+      "BOOLEAN"
+    ))
   } else {
     if (is.factor(column)) {
       maxLength <-
@@ -258,7 +263,7 @@ insertTable.default <- function(connection,
   if (dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
     abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
   }
-  sqlDataTypes <- sapply(data, getSqlDataTypes)
+  sqlDataTypes <- sapply(data, getSqlDataTypes, dbms = dbms)
   sqlTableDefinition <- paste(.sql.qescape(names(data), TRUE), sqlDataTypes, collapse = ", ")
   sqlTableName <- .sql.qescape(tableName, TRUE, quote = "")
   sqlFieldNames <- paste(.sql.qescape(names(data), TRUE), collapse = ",")
@@ -276,7 +281,15 @@ insertTable.default <- function(connection,
   }
   
   if (createTable && !useCtasHack) {
+    # temporary translation for boolean types. move this to sql render.
+    # if (dbms == "sql server") {
+    #   print("custom translation")
+    #   sqlTableDefinition <- gsub("BOOLEAN", "BIT", sqlTableDefinition)
+    #   print(sqlTableDefinition)
+    # }
+    
     sql <- paste("CREATE TABLE ", sqlTableName, " (", sqlTableDefinition, ");", sep = "")
+    print(sql)
     renderTranslateExecuteSql(
       connection = connection,
       sql = sql,
