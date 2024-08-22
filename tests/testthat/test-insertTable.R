@@ -34,6 +34,7 @@ data <- data.frame(
   stringsAsFactors = FALSE
 )
 
+data <- data[order(data$person_id), ]
 data$start_date[4] <- NA
 data$some_datetime[6] <- NA
 data$person_id[5] <- NA
@@ -42,7 +43,9 @@ data$id[3] <- NA
 data$big_ints[7] <- NA
 data$big_ints[8] <- 3.3043e+10
 data$booleans[c(3,9)] <- NA 
-testServer = testServers[[4]] 
+
+testServer = testServers[[7]] 
+
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Insert data", testServer), {
     skip_if(testServer$connectionDetails$dbms == "oracle") # Booleans are passed to and from Oracle but NAs are not persevered. still need to fix that.
@@ -53,11 +56,24 @@ for (testServer in testServers) {
     } else {
       dataCopy1 <- data
     }
+  
+    if (testServer$connectionDetails$dbms == "sqlite") {
+      # boolan types not suppoted on sqlite
+      dataCopy1$booleans <- NULL      
+    }
     
     connection <- connect(testServer$connectionDetails)
     options(sqlRenderTempEmulationSchema = testServer$tempEmulationSchema)
     on.exit(dropEmulatedTempTables(connection))
     on.exit(disconnect(connection), add = TRUE)
+    
+    if (testServer$connectionDetails$dbms == "snowflake") {
+      # Error executing SQL:
+      # net.snowflake.client.jdbc.SnowflakeSQLException: Cannot perform DROP. 
+      # This session does not have a current schema. Call 'USE SCHEMA', or use a qualified name.
+      executeSql(connection, "USE SCHEMA atlas.public;")
+    }
+    
     # debugonce(insertTable)
     insertTable(
       connection = connection,
@@ -70,10 +86,10 @@ for (testServer in testServers) {
     # Check data on server is same as local
     dataCopy2 <- renderTranslateQuerySql(connection, "SELECT * FROM #temp;", integer64AsNumeric = FALSE) 
     names(dataCopy2) <- tolower(names(dataCopy2))
-    # dplyr::tibble(dataCopy1)
-    # dplyr::tibble(dataCopy2)
     dataCopy1 <- dataCopy1[order(dataCopy1$person_id), ]
     dataCopy2 <- dataCopy2[order(dataCopy2$person_id), ]
+    dplyr::tibble(dataCopy1)
+    dplyr::tibble(dataCopy2)
     row.names(dataCopy1) <- NULL
     row.names(dataCopy2) <- NULL
     attr(dataCopy1$some_datetime, "tzone") <- NULL
@@ -98,9 +114,9 @@ for (testServer in testServers) {
     } else if (dbms == "duckdb") {
       expect_equal(as.character(columnInfo$type), c("Date", "POSIXct", "integer", "numeric", "character", "numeric"))
     } else if (dbms == "snowflake") {
-      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER"))
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER", "BOOLEAN"))
     } else if (dbms == "spark") {
-      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "FLOAT", "STRING", "BIGINT"))
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "FLOAT", "STRING", "BIGINT", "BOOLEAN"))
     } else if (dbms == "bigquery") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64"))
     } else {
