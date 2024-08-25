@@ -154,13 +154,18 @@ public class BatchedInsert {
 			statement.close();
 			connection.clearWarnings();
 			trySettingAutoCommit(true);
+			return true;
+		} catch (SQLException e) {
+			if (!dbms.equals(SPARK)) {
+				connection.rollback();
+			}
+			throw e;
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
 				columns[i] = null;
 			}
 			rowCount = 0;
 		}
-		return true;
 	}
 	
 	/**
@@ -195,13 +200,16 @@ public class BatchedInsert {
 				trySettingAutoCommit(true);
 				offset += BIG_DATA_BATCH_INSERT_LIMIT;
 			}
+			return true;
+		} catch (SQLException e) {
+			connection.rollback();
+			throw e;
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
 				columns[i] = null;
 			}
 			rowCount = 0;
 		}
-		return true;
 	}
 	
 	private static long[] convertFromInteger64ToLong(double[] value) {

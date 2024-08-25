@@ -135,54 +135,76 @@ public class BatchedQuery {
 		this.connection = connection;
 		this.dbms = dbms;
 		trySettingAutoCommit(false);
-		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		statement.setFetchSize(FETCH_SIZE);
-		resultSet = statement.executeQuery(query);
-		resultSet.setFetchSize(FETCH_SIZE);
-		ResultSetMetaData metaData = resultSet.getMetaData();
-		
-		columnTypes = new int[metaData.getColumnCount()];
-		columnSqlTypes = new String[metaData.getColumnCount()];
-		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
-			columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
-			int type = metaData.getColumnType(columnIndex + 1);
-			String className = metaData.getColumnClassName(columnIndex + 1);
+		Statement statement = null;
+		try {
+			statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			statement.setFetchSize(FETCH_SIZE);
+			resultSet = statement.executeQuery(query);
+			resultSet.setFetchSize(FETCH_SIZE);
+			ResultSetMetaData metaData = resultSet.getMetaData();
+			columnTypes = new int[metaData.getColumnCount()];
+			columnSqlTypes = new String[metaData.getColumnCount()];
+
+			for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
+				columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
+				int type = metaData.getColumnType(columnIndex + 1);
+				String className = metaData.getColumnClassName(columnIndex + 1);
 			
-			System.out.println("======================== debug ====================");
-			System.out.println("type= " + type);
-			System.out.println("className= " + className);
-			System.out.println("columnSqlTypes[columnIndex]= " + columnSqlTypes[columnIndex]);
-			System.out.println("Types.BOOLEAN=" + Types.BOOLEAN);
-			
-			
-			//Types.BOOLEAN is 16 but for a boolean datatype in the database type is -7. 
-			int precision = metaData.getPrecision(columnIndex + 1);
-			System.out.println("precision=" + precision);
-			int scale = metaData.getScale(columnIndex + 1);
-			if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool" 
-					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision == 1)) 
-				columnTypes[columnIndex] = BOOLEAN;
-			else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
-					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && precision != 19 && scale == 0))
-				columnTypes[columnIndex] = INTEGER;
-			else if (type == Types.BIGINT
-					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && scale == 0))
-				columnTypes[columnIndex] = INTEGER64;
-			else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
-				columnTypes[columnIndex] = NUMERIC;
-			else if (type == Types.DATE)
-				columnTypes[columnIndex] = DATE;
-			else if (type == Types.TIMESTAMP)
-				columnTypes[columnIndex] = DATETIME;
-			else
-				columnTypes[columnIndex] = STRING;
+				/*
+				System.out.println("======================== debug ====================");
+				System.out.println("type= " + type);
+				System.out.println("className= " + className);
+				System.out.println("columnSqlTypes[columnIndex]= " + columnSqlTypes[columnIndex]);
+				System.out.println("Types.BOOLEAN=" + Types.BOOLEAN);
+				*/
+				
+				//Types.BOOLEAN is 16 but for a boolean datatype in the database type is -7. 
+				int precision = metaData.getPrecision(columnIndex + 1);
+				System.out.println("precision=" + precision);
+				int scale = metaData.getScale(columnIndex + 1);
+				if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool" 
+						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision == 1)) 
+					columnTypes[columnIndex] = BOOLEAN;
+				else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
+						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && precision != 19 && scale == 0))
+					columnTypes[columnIndex] = INTEGER;
+				else if (type == Types.BIGINT
+						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && scale == 0))
+					columnTypes[columnIndex] = INTEGER64;
+				else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
+					columnTypes[columnIndex] = NUMERIC;
+				else if (type == Types.DATE)
+					columnTypes[columnIndex] = DATE;
+				else if (type == Types.TIMESTAMP)
+					columnTypes[columnIndex] = DATETIME;
+				else
+					columnTypes[columnIndex] = STRING;
+			}
+			columnNames = new String[metaData.getColumnCount()];
+			for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++)
+				columnNames[columnIndex] = metaData.getColumnLabel(columnIndex + 1);
+			reserveMemory();
+			done = false;
+			totalRowCount = 0;
+		} catch (SQLException e) {
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException rollbackEx) {
+					System.err.println("Error rolling back transaction: " + rollbackEx.getMessage());
+				}
+        	}
+        	throw e;
+		} finally {
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException closeEx) {
+					// Log close exception
+					System.err.println("Error closing statement: " + closeEx.getMessage());
+				}
+			}
 		}
-		columnNames = new String[metaData.getColumnCount()];
-		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++)
-			columnNames[columnIndex] = metaData.getColumnLabel(columnIndex + 1);
-		reserveMemory();
-		done = false;
-		totalRowCount = 0;
 	}
 	
 	public void fetchBatch() throws SQLException {
@@ -234,7 +256,6 @@ public class BatchedQuery {
 				trySettingAutoCommit(true);
 				break;
 			}
-
 		}
 		totalRowCount += rowCount;
 	}
@@ -245,8 +266,6 @@ public class BatchedQuery {
 			columns = null;
 			byteBuffer = null;
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
