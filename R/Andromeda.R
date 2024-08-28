@@ -324,7 +324,6 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
                                                ),
                                                snakeCaseToCamelCase = FALSE,
                                                appendToTable = FALSE,
-                                               oracleTempSchema = NULL,
                                                tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric",
                                                                             default = TRUE
@@ -336,13 +335,6 @@ renderTranslateQuerySqlToAndromeda <- function(connection,
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql,

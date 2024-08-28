@@ -9,7 +9,6 @@
   name,
   fields,
   databaseSchema = NULL,
-  oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...,
   row.names = NULL,
@@ -41,8 +40,6 @@ A data frame: field types are generated using
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
-\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
-
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
@@ -52,6 +49,8 @@ can be created.}
 \item{row.names}{Must be \code{NULL}.}
 
 \item{temporary}{Should the table created as a temp table?}
+
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 }
 \value{
 \code{dbCreateTable()} returns \code{TRUE}, invisibly.
@@ -59,10 +58,7 @@ can be created.}
 \description{
 The default \code{dbCreateTable()} method calls \code{\link[DBI:sqlCreateTable]{sqlCreateTable()}} and
 \code{\link[DBI:dbExecute]{dbExecute()}}.
-Backends compliant to ANSI SQL 99 don't need to override it.
-Backends with a different SQL syntax can override \code{sqlCreateTable()},
-backends with entirely different ways to create tables need to
-override this method.
+Use \code{\link[DBI:dbCreateTableArrow]{dbCreateTableArrow()}} to create a table from an Arrow schema.
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbCreateTable")}
 }
@@ -77,6 +73,8 @@ specify the schema.
 Other DBIConnection generics: 
 \code{\link[DBI]{DBIConnection-class}},
 \code{\link[DBI]{dbAppendTable}()},
+\code{\link[DBI]{dbAppendTableArrow}()},
+\code{\link[DBI]{dbCreateTableArrow}()},
 \code{\link[DBI]{dbDataType}()},
 \code{\link[DBI]{dbDisconnect}()},
 \code{\link[DBI]{dbExecute}()},
@@ -84,15 +82,21 @@ Other DBIConnection generics:
 \code{\link[DBI]{dbGetException}()},
 \code{\link[DBI]{dbGetInfo}()},
 \code{\link[DBI]{dbGetQuery}()},
+\code{\link[DBI]{dbGetQueryArrow}()},
 \code{\link[DBI]{dbIsReadOnly}()},
 \code{\link[DBI]{dbIsValid}()},
 \code{\link[DBI]{dbListFields}()},
 \code{\link[DBI]{dbListObjects}()},
 \code{\link[DBI]{dbListResults}()},
 \code{\link[DBI]{dbListTables}()},
+\code{\link[DBI]{dbQuoteIdentifier}()},
 \code{\link[DBI]{dbReadTable}()},
+\code{\link[DBI]{dbReadTableArrow}()},
 \code{\link[DBI]{dbRemoveTable}()},
 \code{\link[DBI]{dbSendQuery}()},
+\code{\link[DBI]{dbSendQueryArrow}()},
 \code{\link[DBI]{dbSendStatement}()},
-\code{\link[DBI]{dbWriteTable}()}
+\code{\link[DBI]{dbUnquoteIdentifier}()},
+\code{\link[DBI]{dbWriteTable}()},
+\code{\link[DBI]{dbWriteTableArrow}()}
 }

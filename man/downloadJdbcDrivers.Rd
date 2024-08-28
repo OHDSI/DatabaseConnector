@@ -44,8 +44,8 @@ The following versions of the JDBC drivers are currently used:
 \item RedShift: V2.1.0.9
 \item SQL Server: V9.2.0
 \item Oracle: V19.8
-\item Spark: V2.6.21
-\item Snowflake: V3.13.22
+\item Spark (Databricks): V2.6.36
+\item Snowflake: V3.16.01
 \item BigQuery: v1.3.2.1003
 }
 }

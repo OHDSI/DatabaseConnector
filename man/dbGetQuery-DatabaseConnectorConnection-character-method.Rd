@@ -2,7 +2,7 @@
 % Please edit documentation in R/DBI.R
 \name{dbGetQuery,DatabaseConnectorConnection,character-method}
 \alias{dbGetQuery,DatabaseConnectorConnection,character-method}
-\title{Send query, retrieve results and then clear result set}
+\title{Retrieve results from a query}
 \usage{
 \S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 }
@@ -17,8 +17,8 @@
 \item{...}{Other parameters passed on to methods.}
 }
 \value{
-\code{dbGetQuery()} always returns a \link{data.frame}
-with as many rows as records were fetched and as many
+\code{dbGetQuery()} always returns a \link{data.frame}, with
+as many rows as records were fetched and as many
 columns as fields in the result set,
 even if the result is a single value
 or has one
@@ -29,16 +29,17 @@ Returns the result of a query as a data frame.
 \code{dbGetQuery()} comes with a default implementation
 (which should work with most backends) that calls
 \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, then \code{\link[DBI:dbFetch]{dbFetch()}}, ensuring that
-the result is always free-d by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
+the result is always freed by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
 For retrieving chunked/paged results or for passing query parameters,
 see \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, in particular the "The data retrieval flow" section.
+For retrieving results as an Arrow object, see \code{\link[DBI:dbGetQueryArrow]{dbGetQueryArrow()}}.
 
 \Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only
 (incl. other SQL statements that return a \code{SELECT}-alike result,
-e. g. execution of a stored procedure or data manipulation queries
+e.g., execution of a stored procedure or data manipulation queries
 like \verb{INSERT INTO ... RETURNING ...}).
 To execute a stored procedure that does not return a result set,
 use \code{\link[DBI:dbExecute]{dbExecute()}}.
@@ -54,22 +55,41 @@ For updates: \code{\link[DBI:dbSendStatement]{dbSendStatement()}} and \code{\lin
 Other DBIConnection generics: 
 \code{\link[DBI]{DBIConnection-class}},
 \code{\link[DBI]{dbAppendTable}()},
+\code{\link[DBI]{dbAppendTableArrow}()},
 \code{\link[DBI]{dbCreateTable}()},
+\code{\link[DBI]{dbCreateTableArrow}()},
 \code{\link[DBI]{dbDataType}()},
 \code{\link[DBI]{dbDisconnect}()},
 \code{\link[DBI]{dbExecute}()},
 \code{\link[DBI]{dbExistsTable}()},
 \code{\link[DBI]{dbGetException}()},
 \code{\link[DBI]{dbGetInfo}()},
+\code{\link[DBI]{dbGetQueryArrow}()},
 \code{\link[DBI]{dbIsReadOnly}()},
 \code{\link[DBI]{dbIsValid}()},
 \code{\link[DBI]{dbListFields}()},
 \code{\link[DBI]{dbListObjects}()},
 \code{\link[DBI]{dbListResults}()},
 \code{\link[DBI]{dbListTables}()},
+\code{\link[DBI]{dbQuoteIdentifier}()},
 \code{\link[DBI]{dbReadTable}()},
+\code{\link[DBI]{dbReadTableArrow}()},
 \code{\link[DBI]{dbRemoveTable}()},
 \code{\link[DBI]{dbSendQuery}()},
+\code{\link[DBI]{dbSendQueryArrow}()},
 \code{\link[DBI]{dbSendStatement}()},
-\code{\link[DBI]{dbWriteTable}()}
+\code{\link[DBI]{dbUnquoteIdentifier}()},
+\code{\link[DBI]{dbWriteTable}()},
+\code{\link[DBI]{dbWriteTableArrow}()}
+
+Other data retrieval generics: 
+\code{\link[DBI]{dbBind}()},
+\code{\link[DBI]{dbClearResult}()},
+\code{\link[DBI]{dbFetch}()},
+\code{\link[DBI]{dbFetchArrow}()},
+\code{\link[DBI]{dbFetchArrowChunk}()},
+\code{\link[DBI]{dbGetQueryArrow}()},
+\code{\link[DBI]{dbHasCompleted}()},
+\code{\link[DBI]{dbSendQuery}()},
+\code{\link[DBI]{dbSendQueryArrow}()}
 }

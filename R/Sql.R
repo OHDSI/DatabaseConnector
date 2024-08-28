@@ -120,6 +120,9 @@ parseJdbcColumnData <- function(batchedQuery,
     } else if (columnTypes[i] == 4) {
       column <- rJava::.jcall(batchedQuery, "[D", "getNumeric", as.integer(i))
       column <- as.POSIXct(column, origin = "1970-01-01")
+    } else if (columnTypes[i] == 7) {
+      column <- rJava::.jcall(batchedQuery, "[I", "getBoolean", as.integer(i))
+      column <- vapply(column, FUN = function(x) ifelse(x == -1L, NA, as.logical(x)), FUN.VALUE = logical(1))
     } else {
       column <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getString", i)
       if (!datesAsString) {
@@ -131,6 +134,7 @@ parseJdbcColumnData <- function(batchedQuery,
     columns[[i]] <- column
   }
   names(columns) <- rJava::.jcall(batchedQuery, "[Ljava/lang/String;", "getColumnNames")
+  
   # More efficient than as.data.frame, as it avoids converting row.names to character:
   columns <- structure(columns, class = "data.frame", row.names = seq_len(length(columns[[1]])))
   return(columns)
@@ -663,19 +667,11 @@ renderTranslateExecuteSql <- function(connection,
                                       reportOverallTime = TRUE,
                                       errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                       runAsBatch = FALSE,
-                                      oracleTempSchema = NULL,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -731,7 +727,6 @@ renderTranslateQuerySql <- function(connection,
                                     sql,
                                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                     snakeCaseToCamelCase = FALSE,
-                                    oracleTempSchema = NULL,
                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -739,13 +734,6 @@ renderTranslateQuerySql <- function(connection,
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -865,7 +853,6 @@ renderTranslateQueryApplyBatched <- function(connection,
                                              args = list(),
                                              errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                              snakeCaseToCamelCase = FALSE,
-                                             oracleTempSchema = NULL,
                                              tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                              integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                              integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -880,20 +867,12 @@ renderTranslateQueryApplyBatched.default <- function(connection,
                                                      args = list(),
                                                      errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                                      snakeCaseToCamelCase = FALSE,
-                                                     oracleTempSchema = NULL,
                                                      tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                      integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                                      ...) {
   if (!is.function(fun)) {
     abort("fun argument must be a function")
-  }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
   }
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
@@ -949,7 +928,6 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
                                                                             args = list(),
                                                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
                                                                             snakeCaseToCamelCase = FALSE,
-                                                                            oracleTempSchema = NULL,
                                                                             tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                                             integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                                                             integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
@@ -957,14 +935,6 @@ renderTranslateQueryApplyBatched.DatabaseConnectorDbiConnection <- function(conn
   if (!is.function(fun)) {
     abort("fun argument must be a function")
   }
-  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
-    warn("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.",
-         .frequency = "regularly",
-         .frequency_id = "oracleTempSchema"
-    )
-    tempEmulationSchema <- oracleTempSchema
-  }
-  
   sql <- SqlRender::render(sql, ...)
   sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
   sql <- SqlRender::splitSql(sql)
