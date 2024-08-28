@@ -146,8 +146,7 @@ setMethod("dbGetInfo", "DatabaseConnectorConnection", function(dbObj, ...) {
   return(list(db.version = "15.0"))
 })
 
-setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "character"), function(conn,
-                                                                                               x, ...) {
+setMethod("dbQuoteIdentifier", signature("DatabaseConnectorJdbcConnection", "character"), function(conn, x, ...) {
   if (length(x) == 0L) {
     return(DBI::SQL(character()))
   }
@@ -163,9 +162,33 @@ setMethod("dbQuoteIdentifier", signature("DatabaseConnectorConnection", "charact
   return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
 })
 
+setMethod("dbQuoteIdentifier", signature("DatabaseConnectorDbiConnection", "character"), function(conn,  x, ...) {
+  return(DBI::dbQuoteIdentifier(conn@dbiConnection, x, ...))
+})
+
+setMethod("dbQuoteIdentifier", signature("DatabaseConnectorJdbcConnection", "SQL"), function(conn, x, ...) {
+  if (length(x) == 0L) {
+    return(DBI::SQL(character()))
+  }
+  if (any(is.na(x))) {
+    abort("Cannot pass NA to dbQuoteIdentifier()")
+  }
+  if (nzchar(conn@identifierQuote)) {
+    x <- gsub(conn@identifierQuote, paste0(
+      conn@identifierQuote,
+      conn@identifierQuote
+    ), x, fixed = TRUE)
+  }
+  return(DBI::SQL(paste0(conn@identifierQuote, encodeString(x), conn@identifierQuote)))
+})
+
+setMethod("dbQuoteIdentifier", signature("DatabaseConnectorDbiConnection", "SQL"), function(conn,  x, ...) {
+  return(DBI::dbQuoteIdentifier(conn@dbiConnection, x, ...))
+})
+
 setMethod(
   "dbQuoteString",
-  signature("DatabaseConnectorConnection", "character"),
+  signature("DatabaseConnectorJdbcConnection", "character"),
   function(conn, x, ...) {
     if (length(x) == 0L) {
       return(DBI::SQL(character()))
@@ -177,6 +200,14 @@ setMethod(
       x <- gsub(conn@stringQuote, paste0(conn@stringQuote, conn@stringQuote), x, fixed = TRUE)
     }
     return(DBI::SQL(paste0(conn@stringQuote, encodeString(x), conn@stringQuote)))
+  }
+)
+
+setMethod(
+  "dbQuoteString",
+  signature("DatabaseConnectorDbiConnection", "character"),
+  function(conn, x, ...) {
+    return(dbQuoteString(conn@dbiConnection, x, ...))
   }
 )
 
@@ -211,26 +242,19 @@ setClass("DatabaseConnectorDbiResult",
 
 #' @inherit DBI::dbSendQuery title description params details references return seealso
 #' 
-#' @param translate Translate the query using SqlRender?
-#' 
 #' @export
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorJdbcConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, ...) {
     if (rJava::is.jnull(conn@jConnection)) {
       abort("Connection is closed")
     }
     logTrace(paste("Sending SQL:", truncateSql(statement)))
     startTime <- Sys.time()
-    
     dbms <- dbms(conn)
-    if (translate) {
-      statement <- translateStatement(
-        sql = statement,
-        targetDialect = dbms
-      )
-    }
+    #browser()
+ 
     # For Oracle, remove trailing semicolon:
     statement <- gsub(";\\s*$", "", statement)
     tryCatch(
@@ -261,19 +285,11 @@ setMethod(
 
 #' @inherit DBI::dbSendQuery title description params details references return seealso
 #' 
-#' @param translate Translate the query using SqlRender?
-#' 
 #' @export
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorDbiConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
-    if (translate) {
-      statement <- translateStatement(
-        sql = statement,
-        targetDialect = dbms(conn)
-      )
-    }
+  function(conn, statement, ...) {
     logTrace(paste("Sending SQL:", truncateSql(statement)))
     startTime <- Sys.time()
     
@@ -435,13 +451,7 @@ setMethod("dbGetRowsAffected", "DatabaseConnectorDbiResult", function(res, ...) 
 setMethod(
   "dbGetQuery",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
-    if (translate) {
-      statement <- translateStatement(
-        sql = statement,
-        targetDialect = dbms(conn)
-      )
-    }
+  function(conn, statement, ...) {
     result <- querySql(conn, statement)
     colnames(result) <- tolower(colnames(result))
     return(result)
@@ -450,19 +460,11 @@ setMethod(
 
 #' @inherit DBI::dbSendStatement title description params details references return seealso
 #' 
-#' @param translate Translate the query using SqlRender?
-#' 
 #' @export
 setMethod(
   "dbSendStatement",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
-    if (translate) {
-      statement <- translateStatement(
-        sql = statement,
-        targetDialect = dbms(conn)
-      )
-    }
+  function(conn, statement, ...) {
     rowsAffected <- executeSql(connection = conn, sql = statement)
     rowsAffected <- rJava::.jnew("java/lang/Double", as.double(sum(rowsAffected)))
     result <- new("DatabaseConnectorJdbcResult",
@@ -481,17 +483,7 @@ setMethod(
 setMethod(
   "dbExecute",
   signature("DatabaseConnectorConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
-    if (isDbplyrSql(statement) && dbms(conn) %in% c("oracle", "bigquery", "spark", "hive") && grepl("^UPDATE STATISTICS", statement)) {
-      # These platforms don't support this, so SqlRender translates to an empty string, which causes errors down the line.
-      return(0)
-    }
-    if (translate) {
-      statement <- translateStatement(
-        sql = statement,
-        targetDialect = dbms(conn)
-      )
-    }
+  function(conn, statement, ...) {
     rowsAffected <- 0
     for (sql in SqlRender::splitSql(statement)) {
       rowsAffected <- rowsAffected + executeSql(conn, sql)
@@ -631,7 +623,6 @@ setMethod(
 #' @inherit DBI::dbReadTable title description params details references return seealso
 #' 
 #' @template DatabaseSchema
-#' @template TempEmulationSchema
 #'
 #' @export
 setMethod("dbReadTable", 
@@ -639,7 +630,6 @@ setMethod("dbReadTable",
           function(conn, 
                    name,
                    databaseSchema = NULL, 
-                   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                    ...) {
 
             if (!is.null(databaseSchema)) {
@@ -647,36 +637,26 @@ setMethod("dbReadTable",
             }
             sql <- "SELECT * FROM @table;"
             sql <- SqlRender::render(sql = sql, table = name)
-            sql <- translateStatement(
-              sql = sql,
-              targetDialect = dbms(conn),
-              tempEmulationSchema = tempEmulationSchema
-            )
             return(querySql(conn, sql))
           })
 
 #' @inherit DBI::dbRemoveTable title description params details references return seealso
 #' 
 #' @template DatabaseSchema
-#' @template TempEmulationSchema
 #'
 #' @export
 setMethod(
   "dbRemoveTable",
   "DatabaseConnectorConnection",
   function(conn, name,
-           databaseSchema = NULL, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"), ...) {
+           databaseSchema = NULL, ...) {
 
     if (!is.null(databaseSchema)) {
       name <- paste(databaseSchema, name, sep = ".")
     }
     sql <- "TRUNCATE TABLE @table; DROP TABLE @table;"
     sql <- SqlRender::render(sql = sql, table = name)
-    sql <- translateStatement(
-      sql = sql,
-      targetDialect = dbms(conn),
-      tempEmulationSchema = tempEmulationSchema
-    )
+    sql <- SqlRender::translate(sql = sql, targetDialect = dbms(conn))
     for (statement in SqlRender::splitSql(sql)) {
       executeSql(conn, statement)
     }
@@ -726,25 +706,6 @@ inDatabaseSchema <- function(databaseSchema, table) {
 
 isDbplyrSql <- function(sql) {
   return(is(sql, "sql"))
-}
-
-translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
-  debug <- isTRUE(getOption("DEBUG_DATABASECONNECTOR_DBPLYR"))
-  if (debug) {
-    message(paste("SQL in:", sql))
-  }
-  if (isDbplyrSql(sql)) {
-    if (!grepl(";\\s*$", sql)) {
-      # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
-      sql <- paste0(sql, ";")
-    }
-    sql <- translateDateFunctions(sql)
-  }
-  sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
-  if (debug) {
-    message(paste("SQL out:", sql))
-  }
-  return(sql)
 }
 
 splitDatabaseSchema <- function(databaseSchema, dbms) {

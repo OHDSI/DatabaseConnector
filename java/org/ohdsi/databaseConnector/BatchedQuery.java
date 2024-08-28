@@ -160,7 +160,7 @@ public class BatchedQuery {
 				
 				//Types.BOOLEAN is 16 but for a boolean datatype in the database type is -7. 
 				int precision = metaData.getPrecision(columnIndex + 1);
-				System.out.println("precision=" + precision);
+				// System.out.println("precision=" + precision);
 				int scale = metaData.getScale(columnIndex + 1);
 				if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool" 
 						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision == 1)) 
