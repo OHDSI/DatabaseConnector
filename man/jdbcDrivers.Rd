@@ -27,9 +27,9 @@ your OS version, and click "GET IT NOW!'. Register, and you should be able to do
 \section{SQLite}{
 For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
 using \code{install.packages("RSQLite")}.
+}
 
-InterSystems IRIS
-
+\section{InterSystems IRIS}{
 For InterSystems IRIS, download the driver \href{https://intersystems-community.github.io/iris-driver-distribution/}{here},
 or locate the intersystems-jdbc-\if{html}{\out{<version>}}.jar in the ./dev/java/lib/1.8/ folder of your IRIS installation.
 }

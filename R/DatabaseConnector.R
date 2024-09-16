@@ -76,7 +76,7 @@ NULL
 #' For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
 #' using `install.packages("RSQLite")`.
 #'
-#' InterSystems IRIS
+#' # InterSystems IRIS
 #' 
 #' For InterSystems IRIS, download the driver [here](https://intersystems-community.github.io/iris-driver-distribution/),
 #' or locate the intersystems-jdbc-<version>.jar in the ./dev/java/lib/1.8/ folder of your IRIS installation.
