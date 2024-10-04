@@ -65,7 +65,7 @@ jobs:
       CDM_BIG_QUERY_OHDSI_SCHEMA: ${{ secrets.CDM_BIG_QUERY_OHDSI_SCHEMA }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Java
         if: runner.os != 'Linux'
@@ -133,7 +133,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 

@@ -137,6 +137,8 @@ testServers[[length(testServers) + 1]] <- list(
 )
 
 # Databricks (Spark)
+# Databricks is causing segfault errors on Linux. Temporary workaround is not to test on
+# Linux
 if (.Platform$OS.type == "windows") {
   testServers[[length(testServers) + 1]] <- list(
     connectionDetails = details <- createConnectionDetails(
