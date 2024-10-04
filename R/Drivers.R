@@ -41,7 +41,7 @@ jdbcDrivers <- new.env()
 #' @details
 #' The following versions of the JDBC drivers are currently used:
 #' 
-#' - PostgreSQL: V42.2.18
+#' - PostgreSQL: V42.7.3
 #' - RedShift: V2.1.0.9
 #' - SQL Server: V9.2.0
 #' - Oracle: V19.8
@@ -90,7 +90,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
   
   jdbcDriverSources <- utils::read.csv(text = 
                                          "row,dbms, fileName, baseUrl
-    1,postgresql,postgresqlV42.2.18.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    1,postgresql,postgresql-42.7.3.jar,https://jdbc.postgresql.org/download/
     2,redshift,redshift-jdbc42-2.1.0.20.zip,https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/
     3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
