@@ -137,17 +137,19 @@ testServers[[length(testServers) + 1]] <- list(
 )
 
 # Databricks (Spark)
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = details <- createConnectionDetails(
-    dbms = "spark",
-    user = Sys.getenv("CDM5_SPARK_USER"),
-    password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
-    connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
-  ),
-  NULL,
-  cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
-  tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
-)
+if (.Platform$OS.type == "windows") {
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "spark",
+      user = Sys.getenv("CDM5_SPARK_USER"),
+      password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
+      connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
+    ),
+    NULL,
+    cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
+  )
+}
 
 # BigQuery
 # To avoid rate limit on BigQuery, only test on 1 OS:
