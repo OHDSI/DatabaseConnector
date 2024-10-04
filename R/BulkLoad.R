@@ -308,7 +308,7 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
       "getMetaData"
     )
     server <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
-    server <- strsplit(server, "//")[[2]]
+    server <- strsplit(server, "//")[[1]][2]
   }
 
   hostServerDb <- strsplit(server, "/")[[1]]
