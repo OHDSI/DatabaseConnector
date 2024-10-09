@@ -9,7 +9,7 @@ use the \code{pathToDriver} argument in the \code{\link[=connect]{connect()}} or
 functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 variable, for example in your .Renviron file (recommended).
 }
-\section{SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery}{
+\section{SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery, InterSystems IRIS}{
 Use the \code{\link[=downloadJdbcDrivers]{downloadJdbcDrivers()}} function to download these drivers from the OHDSI GitHub pages.
 }
 
@@ -27,10 +27,5 @@ your OS version, and click "GET IT NOW!'. Register, and you should be able to do
 \section{SQLite}{
 For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
 using \code{install.packages("RSQLite")}.
-}
-
-\section{InterSystems IRIS}{
-For InterSystems IRIS, download the driver \href{https://intersystems-community.github.io/iris-driver-distribution/}{here},
-or locate the intersystems-jdbc-\if{html}{\out{<version>}}.jar in the ./dev/java/lib/1.8/ folder of your IRIS installation.
 }
 

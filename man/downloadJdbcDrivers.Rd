@@ -21,6 +21,7 @@ downloadJdbcDrivers(
 \item "spark" for Spark
 \item "snowflake" for Snowflake
 \item "bigquery" for Google BigQuery
+\item "iris" for InterSystems IRIS
 \item "all" for all aforementioned platforms
 }}
 
@@ -47,6 +48,7 @@ The following versions of the JDBC drivers are currently used:
 \item Spark: V2.6.21
 \item Snowflake: V3.13.22
 \item BigQuery: v1.3.2.1003
+\item InterSystems IRIS: v3.9.0
 }
 }
 \examples{
