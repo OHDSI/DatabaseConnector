@@ -21,7 +21,7 @@ Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.16.0),
+    SqlRender (>= 1.19.0),
     methods,
     stringr,
     readr,
