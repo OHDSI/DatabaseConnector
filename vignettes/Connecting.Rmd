@@ -171,3 +171,45 @@ querySql(conn, "SELECT COUNT(*) FROM main.cars;")
 
 disconnect(conn)
 ```
+
+# Connecting with Windows authentication from a non-windows machine
+
+Kerberos is used by Active Directory, you need to have the appropriate packages installed on your client machine. For MacOS, the Kerberos packages are usually already installed. On Linux, you’ll have to install `krb5-user`. Most of this setup comes from [this site](https://github.com/Microsoft/vscode-mssql/wiki/How-to-enable-Integrated-Authentication-on-macOS-and-Linux-using-Kerberos).
+
+1. On the non-windows client machine, create or update `/etc/krb5.conf` so that it points to your AD server. Here’s an example of `krb5.conf`:
+
+    ```
+    [libdefaults]
+    default_realm = DOMAIN.COMPANY.COM
+     
+    [realms]
+    DOMAIN.COMPANY.COM = {
+      kdc = dc-33.domain.company.com
+    }
+    ```
+
+2. Run `kinit <username>@DOMAIN.COMPANY.COM` to get a ticket granting ticket from the kerberos domain controller (KDC). (NOTE: you want to make sure your KDC is accessible from your machine)
+
+3. Download the latest [MSSql JDBC driver](https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15).
+
+4. Try to connect to the database with the following code in RStudio:
+
+    ```{r eval=FALSE}
+    library(devtools)
+    library(DatabaseConnector)
+    connectionDetails <- createConnectionDetails(
+      dbms="sql server", 
+      ...
+      extraSettings="authenticationScheme=JavaKerberos")
+    c <- connect(connectionDetails = connectionDetails)
+    ```
+    In RStudio, you should see that the variable c has a value and the new connection in the connections tab as well.
+
+Note: If you are getting the below error on Mac:
+
+> Error in rJava::.jcall(jdbcDriver, "Ljava/sql/Connection;", "connect", : com.microsoft.sqlserver.jdbc.SQLServerException: Kerberos Login failed: Integrated authentication failed. ClientConnectionId:13fb0d4e-4822-4de2-a125-8408334cb3ed due to javax.security.auth.login.LoginException (Cannot get any of properties: [user, USER] from con properties not available to garner authentication information from the user)
+
+Instead of kinit you can also try `/System/Library/CoreServices` and find 'Ticket Viewer'
+Click 'Add Identity', then enter your user name.
+After you click 'Continue', a Kerberos ticket should have been generated.
+

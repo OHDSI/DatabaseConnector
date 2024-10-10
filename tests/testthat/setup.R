@@ -11,7 +11,9 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   downloadJdbcDrivers("redshift")
   downloadJdbcDrivers("spark")
   downloadJdbcDrivers("snowflake")
-  downloadJdbcDrivers("bigquery")
+  if (.Platform$OS.type == "windows") {
+    downloadJdbcDrivers("bigquery")
+  }
   downloadJdbcDrivers("iris")
   
   if (testthat::is_testing()) {
@@ -146,18 +148,22 @@ if (Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING") != "") {
 }
 
 # Databricks (Spark)
-if (Sys.getenv("CDM5_SPARK_CONNECTION_STRING") != "") {
-  testServers[[length(testServers) + 1]] <- list(
-    connectionDetails = details <- createConnectionDetails(
-      dbms = "spark",
-      user = Sys.getenv("CDM5_SPARK_USER"),
-      password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
-      connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
-    ),
-    NULL,
-    cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
-    tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
-  )
+# Databricks is causing segfault errors on Linux. Temporary workaround is not to test on
+# Linux
+if (.Platform$OS.type == "windows") {
+  if (Sys.getenv("CDM5_SPARK_CONNECTION_STRING") != "") {
+    testServers[[length(testServers) + 1]] <- list(
+        connectionDetails = details <- createConnectionDetails(
+          dbms = "spark",
+          user = Sys.getenv("CDM5_SPARK_USER"),
+          password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
+          connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
+        ),
+        NULL,
+        cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
+        tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
+      )
+  }
 }
 
 # BigQuery

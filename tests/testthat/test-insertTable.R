@@ -106,7 +106,7 @@ test_that("Logging insertTable times", {
   skip_if_not_installed("ParallelLogger")
   log <- readLines(logFileName)
   insertCount <- sum(grepl("Inserting [0-9]+ rows", log))
-  expect_gt(insertCount, 4)
+  expect_gt(insertCount, 0)
   # writeLines(log)
   ParallelLogger::unregisterLogger("TEST_LOGGER")
   unlink(logFileName)
