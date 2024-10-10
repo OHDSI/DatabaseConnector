@@ -12,6 +12,7 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   downloadJdbcDrivers("spark")
   downloadJdbcDrivers("snowflake")
   downloadJdbcDrivers("bigquery")
+  downloadJdbcDrivers("iris")
   
   if (testthat::is_testing()) {
     withr::defer({
@@ -183,6 +184,23 @@ if (Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING") != "") {
       tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
     )
   }
+}
+
+
+
+# InterSystems IRIS
+if (Sys.getenv("CDM_IRIS_CONNECTION_STRING") != "") {
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "iris",
+      user = Sys.getenv("CDM_IRIS_USER"),
+      password = URLdecode(Sys.getenv("CDM_IRIS_PASSWORD")),
+      connectionString = Sys.getenv("CDM_IRIS_CONNECTION_STRING")
+    ),
+    NULL,
+    cdmDatabaseSchema = Sys.getenv("CDM_IRIS_CDM53_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM_IRIS_OHDSI_SCHEMA")
+  )
 }
 
 # SQLite
