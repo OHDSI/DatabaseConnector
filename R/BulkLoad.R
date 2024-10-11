@@ -299,7 +299,19 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
   readr::write_excel_csv(data, csvFileName, na = "")
   on.exit(unlink(csvFileName))
 
-  hostServerDb <- strsplit(attr(connection, "server")(), "/")[[1]]
+  server <- attr(connection, "server")()
+  if (is.null(server)) {
+    # taken directly from DatabaseConnector R/RStudio.R - getServer.default, could an attr too?
+    databaseMetaData <- rJava::.jcall(
+      connection@jConnection,
+      "Ljava/sql/DatabaseMetaData;",
+      "getMetaData"
+    )
+    server <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
+    server <- strsplit(server, "//")[[1]][2]
+  }
+
+  hostServerDb <- strsplit(server, "/")[[1]]
   port <- attr(connection, "port")()
   user <- attr(connection, "user")()
   password <- attr(connection, "password")()
