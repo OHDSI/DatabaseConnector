@@ -27,3 +27,13 @@ for (testServer in testServers) {
 #   
 #   expect_equal(day(date), c(1, 31, 31))
 # })
+
+test_that("dbplyr::sql_translation works with jdbc connections", {
+  DatabaseConnectorJdbcDrivers <- c("sql server", "oracle", "postgresql", "redshift", "bigquery", "snowflake", "synapse", "spark")
+  for (db in DatabaseConnectorJdbcDrivers) {
+    version <- if (db %in% c("sql server", "synapse")) "15" else NULL
+    con <- dbplyr::simulate_dbi("DatabaseConnectorJdbcConnection", dbms = db, version = version)
+    testthat::expect_is(dbplyr::sql_translation(con), "sql_variant")
+  }
+})
+
