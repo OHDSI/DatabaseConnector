@@ -217,7 +217,7 @@ setClass("DatabaseConnectorDbiResult",
 setMethod(
   "dbSendQuery",
   signature("DatabaseConnectorJdbcConnection", "character"),
-  function(conn, statement, translate = TRUE, ...) {
+  function(conn, statement, translate = FALSE, ...) {
     if (rJava::is.jnull(conn@jConnection)) {
       abort("Connection is closed")
     }
@@ -738,7 +738,6 @@ translateStatement <- function(sql, targetDialect, tempEmulationSchema = getOpti
       # SqlRender requires statements to end with semicolon, but dbplyr does not generate these:
       sql <- paste0(sql, ";")
     }
-    sql <- translateDateFunctions(sql)
   }
   sql <- SqlRender::translate(sql = sql, targetDialect = targetDialect, tempEmulationSchema = tempEmulationSchema)
   if (debug) {
