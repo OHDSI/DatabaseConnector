@@ -418,6 +418,34 @@ insertTable.DatabaseConnectorDbiConnection <- function(connection,
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   
   tableName <- gsub("^#", "", tableName)
+  if (dbms(connection) == 'bigquery') {
+    #Spark does not support temp tables, so emulate
+    tableName <- SqlRender::translate(sprintf("#%s", tableName), targetDialect = "bigquery", tempEmulationSchema = NULL)
+
+    # use bigrquery load for bigquery
+    if (!requireNamespace("bigrquery", quietly = TRUE)) {
+      stop("Package 'bigrquery' is required for uploading to BigQuery. Please install it.", call. = FALSE)
+    }
+    # Parse bq_project and bq_dataset name from tempEmulationSchema
+    if (is.null(tempEmulationSchema)) {
+      abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
+    }
+    parts <- strsplit(tempEmulationSchema, "\\.")[[1]]
+    bq_project <- parts[1]
+    bq_dataset <- parts[2]
+    bq_table_name <- tableName
+    bq_table <- bigrquery::bq_table(bq_project, bq_dataset, bq_table_name)
+
+    startTime <- Sys.time()
+    if (dropTableIfExists) {
+      bigrquery::bq_table_delete(bq_table)
+    }
+    bigrquery::bq_table_upload(bq_table, data)
+    delta <- Sys.time() - startTime
+    inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
+
+    return(NULL)
+  }
   if (dbms(connection) == "sqlite") {
     # Convert dates and datetime to UNIX timestamp:
     for (i in 1:ncol(data)) {

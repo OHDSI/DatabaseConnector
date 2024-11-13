@@ -171,6 +171,30 @@ if (.Platform$OS.type == "windows") {
   )
 }
 
+# BigQuery-DBI
+# To avoid rate limit on BigQuery, only test on 1 OS:
+if (.Platform$OS.type == "windows") {
+  bqKeyFile <- tempfile(fileext = ".json")
+  writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
+  if (testthat::is_testing()) {
+    withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
+  }
+  bigrquery::bq_auth(path = bqKeyFile)
+  # get the project from the connection string
+  project <- sub(".*ProjectId=([^;]+).*", "\\1", Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createDbiConnectionDetails(
+      dbms = "bigquery",
+      drv = bigrquery::bigquery(),
+      project = project,
+      billing = project # assuming billing is the same as the project
+    ),
+    NULL,
+    cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
+  )
+}
+
 # SQLite
 sqliteFile <- tempfile(fileext = ".sqlite")
 if (testthat::is_testing()) {
