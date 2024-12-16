@@ -178,3 +178,42 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
   delta <- Sys.time() - startTime
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
 }
+
+multiValuesInsert <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema) {
+  logTrace(sprintf("Inserting %d rows into table '%s' using multi-values inserts", nrow(data), sqlTableName))
+  
+  assign("noLogging", TRUE, envir = globalVars)
+  on.exit(
+    assign("noLogging", NULL, envir = globalVars)
+  )
+  startTime <- Sys.time()
+  batchSize <- 1000
+
+  # Insert data in batches using multi-value inserts:
+  if (progressBar) {
+    pb <- txtProgressBar(style = 3)
+  }
+  for (start in seq(1, nrow(data), by = batchSize)) {
+    if (progressBar) {
+      setTxtProgressBar(pb, start / nrow(data))
+    }
+    end <- min(start + batchSize - 1, nrow(data))
+    batch <- toStrings(data[start:end, , drop = FALSE], sqlDataTypes)
+    valuesString <- paste("(", paste(apply(batch, MARGIN = 1, FUN = paste, collapse = ","), collapse = "),("), ")")
+      
+    sql <- "INSERT INTO @table (@fields) VALUES @values;"
+    sql <- SqlRender::render(sql = sql,
+                             table = sqlTableName,
+                             fields = sqlFieldNames,
+                             values = valuesString)
+    sql <- SqlRender::translate(sql, targetDialect = dbms(connection), tempEmulationSchema = tempEmulationSchema)
+    executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  }
+  if (progressBar) {
+    setTxtProgressBar(pb, 1)
+    close(pb)
+  }
+  delta <- Sys.time() - startTime
+  inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
+}
+

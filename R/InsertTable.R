@@ -312,6 +312,8 @@ insertTable.default <- function(connection,
   } else if (useCtasHack) {
     # Inserting using CTAS hack ----------------------------------------------------------------
     ctasHack(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema)
+  } else if (dbms == "spark") {
+    multiValuesInsert(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema)
   } else {
     # Inserting using SQL inserts --------------------------------------------------------------
     logTrace(sprintf("Inserting %d rows into table '%s'", nrow(data), sqlTableName))
