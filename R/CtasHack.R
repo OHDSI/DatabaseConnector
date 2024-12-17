@@ -179,7 +179,7 @@ ctasHack <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlData
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
 }
 
-multiValuesInsert <- function(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema) {
+multiValuesInsert <- function(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema) {
   logTrace(sprintf("Inserting %d rows into table '%s' using multi-values inserts", nrow(data), sqlTableName))
   
   assign("noLogging", TRUE, envir = globalVars)
@@ -216,4 +216,3 @@ multiValuesInsert <- function(connection, sqlTableName, tempTable, sqlFieldNames
   delta <- Sys.time() - startTime
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
 }
-
