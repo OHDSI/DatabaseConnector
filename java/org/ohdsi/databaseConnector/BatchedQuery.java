@@ -18,6 +18,7 @@ public class BatchedQuery {
 	public static int				DATETIME		= 4;
 	public static int				INTEGER64		= 5;
 	public static int				INTEGER			= 6;
+	public static int				BOOLEAN			= 7;
 	public static int				FETCH_SIZE		= 2048;
 	public static double            MAX_BATCH_SIZE  = 1000000;
 	public static long              CHECK_MEM_ROWS  = 10000;
@@ -25,6 +26,7 @@ public class BatchedQuery {
     public static double 			NA_DOUBLE 		= Double.longBitsToDouble(0x7ff00000000007a2L);
     public static int 				NA_INTEGER   	= Integer.MIN_VALUE;
     public static long 				NA_LONG   		= Long.MIN_VALUE;
+    public static final Boolean		NA_BOOLEAN      = null;
 	
 	private Object[]				columns;
 	private int[]					columnTypes;
@@ -82,6 +84,8 @@ public class BatchedQuery {
 				bytesPerRow += 4;
 			else if (columnTypes[columnIndex] == DATETIME)
 				bytesPerRow += 8;
+			else if (columnTypes[columnIndex] == BOOLEAN)
+				bytesPerRow += 8; // not sure if this is correct
 			else // String
 				bytesPerRow += 512;
 		batchSize = (int) Math.min(MAX_BATCH_SIZE, Math.round((availableMemoryAtStart / 10d) / (double) bytesPerRow));
@@ -100,6 +104,8 @@ public class BatchedQuery {
 				columns[columnIndex] = new int[batchSize];
 			else if (columnTypes[columnIndex] == DATETIME)
 				columns[columnIndex] = new double[batchSize];
+			else if (columnTypes[columnIndex] == BOOLEAN)
+				columns[columnIndex] = new Boolean[batchSize];
 			else
 				columns[columnIndex] = new String[batchSize];
 		byteBuffer = ByteBuffer.allocate(8 * batchSize);
@@ -129,40 +135,76 @@ public class BatchedQuery {
 		this.connection = connection;
 		this.dbms = dbms;
 		trySettingAutoCommit(false);
-		Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		statement.setFetchSize(FETCH_SIZE);
-		resultSet = statement.executeQuery(query);
-		resultSet.setFetchSize(FETCH_SIZE);
-		ResultSetMetaData metaData = resultSet.getMetaData();
-		columnTypes = new int[metaData.getColumnCount()];
-		columnSqlTypes = new String[metaData.getColumnCount()];
-		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
-			columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
-			int type = metaData.getColumnType(columnIndex + 1);
-			String className = metaData.getColumnClassName(columnIndex + 1);
-			int precision = metaData.getPrecision(columnIndex + 1);
-			int scale = metaData.getScale(columnIndex + 1);
-			if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
-					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && precision != 19 && scale == 0))
-				columnTypes[columnIndex] = INTEGER;
-			else if (type == Types.BIGINT
-					|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && scale == 0))
-				columnTypes[columnIndex] = INTEGER64;
-			else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
-				columnTypes[columnIndex] = NUMERIC;
-			else if (type == Types.DATE)
-				columnTypes[columnIndex] = DATE;
-			else if (type == Types.TIMESTAMP)
-				columnTypes[columnIndex] = DATETIME;
-			else
-				columnTypes[columnIndex] = STRING;
+		Statement statement = null;
+		try {
+			statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			statement.setFetchSize(FETCH_SIZE);
+			resultSet = statement.executeQuery(query);
+			resultSet.setFetchSize(FETCH_SIZE);
+			ResultSetMetaData metaData = resultSet.getMetaData();
+			columnTypes = new int[metaData.getColumnCount()];
+			columnSqlTypes = new String[metaData.getColumnCount()];
+
+			for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++) {
+				columnSqlTypes[columnIndex] = metaData.getColumnTypeName(columnIndex + 1);
+				int type = metaData.getColumnType(columnIndex + 1);
+				String className = metaData.getColumnClassName(columnIndex + 1);
+			
+				/*
+				System.out.println("======================== debug ====================");
+				System.out.println("type= " + type);
+				System.out.println("className= " + className);
+				System.out.println("columnSqlTypes[columnIndex]= " + columnSqlTypes[columnIndex]);
+				System.out.println("Types.BOOLEAN=" + Types.BOOLEAN);
+				*/
+				
+				//Types.BOOLEAN is 16 but for a boolean datatype in the database type is -7. 
+				int precision = metaData.getPrecision(columnIndex + 1);
+				//System.out.println("precision=" + precision);
+				int scale = metaData.getScale(columnIndex + 1);
+				if (type == Types.BOOLEAN || className.equals("java.lang.Boolean") || columnSqlTypes[columnIndex] == "bool" 
+						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision == 1)) 
+					columnTypes[columnIndex] = BOOLEAN;
+				else if (type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT 
+						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && precision != 19 && scale == 0))
+					columnTypes[columnIndex] = INTEGER;
+				else if (type == Types.BIGINT
+						|| (dbms.equals("oracle") && className.equals("java.math.BigDecimal") && precision > 0 && scale == 0))
+					columnTypes[columnIndex] = INTEGER64;
+				else if (type == Types.DECIMAL || type == Types.DOUBLE || type == Types.FLOAT || type == Types.NUMERIC || type == Types.REAL)
+					columnTypes[columnIndex] = NUMERIC;
+				else if (type == Types.DATE)
+					columnTypes[columnIndex] = DATE;
+				else if (type == Types.TIMESTAMP)
+					columnTypes[columnIndex] = DATETIME;
+				else
+					columnTypes[columnIndex] = STRING;
+			}
+			columnNames = new String[metaData.getColumnCount()];
+			for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++)
+				columnNames[columnIndex] = metaData.getColumnLabel(columnIndex + 1);
+			reserveMemory();
+			done = false;
+			totalRowCount = 0;
+		} catch (SQLException e) {
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException rollbackEx) {
+					System.err.println("Error rolling back transaction: " + rollbackEx.getMessage());
+				}
+        	}
+        	throw e;
+		} finally {
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException closeEx) {
+					// Log close exception
+					System.err.println("Error closing statement: " + closeEx.getMessage());
+				}
+			}
 		}
-		columnNames = new String[metaData.getColumnCount()];
-		for (int columnIndex = 0; columnIndex < metaData.getColumnCount(); columnIndex++)
-			columnNames[columnIndex] = metaData.getColumnLabel(columnIndex + 1);
-		reserveMemory();
-		done = false;
-		totalRowCount = 0;
 	}
 	
 	public void fetchBatch() throws SQLException {
@@ -183,14 +225,18 @@ public class BatchedQuery {
 						((int[]) columns[columnIndex])[rowCount] = resultSet.getInt(columnIndex + 1);
 						if (resultSet.wasNull())
 							((int[]) columns[columnIndex])[rowCount] = NA_INTEGER;
-					} else if (columnTypes[columnIndex] == STRING)
+					} else if (columnTypes[columnIndex] == STRING) {
 						((String[]) columns[columnIndex])[rowCount] = resultSet.getString(columnIndex + 1);
-					else if (columnTypes[columnIndex] == DATE) {
+			        } else if (columnTypes[columnIndex] == DATE) {
 						Date date = resultSet.getDate(columnIndex + 1);
 						if (date == null)
 							((int[]) columns[columnIndex])[rowCount] = NA_INTEGER;
 						else
 							((int[]) columns[columnIndex])[rowCount] = (int)date.toLocalDate().toEpochDay();
+					} else if (columnTypes[columnIndex] == BOOLEAN) {
+						((Boolean[]) columns[columnIndex])[rowCount] = resultSet.getBoolean(columnIndex + 1);
+						if (resultSet.wasNull())
+							((Boolean[]) columns[columnIndex])[rowCount] = NA_BOOLEAN;
 					} else {
 						Timestamp timestamp = resultSet.getTimestamp(columnIndex + 1);
 						if (timestamp == null)
@@ -210,7 +256,6 @@ public class BatchedQuery {
 				trySettingAutoCommit(true);
 				break;
 			}
-
 		}
 		totalRowCount += rowCount;
 	}
@@ -221,8 +266,6 @@ public class BatchedQuery {
 			columns = null;
 			byteBuffer = null;
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -246,7 +289,7 @@ public class BatchedQuery {
 		} else
 			return column;
 	}
-	
+ 
 	public int[] getInteger(int columnIndex) {
 		int[] column = ((int[]) columns[columnIndex - 1]);
 		if (column.length > rowCount) {
@@ -255,6 +298,33 @@ public class BatchedQuery {
 			return newColumn;
 		} else
 			return column;
+	}
+	
+	private int[] mapBooleanToInt(Boolean[] booleanArray) {
+		int[] intArray = new int[booleanArray.length];
+
+        // Map Boolean values to int values
+        for (int i = 0; i < booleanArray.length; i++) {
+            if (booleanArray[i] == null) {
+                intArray[i] = -1;    // Map null to -1
+            } else if (booleanArray[i]) {
+                intArray[i] = 1;     // Map true to 1
+            } else {
+                intArray[i] = 0;     // Map false to 0
+            }
+        }
+        return intArray;
+	}
+    // Pass integer to R which is easier than boolean types
+	public int[] getBoolean(int columnIndex) {
+		Boolean[] column = ((Boolean[]) columns[columnIndex - 1]);
+
+		if (column.length > rowCount) {
+			Boolean[] newColumn = new Boolean[rowCount];
+			System.arraycopy(column, 0, newColumn, 0, rowCount);
+			return mapBooleanToInt(newColumn);
+		} else
+			return mapBooleanToInt(column);
 	}
 	
 	public double[] getInteger64(int columnIndex) {

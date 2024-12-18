@@ -11,6 +11,10 @@ for (testServer in testServers) {
    
     connection <- connect(testServer$connectionDetails)
     on.exit(disconnect(connection))
+    
+    # check that transaction is automatically rolled back when there is an error with querySql
+    # expect_error(querySql(connection, "select a from a;"))
+    
     sql <- "SELECT COUNT(*) AS row_count FROM @cdm_database_schema.vocabulary"
     renderedSql <- SqlRender::render(sql = sql, 
                                      cdm_database_schema = testServer$cdmDatabaseSchema)

@@ -12,7 +12,6 @@ renderTranslateExecuteSql(
   reportOverallTime = TRUE,
   errorReportFile = file.path(getwd(), "errorReportSql.txt"),
   runAsBatch = FALSE,
-  oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   ...
 )
@@ -41,13 +40,13 @@ there will be no progress bar, and no per-statement error messages. If the
 database platform does not support batched updates the query is executed as
 ordinarily.}
 
-\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
-
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
 \item{...}{Parameters that will be used to render the SQL.}
+
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 }
 \description{
 This function renders, translates, and executes SQL consisting of one or more statements.

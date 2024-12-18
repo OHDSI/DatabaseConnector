@@ -19,13 +19,9 @@
 checkIfDbmsIsSupported <- function(dbms) {
   supportedDbmss <- c(
     "oracle",
-    "hive",
     "postgresql",
     "redshift",
     "sql server",
-    "pdw",
-    "netezza",
-    "impala",
     "bigquery",
     "sqlite",
     "sqlite extended",
@@ -312,7 +308,7 @@ connectUsingJdbc <- function(connectionDetails) {
   connectionDetails$pathToDriver <- path.expand(connectionDetails$pathToDriver)
   checkPathToDriver(connectionDetails$pathToDriver, dbms)
 
-  if (dbms == "sql server" || dbms == "synapse" || dbms == "pdw") {
+  if (dbms == "sql server") {
     return(connectSqlServer(connectionDetails))
   } else if (dbms == "oracle") {
     return(connectOracle(connectionDetails))
@@ -320,12 +316,6 @@ connectUsingJdbc <- function(connectionDetails) {
     return(connectPostgreSql(connectionDetails))
   } else if (dbms == "redshift") {
     return(connectRedShift(connectionDetails))
-  } else if (dbms == "netezza") {
-    return(connectNetezza(connectionDetails))
-  } else if (dbms == "impala") {
-    return(connectImpala(connectionDetails))
-  } else if (dbms == "hive") {
-    return(connectHive(connectionDetails))
   } else if (dbms == "bigquery") {
     return(connectBigQuery(connectionDetails))
   } else if (dbms == "spark") {
@@ -544,94 +534,6 @@ connectRedShift <- function(connectionDetails) {
   return(connection)
 }
 
-connectNetezza <- function(connectionDetails) {
-  inform("Connecting using Netezza driver")
-  jarPath <- findPathToJar("^nzjdbc\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("org.netezza.Driver", jarPath)
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    if (!grepl("/", connectionDetails$server())) {
-      abort("Error: database name not included in server string but is required for Redshift Please specify server as <host>/<database>")
-    }
-    parts <- unlist(strsplit(connectionDetails$server(), "/"))
-    host <- parts[1]
-    database <- parts[2]
-    if (is.null(connectionDetails$port())) {
-      port <- "5480"
-    } else {
-      port <- connectionDetails$port()
-    }
-    connectionString <- paste0("jdbc:netezza://", host, ":", port, "/", database)
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = "?")
-    }
-  } else {
-    connectionString <- connectionDetails$connectionString()
-  }
-  if (is.null(connectionDetails$user())) {
-    connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
-  } else {
-    connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
-    )
-  }
-  return(connection)
-}
-
-connectImpala <- function(connectionDetails) {
-  inform("Connecting using Impala driver")
-  jarPath <- findPathToJar("^ImpalaJDBC42\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("com.cloudera.impala.jdbc.Driver", jarPath)
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    if (is.null(connectionDetails$port())) {
-      port <- "21050"
-    } else {
-      port <- connectionDetails$port()
-    }
-    connectionString <- paste0("jdbc:impala://", connectionDetails$server(), ":", port)
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
-    }
-  } else {
-    connectionString <- connectionDetails$connectionString()
-  }
-  if (is.null(connectionDetails$user())) {
-    connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
-  } else {
-    connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
-    )
-  }
-  return(connection)
-}
-
-connectHive <- function(connectionDetails) {
-  inform("Connecting using Hive driver")
-  jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
-
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    connectionString <- paste0("jdbc:hive2://", connectionDetails$server(), ":", connectionDetails$port(), "/")
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
-    }
-  } else {
-    connectionString <- connectionDetails$connectionString()
-  }
-  connection <- connectUsingJdbcDriver(driver,
-    connectionString,
-    user = connectionDetails$user(),
-    password = connectionDetails$password(),
-    dbms = connectionDetails$dbms
-  )
-  return(connection)
-}
-
 connectBigQuery <- function(connectionDetails) {
   inform("Connecting using BigQuery driver")
   files <- list.files(path = connectionDetails$pathToDriver, full.names = TRUE)
@@ -778,14 +680,6 @@ connectUsingJdbcDriver <- function(jdbcDriver,
       abort(paste0("Unable to connect JDBC to ", url, " (", rJava::.jcall(x, "S", "getMessage"), ")"))
     }
   }
-  ensureDatabaseConnectorConnectionClassExists()
-  class <- getClassDef("DatabaseConnectorJdbcConnection", where = class_cache, inherits = FALSE)
-  if (is.null(class) || methods::isVirtualClass(class)) {
-    setClass("DatabaseConnectorJdbcConnection",
-             contains = "DatabaseConnectorConnection", 
-             slots = list(jConnection = "jobjRef"),
-             where = class_cache)
-  }
   connection <- new("DatabaseConnectorJdbcConnection",
     jConnection = jConnection,
     identifierQuote = "",
@@ -798,41 +692,12 @@ connectUsingJdbcDriver <- function(jdbcDriver,
   return(connection)
 }
 
-ensureDatabaseConnectorConnectionClassExists <- function() {
-  class <- getClassDef("Microsoft SQL Server", where = class_cache, inherits = FALSE)
-  if (is.null(class) || methods::isVirtualClass(class)) {
-    setClass("Microsoft SQL Server",
-             where = class_cache)
-  }
-  class <- getClassDef("DatabaseConnectorConnection", where = class_cache, inherits = FALSE)
-  if (is.null(class) || methods::isVirtualClass(class)) {
-    setClass("DatabaseConnectorConnection", 
-             contains = c("Microsoft SQL Server", "DBIConnection"),
-             slots = list(
-               identifierQuote = "character",
-               stringQuote = "character",
-               dbms = "character",
-               uuid = "character"
-             ),
-             where = class_cache)
-  }
-}
 
 connectUsingDbi <- function(dbiConnectionDetails) {
   dbms <- dbiConnectionDetails$dbms
   dbiConnectionDetails$dbms <- NULL
   dbiConnection <- do.call(DBI::dbConnect, dbiConnectionDetails)
-  ensureDatabaseConnectorConnectionClassExists()
-  class <- getClassDef("DatabaseConnectorDbiConnection", where = class_cache, inherits = FALSE)
-  if (is.null(class) || methods::isVirtualClass(class)) {
-    setClass("DatabaseConnectorDbiConnection",
-             contains = "DatabaseConnectorConnection", 
-             slots = list(
-               dbiConnection = "DBIConnection",
-               server = "character"
-             ),
-             where = class_cache)
-  }
+  
   connection <- new("DatabaseConnectorDbiConnection",
     server = dbms,
     dbiConnection = dbiConnection,

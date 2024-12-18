@@ -12,7 +12,6 @@ insertTable(
   dropTableIfExists = TRUE,
   createTable = TRUE,
   tempTable = FALSE,
-  oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   bulkLoad = Sys.getenv("DATABASE_CONNECTOR_BULK_UPLOAD"),
   useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
@@ -36,8 +35,6 @@ insertTable(
 
 \item{tempTable}{Should the table created as a temp table?}
 
-\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
-
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
@@ -52,6 +49,8 @@ requirements for the various platforms.}
 
 \item{camelCaseToSnakeCase}{If TRUE, the data frame column names are assumed to use camelCase and
 are converted to snake_case before uploading.}
+
+\item{oracleTempSchema}{DEPRECATED: use \code{tempEmulationSchema} instead.}
 }
 \description{
 This function sends the data in a data frame to a table on the server. Either a new table

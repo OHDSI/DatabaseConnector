@@ -1,5 +1,8 @@
 library(DatabaseConnector)
 
+# need to initialize rJava to get J() to work as in rJava::J("org.ohdsi.databaseConnector.BatchedQuery")$getAvailableHeapSpace()
+rJava::.jinit(system.file("java", "DatabaseConnector.jar", package = "DatabaseConnector"))
+
 # Download the JDBC drivers used in the tests ----------------------------------
 if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   oldJarFolder <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
