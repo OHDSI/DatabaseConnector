@@ -396,7 +396,8 @@ executeSql <- function(connection,
                        progressBar = !as.logical(Sys.getenv("TESTTHAT", unset = FALSE)),
                        reportOverallTime = TRUE,
                        errorReportFile = file.path(getwd(), "errorReportSql.txt"),
-                       runAsBatch = FALSE) {
+                       runAsBatch = FALSE,
+                       noSplit = FALSE) {
   if (inherits(connection, "DatabaseConnectorJdbcConnection") && rJava::is.jnull(connection@jConnection)) {
     abort("Connection is closed")
   }
@@ -414,7 +415,11 @@ executeSql <- function(connection,
   }
   
   batched <- runAsBatch && supportsBatchUpdates(connection)
-  sqlStatements <- SqlRender::splitSql(sql)
+  if (noSplit) { # can prob. replace this block with `sqlStatements <- ifelse(noSplit, sql ,SqlRender::splitSql(sql))`
+    sqlStatements <- sql
+  } else {
+    sqlStatements <- SqlRender::splitSql(sql)
+  }
   rowsAffected <- c()
   if (batched) {
     batchSize <- 1000
