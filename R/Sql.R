@@ -415,8 +415,8 @@ executeSql <- function(connection,
   }
   
   batched <- runAsBatch && supportsBatchUpdates(connection)
-  if (noSplit) { # can prob. replace this block with `sqlStatements <- ifelse(noSplit, sql ,SqlRender::splitSql(sql))`
-    sqlStatements <- sql
+  if (noSplit) { # can prob. replace this block with `sqlStatements <- ifelse(noSplit, unlist(sql) ,SqlRender::splitSql(sql))`
+    sqlStatements <- unlist(sql) # splitSql outputs a vector of character stings, so we should do the same
   } else {
     sqlStatements <- SqlRender::splitSql(sql)
   }
