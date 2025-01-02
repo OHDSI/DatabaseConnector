@@ -19,7 +19,7 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.3.3</span>
       </span>
     </div>
 
@@ -45,7 +45,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -71,7 +71,7 @@
 <li>
   <a href="https://github.com/OHDSI/DatabaseConnector/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -82,7 +82,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -91,7 +91,7 @@
                         <h4 data-toc-skip class="author">Martijn J.
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2023-12-11</h4>
+            <h4 data-toc-skip class="date">2025-01-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/DatabaseConnector/blob/HEAD/vignettes/Connecting.Rmd" class="external-link"><code>vignettes/Connecting.Rmd</code></a></small>
       <div class="hidden name"><code>Connecting.Rmd</code></div>
@@ -120,6 +120,7 @@ System)</li>
 <li>(DataBricks)Spark</li>
 <li>Snowflake</li>
 <li>Synapse</li>
+<li>InterSystems IRIS</li>
 </ul>
 </div>
 <div class="section level2">
@@ -176,10 +177,11 @@ would have to specify the <code>pathToDriver</code> argument when
 calling <code>downloadJdbcDrivers</code>.</p>
 </div>
 <div class="section level3">
-<h3 id="obtaining-drivers-for-netezza-and-impala">Obtaining drivers for Netezza and Impala<a class="anchor" aria-label="anchor" href="#obtaining-drivers-for-netezza-and-impala"></a>
+<h3 id="obtaining-drivers-for-netezza-impala-and-intersystems-iris">Obtaining drivers for Netezza, Impala and InterSystems IRIS<a class="anchor" aria-label="anchor" href="#obtaining-drivers-for-netezza-impala-and-intersystems-iris"></a>
 </h3>
-<p>Because of licensing reasons the drivers for BigQuery, Netezza and
-Impala are not included but must be obtained by the user. see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html" class="external-link">these
+<p>Because of licensing reasons the drivers for BigQuery, Netezza,
+Impala and InterSystems IRIS are not included but must be obtained by
+the user. see <a href="http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html" class="external-link">these
 instructions on how to download these drivers</a>, which you can also
 see by typing <code><a href="../reference/jdbcDrivers.html">?jdbcDrivers</a></code>.</p>
 </div>
@@ -267,13 +269,73 @@ connecting. If no file exists it will be created:</p>
 <span><span class="fu"><a href="../reference/insertTable.html">insertTable</a></span><span class="op">(</span>connection <span class="op">=</span> <span class="va">conn</span>, </span>
 <span>            tableName <span class="op">=</span> <span class="st">"cars"</span>, </span>
 <span>            data <span class="op">=</span> <span class="va">cars</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Inserting data took 0.0271 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Inserting data took 0.0247 secs</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/querySql.html">querySql</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"SELECT COUNT(*) FROM main.cars;"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in fun(libname, pkgname): Java library version does not match R package version! Please try reinstalling the SqlRender package.</span></span>
+<span><span class="co">##             Make sure to close all instances of R, and open only one instance before reinstalling. Also make sure your</span></span>
+<span><span class="co">##             R workspace is not reloaded on startup. Delete your .Rdata file if necessary</span></span></code></pre>
 <pre><code><span><span class="co">##   COUNT(*)</span></span>
 <span><span class="co">## 1       50</span></span></code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/disconnect.html">disconnect</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="connecting-with-windows-authentication-from-a-non-windows-machine">Connecting with Windows authentication from a non-windows
+machine<a class="anchor" aria-label="anchor" href="#connecting-with-windows-authentication-from-a-non-windows-machine"></a>
+</h2>
+<p>Kerberos is used by Active Directory, you need to have the
+appropriate packages installed on your client machine. For MacOS, the
+Kerberos packages are usually already installed. On Linux, you’ll have
+to install <code>krb5-user</code>. Most of this setup comes from <a href="https://github.com/Microsoft/vscode-mssql/wiki/How-to-enable-Integrated-Authentication-on-macOS-and-Linux-using-Kerberos" class="external-link">this
+site</a>.</p>
+<ol style="list-style-type: decimal">
+<li>
+<p>On the non-windows client machine, create or update
+<code>/etc/krb5.conf</code> so that it points to your AD server. Here’s
+an example of <code>krb5.conf</code>:</p>
+<pre><code>[libdefaults]
+default_realm = DOMAIN.COMPANY.COM
+
+[realms]
+DOMAIN.COMPANY.COM = {
+  kdc = dc-33.domain.company.com
+}</code></pre>
+</li>
+<li><p>Run <code>kinit &lt;username&gt;@DOMAIN.COMPANY.COM</code> to get
+a ticket granting ticket from the kerberos domain controller (KDC).
+(NOTE: you want to make sure your KDC is accessible from your
+machine)</p></li>
+<li><p>Download the latest <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15" class="external-link">MSSql
+JDBC driver</a>.</p></li>
+<li>
+<p>Try to connect to the database with the following code in
+RStudio:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>  <span class="at">dbms=</span><span class="st">"sql server"</span>, </span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>  ...</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>  <span class="at">extraSettings=</span><span class="st">"authenticationScheme=JavaKerberos"</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="fu">connect</span>(<span class="at">connectionDetails =</span> connectionDetails)</span></code></pre></div>
+<p>In RStudio, you should see that the variable c has a value and the
+new connection in the connections tab as well.</p>
+</li>
+</ol>
+<p>Note: If you are getting the below error on Mac:</p>
+<blockquote>
+<p>Error in rJava::.jcall(jdbcDriver, “Ljava/sql/Connection;”,
+“connect”, : com.microsoft.sqlserver.jdbc.SQLServerException: Kerberos
+Login failed: Integrated authentication failed.
+ClientConnectionId:13fb0d4e-4822-4de2-a125-8408334cb3ed due to
+javax.security.auth.login.LoginException (Cannot get any of properties:
+[user, USER] from con properties not available to garner authentication
+information from the user)</p>
+</blockquote>
+<p>Instead of kinit you can also try
+<code>/System/Library/CoreServices</code> and find ‘Ticket Viewer’ Click
+‘Add Identity’, then enter your user name. After you click ‘Continue’, a
+Kerberos ticket should have been generated.</p>
 </div>
   </div>
 
@@ -281,7 +343,7 @@ connecting. If no file exists it will be created:</p>
 
         <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
     </nav>
-</div>
+      </div>
 
 </div>
 
@@ -294,16 +356,16 @@ connecting. If no file exists it will be created:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
