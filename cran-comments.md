@@ -1,12 +1,12 @@
-This update includes 1 bugfix. (see NEWS.md).
+This update includes 3 minor changes. (see NEWS.md).
 
 ---
 
 ## Test environments
-* Ubuntu 20.04, R 4.3.1
-* MacOS, R 4.2.3
-* MacOS, 4.3.1
-* Windows 10, R 4.3.1
+* Ubuntu 20.04, R 4.4.2
+* MacOS, R 4.4.2
+* MacOS, 4.4.1
+* Windows 10, R 4.4.2
 
 ## R CMD check results
 
