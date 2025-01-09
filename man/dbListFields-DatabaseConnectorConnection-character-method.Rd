@@ -35,7 +35,6 @@ The returned names are suitable for quoting with \code{dbQuoteIdentifier()}.
 \description{
 Returns the field names of a remote table as a character vector.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListFields")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

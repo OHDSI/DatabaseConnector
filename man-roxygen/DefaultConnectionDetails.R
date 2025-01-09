@@ -6,7 +6,7 @@
 #'                           provider to configure things as security for SSL. For connections using 
 #'                           JDBC these will be appended to end of the connection string. For 
 #'                           connections using DBI, these settings will additionally be used to call
-#'                           [dbConnect()].
+#'                           [DBI::dbConnect()].
 #' @param oracleDriver       Specify which Oracle drive you want to use. Choose between `"thin"`
 #'                           or `"oci"`.
 #' @param connectionString   The JDBC connection string. If specified, the `server`, `port`,

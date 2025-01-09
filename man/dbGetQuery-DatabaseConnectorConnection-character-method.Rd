@@ -34,7 +34,6 @@ For retrieving chunked/paged results or for passing query parameters,
 see \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, in particular the "The data retrieval flow" section.
 For retrieving results as an Arrow object, see \code{\link[DBI:dbGetQueryArrow]{dbGetQueryArrow()}}.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only

@@ -20,7 +20,7 @@ on how to obtain the Netezza JDBC driver.
 }
 
 \section{Impala}{
-Go to \href{https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html}{Cloudera's site}, pick
+Go to \href{https://www.cloudera.com/downloads/connectors/impala/jdbc.html}{Cloudera's site}, pick
 your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 }
 

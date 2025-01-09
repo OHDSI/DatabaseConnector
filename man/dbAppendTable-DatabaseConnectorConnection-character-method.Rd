@@ -58,7 +58,6 @@ The default implementation calls \code{\link[DBI:sqlAppendTableTemplate]{sqlAppe
 \code{\link[DBI:dbExecute]{dbExecute()}} with the \code{param} argument.
 Use \code{\link[DBI:dbAppendTableArrow]{dbAppendTableArrow()}} to append data from an Arrow stream.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbAppendTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

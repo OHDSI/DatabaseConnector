@@ -34,7 +34,7 @@
 provider to configure things as security for SSL. For connections using
 JDBC these will be appended to end of the connection string. For
 connections using DBI, these settings will additionally be used to call
-\code{\link[=dbConnect]{dbConnect()}}.}
+\code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"}
 or \code{"oci"}.}

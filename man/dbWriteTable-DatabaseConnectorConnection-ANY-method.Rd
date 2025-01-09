@@ -56,7 +56,6 @@ can be created.}
 Writes, overwrites or appends a data frame to a database table, optionally
 converting row names to a column and specifying SQL data types for fields.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbWriteTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

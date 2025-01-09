@@ -68,7 +68,7 @@ NULL
 #'
 #' # Impala
 #' 
-#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html), pick
+#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc.html), pick
 #' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 #'
 #' # SQLite

@@ -20,7 +20,6 @@ either \code{\link[DBI:dbSendQuery]{dbSendQuery()}} or
 Returns the statement that was passed to \code{\link[DBI:dbSendQuery]{dbSendQuery()}}
 or \code{\link[DBI:dbSendStatement]{dbSendStatement()}}.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetStatement")}
 }
 \seealso{
 Other DBIResult generics: 

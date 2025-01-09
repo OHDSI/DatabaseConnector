@@ -87,6 +87,7 @@ listDatabaseConnectorColumns <- function(connection,
   UseMethod("listDatabaseConnectorColumns", connection)
 }
 
+#' @exportS3Method
 listDatabaseConnectorColumns.default <- function(connection,
                                                  catalog = NULL,
                                                  schema = NULL,
@@ -136,6 +137,7 @@ listDatabaseConnectorColumns.default <- function(connection,
   return(data.frame(name = fields, type = types, stringsAsFactors = FALSE))
 }
 
+#' @exportS3Method
 listDatabaseConnectorColumns.DatabaseConnectorDbiConnection <- function(connection,
                                                                         catalog = NULL,
                                                                         schema = NULL,
@@ -220,6 +222,7 @@ getServer <- function(connection) {
   UseMethod("getServer", connection)
 }
 
+#' @exportS3Method
 getServer.default <- function(connection) {
   if (dbms(connection) == "hive") {
     url <- connection@url
@@ -235,6 +238,7 @@ getServer.default <- function(connection) {
   return(server)
 }
 
+#' @exportS3Method
 getServer.DatabaseConnectorDbiConnection <- function(connection) {
   return(connection@server)
 }
@@ -243,6 +247,7 @@ compileReconnectCode <- function(connection) {
   UseMethod("compileReconnectCode", connection)
 }
 
+#' @exportS3Method
 compileReconnectCode.default <- function(connection) {
   databaseMetaData <- rJava::.jcall(
     connection@jConnection,
@@ -265,6 +270,7 @@ compileReconnectCode.default <- function(connection) {
   return(code)
 }
 
+#' @exportS3Method
 compileReconnectCode.DatabaseConnectorDbiConnection <- function(connection) {
   code <- sprintf(
     "library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", server = \"%s\")",
@@ -278,6 +284,7 @@ getSchemaNames <- function(conn, catalog = NULL) {
   UseMethod("getSchemaNames", conn)
 }
 
+#' @exportS3Method
 getSchemaNames.default <- function(conn, catalog = NULL) {
   if (is.null(catalog)) {
     catalog <- rJava::.jnull("java/lang/String")
@@ -301,6 +308,7 @@ getSchemaNames.default <- function(conn, catalog = NULL) {
   return(schemas)
 }
 
+#' @exportS3Method
 getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) {
   if (dbms(conn) %in% c("sqlite", "sqlite extended")) {
     return("main")
@@ -319,6 +327,7 @@ getCatalogs <- function(connection) {
   UseMethod("getCatalogs", connection)
 }
 
+#' @exportS3Method
 getCatalogs.default <- function(connection) {
   metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
   resultSet <- rJava::.jcall(metaData, "Ljava/sql/ResultSet;", "getCatalogs")
@@ -331,6 +340,7 @@ getCatalogs.default <- function(connection) {
   return(catalogs)
 }
 
+#' @exportS3Method
 getCatalogs.DatabaseConnectorDbiConnection <- function(connection) {
   if (connection@dbms == "duckdb") {
     sql <- "

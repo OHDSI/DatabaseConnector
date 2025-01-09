@@ -33,7 +33,6 @@ For interactive use, you should almost always prefer \code{\link[DBI:dbGetQuery]
 Use \code{\link[DBI:dbSendQueryArrow]{dbSendQueryArrow()}} or \code{\link[DBI:dbGetQueryArrow]{dbGetQueryArrow()}} instead to retrieve the results
 as an Arrow object.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbSendQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only.  Some backends may
