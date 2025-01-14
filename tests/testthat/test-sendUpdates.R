@@ -15,11 +15,14 @@ for (testServer in testServers) {
     on.exit(disconnect(connection), add = TRUE)
     renderTranslateExecuteSql(connection, createSql)
     expect_equal(renderTranslateExecuteSql(connection, sql), c(1, 1, 0))
-    renderTranslateExecuteSql(connection, createSql)
-    expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(1, 1, 0))
-    renderTranslateExecuteSql(connection, createSql)
-    rowsAffected <- dbSendStatement(connection, sql)
-    expect_equal(dbGetRowsAffected(rowsAffected), 2)
-    dbClearResult(rowsAffected)
+    if (testServer$connectionDetails$dbms != "bigquery") {
+      # Avoid rate limit error on BigQuery
+      renderTranslateExecuteSql(connection, createSql)
+      expect_equal(renderTranslateExecuteSql(connection, sql, runAsBatch = TRUE), c(1, 1, 0))
+      renderTranslateExecuteSql(connection, createSql)
+      rowsAffected <- dbSendStatement(connection, sql)
+      expect_equal(dbGetRowsAffected(rowsAffected), 2)
+      dbClearResult(rowsAffected)
+    }
   })
 }
