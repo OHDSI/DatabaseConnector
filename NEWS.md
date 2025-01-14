@@ -7,6 +7,8 @@ Changes:
 
 - Updated Databricks driver to 2.6.36.
 
+- Updated BigQuery driver to 1.6.2.
+
 - Using `INSERT` with multiple values in `insertTable()` for DataBricks for faster inserts.
 
 
