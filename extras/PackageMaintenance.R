@@ -57,6 +57,7 @@ rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
 fixRdFile <- function(fileName) {
   page <- SqlRender::readSql(fileName)
   page <- gsub("\\\\Sexpr[^\n]*\n", "", page)
+  page <- gsub("\\linkS4class\\{DBI([^:])", "\\linkS4class{DBI:DBI\\1", page)
   SqlRender::writeSql(page, fileName)
 }
 for (file in list.files("man", ".*.Rd")) {
