@@ -7,7 +7,7 @@
 \S4method{dbListTables}{DatabaseConnectorConnection}(conn, databaseSchema = NULL, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \linkS4class{DBI:DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}

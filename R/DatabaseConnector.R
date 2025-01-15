@@ -63,7 +63,7 @@ NULL
 #' # Netezza
 #' 
 #' Read the instructions
-#' [here](https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html)
+#' [here](https://www.ibm.com/docs/en/netezza?topic=dls-installing-configuring-jdbc)
 #' on how to obtain the Netezza JDBC driver.
 #'
 #' # Impala

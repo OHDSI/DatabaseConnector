@@ -7,7 +7,7 @@
 \S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, translate = TRUE, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \linkS4class{DBI:DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}
@@ -18,7 +18,7 @@
 }
 \value{
 \code{dbSendQuery()} returns
-an S4 object that inherits from \linkS4class{DBIResult}.
+an S4 object that inherits from \linkS4class{DBI:DBIResult}.
 The result set can be used with \code{\link[DBI:dbFetch]{dbFetch()}} to extract records.
 Once you have finished using a result, make sure to clear it
 with \code{\link[DBI:dbClearResult]{dbClearResult()}}.
