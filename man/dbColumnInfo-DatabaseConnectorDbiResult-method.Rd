@@ -7,7 +7,7 @@
 \S4method{dbColumnInfo}{DatabaseConnectorDbiResult}(res, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \linkS4class{DBI:DBIResult}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}.}
 
 \item{...}{Other arguments passed on to methods.}
 }

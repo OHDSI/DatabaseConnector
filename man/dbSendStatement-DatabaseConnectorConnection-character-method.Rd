@@ -7,7 +7,7 @@
 \S4method{dbSendStatement}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBI:DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}
@@ -18,7 +18,7 @@
 }
 \value{
 \code{dbSendStatement()} returns
-an S4 object that inherits from \linkS4class{DBI:DBIResult}.
+an S4 object that inherits from \link[DBI:DBIResult-class]{DBIResult}.
 The result set can be used with \code{\link[DBI:dbGetRowsAffected]{dbGetRowsAffected()}} to
 determine the number of rows affected by the query.
 Once you have finished using a result, make sure to clear it

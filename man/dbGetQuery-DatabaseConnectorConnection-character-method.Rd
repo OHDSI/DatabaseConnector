@@ -7,7 +7,7 @@
 \S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBI:DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}

@@ -83,9 +83,9 @@ been disconnected or cleared).</p>
 
 
 <dl><dt id="arg-dbobj">dbObj<a class="anchor" aria-label="anchor" href="#arg-dbobj"></a></dt>
-<dd><p>An object inheriting from DBIObject,
-i.e. DBIDriver, DBIConnection,
-or a DBIResult</p></dd>
+<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIObject-class.html" class="external-link">DBIObject</a>,
+i.e. <a href="https://dbi.r-dbi.org/reference/DBIDriver-class.html" class="external-link">DBIDriver</a>, <a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBIConnection</a>,
+or a <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult</a></p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -97,14 +97,14 @@ or a DBIResult</p></dd>
     <p><code>dbIsValid()</code> returns a logical scalar,
 <code>TRUE</code> if the object specified by <code>dbObj</code> is valid,
 <code>FALSE</code> otherwise.
-A DBIConnection object is initially valid,
+A <a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBIConnection</a> object is initially valid,
 and becomes invalid after disconnecting with <code><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect()</a></code>.
 For an invalid connection object (e.g., for some drivers if the object
 is saved to a file and then restored), the method also returns <code>FALSE</code>.
-A DBIResult object is valid after a call to <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery()</a></code>,
+A <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult</a> object is valid after a call to <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery()</a></code>,
 and stays valid even after all rows have been fetched;
 only clearing it with <code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult()</a></code> invalidates it.
-A DBIResult object is also valid after a call to <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>,
+A <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult</a> object is also valid after a call to <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>,
 and stays valid after querying the number of rows affected;
 only clearing it with <code><a href="https://dbi.r-dbi.org/reference/dbClearResult.html" class="external-link">dbClearResult()</a></code> invalidates it.
 If the connection to the database system is dropped (e.g., due to

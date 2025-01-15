@@ -29,8 +29,19 @@ OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
-
 # Create manual ----------------------------------------------------------------
+# Remove Sexpr that breaks pkgdown
+# Fix links broken by roxygen (when inheriting from DBI)
+fixRdFile <- function(fileName) {
+  page <- SqlRender::readSql(fileName)
+  page <- gsub("\\\\Sexpr[^\n]*\n", "", page)
+  page <- gsub("\\linkS4class\\{(DBI[a-zA-Z]*)\\}", "\\link[DBI:\\1-class]{\\1}", page)
+  SqlRender::writeSql(page, fileName)
+}
+for (file in list.files("man", ".*.Rd")) {
+  fixRdFile(file.path("man", file))
+}
+
 unlink("extras/DatabaseConnector.pdf")
 system("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
@@ -53,16 +64,6 @@ rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
                                           toc = TRUE,
                                           number_sections = TRUE))
 
-# May need to delete Sexpr expressions from description sections to avoid purr error:
-fixRdFile <- function(fileName) {
-  page <- SqlRender::readSql(fileName)
-  page <- gsub("\\\\Sexpr[^\n]*\n", "", page)
-  page <- gsub("\\linkS4class\\{DBI([^:])", "\\linkS4class{DBI:DBI\\1", page)
-  SqlRender::writeSql(page, fileName)
-}
-for (file in list.files("man", ".*.Rd")) {
-  fixRdFile(file.path("man", file))
-}
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 

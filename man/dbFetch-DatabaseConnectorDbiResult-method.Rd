@@ -7,7 +7,7 @@
 \S4method{dbFetch}{DatabaseConnectorDbiResult}(res, n = -1, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \linkS4class{DBI:DBIResult}, created by
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}, created by
 \code{\link[DBI:dbSendQuery]{dbSendQuery()}}.}
 
 \item{n}{maximum number of records to retrieve per fetch. Use \code{n = -1}
