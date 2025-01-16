@@ -1,4 +1,4 @@
-This update includes 3 minor changes. (see NEWS.md).
+This update includes 4 minor changes. (see NEWS.md).
 
 ---
 
