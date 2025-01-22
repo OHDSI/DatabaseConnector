@@ -62,6 +62,25 @@ checkBulkLoadCredentials <- function(connection) {
       return(FALSE)
     }
     return(TRUE)
+  } else if (dbms(connection) == "spark") {
+    envSet <- FALSE
+    container <- FALSE
+    
+    if (Sys.getenv("AZR_STORAGE_ACCOUNT") != "" && Sys.getenv("AZR_ACCOUNT_KEY") != "" && Sys.setenv("AZR_CONTAINER_NAME") != "") {
+      envSet <- TRUE
+    }
+    
+    # List storage containers to confirm the container
+    # specified in the configuration exists
+    ensure_installed("AzureStor")
+    azureEndpoint <- getAzureEndpoint()
+    containerList <- getAzureContainerNames(azureEndpoint)
+    
+    if (Sys.getenv("AZR_CONTAINER_NAME") %in% containerList) {
+      container <- TRUE
+    }
+    
+    return(envSet & container)
   } else {
     return(FALSE)
   }
@@ -70,6 +89,18 @@ checkBulkLoadCredentials <- function(connection) {
 getHiveSshUser <- function() {
   sshUser <- Sys.getenv("HIVE_SSH_USER")
   return(if (sshUser == "") "root" else sshUser)
+}
+
+getAzureEndpoint <- function() {
+  azureEndpoint <- AzureStor::storage_endpoint(
+    paste0("https://", Sys.getenv("AZR_STORAGE_ACCOUNT"), ".dfs.core.windows.net"),
+    key = Sys.getenv("AZR_ACCOUNT_KEY")
+  )
+  return(azureEndpoint)  
+}
+
+getAzureContainerNames <- function(azureEndpoint) {
+  return(names(AzureStor::list_storage_containers(azureEndpoint)))
 }
 
 countRows <- function(connection, sqlTableName) {
@@ -354,3 +385,53 @@ bulkLoadPostgres <- function(connection, sqlTableName, sqlFieldNames, sqlDataTyp
   delta <- Sys.time() - startTime
   inform(paste("Bulk load to PostgreSQL took", signif(delta, 3), attr(delta, "units")))
 }
+
+bulkLoadSpark <- function(connection, sqlTableName, data) {
+  ensure_installed("AzureStor")
+  logTrace(sprintf("Inserting %d rows into table '%s' using DataBricks bulk load", nrow(data), sqlTableName))
+  start <- Sys.time()
+  
+  csvFileName <- tempfile("spark_insert_", fileext = ".csv")
+  write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
+  on.exit(unlink(csvFileName))
+
+  azureEndpoint <- getAzureEndpoint()
+  containers <- AzureStor::list_storage_containers(azureEndpoint)
+  targetContainer <- containers[[Sys.getenv("AZR_CONTAINER_NAME")]]
+  AzureStor::storage_upload(
+    targetContainer, 
+    src=csvFileName, 
+    dest=csvFileName
+  )  
+
+  on.exit(
+    AzureStor::delete_storage_file(
+      targetContainer, 
+      file = csvFileName,
+      confirm = FALSE
+    ),
+    add = TRUE
+  )
+  
+  sql <- SqlRender::loadRenderTranslateSql(
+    sqlFilename = "sparkCopy.sql",
+    packageName = "DatabaseConnector",
+    dbms = "spark",
+    sqlTableName = sqlTableName,
+    fileName = basename(csvFileName),
+    azureAccountKey = Sys.getenv("AZR_ACCOUNT_KEY"),
+    azureStorageAccount = Sys.getenv("AZR_STORAGE_ACCOUNT")
+  )
+  
+  tryCatch(
+    {
+      DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
+    },
+    error = function(e) {
+      abort("Error in DataBricks bulk upload. Please check DataBricks/Azure Storage access.")
+    }
+  )
+  delta <- Sys.time() - start
+  inform(paste("Bulk load to DataBricks took", signif(delta, 3), attr(delta, "units")))
+}
+

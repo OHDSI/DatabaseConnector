@@ -114,3 +114,37 @@ all.equal(data, data2)
 
 renderTranslateExecuteSql(connection, "DROP TABLE scratch_mschuemi.insert_test;")
 disconnect(connection)
+
+
+# Spark ------------------------------------------------------------------------------
+# Assumes Spark (DataBricks) environmental variables have been set
+options(sqlRenderTempEmulationSchema = Sys.getenv("DATABRICKS_SCRATCH_SCHEMA"))
+databricksConnectionString <- paste0("jdbc:databricks://", Sys.getenv('DATABRICKS_HOST'), "/default;transportMode=http;ssl=1;AuthMech=3;httpPath=", Sys.getenv('DATABRICKS_HTTP_PATH'))
+connectionDetails <- createConnectionDetails(dbms = "spark",
+                                             connectionString = databricksConnectionString,
+                                             user = "token",
+                                             password = Sys.getenv("DATABRICKS_TOKEN"))
+
+
+connection <- connect(connectionDetails)
+system.time(
+  insertTable(connection = connection,
+              tableName = "scratch.scratch_asena5.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE,
+              progressBar = TRUE,
+              camelCaseToSnakeCase = TRUE,
+              bulkLoad = TRUE)
+)
+data2 <- querySql(connection, "SELECT * FROM scratch.scratch_asena5.insert_test;", snakeCaseToCamelCase = TRUE, integer64AsNumeric = FALSE)
+
+data <- data[order(data$id), ]
+data2 <- data2[order(data2$id), ]
+row.names(data) <- NULL
+row.names(data2) <- NULL
+all.equal(data, data2)
+
+renderTranslateExecuteSql(connection, "DROP TABLE scratch.scratch_asena5.insert_test;")
+disconnect(connection)
