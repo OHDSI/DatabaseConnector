@@ -121,6 +121,13 @@ validateInt64Insert <- function() {
 #' "some_aws_region", "AWS_BUCKET_NAME" = "some_bucket_name", "AWS_OBJECT_KEY" = "some_object_key",
 #' "AWS_SSE_TYPE" = "server_side_encryption_type").
 #'
+#' Spark (DataBricks): The MPP bulk loading relies upon the AzureStor library
+#' to test a connection to an Azure ADLS Gen2 storage container using Azure credentials. 
+#' Credentials are configured directly into the System Environment using the 
+#' following keys: Sys.setenv("AZR_STORAGE_ACCOUNT" =
+#' "some_azure_storage_account", "AZR_ACCOUNT_KEY" = "some_secret_account_key", "AZR_CONTAINER_NAME" =
+#' "some_container_name").
+#'
 #' PDW: The MPP bulk loading relies upon the client
 #' having a Windows OS and the DWLoader exe installed, and the following permissions granted: --Grant
 #' BULK Load permissions - needed at a server level USE master; GRANT ADMINISTER BULK OPERATIONS TO
@@ -308,6 +315,8 @@ insertTable.default <- function(connection,
       bulkLoadHive(connection, sqlTableName, sqlFieldNames, data)
     } else if (dbms == "postgresql") {
       bulkLoadPostgres(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data)
+    } else if (dbms == "spark") {
+      bulkLoadSpark(connection, sqlTableName, data)
     }
   } else if (useCtasHack) {
     # Inserting using CTAS hack ----------------------------------------------------------------
