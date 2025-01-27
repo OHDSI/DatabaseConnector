@@ -17,7 +17,7 @@
 )
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
@@ -61,7 +61,6 @@ The default \code{dbCreateTable()} method calls \code{\link[DBI:sqlCreateTable]{
 \code{\link[DBI:dbExecute]{dbExecute()}}.
 Use \code{\link[DBI:dbCreateTableArrow]{dbCreateTableArrow()}} to create a table from an Arrow schema.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbCreateTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

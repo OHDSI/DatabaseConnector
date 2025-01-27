@@ -7,7 +7,7 @@
 \S4method{dbGetStatement}{DatabaseConnectorDbiResult}(res, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \linkS4class{DBIResult}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}.}
 
 \item{...}{Other arguments passed on to methods.}
 }
@@ -20,7 +20,6 @@ either \code{\link[DBI:dbSendQuery]{dbSendQuery()}} or
 Returns the statement that was passed to \code{\link[DBI:dbSendQuery]{dbSendQuery()}}
 or \code{\link[DBI:dbSendStatement]{dbSendStatement()}}.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetStatement")}
 }
 \seealso{
 Other DBIResult generics: 

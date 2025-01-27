@@ -7,7 +7,7 @@
 \S4method{dbListFields}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
@@ -35,7 +35,6 @@ The returned names are suitable for quoting with \code{dbQuoteIdentifier()}.
 \description{
 Returns the field names of a remote table as a character vector.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListFields")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

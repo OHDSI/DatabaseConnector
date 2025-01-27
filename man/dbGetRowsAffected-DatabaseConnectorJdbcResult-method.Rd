@@ -7,7 +7,7 @@
 \S4method{dbGetRowsAffected}{DatabaseConnectorJdbcResult}(res, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \linkS4class{DBIResult}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}.}
 
 \item{...}{Other arguments passed on to methods.}
 }
@@ -28,7 +28,6 @@ and after the call to \code{dbFetch()}.
 This method returns the number of rows that were added, deleted, or updated
 by a data manipulation statement.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetRowsAffected")}
 }
 \seealso{
 Other DBIResult generics: 

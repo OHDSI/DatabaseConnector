@@ -7,14 +7,14 @@
 \S4method{dbGetInfo}{DatabaseConnectorDriver}(dbObj, ...)
 }
 \arguments{
-\item{dbObj}{An object inheriting from \linkS4class{DBIObject},
-i.e. \linkS4class{DBIDriver}, \linkS4class{DBIConnection},
-or a \linkS4class{DBIResult}}
+\item{dbObj}{An object inheriting from \link[DBI:DBIObject-class]{DBIObject},
+i.e. \link[DBI:DBIDriver-class]{DBIDriver}, \link[DBI:DBIConnection-class]{DBIConnection},
+or a \link[DBI:DBIResult-class]{DBIResult}}
 
 \item{...}{Other arguments to methods.}
 }
 \value{
-For objects of class \linkS4class{DBIDriver}, \code{dbGetInfo()}
+For objects of class \link[DBI:DBIDriver-class]{DBIDriver}, \code{dbGetInfo()}
 returns a named list
 that contains at least the following components:
 \itemize{
@@ -22,7 +22,7 @@ that contains at least the following components:
 \item \code{client.version}: the version of the DBMS client library.
 }
 
-For objects of class \linkS4class{DBIConnection}, \code{dbGetInfo()}
+For objects of class \link[DBI:DBIConnection-class]{DBIConnection}, \code{dbGetInfo()}
 returns a named list
 that contains at least the following components:
 \itemize{
@@ -35,7 +35,7 @@ It must not contain a \code{password} component.
 Components that are not applicable should be set to \code{NA}.
 }
 
-For objects of class \linkS4class{DBIResult}, \code{dbGetInfo()}
+For objects of class \link[DBI:DBIResult-class]{DBIResult}, \code{dbGetInfo()}
 returns a named list
 that contains at least the following components:
 \itemize{
@@ -51,10 +51,9 @@ as returned by \code{\link[DBI:dbHasCompleted]{dbHasCompleted()}}.
 }
 }
 \description{
-Retrieves information on objects of class \linkS4class{DBIDriver},
-\linkS4class{DBIConnection} or \linkS4class{DBIResult}.
+Retrieves information on objects of class \link[DBI:DBIDriver-class]{DBIDriver},
+\link[DBI:DBIConnection-class]{DBIConnection} or \link[DBI:DBIResult-class]{DBIResult}.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetInfo")}
 }
 \seealso{
 Other DBIDriver generics: 

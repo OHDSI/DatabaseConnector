@@ -20,7 +20,7 @@ renderTranslateQueryApplyBatched(
 }
 \arguments{
 \item{connection}{The connection to the database server created using either
-\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
+\code{\link[=connect]{connect()}} or \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{sql}{The SQL to be send.}
 

@@ -1,6 +1,6 @@
 # @file InsertTable.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -312,6 +312,8 @@ insertTable.default <- function(connection,
   } else if (useCtasHack) {
     # Inserting using CTAS hack ----------------------------------------------------------------
     ctasHack(connection, sqlTableName, tempTable, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema)
+  } else if (dbms == "spark") {
+    multiValuesInsert(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data, progressBar, tempEmulationSchema)
   } else {
     # Inserting using SQL inserts --------------------------------------------------------------
     logTrace(sprintf("Inserting %d rows into table '%s'", nrow(data), sqlTableName))
