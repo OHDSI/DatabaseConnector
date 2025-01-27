@@ -7,7 +7,7 @@
 \S4method{dbDisconnect}{DatabaseConnectorConnection}(conn)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 }
 \value{
@@ -17,7 +17,6 @@
 This closes the connection, discards all pending work, and frees
 resources (e.g., memory, sockets).
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbDisconnect")}
 }
 \seealso{
 Other DBIConnection generics: 

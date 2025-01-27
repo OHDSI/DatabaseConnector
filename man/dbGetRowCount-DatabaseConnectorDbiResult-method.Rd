@@ -7,7 +7,7 @@
 \S4method{dbGetRowCount}{DatabaseConnectorDbiResult}(res, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \linkS4class{DBIResult}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}.}
 
 \item{...}{Other arguments passed on to methods.}
 }
@@ -33,7 +33,6 @@ and after calling \code{dbFetch()}.
 Returns the total number of rows actually fetched with calls to \code{\link[DBI:dbFetch]{dbFetch()}}
 for this result set.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetRowCount")}
 }
 \seealso{
 Other DBIResult generics: 

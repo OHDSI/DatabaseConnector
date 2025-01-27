@@ -7,7 +7,7 @@
 \S4method{dbExistsTable}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
@@ -33,7 +33,6 @@ This includes temporary tables if supported by the database.
 \description{
 Returns if a table given by name exists in the database.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbExistsTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

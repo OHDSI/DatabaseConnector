@@ -7,7 +7,7 @@
 \S4method{dbExecute}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}
@@ -32,7 +32,6 @@ the result is always freed by \code{\link[DBI:dbClearResult]{dbClearResult()}}.
 For passing query parameters, see \code{\link[DBI:dbBind]{dbBind()}}, in particular
 the "The command execution flow" section.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbExecute")}
 }
 \details{
 You can also use \code{dbExecute()} to call a stored procedure

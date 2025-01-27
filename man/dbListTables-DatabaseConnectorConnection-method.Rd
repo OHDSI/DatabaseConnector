@@ -7,7 +7,7 @@
 \S4method{dbListTables}{DatabaseConnectorConnection}(conn, databaseSchema = NULL, ...)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
@@ -35,7 +35,6 @@ connection.
 This should include views and temporary objects, but not all database backends
 (in particular \pkg{RMariaDB} and \pkg{RMySQL}) support this.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListTables")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

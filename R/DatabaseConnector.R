@@ -1,6 +1,6 @@
 # @file DatabaseConnector.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -63,12 +63,12 @@ NULL
 #' # Netezza
 #' 
 #' Read the instructions
-#' [here](https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html)
+#' [here](https://www.ibm.com/docs/en/netezza?topic=dls-installing-configuring-jdbc)
 #' on how to obtain the Netezza JDBC driver.
 #'
 #' # Impala
 #' 
-#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html), pick
+#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc.html), pick
 #' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 #'
 #' # SQLite

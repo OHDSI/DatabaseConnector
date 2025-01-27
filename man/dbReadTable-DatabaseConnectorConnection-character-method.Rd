@@ -14,7 +14,7 @@
 )
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
@@ -72,7 +72,6 @@ a column to row names and converting the column names to valid
 R identifiers.
 Use \code{\link[DBI:dbReadTableArrow]{dbReadTableArrow()}} instead to obtain an Arrow object.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbReadTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

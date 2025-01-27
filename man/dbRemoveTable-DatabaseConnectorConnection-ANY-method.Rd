@@ -14,7 +14,7 @@
 )
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
+\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
@@ -44,7 +44,6 @@ can be created.}
 Remove a remote table (e.g., created by \code{\link[DBI:dbWriteTable]{dbWriteTable()}})
 from the database.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbRemoveTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:
