@@ -291,9 +291,10 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
-  if (dbms(connection) == "spark") {
+  if ((dbms(connection) == "spark") || (dbms(connection) == "iris")) {
     # For some queries the DataBricks JDBC driver will throw an error saying no ROWCOUNT is returned
-    # when using executeLargeUpdate, so using execute instead. 
+    # when using executeLargeUpdate, so using execute instead.
+    # Also use this approach for IRIS JDBC driver, which does not support executeLargeUpdate() directly.
     rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
     if (rowsAffected == -1) {
@@ -435,7 +436,13 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))
+          # InterSystems IRIS JDBC supports batch updates but does not have a separate
+          # executeLargeBatch() method
+          if (con@dbms == "iris") {
+            rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+          } else {
+            rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))
+          }
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))

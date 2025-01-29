@@ -9,7 +9,7 @@ use the \code{pathToDriver} argument in the \code{\link[=connect]{connect()}} or
 functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 variable, for example in your .Renviron file (recommended).
 }
-\section{SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery}{
+\section{SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery, InterSystems IRIS}{
 Use the \code{\link[=downloadJdbcDrivers]{downloadJdbcDrivers()}} function to download these drivers from the OHDSI GitHub pages.
 }
 

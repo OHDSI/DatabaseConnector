@@ -14,6 +14,7 @@ if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
   if (.Platform$OS.type == "windows") {
     downloadJdbcDrivers("bigquery")
   }
+  downloadJdbcDrivers("iris")
   
   if (testthat::is_testing()) {
     withr::defer({
@@ -36,144 +37,175 @@ addDbmsToLabel <- function(label, testServer) {
 testServers <- list()
 
 # Postgres
-parts <- unlist(strsplit(Sys.getenv("CDM5_POSTGRESQL_SERVER"), "/"))
-host <- parts[1]
-database <- parts[2]
-port <- "5432"
-connectionString <- paste0("jdbc:postgresql://", host, ":", port, "/", database)
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = createConnectionDetails(
-    dbms = "postgresql",
-    user = Sys.getenv("CDM5_POSTGRESQL_USER"),
-    password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
-    server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
-  ),
-  connectionDetails2 = details <- createConnectionDetails(
-    dbms = "postgresql",
-    connectionString = !!connectionString,
-    user = Sys.getenv("CDM5_POSTGRESQL_USER"),
-    password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
-  ),
-  cdmDatabaseSchema = Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"),
-  tempEmulationSchema = NULL
-)
+if (Sys.getenv("CDM5_POSTGRESQL_SERVER") != "") {
+  parts <- unlist(strsplit(Sys.getenv("CDM5_POSTGRESQL_SERVER"), "/"))
+  host <- parts[1]
+  database <- parts[2]
+  port <- "5432"
+  connectionString <- paste0("jdbc:postgresql://", host, ":", port, "/", database)
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = createConnectionDetails(
+      dbms = "postgresql",
+      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD")),
+      server = Sys.getenv("CDM5_POSTGRESQL_SERVER")
+    ),
+    connectionDetails2 = details <- createConnectionDetails(
+      dbms = "postgresql",
+      connectionString = !!connectionString,
+      user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+      password = URLdecode(Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
+    ),
+    cdmDatabaseSchema = Sys.getenv("CDM5_POSTGRESQL_CDM54_SCHEMA"),
+    tempEmulationSchema = NULL
+  )
+}
 
 # SQL Server
-connectionString <- paste0("jdbc:sqlserver://", Sys.getenv("CDM5_SQL_SERVER_SERVER"))
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = details <- createConnectionDetails(
-    dbms = "sql server",
-    user = Sys.getenv("CDM5_SQL_SERVER_USER"),
-    password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
-    server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
-  ),
-  connectionDetails2 = details <- createConnectionDetails(
-    dbms = "sql server",
-    connectionString = !!connectionString,
-    user = Sys.getenv("CDM5_SQL_SERVER_USER"),
-    password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD"))
-  ),
-  cdmDatabaseSchema = Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"),
-  tempEmulationSchema = NULL
-)
+if (Sys.getenv("CDM5_SQL_SERVER_SERVER") != "") {
+  connectionString <- paste0("jdbc:sqlserver://", Sys.getenv("CDM5_SQL_SERVER_SERVER"))
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "sql server",
+      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
+      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD")),
+      server = Sys.getenv("CDM5_SQL_SERVER_SERVER")
+    ),
+    connectionDetails2 = details <- createConnectionDetails(
+      dbms = "sql server",
+      connectionString = !!connectionString,
+      user = Sys.getenv("CDM5_SQL_SERVER_USER"),
+      password = URLdecode(Sys.getenv("CDM5_SQL_SERVER_PASSWORD"))
+    ),
+    cdmDatabaseSchema = Sys.getenv("CDM5_SQL_SERVER_CDM54_SCHEMA"),
+    tempEmulationSchema = NULL
+  )
+}
 
 # Oracle
-port <- "1521"
-parts <- unlist(strsplit(Sys.getenv("CDM5_ORACLE_SERVER"), "/"))
-host <- parts[1]
-sid <- parts[2]
-connectionString <- paste0("jdbc:oracle:thin:@", host, ":", port, ":", sid)
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = details <- createConnectionDetails(
-    dbms = "oracle",
-    user = Sys.getenv("CDM5_ORACLE_USER"),
-    password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
-    server = Sys.getenv("CDM5_ORACLE_SERVER")
-  ),
-  connectionDetails2 = details <- createConnectionDetails(
-    dbms = "oracle",
-    connectionString = !!connectionString,
-    user = Sys.getenv("CDM5_ORACLE_USER"),
-    password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD"))
-  ),
-  cdmDatabaseSchema = Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA"),
-  tempEmulationSchema = Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
-)
+if (Sys.getenv("CDM5_ORACLE_SERVER") != "") {
+  port <- "1521"
+  parts <- unlist(strsplit(Sys.getenv("CDM5_ORACLE_SERVER"), "/"))
+  host <- parts[1]
+  sid <- parts[2]
+  connectionString <- paste0("jdbc:oracle:thin:@", host, ":", port, ":", sid)
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "oracle",
+      user = Sys.getenv("CDM5_ORACLE_USER"),
+      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD")),
+      server = Sys.getenv("CDM5_ORACLE_SERVER")
+    ),
+    connectionDetails2 = details <- createConnectionDetails(
+      dbms = "oracle",
+      connectionString = !!connectionString,
+      user = Sys.getenv("CDM5_ORACLE_USER"),
+      password = URLdecode(Sys.getenv("CDM5_ORACLE_PASSWORD"))
+    ),
+    cdmDatabaseSchema = Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM5_ORACLE_OHDSI_SCHEMA")
+  )
+}
 
 # RedShift
-parts <- unlist(strsplit(Sys.getenv("CDM5_REDSHIFT_SERVER"), "/"))
-host <- parts[1]
-database <- parts[2]
-port <- "5439"
-connectionString <- paste0("jdbc:redshift://", host, ":", port, "/", database)
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = details <- createConnectionDetails(
-    dbms = "redshift",
-    user = Sys.getenv("CDM5_REDSHIFT_USER"),
-    password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
-    server = Sys.getenv("CDM5_REDSHIFT_SERVER")
-  ),
-  connectionDetails2 = details <- createConnectionDetails(
-    dbms = "redshift",
-    connectionString = connectionString,
-    user = Sys.getenv("CDM5_REDSHIFT_USER"),
-    password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD"))
-  ),
-  cdmDatabaseSchema = Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"),
-  tempEmulationSchema = NULL
-)
+if (Sys.getenv("CDM5_REDSHIFT_SERVER") != "") {
+  parts <- unlist(strsplit(Sys.getenv("CDM5_REDSHIFT_SERVER"), "/"))
+  host <- parts[1]
+  database <- parts[2]
+  port <- "5439"
+  connectionString <- paste0("jdbc:redshift://", host, ":", port, "/", database)
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "redshift",
+      user = Sys.getenv("CDM5_REDSHIFT_USER"),
+      password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD")),
+      server = Sys.getenv("CDM5_REDSHIFT_SERVER")
+    ),
+    connectionDetails2 = details <- createConnectionDetails(
+      dbms = "redshift",
+      connectionString = connectionString,
+      user = Sys.getenv("CDM5_REDSHIFT_USER"),
+      password = URLdecode(Sys.getenv("CDM5_REDSHIFT_PASSWORD"))
+    ),
+    cdmDatabaseSchema = Sys.getenv("CDM5_REDSHIFT_CDM54_SCHEMA"),
+    tempEmulationSchema = NULL
+  )
+}
 
 # Snowflake
-testServers[[length(testServers) + 1]] <- list(
-  connectionDetails = details <- createConnectionDetails(
-    dbms = "snowflake",
-    user = Sys.getenv("CDM_SNOWFLAKE_USER"),
-    password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
-    connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
-  ),
-  NULL,
-  cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
-  tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
-)
+if (Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING") != "") {
+  testServers[[length(testServers) + 1]] <- list(
+    connectionDetails = details <- createConnectionDetails(
+      dbms = "snowflake",
+      user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+      password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+      connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+    ),
+    NULL,
+    cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
+  )
+}
 
 # Databricks (Spark)
 # Databricks is causing segfault errors on Linux. Temporary workaround is not to test on
 # Linux
 if (.Platform$OS.type == "windows") {
-  testServers[[length(testServers) + 1]] <- list(
-    connectionDetails = details <- createConnectionDetails(
-      dbms = "spark",
-      user = Sys.getenv("CDM5_SPARK_USER"),
-      password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
-      connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
-    ),
-    NULL,
-    cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
-    tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
-  )
+  if (Sys.getenv("CDM5_SPARK_CONNECTION_STRING") != "") {
+    testServers[[length(testServers) + 1]] <- list(
+        connectionDetails = details <- createConnectionDetails(
+          dbms = "spark",
+          user = Sys.getenv("CDM5_SPARK_USER"),
+          password = URLdecode(Sys.getenv("CDM5_SPARK_PASSWORD")),
+          connectionString = Sys.getenv("CDM5_SPARK_CONNECTION_STRING")
+        ),
+        NULL,
+        cdmDatabaseSchema = Sys.getenv("CDM5_SPARK_CDM_SCHEMA"),
+        tempEmulationSchema = Sys.getenv("CDM5_SPARK_OHDSI_SCHEMA")
+      )
+  }
 }
 
 # BigQuery
-# To avoid rate limit on BigQuery, only test on 1 OS:
-if (.Platform$OS.type == "windows") {
-  bqKeyFile <- tempfile(fileext = ".json")
-  writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
-  if (testthat::is_testing()) {
-    withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
+if (Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING") != "") {
+  # To avoid rate limit on BigQuery, only test on 1 OS:
+  if (.Platform$OS.type == "windows") {
+    bqKeyFile <- tempfile(fileext = ".json")
+    writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
+    if (testthat::is_testing()) {
+      withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
+    }
+    bqConnectionString <- gsub("<keyfile path>",
+                               normalizePath(bqKeyFile, winslash = "/"),
+                               Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
+    testServers[[length(testServers) + 1]] <- list(
+      connectionDetails = details <- createConnectionDetails(
+        dbms = "bigquery",
+        user = "",
+        password = "",
+        connectionString = !!bqConnectionString
+      ),
+      NULL,
+      cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
+      tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
+    )
   }
-  bqConnectionString <- gsub("<keyfile path>",
-                             normalizePath(bqKeyFile, winslash = "/"),
-                             Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
+}
+
+
+
+# InterSystems IRIS
+if (Sys.getenv("CDM_IRIS_CONNECTION_STRING") != "") {
   testServers[[length(testServers) + 1]] <- list(
     connectionDetails = details <- createConnectionDetails(
-      dbms = "bigquery",
-      user = "",
-      password = "",
-      connectionString = !!bqConnectionString
+      dbms = "iris",
+      user = Sys.getenv("CDM_IRIS_USER"),
+      password = URLdecode(Sys.getenv("CDM_IRIS_PASSWORD")),
+      connectionString = Sys.getenv("CDM_IRIS_CONNECTION_STRING")
     ),
     NULL,
-    cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
-    tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
+    cdmDatabaseSchema = Sys.getenv("CDM_IRIS_CDM53_SCHEMA"),
+    tempEmulationSchema = Sys.getenv("CDM_IRIS_OHDSI_SCHEMA")
   )
 }
 

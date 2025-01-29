@@ -33,6 +33,7 @@ jdbcDrivers <- new.env()
 #' - "spark" for Spark
 #' - "snowflake" for Snowflake
 #' - "bigquery" for Google BigQuery
+#' - "iris" for InterSystems IRIS
 #' - "all" for all aforementioned platforms
 #'  
 #' @param method The method used for downloading files. See `?download.file` for details and options.
@@ -48,6 +49,7 @@ jdbcDrivers <- new.env()
 #' - Spark (Databricks): V2.6.36
 #' - Snowflake: V3.16.01
 #' - BigQuery: v1.3.2.1003
+#' - InterSystems IRIS: v3.10.2
 #' 
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
@@ -81,9 +83,9 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     warn(paste0("The folder location '", pathToDriver, "' does not exist. Attempting to create."))
     dir.create(pathToDriver, recursive = TRUE)
   }
-  
-  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark", "bigquery"))
-  
+
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark", "bigquery", "iris"))
+
   if (dbms == "pdw" || dbms == "synapse") {
     dbms <- "sql server"
   }
@@ -96,7 +98,8 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     5,spark,DatabricksJDBC42-2.6.36.1062.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.36/
     6,snowflake,snowflake-jdbc-3.16.1.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.16.1/
-    7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.6.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/"
+    7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.6.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/
+    8,iris,intersystems-jdbc-3.10.2.jar,https://repo1.maven.org/maven2/com/intersystems/intersystems-jdbc/3.10.2/"
   )
 
   if (dbms == "all") {
