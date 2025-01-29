@@ -1,3 +1,12 @@
+DatabaseConnector 6.4.0
+=======================
+
+Changes:
+
+- Adding support for InterSystems IRIS.
+
+
+
 DatabaseConnector 6.3.3
 =======================
 

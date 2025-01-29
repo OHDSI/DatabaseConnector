@@ -438,7 +438,7 @@ executeSql <- function(connection,
           startQuery <- Sys.time()
           # InterSystems IRIS JDBC supports batch updates but does not have a separate
           # executeLargeBatch() method
-          if (con@dbms == "iris") {
+          if (dbms == "iris") {
             rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
           } else {
             rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))

@@ -48,7 +48,7 @@ The following versions of the JDBC drivers are currently used:
 \item Spark (Databricks): V2.6.36
 \item Snowflake: V3.16.01
 \item BigQuery: v1.3.2.1003
-\item InterSystems IRIS: v3.9.0
+\item InterSystems IRIS: v3.10.2
 }
 }
 \examples{
