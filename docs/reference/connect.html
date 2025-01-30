@@ -117,6 +117,16 @@ user. The user name used to access the server.
 password. The password for that user.
 
 
+InterSystems IRIS:
+connectionString. The connection string (e.g. starting with
+'jdbc:IRIS://host:port/namespace'). Alternatively, you can provide
+values for server and port, in which case the default USER namespace
+is used to connect.
+user. The user name used to access the server.
+password. The password for that user.
+pathToDriver. The path to the folder containing the InterSystems IRIS JDBC driver JAR file.
+
+
 
 
 
@@ -152,7 +162,7 @@ set before calling connect() for the first time.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.4.0</span>
       </span>
     </div>
 
@@ -288,6 +298,13 @@ as "SSLKeyStorePwd=*****")</p></li>
 'jdbc:snowflake://host:port/?db=database').</p></li>
 <li><p><code>user</code>. The user name used to access the server.</p></li>
 <li><p><code>password</code>. The password for that user.</p></li>
+</ul><p>InterSystems IRIS:</p><ul><li><p><code>connectionString</code>. The connection string (e.g. starting with
+'jdbc:IRIS://host:port/namespace'). Alternatively, you can provide
+values for <code>server</code> and <code>port</code>, in which case the default <code>USER</code> namespace
+is used to connect.</p></li>
+<li><p><code>user</code>. The user name used to access the server.</p></li>
+<li><p><code>password</code>. The password for that user.</p></li>
+<li><p><code>pathToDriver</code>. The path to the folder containing the InterSystems IRIS JDBC driver JAR file.</p></li>
 </ul></div>
 
 <div class="section">
@@ -330,6 +347,7 @@ set before calling <code>connect()</code> for the first time.</p>
 <li><p>"sqlite extended" for SQLite with extended types (DATE and DATETIME)</p></li>
 <li><p>"spark" for Spark</p></li>
 <li><p>"snowflake" for Snowflake</p></li>
+<li><p>"iris" for InterSystems IRIS</p></li>
 </ul></dd>
 
 

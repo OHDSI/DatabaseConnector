@@ -19,7 +19,7 @@ This function parses the log file, producing a data frame with time per query.">
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">6.4.0</span>
       </span>
     </div>
 
@@ -105,15 +105,15 @@ the default file logger.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="executeSql.html">executeSql</a></span><span class="op">(</span><span class="va">connection</span>, <span class="st">"CREATE TABLE test (x INT);"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Executing SQL took 0.00391 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Executing SQL took 0.00541 secs</span>
 <span class="r-in"><span><span class="fu"><a href="querySql.html">querySql</a></span><span class="op">(</span><span class="va">connection</span>, <span class="st">"SELECT * FROM test;"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] X</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">extractQueryTimes</span><span class="op">(</span><span class="va">logFile</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       query           startTime milliseconds      thread</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 CREATE TABLE test (x INT) 2025-01-15 06:59:37            0 Main thread</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        SELECT * FROM test 2025-01-15 06:59:37            0 Main thread</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 CREATE TABLE test (x INT) 2025-01-30 11:02:29            0 Main thread</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        SELECT * FROM test 2025-01-30 11:02:29            0 Main thread</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">ParallelLogger</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/ParallelLogger/reference/unregisterLogger.html" class="external-link">unregisterLogger</a></span><span class="op">(</span><span class="st">"MY_LOGGER"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
