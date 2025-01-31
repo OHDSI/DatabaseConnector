@@ -1,3 +1,11 @@
+DatabaseConnector 6.4.1
+=======================
+
+Bugfixes:
+
+- Remove direct call to `bit64` S3 method to avoid issues in the future.
+
+
 DatabaseConnector 6.4.0
 =======================
 
