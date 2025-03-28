@@ -1,6 +1,6 @@
 # @file DatabaseConnector.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -56,26 +56,26 @@ NULL
 #' functions to point to the driver. Alternatively, you can set the 'DATABASECONNECTOR_JAR_FOLDER' environmental
 #' variable, for example in your .Renviron file (recommended).
 #'
-#' # SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery
+#' # SQL Server, Oracle, PostgreSQL, PDW, Snowflake, Spark, RedShift, Azure Synapse, BigQuery, InterSystems IRIS
 #' 
 #' Use the [downloadJdbcDrivers()] function to download these drivers from the OHDSI GitHub pages.
 #'
 #' # Netezza
 #' 
 #' Read the instructions
-#' [here](https://www.ibm.com/docs/en/SSULQD_7.2.1/com.ibm.nz.datacon.doc/t_datacon_setup_JDBC.html)
+#' [here](https://www.ibm.com/docs/en/netezza?topic=dls-installing-configuring-jdbc)
 #' on how to obtain the Netezza JDBC driver.
 #'
 #' # Impala
 #' 
-#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc/2-5-5.html), pick
+#' Go to [Cloudera's site](https://www.cloudera.com/downloads/connectors/impala/jdbc.html), pick
 #' your OS version, and click "GET IT NOW!'. Register, and you should be able to download the driver.
 #'
 #' # SQLite
 #' 
 #' For SQLite we actually don't use a JDBC driver. Instead, we use the RSQLite package, which can be installed
 #' using `install.packages("RSQLite")`.
-#'
+#' 
 NULL
 
 globalVars <- new.env()

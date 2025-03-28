@@ -37,6 +37,7 @@ This vignette describes how you can use the `DatabaseConnector` package to conne
 * (DataBricks)Spark
 * Snowflake
 * Synapse
+* InterSystems IRIS
 
 # Obtaining drivers 
 
@@ -87,9 +88,9 @@ writeLines("DatabaseConnector JDBC drivers downloaded to 'c:/temp/jdbcDrivers'."
 Note that if we hadn't specified the `DATABASECONNECTOR_JAR_FOLDER` environmental variable, we would have to specify the `pathToDriver` argument when calling `downloadJdbcDrivers`.
 
 
-## Obtaining drivers for Netezza and Impala
+## Obtaining drivers for Netezza, Impala and InterSystems IRIS
 
-Because of licensing reasons the drivers for BigQuery, Netezza and Impala are not included but must be obtained by the user. see [these instructions on how to download these drivers](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html), which you can also see by typing `?jdbcDrivers`.
+Because of licensing reasons the drivers for BigQuery, Netezza, Impala and InterSystems IRIS are not included but must be obtained by the user. see [these instructions on how to download these drivers](http://ohdsi.github.io/DatabaseConnector/reference/jdbcDrivers.html), which you can also see by typing `?jdbcDrivers`.
 
 
 ##  Obtaining drivers for SQLite or DuckDb

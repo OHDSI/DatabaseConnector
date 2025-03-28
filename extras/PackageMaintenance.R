@@ -1,4 +1,4 @@
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 # 
@@ -29,8 +29,19 @@ OhdsiRTools::checkUsagePackage("DatabaseConnector")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
-
 # Create manual ----------------------------------------------------------------
+# Remove Sexpr that breaks pkgdown
+# Fix links broken by roxygen (when inheriting from DBI)
+fixRdFile <- function(fileName) {
+  page <- SqlRender::readSql(fileName)
+  page <- gsub("\\\\Sexpr[^\n]*\n", "", page)
+  page <- gsub("\\linkS4class\\{(DBI[a-zA-Z]*)\\}", "\\link[DBI:\\1-class]{\\1}", page)
+  SqlRender::writeSql(page, fileName)
+}
+for (file in list.files("man", ".*.Rd")) {
+  fixRdFile(file.path("man", file))
+}
+
 unlink("extras/DatabaseConnector.pdf")
 system("R CMD Rd2pdf ./ --output=extras/DatabaseConnector.pdf")
 
@@ -53,15 +64,6 @@ rmarkdown::render("vignettes/DbiAndDbplyr.Rmd",
                                           toc = TRUE,
                                           number_sections = TRUE))
 
-# May need to delete Sexpr expressions from description sections to avoid purr error:
-fixRdFile <- function(fileName) {
-  page <- SqlRender::readSql(fileName)
-  page <- gsub("\\\\Sexpr[^\n]*\n", "", page)
-  SqlRender::writeSql(page, fileName)
-}
-for (file in list.files("man", ".*.Rd")) {
-  fixRdFile(file.path("man", file))
-}
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()
 
@@ -84,7 +86,7 @@ executeSql(connection, sql)
 
 databaseSchema <- Sys.getenv("CDM5_ORACLE_CDM54_SCHEMA")
 tables <- getTableNames(connection, databaseSchema, cast = "none")
-tables <- tables[grepl("", tables)]
+tables <- tables[grepl("_stats$|_counts$|groups$|prep$|_prep2|_sets$|_ref$|_data$|oc$", tables)]
 sql <- paste(sprintf("DROP TABLE %s.%s;", databaseSchema, tables), collapse= "\n")
 executeSql(connection, sql)
 
@@ -136,6 +138,19 @@ sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), c
 executeSql(connection, sql)
 disconnect(connection)
 
+# IRIS
+connection <- connect(
+  dbms = "iris",
+  user = Sys.getenv("CDM_IRIS_USER"),
+  password = URLdecode(Sys.getenv("CDM_IRIS_PASSWORD")),
+  connectionString = Sys.getenv("CDM_IRIS_CONNECTION_STRING")
+)
+databaseSchema <- Sys.getenv("CDM_IRIS_OHDSI_SCHEMA")
+tables <- getTableNames(connection, databaseSchema)
+sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse= "\n")
+executeSql(connection, sql)
+disconnect(connection)
+
 
 # Reverse dependency checks (taken from GA workflow) ---------------------------
 utils::download.file("https://raw.githubusercontent.com/OHDSI/.github/main/ReverseDependencyCheckFunctions.R", "ReverseDependencyCheckFunctions.R")
@@ -151,6 +166,6 @@ unlink("reverseDependencies.rds")
 # Release package --------------------------------------------------------------
 devtools::check_win_devel()
 
-devtools::check_rhub()
+rhub::rc_submit(platforms = "atlas")
 
 devtools::release()

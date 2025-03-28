@@ -15,7 +15,7 @@ querySql(
 }
 \arguments{
 \item{connection}{The connection to the database server created using either
-\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
+\code{\link[=connect]{connect()}} or \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{sql}{The SQL to be send.}
 
@@ -37,6 +37,17 @@ A data frame.
 This function sends SQL to the server, and returns the results.
 }
 \details{
+Fields will be automatically converted for improved consistenty in these situations:
+\itemize{
+\item SQLite: Fields with names ending in \verb{_date} will be converted to DATE fields. Rationale: SQLite
+does not support DATE fields.
+\item SQLite: Fields with names ending in \verb{_datetime} will be converted to POSIXct fields. Rationale:
+SQLite does not support DATETIME fields.
+\item BigQuery and Snowflake: Integer fields will be converted to Integer if it fits in an integer, or
+will remain Integer64 otherwise. Rationale: these platforms do not distinguish between INT and
+BIGINT.
+}
+
 This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
 execution, this error is written to a file to facilitate debugging. Null values in the database are converted
 to NA values in R.

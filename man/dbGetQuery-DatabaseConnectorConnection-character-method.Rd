@@ -4,7 +4,7 @@
 \alias{dbGetQuery,DatabaseConnectorConnection,character-method}
 \title{Retrieve results from a query}
 \usage{
-\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, translate = TRUE, ...)
+\S4method{dbGetQuery}{DatabaseConnectorConnection,character}(conn, statement, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
@@ -12,9 +12,9 @@
 
 \item{statement}{a character string containing SQL.}
 
-\item{translate}{Translate the query using SqlRender?}
-
 \item{...}{Other parameters passed on to methods.}
+
+\item{translate}{Translate the query using SqlRender?}
 }
 \value{
 \code{dbGetQuery()} always returns a \link{data.frame}, with

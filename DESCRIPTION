@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 6.3.3.9000
-Date: 2024-06-13
+Version: 7.0.0
+Date: 2025-03-28
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -13,14 +13,15 @@ Authors@R: c(
     person("Amazon Inc.", role = c("cph"), comment = "RedShift  JDBC driver")
   )
 Description: An R 'DataBase Interface' ('DBI') compatible interface to various database platforms ('PostgreSQL', 'Oracle', 'Microsoft SQL Server', 
-    'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Snowflake', 'Spark', and 'SQLite'). Also includes support for
-    fetching data as 'Andromeda' objects. Uses either 'Java Database Connectivity' ('JDBC') or other 'DBI' drivers to connect to databases.
+    'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Snowflake', 'Spark', 'SQLite', 
+    and 'InterSystems IRIS'). Also includes support for fetching data as 'Andromeda' objects. Uses either 'Java Database Connectivity' ('JDBC') or 
+    other 'DBI' drivers to connect to databases.
 SystemRequirements: Java (>= 8)
 Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.16.0),
+    SqlRender (>= 1.19.2),
     methods,
     stringr,
     readr,
@@ -48,7 +49,10 @@ Suggests:
     odbc,
     duckdb,
     pool,
-    ParallelLogger
+    ParallelLogger,
+    AzureStor
+Remotes:
+  ohdsi/SqlRender@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

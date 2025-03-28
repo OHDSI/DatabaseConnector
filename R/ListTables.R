@@ -1,6 +1,6 @@
 # @file ListTables.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -117,7 +117,8 @@ getTableNames <- function(connection, databaseSchema = NULL, cast = "lower") {
   } else if (is(connection, "DatabaseConnectorConnection")) {
     tableNames <- DBI::dbListTables(conn = connection, databaseSchema = databaseSchema)
   } else if (is(connection, "PqConnection") || is(connection, "RedshiftConnection") || is(connection, "duckdb_connection")) {
-    stopifnot(length(databaseSchemaSplit) == 1)
+    databaseSchemaSplit <- strsplit(databaseSchema, "\\.")[[1]]
+    if (length(databaseSchemaSplit) > 1) rlang::abort("databaseSchema cannot contain a dot (.) on this platform")
     sql <- paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '", databaseSchema, "';")
     tableNames <- DBI::dbGetQuery(connection, sql)[["table_name"]]
   } else if (is(connection, "Microsoft SQL Server")) {

@@ -1,339 +1,114 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Connecting.html</loc>
-  </url>
-  <url>
-    <loc>/articles/DbiAndDbplyr.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Querying.html</loc>
-  </url>
-  <url>
-    <loc>/articles/UsingDatabaseConnector.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/pull_request_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnector-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnector.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorConnection-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorDbiConnection-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorDbiResult-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorDriver-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorDriver.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorJdbcConnection-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorJdbcResult-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DatabaseConnectorResult-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Microsoft-SQL-Server-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/assertTempEmulationSchemaSet.html</loc>
-  </url>
-  <url>
-    <loc>/reference/computeDataHash.html</loc>
-  </url>
-  <url>
-    <loc>/reference/connect.html</loc>
-  </url>
-  <url>
-    <loc>/reference/createConnectionDetails.html</loc>
-  </url>
-  <url>
-    <loc>/reference/createDbiConnectionDetails.html</loc>
-  </url>
-  <url>
-    <loc>/reference/createZipFile.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dateAdd.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dateDiff.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dateFromParts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/day.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbClearResult-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbClearResult-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbClearResult-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbColumnInfo-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbColumnInfo-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbColumnInfo-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbConnect-DatabaseConnectorDriver-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbCreateTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbCreateTable-DatabaseConnectorConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbDisconnect-DatabaseConnectorConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbExecute-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbExistsTable-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbFetch-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbFetch-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbFetch-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetInfo-DatabaseConnectorConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetInfo-DatabaseConnectorDriver-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetQuery-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetRowCount-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetRowCount-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetRowCount-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetRowsAffected-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetRowsAffected-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetRowsAffected-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetStatement-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetStatement-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbGetStatement-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbHasCompleted-DatabaseConnectorDbiResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbHasCompleted-DatabaseConnectorJdbcResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbHasCompleted-DatabaseConnectorResult-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbIsValid-DatabaseConnectorConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbIsValid-DatabaseConnectorDbiConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbIsValid-DatabaseConnectorJdbcConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbListFields-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbListTables-DatabaseConnectorConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbQuoteIdentifier-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbQuoteString-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbReadTable-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbRemoveTable-DatabaseConnectorConnection-ANY-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbRemoveTable-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbSendQuery-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbSendQuery-DatabaseConnectorDbiConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbSendQuery-DatabaseConnectorJdbcConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbSendStatement-DatabaseConnectorConnection-character-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbUnloadDriver-DatabaseConnectorDriver-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbWriteTable-DatabaseConnectorConnection-ANY-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbWriteTable-DatabaseConnectorConnection-character-data.frame-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dbms.html</loc>
-  </url>
-  <url>
-    <loc>/reference/disconnect.html</loc>
-  </url>
-  <url>
-    <loc>/reference/downloadJdbcDrivers.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dropEmulatedTempTables.html</loc>
-  </url>
-  <url>
-    <loc>/reference/eoMonth.html</loc>
-  </url>
-  <url>
-    <loc>/reference/executeSql.html</loc>
-  </url>
-  <url>
-    <loc>/reference/existsTable.html</loc>
-  </url>
-  <url>
-    <loc>/reference/extractQueryTimes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getAvailableJavaHeapSpace.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getTableNames.html</loc>
-  </url>
-  <url>
-    <loc>/reference/inDatabaseSchema.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/insertTable.html</loc>
-  </url>
-  <url>
-    <loc>/reference/isSqlReservedWord.html</loc>
-  </url>
-  <url>
-    <loc>/reference/jdbcDrivers.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lowLevelExecuteSql.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lowLevelQuerySql.ffdf.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lowLevelQuerySql.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lowLevelQuerySqlToAndromeda.html</loc>
-  </url>
-  <url>
-    <loc>/reference/month.html</loc>
-  </url>
-  <url>
-    <loc>/reference/querySql.ffdf.html</loc>
-  </url>
-  <url>
-    <loc>/reference/querySql.html</loc>
-  </url>
-  <url>
-    <loc>/reference/querySqlToAndromeda.html</loc>
-  </url>
-  <url>
-    <loc>/reference/renderTranslateExecuteSql.html</loc>
-  </url>
-  <url>
-    <loc>/reference/renderTranslateQueryApplyBatched.html</loc>
-  </url>
-  <url>
-    <loc>/reference/renderTranslateQuerySql.ffdf.html</loc>
-  </url>
-  <url>
-    <loc>/reference/renderTranslateQuerySql.html</loc>
-  </url>
-  <url>
-    <loc>/reference/renderTranslateQuerySqlToAndromeda.html</loc>
-  </url>
-  <url>
-    <loc>/reference/requiresTempEmulation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/show-DatabaseConnectorConnection-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/show-DatabaseConnectorDriver-method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/year.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/Connecting.html</loc></url>
+<url><loc>/articles/DbiAndDbplyr.html</loc></url>
+<url><loc>/articles/Querying.html</loc></url>
+<url><loc>/articles/UsingDatabaseConnector.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/pull_request_template.html</loc></url>
+<url><loc>/reference/DatabaseConnector-package.html</loc></url>
+<url><loc>/reference/DatabaseConnectorConnection-class.html</loc></url>
+<url><loc>/reference/DatabaseConnectorDbiConnection-class.html</loc></url>
+<url><loc>/reference/DatabaseConnectorDbiResult-class.html</loc></url>
+<url><loc>/reference/DatabaseConnectorDriver-class.html</loc></url>
+<url><loc>/reference/DatabaseConnectorDriver.html</loc></url>
+<url><loc>/reference/DatabaseConnectorJdbcConnection-class.html</loc></url>
+<url><loc>/reference/DatabaseConnectorJdbcResult-class.html</loc></url>
+<url><loc>/reference/DatabaseConnectorResult-class.html</loc></url>
+<url><loc>/reference/Microsoft-SQL-Server-class.html</loc></url>
+<url><loc>/reference/assertTempEmulationSchemaSet.html</loc></url>
+<url><loc>/reference/computeDataHash.html</loc></url>
+<url><loc>/reference/connect.html</loc></url>
+<url><loc>/reference/createConnectionDetails.html</loc></url>
+<url><loc>/reference/createDbiConnectionDetails.html</loc></url>
+<url><loc>/reference/createZipFile.html</loc></url>
+<url><loc>/reference/dateAdd.html</loc></url>
+<url><loc>/reference/dateDiff.html</loc></url>
+<url><loc>/reference/dateFromParts.html</loc></url>
+<url><loc>/reference/day.html</loc></url>
+<url><loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-data.frame-method.html</loc></url>
+<url><loc>/reference/dbAppendTable-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbClearResult-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbClearResult-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbClearResult-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbColumnInfo-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbColumnInfo-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbColumnInfo-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbConnect-DatabaseConnectorDriver-method.html</loc></url>
+<url><loc>/reference/dbCreateTable-DatabaseConnectorConnection-character-data.frame-method.html</loc></url>
+<url><loc>/reference/dbCreateTable-DatabaseConnectorConnection-method.html</loc></url>
+<url><loc>/reference/dbDisconnect-DatabaseConnectorConnection-method.html</loc></url>
+<url><loc>/reference/dbExecute-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbExistsTable-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbFetch-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbFetch-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbFetch-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbGetInfo-DatabaseConnectorConnection-method.html</loc></url>
+<url><loc>/reference/dbGetInfo-DatabaseConnectorDriver-method.html</loc></url>
+<url><loc>/reference/dbGetQuery-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbGetRowCount-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbGetRowCount-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbGetRowCount-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbGetRowsAffected-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbGetRowsAffected-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbGetRowsAffected-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbGetStatement-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbGetStatement-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbGetStatement-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbHasCompleted-DatabaseConnectorDbiResult-method.html</loc></url>
+<url><loc>/reference/dbHasCompleted-DatabaseConnectorJdbcResult-method.html</loc></url>
+<url><loc>/reference/dbHasCompleted-DatabaseConnectorResult-method.html</loc></url>
+<url><loc>/reference/dbIsValid-DatabaseConnectorConnection-method.html</loc></url>
+<url><loc>/reference/dbIsValid-DatabaseConnectorDbiConnection-method.html</loc></url>
+<url><loc>/reference/dbIsValid-DatabaseConnectorJdbcConnection-method.html</loc></url>
+<url><loc>/reference/dbListFields-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbListTables-DatabaseConnectorConnection-method.html</loc></url>
+<url><loc>/reference/dbQuoteIdentifier-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbQuoteString-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbReadTable-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbRemoveTable-DatabaseConnectorConnection-ANY-method.html</loc></url>
+<url><loc>/reference/dbRemoveTable-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbSendQuery-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbSendQuery-DatabaseConnectorDbiConnection-character-method.html</loc></url>
+<url><loc>/reference/dbSendQuery-DatabaseConnectorJdbcConnection-character-method.html</loc></url>
+<url><loc>/reference/dbSendStatement-DatabaseConnectorConnection-character-method.html</loc></url>
+<url><loc>/reference/dbUnloadDriver-DatabaseConnectorDriver-method.html</loc></url>
+<url><loc>/reference/dbWriteTable-DatabaseConnectorConnection-ANY-method.html</loc></url>
+<url><loc>/reference/dbWriteTable-DatabaseConnectorConnection-character-data.frame-method.html</loc></url>
+<url><loc>/reference/dbms.html</loc></url>
+<url><loc>/reference/disconnect.html</loc></url>
+<url><loc>/reference/downloadJdbcDrivers.html</loc></url>
+<url><loc>/reference/dropEmulatedTempTables.html</loc></url>
+<url><loc>/reference/eoMonth.html</loc></url>
+<url><loc>/reference/executeSql.html</loc></url>
+<url><loc>/reference/existsTable.html</loc></url>
+<url><loc>/reference/extractQueryTimes.html</loc></url>
+<url><loc>/reference/getAvailableJavaHeapSpace.html</loc></url>
+<url><loc>/reference/getTableNames.html</loc></url>
+<url><loc>/reference/inDatabaseSchema.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/insertTable.html</loc></url>
+<url><loc>/reference/isSqlReservedWord.html</loc></url>
+<url><loc>/reference/jdbcDrivers.html</loc></url>
+<url><loc>/reference/lowLevelExecuteSql.html</loc></url>
+<url><loc>/reference/lowLevelQuerySql.ffdf.html</loc></url>
+<url><loc>/reference/lowLevelQuerySql.html</loc></url>
+<url><loc>/reference/lowLevelQuerySqlToAndromeda.html</loc></url>
+<url><loc>/reference/month.html</loc></url>
+<url><loc>/reference/querySql.ffdf.html</loc></url>
+<url><loc>/reference/querySql.html</loc></url>
+<url><loc>/reference/querySqlToAndromeda.html</loc></url>
+<url><loc>/reference/renderTranslateExecuteSql.html</loc></url>
+<url><loc>/reference/renderTranslateQueryApplyBatched.html</loc></url>
+<url><loc>/reference/renderTranslateQuerySql.ffdf.html</loc></url>
+<url><loc>/reference/renderTranslateQuerySql.html</loc></url>
+<url><loc>/reference/renderTranslateQuerySqlToAndromeda.html</loc></url>
+<url><loc>/reference/requiresTempEmulation.html</loc></url>
+<url><loc>/reference/show-DatabaseConnectorConnection-method.html</loc></url>
+<url><loc>/reference/show-DatabaseConnectorDriver-method.html</loc></url>
+<url><loc>/reference/year.html</loc></url>
 </urlset>
+

@@ -119,6 +119,8 @@ for (testServer in testServers) {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "FLOAT", "STRING", "BIGINT", "BOOLEAN"))
     } else if (dbms == "bigquery") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64"))
+    } else if (dbms == "iris") {
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INTEGER", "DOUBLE", "VARCHAR", "BIGINT"))
     } else {
       warning("Unable to check column types for ", dbms)
     } 

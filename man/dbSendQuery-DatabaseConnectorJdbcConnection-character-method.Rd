@@ -4,15 +4,13 @@
 \alias{dbSendQuery,DatabaseConnectorJdbcConnection,character-method}
 \title{Execute a query on a given database connection}
 \usage{
-\S4method{dbSendQuery}{DatabaseConnectorJdbcConnection,character}(conn, statement, translate = TRUE, ...)
+\S4method{dbSendQuery}{DatabaseConnectorJdbcConnection,character}(conn, statement, ...)
 }
 \arguments{
 \item{conn}{A \linkS4class{DBIConnection} object, as returned by
 \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}
-
-\item{translate}{Translate the query using SqlRender?}
 
 \item{...}{Other parameters passed on to methods.}
 }

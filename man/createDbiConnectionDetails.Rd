@@ -20,6 +20,7 @@ createDbiConnectionDetails(dbms, drv, ...)
 \item "sqlite extended" for SQLite with extended types (DATE and DATETIME)
 \item "spark" for Spark
 \item "snowflake" for Snowflake
+\item "iris" for InterSystems IRIS
 }}
 
 \item{drv}{An object that inherits from DBIDriver, or an existing DBIConnection object

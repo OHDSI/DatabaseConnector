@@ -8,7 +8,7 @@ existsTable(connection, databaseSchema, tableName)
 }
 \arguments{
 \item{connection}{The connection to the database server created using either
-\code{\link[=connect]{connect()}} or \code{\link[=dbConnect]{dbConnect()}}.}
+\code{\link[=connect]{connect()}} or \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 

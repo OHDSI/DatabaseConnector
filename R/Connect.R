@@ -1,6 +1,6 @@
 # @file Connect.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -28,7 +28,8 @@ checkIfDbmsIsSupported <- function(dbms) {
     "spark",
     "snowflake",
     "synapse",
-    "duckdb"
+    "duckdb",
+    "iris"
   )
   deprecated <- c(
     "hive",
@@ -322,6 +323,8 @@ connectUsingJdbc <- function(connectionDetails) {
     return(connectSpark(connectionDetails))
   } else if (dbms == "snowflake") {
     return(connectSnowflake(connectionDetails))
+  } else if (dbms == "iris") {
+    return(connectIris(connectionDetails))
   } else {
     abort("Something went wrong when trying to connect to ", dbms)
   }
@@ -646,6 +649,36 @@ connectSqlite <- function(connectionDetails) {
       extended_types = (connectionDetails$dbms == "sqlite extended")
     )
   )
+  return(connection)
+}
+
+connectIris <- function(connectionDetails) {
+  inform("Connecting using InterSystems IRIS driver")
+  jarPath <- findPathToJar("^intersystems-jdbc-.*\\.jar$", connectionDetails$pathToDriver)
+  driver <- getJbcDriverSingleton("com.intersystems.jdbc.IRISDriver", jarPath)
+  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
+    if (is.null(connectionDetails$port())) {
+      port <- "1972"
+    } else {
+      port <- connectionDetails$port()
+    }
+    connectionString <- paste0("jdbc:IRIS://", connectionDetails$server(), ":", port, "/USER")  # use a full connection string for nondefault database
+    if (!is.null(connectionDetails$extraSettings)) {
+      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = ";")
+    }
+  } else {
+    connectionString <- connectionDetails$connectionString()
+  }
+  if (is.null(connectionDetails$user())) {
+    connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
+  } else {
+    connection <- connectUsingJdbcDriver(driver,
+      connectionString,
+      user = connectionDetails$user(),
+      password = connectionDetails$password(),
+      dbms = connectionDetails$dbms
+    )
+  }
   return(connection)
 }
 

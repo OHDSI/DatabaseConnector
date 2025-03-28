@@ -455,3 +455,66 @@ querySql.sqlite(connection = connection,
 
 disconnect(connection)
 DBI::dbGetQuery(sqliteConnection, "SELECT COUNT(*) FROM test;")
+
+
+# Test insert table performance on DataBricks -----------------------------
+library(DatabaseConnector)
+connectionDetails <- createConnectionDetails(
+  dbms = "spark",
+  connectionString = keyring::key_get("databricksConnectionString"),
+  user = "token",
+  password = keyring::key_get("databricksToken")
+)
+options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
+
+conn <- connect(connectionDetails)
+set.seed(1)
+day.start <- "1900/01/01"
+day.end <- "2012/12/31"
+dayseq <- seq.Date(as.Date(day.start), as.Date(day.end), by = "day")
+makeRandomStrings <- function(n = 1, lenght = 12) {
+  randomString <- c(1:n)
+  for (i in 1:n) randomString[i] <- paste(sample(c(0:9, letters, LETTERS), lenght, replace = TRUE),
+                                          collapse = "")
+  return(randomString)
+}
+data <- data.frame(start_date = dayseq,
+                   person_id = as.integer(round(runif(length(dayseq), 1, 1e+07))),
+                   value = runif(length(dayseq)),
+                   id = makeRandomStrings(length(dayseq)))
+
+data$start_date[4] <- NA
+data$person_id[5] <- NA
+data$value[2] <- NA
+data$id[3] <- NA
+
+# data <- data[1:100, c("value", "id")]
+system.time(
+  insertTable(connection = conn,
+              tableName = "scratch.scratch_mschuemi.insert_test",
+              data = data,
+              dropTableIfExists = TRUE,
+              createTable = TRUE,
+              tempTable = FALSE,
+              progressBar = TRUE,
+              bulkLoad = FALSE)
+)
+# Using default inserts with parameterized queries:
+# user  system elapsed 
+# 2.87    1.67  212.97 
+
+# USing CTAS hack:
+# user  system elapsed 
+# 0.54    0.03   11.19 
+
+system.time({
+sql <- "DROP TABLE IF EXISTS scratch.scratch_mschuemi.insert_test;"
+executeSql(conn, sql)
+sql <- "CREATE TABLE scratch.scratch_mschuemi.insert_test (value FLOAT, id STRING);"
+executeSql(conn, sql)
+sql <- sprintf("INSERT INTO scratch.scratch_mschuemi.insert_test (value, id) VALUES %s;", paste(sprintf("(%s, '%s')", data$value, data$id), collapse = ","))
+sql <- gsub("NA", "NULL", gsub("'NA'", "NULL", sql))
+executeSql(conn, sql)
+})
+# user  system elapsed 
+# 0.16    0.07    7.07 

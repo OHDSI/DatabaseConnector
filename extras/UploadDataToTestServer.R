@@ -70,11 +70,19 @@ toDatabaseSchema <- Sys.getenv("CDM5_POSTGRESQL_CDM_SCHEMA")
 # )
 # toDatabaseSchema <- Sys.getenv("LOCAL_POSTGRES_CDM_SCHEMA")
 
+toConnection <- connect(
+  dbms = "iris",
+  user = Sys.getenv("CDM_IRIS_USER"),
+  password = URLdecode(Sys.getenv("CDM_IRIS_PASSWORD")),
+  connectionString = Sys.getenv("CDM_IRIS_CONNECTION_STRING")
+)
+toDatabaseSchema <- Sys.getenv("CDM_IRIS_CDM_SCHEMA")
+
 
 tableNames <- getTableNames(fromConnection, fromDatabaseSchema)
 tableNames <- tableNames[tableNames != "note_nlp"]
 for (i in seq_along(tableNames)) {
-  # for (i in 31:length(tableNames)) {
+  # for (i in 14:length(tableNames)) {
   message(sprintf("Copying table %s", tableNames[i]))
   andromeda <- Andromeda::andromeda()
   renderTranslateQuerySqlToAndromeda(
@@ -84,6 +92,13 @@ for (i in seq_along(tableNames)) {
     andromedaTableName = tableNames[i],
     database_schema = fromDatabaseSchema,
     table_name = tableNames[i])
+  sql <- "DROP TABLE IF EXISTS @database_schema.@table_name CASCADE;"
+  renderTranslateExecuteSql(connection = toConnection,
+                            sql = sql,
+                            database_schema = toDatabaseSchema,
+                            table_name = tableNames[i],
+                            progressBar = FALSE,
+                            reportOverallTime = FALSE)
   insertTable(
     connection = toConnection,
     databaseSchema = toDatabaseSchema,
@@ -109,7 +124,11 @@ for (i in seq_along(toTableNames)) {
   for (j in dateFieldIdx) {
     if (!is(row[,j], "Date")) {
       writeLines(sprintf("Incorrect type of field %s in table %s: %s", colnames(row)[j], tableName, class(row[,j])[1]))
-      sql <- "ALTER TABLE @schema.@table ALTER COLUMN @column TYPE date;"
+      if (dbms(connection) == "iris") {
+        sql <- "ALTER TABLE @schema.@table MODIFY @column DATE;"  
+      } else {
+        sql <- "ALTER TABLE @schema.@table ALTER COLUMN @column TYPE date;"
+      }
       renderTranslateExecuteSql(toConnection,
                                 sql = sql,
                                 schema = toDatabaseSchema,
@@ -120,7 +139,7 @@ for (i in seq_along(toTableNames)) {
 }
 
 # Create indices:
-sql <- readLines("https://raw.githubusercontent.com/OHDSI/CommonDataModel/v5.4.0/inst/ddl/5.4/postgresql/OMOPCDM_postgresql_5.4_indices.sql")
+sql <- readLines("https://raw.githubusercontent.com/OHDSI/CommonDataModel/v5.4.0/inst/ddl/5.4/sql_server/OMOPCDM_sql_server_5.4_indices.sql")
 sql <- sql[!grepl("note_nlp", sql)]
 
 renderTranslateExecuteSql(

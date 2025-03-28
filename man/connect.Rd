@@ -20,6 +20,7 @@
 \item "sqlite extended" for SQLite with extended types (DATE and DATETIME)
 \item "spark" for Spark
 \item "snowflake" for Snowflake
+\item "iris" for InterSystems IRIS
 }}
 
 \item{user}{The user name used to access the server.}
@@ -34,7 +35,7 @@
 provider to configure things as security for SSL. For connections using
 JDBC these will be appended to end of the connection string. For
 connections using DBI, these settings will additionally be used to call
-\code{\link[=dbConnect]{dbConnect()}}.}
+\code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{oracleDriver}{Specify which Oracle drive you want to use. Choose between \code{"thin"}
 or \code{"oci"}.}
@@ -180,6 +181,17 @@ Snowflake:
 'jdbc:snowflake://host:port/?db=database').
 \item \code{user}. The user name used to access the server.
 \item \code{password}. The password for that user.
+}
+
+InterSystems IRIS:
+\itemize{
+\item \code{connectionString}. The connection string (e.g. starting with
+'jdbc:IRIS://host:port/namespace'). Alternatively, you can provide
+values for \code{server} and \code{port}, in which case the default \code{USER} namespace
+is used to connect.
+\item \code{user}. The user name used to access the server.
+\item \code{password}. The password for that user.
+\item \code{pathToDriver}. The path to the folder containing the InterSystems IRIS JDBC driver JAR file.
 }
 }
 

@@ -1,6 +1,6 @@
 # @file Drivers.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -33,6 +33,7 @@ jdbcDrivers <- new.env()
 #' - "spark" for Spark
 #' - "snowflake" for Snowflake
 #' - "bigquery" for Google BigQuery
+#' - "iris" for InterSystems IRIS
 #' - "all" for all aforementioned platforms
 #'  
 #' @param method The method used for downloading files. See `?download.file` for details and options.
@@ -41,13 +42,14 @@ jdbcDrivers <- new.env()
 #' @details
 #' The following versions of the JDBC drivers are currently used:
 #' 
-#' - PostgreSQL: V42.2.18
+#' - PostgreSQL: V42.7.3
 #' - RedShift: V2.1.0.9
 #' - SQL Server: V9.2.0
 #' - Oracle: V19.8
 #' - Spark (Databricks): V2.6.36
 #' - Snowflake: V3.16.01
 #' - BigQuery: v1.3.2.1003
+#' - InterSystems IRIS: v3.10.2
 #' 
 #' @return Invisibly returns the destination if the download was successful.
 #' @export
@@ -81,23 +83,25 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     warn(paste0("The folder location '", pathToDriver, "' does not exist. Attempting to create."))
     dir.create(pathToDriver, recursive = TRUE)
   }
-  
-  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark", "bigquery"))
-  
+
+  stopifnot(is.character(dbms), length(dbms) == 1, dbms %in% c("all", "postgresql", "redshift", "sql server", "oracle", "pdw", "snowflake", "spark", "bigquery", "iris"))
+
   if (dbms == "pdw" || dbms == "synapse") {
     dbms <- "sql server"
   }
   
   jdbcDriverSources <- utils::read.csv(text = 
                                          "row,dbms, fileName, baseUrl
-    1,postgresql,postgresqlV42.2.18.zip,https://ohdsi.github.io/DatabaseConnectorJars/
+    1,postgresql,postgresql-42.7.3.jar,https://jdbc.postgresql.org/download/
     2,redshift,redshift-jdbc42-2.1.0.20.zip,https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/
     3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     5,spark,DatabricksJDBC42-2.6.36.1062.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.36/
-    6,snowflake,snowflake-jdbc-3.16.1.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.16.1/
-    7,bigquery,SimbaBigQueryJDBC42-1.3.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/"
+    6,snowflake,snowflake-jdbc-3.23.1.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.23.1/
+    7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.6.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/
+    8,iris,intersystems-jdbc-3.10.2.jar,https://repo1.maven.org/maven2/com/intersystems/intersystems-jdbc/3.10.2/"
   )
+
   if (dbms == "all") {
     dbms <- jdbcDriverSources$dbms
   }

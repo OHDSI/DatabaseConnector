@@ -1,6 +1,6 @@
 # @file Sql.R
 #
-# Copyright 2023 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of DatabaseConnector
 #
@@ -81,7 +81,7 @@ convertInteger64ToNumeric <- function(x) {
   if (any(x >= maxInt64 | x <= -maxInt64, na.rm = TRUE)) {
     abort("The data contains integers >= 2^53, and converting those to R's numeric type leads to precision loss. Consider using smaller integers, converting the integers to doubles on the database side, or using `options(databaseConnectorInteger64AsNumeric = FALSE)`.")
   }
-  return(bit64::as.double.integer64(x))
+  return(as.double(x))
 }
 
 parseJdbcColumnData <- function(batchedQuery,
@@ -295,9 +295,10 @@ lowLevelExecuteSql.default <- function(connection, sql) {
   
   statement <- rJava::.jcall(connection@jConnection, "Ljava/sql/Statement;", "createStatement")
   on.exit(rJava::.jcall(statement, "V", "close"))
-  if (dbms(connection) == "spark") {
+  if ((dbms(connection) == "spark") || (dbms(connection) == "iris")) {
     # For some queries the DataBricks JDBC driver will throw an error saying no ROWCOUNT is returned
-    # when using executeLargeUpdate, so using execute instead. 
+    # when using executeLargeUpdate, so using execute instead.
+    # Also use this approach for IRIS JDBC driver, which does not support executeLargeUpdate() directly.
     rJava::.jcall(statement, "Z", "execute", as.character(sql), check = FALSE)
     rowsAffected <- rJava::.jcall(statement, "I", "getUpdateCount", check = FALSE)
     if (rowsAffected == -1) {
@@ -439,7 +440,13 @@ executeSql <- function(connection,
       tryCatch(
         {
           startQuery <- Sys.time()
-          rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))
+          # InterSystems IRIS JDBC supports batch updates but does not have a separate
+          # executeLargeBatch() method
+          if (dbms == "iris") {
+            rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[I", "executeBatch"))
+          } else {
+            rowsAffected <- c(rowsAffected, rJava::.jcall(statement, "[J", "executeLargeBatch"))
+          }
           delta <- Sys.time() - startQuery
           if (profile) {
             inform(paste("Statements", start, "through", end, "took", delta, attr(delta, "units")))
@@ -555,6 +562,7 @@ trySettingAutoCommit <- function(connection, value) {
 #' @template ErrorReportFile
 #' @template SnakeCaseToCamelCase
 #' @template IntegerAsNumeric
+#' @template DataTypeConversion
 #'
 #' @details
 #' This function sends the SQL to the server and retrieves the results. If an error occurs during SQL
@@ -697,6 +705,7 @@ renderTranslateExecuteSql <- function(connection,
 #' @template SnakeCaseToCamelCase
 #' @template TempEmulationSchema
 #' @template IntegerAsNumeric
+#' @template DataTypeConversion
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
@@ -791,6 +800,7 @@ isSqlReservedWord <- function(sqlNames, warn = FALSE) {
 #' @template SnakeCaseToCamelCase
 #' @template TempEmulationSchema
 #' @template IntegerAsNumeric
+#' @template DataTypeConversion
 #' @param ...                  Parameters that will be used to render the SQL.
 #'
 #' @details
