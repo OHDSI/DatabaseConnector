@@ -308,3 +308,9 @@ testServers[[length(testServers) + 1]] <- list(
 
 testServers = testServers[3] # oracle
 # testServer = testServers[[1]]
+
+
+# connection <- connect(testServers[[1]]$connectionDetails)
+message(paste("------:", testServers[[1]]$cdmDatabaseSchema))
+# query <- DBI::dbSendQuery(connection,'SELECT * FROM "CDMV5"."PERSON" "q01" WHERE (0 = 1)')
+# DBI::dbFetch(query)
