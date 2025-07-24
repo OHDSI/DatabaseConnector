@@ -306,3 +306,5 @@ testServers[[length(testServers) + 1]] <- list(
   tempEmulationSchema = NULL
 )
 
+testServers = testServers[3] # oracle
+# testServer = testServers[[1]]
