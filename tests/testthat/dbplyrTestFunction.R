@@ -7,6 +7,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   connection <- connect(connectionDetails)
   on.exit(dropEmulatedTempTables(connection))
   on.exit(disconnect(connection), add = TRUE)
+  cdmDatabaseSchema <- "CDMV54"
   if ("person" %in% getTableNames(connection, cdmDatabaseSchema, cast = "none")) {
     personTableName <- "person"
     observationPeriodTableName <- "observation_period"
