@@ -307,7 +307,7 @@ testServers[[length(testServers) + 1]] <- list(
   tempEmulationSchema = NULL
 )
 
-testServers = testServers[3] # oracle
+testServers = testServers[5] # snowflake
 # testServer = testServers[[1]]
 
 

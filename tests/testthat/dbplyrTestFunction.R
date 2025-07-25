@@ -25,7 +25,7 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   
   # Test filter, arrange, relocate, distinct -----------------------------------
   nMales <- person %>%
-    filter(.data$gender_concept_id == 8507) %>%
+    filter(gender_concept_id == 8507) %>%
     count() %>%
     pull()
   expect_gt(nMales, 1)
