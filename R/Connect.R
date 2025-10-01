@@ -31,7 +31,8 @@ checkIfDbmsIsSupported <- function(dbms) {
     "snowflake",
     "synapse",
     "duckdb",
-    "iris"
+    "iris",
+    "muckdb"
   )
   deprecated <- c(
     "hive",
@@ -297,6 +298,8 @@ connect <- function(connectionDetails = NULL,
       connectSqlite(connectionDetails)
     } else if (connectionDetails$dbms == "duckdb") {
       connectDuckdb(connectionDetails)
+    }  else if (connectionDetails$dbms == "muckdb") {
+      connectMuckdb(connectionDetails)
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
       connectSparkUsingOdbc(connectionDetails)
     } else {
@@ -864,6 +867,51 @@ connectDuckdb <- function(connectionDetails) {
                 "You may need to check your internet connection.\n",
                 "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
                 "Be aware that some time and date functionality will not be available.")   
+        return(NULL)
+      }
+    )
+  }
+  return(connection)
+}
+
+
+#' Connect to a mock DBMS using DuckDB and sqlglot (muckdb)
+#'
+#' @param connectionDetails A DatabaseConnector connectionDetails object.
+#'        Should include dbms (mock platform name as the connection string) and server (DuckDB dbdir).
+#' @return A muckdb connection object.
+#' @keywords internal
+#' @noRd
+connectMuckdb <- function(connectionDetails) {
+  inform("Connecting using DuckDB driver with sqlglot platform emulation")
+  ensure_installed("duckdb")
+  ensure_installed("reticulate")
+
+  # Check for Python module sqlglot
+  if (!reticulate::py_module_available("sqlglot")) {
+    stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot")
+  }
+
+  # Create muckdb connection using the camelCase DBI constructor
+  connection <- muckdbConnect(
+    platform = connectionDetails$connectionString,
+    dbDir = connectionDetails$server()
+  )
+
+  # Check if ICU extension is installed, and if not, try to install it:
+  isInstalled <- DBI::dbGetQuery(
+    conn = unclass(connection),
+    statement = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
+  )[1, 1]
+  if (!isInstalled) {
+    warning("The ICU extension of DuckDB is not installed. Attempting to install it.")
+    tryCatch(
+      DBI::dbExecute(unclass(connection), "INSTALL icu"),
+      error = function(e) {
+        warning("Attempting to install the ICU extension of DuckDB failed.\n",
+                "You may need to check your internet connection.\n",
+                "For more detail, try 'DBI::dbExecute(connection, \"INSTALL icu\")'.\n",
+                "Be aware that some time and date functionality will not be available.")
         return(NULL)
       }
     )
