@@ -39,9 +39,11 @@ muckdbConnect <- function(platform = "duckdb", ...) {
   if (!reticulate::py_module_available("sqlglot"))
     stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
   sqlglot <- reticulate::import("sqlglot")
-  con <- DBI::dbConnect(duckdb::duckdb(), ...)
+  duckdbCon <- DBI::dbConnect(duckdb::duckdb(), ...)
+  con <- duckdbCon
   attr(con, "muckdbPlatform") <- platform
   attr(con, "muckdbSqlglot") <- sqlglot
+  attr(con, "duckdbConnection") <- duckdbCon
   class(con) <- c("muckdb", class(con))
   con
 }
@@ -59,6 +61,8 @@ dbGetQuery.muckdb <- function(conn, statement, ...) {
   platform <- attr(conn, "muckdbPlatform")
   sqlglot <- attr(conn, "muckdbSqlglot")
   translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
-  DBI::dbGetQuery(conn = unclass(conn), statement = translated, ...)
+  # Remove "muckdb" class so DBI dispatches to duckdb methods
+  class(conn) <- setdiff(class(conn), "muckdb")
+  DBI::dbGetQuery(conn = conn, statement = translated, ...)
 }
 

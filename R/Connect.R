@@ -897,16 +897,17 @@ connectMuckdb <- function(connectionDetails) {
     platform = connectionDetails$connectionString,
     dbDir = connectionDetails$server()
   )
+  # Use the underlying duckdb connection for extension checks
+  duckdbCon <- attr(connection, "duckdbConnection")
 
-  # Check if ICU extension is installed, and if not, try to install it:
   isInstalled <- DBI::dbGetQuery(
-    conn = unclass(connection),
+    conn = duckdbCon,
     statement = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
   )[1, 1]
   if (!isInstalled) {
     warning("The ICU extension of DuckDB is not installed. Attempting to install it.")
     tryCatch(
-      DBI::dbExecute(unclass(connection), "INSTALL icu"),
+      DBI::dbExecute(duckdbCon, "INSTALL icu"),
       error = function(e) {
         warning("Attempting to install the ICU extension of DuckDB failed.\n",
                 "You may need to check your internet connection.\n",
