@@ -14,18 +14,125 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' @importMethodsFrom DBI dbSendQuery dbGetQuery
-#' @importClassesFrom duckdb duckdb_connection
-#' @export
-setClass(
-  "muckdb",
-  contains = "duckdb_connection",
-  slots = c(
-    muckdbPlatform = "character",
-    muckdbSqlglot = "ANY"
-  )
-)
 
+.transpile <- function(conn, statement, ...) {
+  platform <- conn@muckdbPlatform
+  if (platform == "postgresql") {
+    platform <- "postgres"
+  } else if (platform == "sql server") {
+    platform <- "tsql"
+  }
+
+  sqlglot <- conn@muckdbSqlglot
+  translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
+  callNextMethod(conn, translated, ...)
+}
+
+if (requireNamespace("duckdb", quietly = TRUE)) {
+  setMethod(
+    "dbSendQuery",
+    signature(conn = "muckdb", statement = "character"),
+    .transpile
+  )
+
+  setMethod(
+    "dbGetQuery",
+    signature(conn = "muckdb", statement = "character"),
+    .transpile
+  )
+
+  setClass(
+    "muckdb_driver",
+    contains = "duckdb_driver",
+    slots = list(
+      muckdbPlatform = "character",
+      muckdbSqlglot = "ANY"
+    )
+  )
+
+  setClass(
+    "muckdb",
+    contains = "duckdb_connection",
+    slots = c(
+      muckdbPlatform = "character",
+      muckdbSqlglot = "ANY"
+    )
+  )
+
+  setMethod(
+    "dbConnect",
+    signature(drv = "muckdb_driver"),
+    function(drv, dbdir = ":memory:", ...) {
+      # Create the underlying duckdb_connection
+      duckdbCon <- DBI::dbConnect(duckdb::duckdb(), dbdir = dbdir, ...)
+      # Copy all parent slots
+      parentSlots <- slotNames(duckdbCon)
+      parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbCon, s))
+      names(parentSlotValues) <- parentSlots
+
+      # Add muckdb-specific slots from the driver
+      allSlots <- c(
+        list(
+          muckdbPlatform = drv@muckdbPlatform,
+          muckdbSqlglot = drv@muckdbSqlglot
+        ),
+        parentSlotValues
+      )
+
+      do.call("new", c("muckdb", allSlots))
+    }
+  )
+
+  setMethod(
+    "dbConnect",
+    signature(drv = "muckdb_driver"),
+    function(drv, dbdir = ":memory:", ...) {
+      # Create the underlying duckdb_connection
+      duckdbCon <- DBI::dbConnect(duckdb::duckdb(), dbdir = dbdir, ...)
+      # Copy all parent slots
+      parentSlots <- slotNames(duckdbCon)
+      parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbCon, s))
+      names(parentSlotValues) <- parentSlots
+
+      # Add muckdb-specific slots from the driver
+      allSlots <- c(
+        list(
+          muckdbPlatform = drv@muckdbPlatform,
+          muckdbSqlglot = drv@muckdbSqlglot
+        ),
+        parentSlotValues
+      )
+
+      do.call("new", c("muckdb", allSlots))
+    }
+  )
+}
+
+muckdb <- function(platform = "duckdb", dbdir = ":memory:", ...) {
+  ensure_installed("reticulate")
+  if (!reticulate::py_module_available("sqlglot"))
+    stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
+  sqlglot <- reticulate::import("sqlglot")
+
+  # Construct the underlying duckdb driver
+  duckdbDrv <- duckdb::duckdb(dbdir = dbdir, ...)
+
+  # Copy all slots from duckdb_driver
+  parentSlots <- slotNames(duckdbDrv)
+  parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbDrv, s))
+  names(parentSlotValues) <- parentSlots
+
+  # Add muckdb-specific slots
+  allSlots <- c(
+    list(
+      muckdbPlatform = platform,
+      muckdbSqlglot = sqlglot
+    ),
+    parentSlotValues
+  )
+
+  do.call("new", c("muckdb_driver", allSlots))
+}
 
 #' muckdb: Mock DBMS connection using DuckDB and sqlglot
 #'
@@ -70,91 +177,3 @@ muckdbConnect <- function(platform = "duckdb", ...) {
 
   do.call("new", c("muckdb", allSlots))
 }
-
-.transpile <- function(conn, statement, ...) {
-  platform <- conn@muckdbPlatform
-  if (platform == "postgresql") {
-    platform <- "postgres"
-  } else if (platform == "sql server") {
-    platform <- "tsql"
-  }
-
-  sqlglot <- conn@muckdbSqlglot
-  translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
-  callNextMethod(conn, translated, ...)
-}
-
-#' @export
-setMethod(
-  "dbSendQuery",
-  signature(conn = "muckdb", statement = "character"),
-  .transpile
-)
-
-#' @export
-setMethod(
-  "dbGetQuery",
-  signature(conn = "muckdb", statement = "character"),
-  .transpile
-)
-
-
-#' @export
-setClass(
-  "muckdb_driver",
-  contains = "duckdb_driver",
-  slots = list(
-    muckdbPlatform = "character",
-    muckdbSqlglot = "ANY"
-  )
-)
-
-muckdb <- function(platform = "duckdb", dbdir = ":memory:", ...) {
-  ensure_installed("reticulate")
-  if (!reticulate::py_module_available("sqlglot"))
-    stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
-  sqlglot <- reticulate::import("sqlglot")
-
-  # Construct the underlying duckdb driver
-  duckdbDrv <- duckdb::duckdb(dbdir = dbdir, ...)
-
-  # Copy all slots from duckdb_driver
-  parentSlots <- slotNames(duckdbDrv)
-  parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbDrv, s))
-  names(parentSlotValues) <- parentSlots
-
-  # Add muckdb-specific slots
-  allSlots <- c(
-    list(
-      muckdbPlatform = platform,
-      muckdbSqlglot = sqlglot
-    ),
-    parentSlotValues
-  )
-
-  do.call("new", c("muckdb_driver", allSlots))
-}
-
-setMethod(
-  "dbConnect",
-  signature(drv = "muckdb_driver"),
-  function(drv, dbdir = ":memory:", ...) {
-    # Create the underlying duckdb_connection
-    duckdbCon <- DBI::dbConnect(duckdb::duckdb(), dbdir = dbdir, ...)
-    # Copy all parent slots
-    parentSlots <- slotNames(duckdbCon)
-    parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbCon, s))
-    names(parentSlotValues) <- parentSlots
-
-    # Add muckdb-specific slots from the driver
-    allSlots <- c(
-      list(
-        muckdbPlatform = drv@muckdbPlatform,
-        muckdbSqlglot = drv@muckdbSqlglot
-      ),
-      parentSlotValues
-    )
-
-    do.call("new", c("muckdb", allSlots))
-  }
-)
