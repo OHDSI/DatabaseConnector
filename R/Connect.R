@@ -296,7 +296,7 @@ connect <- function(connectionDetails = NULL,
 
     if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
       connectSqlite(connectionDetails)
-    } else if (connectionDetails$dbms == "duckdb") {
+    } else if (connectionDetails$dbms %in% c("duckdb", "muckdb")) {
       connectDuckdb(connectionDetails)
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
       connectSparkUsingOdbc(connectionDetails)

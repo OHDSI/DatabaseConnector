@@ -43,33 +43,32 @@ setClass(
 #'
 #' # Disconnect when done
 #' DBI::dbDisconnect(conn)
-#' @param platform The DBMS dialect to emulate (e.g., "hive", "bigquery", "spark")
+#' @param platform The DBMS dialect to emulate (e.g., "hive", "bigquery", "spark", "oracle", ...)
 #' @param dbDir Path to DuckDB database file (or ":memory:")
 #' @export
 
 #' @export
 muckdbConnect <- function(platform = "duckdb", ...) {
   if (!reticulate::py_module_available("sqlglot"))
-    stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
+    stop("Python module 'sqlglot' is required.")
   sqlglot <- reticulate::import("sqlglot")
-  # Create the underlying duckdb connection
   duckdbCon <- DBI::dbConnect(duckdb::duckdb(), ...)
-  # Coerce to muckdb and set new slots
-  new(
-    "muckdb",
-    # fill parent slots
-    conn_ref = duckdbCon@conn_ref,
-    driver = duckdbCon@driver,
-    debug = duckdbCon@debug,
-    convert_opts = duckdbCon@convert_opts,
-    reserved_words = duckdbCon@reserved_words,
-    timezone_out = duckdbCon@timezone_out,
-    tz_out_convert = duckdbCon@tz_out_convert,
-    bigint = duckdbCon@bigint,
-    # fill new slots
-    muckdbPlatform = platform,
-    muckdbSqlglot = sqlglot
+
+  # Get all slot names/values from parent
+  parentSlots <- slotNames(duckdbCon)
+  parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbCon, s))
+  names(parentSlotValues) <- parentSlots
+
+  # Add muckdb-specific slots
+  allSlots <- c(
+    list(
+      muckdbPlatform = platform,
+      muckdbSqlglot = sqlglot
+    ),
+    parentSlotValues
   )
+
+  do.call("new", c("muckdb", allSlots))
 }
 
 #' @export
