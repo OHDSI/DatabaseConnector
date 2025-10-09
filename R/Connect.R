@@ -851,47 +851,41 @@ connectDuckdb <- function(connectionDetails) {
       stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
 
     checkIfDbmsIsSupported(connectionDetails$connectionString())
-    connection <- connectUsingDbi(
-      createDbiConnectionDetails(
-        dbms = connectionDetails$dbms,
-        drv = muckdb(platform = connectionDetails$connectionString()),
-        dbdir = connectionDetails$server(),
-        bigint = "integer64"
-      )
-    )
 
-  } else {
-    connection <- connectUsingDbi(
-      createDbiConnectionDetails(
-        dbms = connectionDetails$dbms,
-        drv = duckdb::duckdb(),
-        dbdir = connectionDetails$server(),
-        bigint = "integer64"
-      )
-    )
-    # Check if ICU extension is installed, and if not, try to install it:
-    isInstalled <- querySql(
-      connection = connection,
-      sql = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
-    )[1, 1]
-    if (!isInstalled) {
-      warning("The ICU extension of DuckDB is not installed. Attempting to install it.")
-      tryCatch(
-        executeSql(connection, "INSTALL icu"),
-        error = function(e) {
-          warning("Attempting to install the ICU extension of DuckDB failed.\n",
-                  "You may need to check your internet connection.\n",
-                  "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
-                  "Be aware that some time and date functionality will not be available.")
-          return(NULL)
-        }
-      )
-    }
   }
 
-  # For muckdb, set dbms attribute to the target dialect for translation
+  connection <- connectUsingDbi(
+    createDbiConnectionDetails(
+      dbms = connectionDetails$dbms,
+      drv = duckdb::duckdb(),
+      dbdir = connectionDetails$server(),
+      bigint = "integer64"
+    )
+  )
+  # Check if ICU extension is installed, and if not, try to install it:
+  isInstalled <- querySql(
+    connection = connection,
+    sql = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
+  )[1, 1]
+  if (!isInstalled) {
+    warning("The ICU extension of DuckDB is not installed. Attempting to install it.")
+    tryCatch(
+      executeSql(connection, "INSTALL icu"),
+      error = function(e) {
+        warning("Attempting to install the ICU extension of DuckDB failed.\n",
+                "You may need to check your internet connection.\n",
+                "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
+                "Be aware that some time and date functionality will not be available.")
+        return(NULL)
+      }
+    )
+  }
+
+  # For muckdb, set dbms attribute to the target dialect for translation and attaches transpiler
   if (connectionDetails$dbms == "muckdb") {
     attr(connection, "dbms") <- connectionDetails$connectionString()
+    attr(connection, "sqlglot") <- reticulate::import("sqlglot")
+    attr(connection, "isMuckDb") <- TRUE
   }
 
   return(connection)
