@@ -7,7 +7,7 @@
 muckdbConnect(platform = "duckdb", ...)
 }
 \arguments{
-\item{platform}{The DBMS dialect to emulate (e.g., "hive", "bigquery", "spark")}
+\item{platform}{The DBMS dialect to emulate (e.g., "hive", "bigquery", "spark", "oracle", ...)}
 
 \item{dbDir}{Path to DuckDB database file (or ":memory:")}
 }

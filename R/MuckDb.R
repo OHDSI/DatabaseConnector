@@ -15,6 +15,7 @@
 # limitations under the License.
 
 #' @importMethodsFrom DBI dbSendQuery dbGetQuery
+#' @importClassesFrom duckdb duckdb_connection
 #' @export
 setClass(
   "muckdb",
@@ -46,12 +47,11 @@ setClass(
 #' @param platform The DBMS dialect to emulate (e.g., "hive", "bigquery", "spark", "oracle", ...)
 #' @param dbDir Path to DuckDB database file (or ":memory:")
 #' @export
-
-#' @export
 muckdbConnect <- function(platform = "duckdb", ...) {
   if (!reticulate::py_module_available("sqlglot"))
     stop("Python module 'sqlglot' is required.")
   sqlglot <- reticulate::import("sqlglot")
+
   duckdbCon <- DBI::dbConnect(duckdb::duckdb(), ...)
 
   # Get all slot names/values from parent
@@ -71,26 +71,90 @@ muckdbConnect <- function(platform = "duckdb", ...) {
   do.call("new", c("muckdb", allSlots))
 }
 
+.transpile <- function(conn, statement, ...) {
+  platform <- conn@muckdbPlatform
+  if (platform == "postgresql") {
+    platform <- "postgres"
+  } else if (platform == "sql server") {
+    platform <- "tsql"
+  }
+
+  sqlglot <- conn@muckdbSqlglot
+  translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
+  callNextMethod(conn, translated, ...)
+}
+
 #' @export
 setMethod(
   "dbSendQuery",
   signature(conn = "muckdb", statement = "character"),
-  function(conn, statement, ...) {
-    platform <- conn@muckdbPlatform
-    sqlglot <- conn@muckdbSqlglot
-    translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
-    callNextMethod(conn, translated, ...)
-  }
+  .transpile
 )
 
 #' @export
 setMethod(
   "dbGetQuery",
   signature(conn = "muckdb", statement = "character"),
-  function(conn, statement, ...) {
-    platform <- conn@muckdbPlatform
-    sqlglot <- conn@muckdbSqlglot
-    translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
-    callNextMethod(conn, translated, ...)
+  .transpile
+)
+
+
+#' @export
+setClass(
+  "muckdb_driver",
+  contains = "duckdb_driver",
+  slots = list(
+    muckdbPlatform = "character",
+    muckdbSqlglot = "ANY"
+  )
+)
+
+muckdb <- function(platform = "duckdb", dbdir = ":memory:", ...) {
+  ensure_installed("reticulate")
+  if (!reticulate::py_module_available("sqlglot"))
+    stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
+  sqlglot <- reticulate::import("sqlglot")
+
+  # Construct the underlying duckdb driver
+  duckdbDrv <- duckdb::duckdb(dbdir = dbdir, ...)
+
+  # Copy all slots from duckdb_driver
+  parentSlots <- slotNames(duckdbDrv)
+  parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbDrv, s))
+  names(parentSlotValues) <- parentSlots
+
+  # Add muckdb-specific slots
+  allSlots <- c(
+    list(
+      muckdbPlatform = platform,
+      muckdbSqlglot = sqlglot
+    ),
+    parentSlotValues
+  )
+
+  do.call("new", c("muckdb_driver", allSlots))
+}
+
+setMethod(
+  "dbConnect",
+  signature(drv = "muckdb_driver"),
+  function(drv, dbdir = ":memory:", ...) {
+    # Create the underlying duckdb_connection
+    duckdbCon <- DBI::dbConnect(duckdb::duckdb(), dbdir = dbdir, ...)
+    # Copy all parent slots
+    parent_slots <- slotNames(duckdbCon)
+    parent_slot_values <- lapply(parent_slots, function(s) slot(duckdbCon, s))
+    names(parent_slot_values) <- parent_slots
+
+    # Add muckdb-specific slots from the driver
+    all_slots <- c(
+      list(
+        muckdbPlatform = drv@muckdbPlatform,
+        muckdbSqlglot = drv@muckdbSqlglot
+      ),
+      parent_slot_values
+    )
+
+    do.call("new", c("muckdb", all_slots))
   }
 )
