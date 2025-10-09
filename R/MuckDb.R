@@ -142,19 +142,19 @@ setMethod(
     # Create the underlying duckdb_connection
     duckdbCon <- DBI::dbConnect(duckdb::duckdb(), dbdir = dbdir, ...)
     # Copy all parent slots
-    parent_slots <- slotNames(duckdbCon)
-    parent_slot_values <- lapply(parent_slots, function(s) slot(duckdbCon, s))
-    names(parent_slot_values) <- parent_slots
+    parentSlots <- slotNames(duckdbCon)
+    parentSlotValues <- lapply(parentSlots, function(s) slot(duckdbCon, s))
+    names(parentSlotValues) <- parentSlots
 
     # Add muckdb-specific slots from the driver
-    all_slots <- c(
+    allSlots <- c(
       list(
         muckdbPlatform = drv@muckdbPlatform,
         muckdbSqlglot = drv@muckdbSqlglot
       ),
-      parent_slot_values
+      parentSlotValues
     )
 
-    do.call("new", c("muckdb", all_slots))
+    do.call("new", c("muckdb", allSlots))
   }
 )
