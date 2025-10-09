@@ -154,7 +154,7 @@ executeSql <- function(connection,
 
   if (isTRUE(attr(connection, "isMuckDb"))) {
     sqlglot <- attr(connection, "sqlglot")
-    sql <- sqlglot$transpile(sql)
+    sql <- sqlglot$transpile(sql) |> paste(collapse = ";\n")
   }
 
   startTime <- Sys.time()
