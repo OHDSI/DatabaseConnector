@@ -50,12 +50,12 @@ checkIfDbmsIsSupported <- function(dbms) {
   if (dbms %in% deprecated) {
     warn(sprintf(
       paste(c("DBMS '%s' has been deprecated. Current functionality is provided as is.",
-            "No futher support will be provided.",
-            "Please consider switching to a different database platform."),
+              "No futher support will be provided.",
+              "Please consider switching to a different database platform."),
             collapse = " "),
       dbms),
-      .frequency = "regularly",
-      .frequency_id = "deprecated_dbms"
+         .frequency = "regularly",
+         .frequency_id = "deprecated_dbms"
     )
   }
 }
@@ -293,13 +293,13 @@ connect <- function(connectionDetails = NULL,
     # Using default connectionDetails
     assertDetailsCanBeValidated(connectionDetails)
     checkIfDbmsIsSupported(connectionDetails$dbms)
-    
+
     if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
       connectSqlite(connectionDetails)
     } else if (connectionDetails$dbms == "duckdb") {
-      connectDuckdb(connectionDetails)
+      return(connectDuckdb(connectionDetails))
     }  else if (connectionDetails$dbms == "muckdb") {
-      connectMuckdb(connectionDetails)
+      return(connectDuckdb(connectionDetails))
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
       connectSparkUsingOdbc(connectionDetails)
     } else {
@@ -313,7 +313,9 @@ connectUsingJdbc <- function(connectionDetails) {
   connectionDetails$pathToDriver <- path.expand(connectionDetails$pathToDriver)
   checkPathToDriver(connectionDetails$pathToDriver, dbms)
 
-  if (dbms == "sql server" || dbms == "synapse" || dbms == "pdw") {
+  if (dbms == "sql server" ||
+    dbms == "synapse" ||
+    dbms == "pdw") {
     return(connectSqlServer(connectionDetails))
   } else if (dbms == "oracle") {
     return(connectOracle(connectionDetails))
@@ -364,10 +366,10 @@ connectSqlServer <- function(connectionDetails) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {
     connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
+                                         connectionString,
+                                         user = connectionDetails$user(),
+                                         password = connectionDetails$password(),
+                                         dbms = connectionDetails$dbms
     )
   }
   if (connectionDetails$dbms == "pdw") {
@@ -421,11 +423,11 @@ connectOracle <- function(connectionDetails) {
         inform("- Trying using TNSName")
         connectionString <- paste0("jdbc:oracle:thin:@", connectionDetails$server())
         connection <- connectUsingJdbcDriver(driver,
-          connectionString,
-          user = connectionDetails$user(),
-          password = connectionDetails$password(),
-          oracle.jdbc.mapDateToTimestamp = "false",
-          dbms = connectionDetails$dbms
+                                             connectionString,
+                                             user = connectionDetails$user(),
+                                             password = connectionDetails$password(),
+                                             oracle.jdbc.mapDateToTimestamp = "false",
+                                             dbms = connectionDetails$dbms
         )
       }
     }
@@ -433,28 +435,28 @@ connectOracle <- function(connectionDetails) {
       inform("- using OCI to connect")
       connectionString <- paste0("jdbc:oracle:oci8:@", connectionDetails$server())
       connection <- connectUsingJdbcDriver(driver,
-        connectionString,
-        user = connectionDetails$user(),
-        password = connectionDetails$password(),
-        oracle.jdbc.mapDateToTimestamp = "false",
-        dbms = connectionDetails$dbms
+                                           connectionString,
+                                           user = connectionDetails$user(),
+                                           password = connectionDetails$password(),
+                                           oracle.jdbc.mapDateToTimestamp = "false",
+                                           dbms = connectionDetails$dbms
       )
     }
   } else {
     # User has provided the connection string:
     if (is.null(connectionDetails$user())) {
       connection <- connectUsingJdbcDriver(driver,
-        connectionDetails$connectionString(),
-        oracle.jdbc.mapDateToTimestamp = "false",
-        dbms = connectionDetails$dbms
+                                           connectionDetails$connectionString(),
+                                           oracle.jdbc.mapDateToTimestamp = "false",
+                                           dbms = connectionDetails$dbms
       )
     } else {
       connection <- connectUsingJdbcDriver(driver,
-        connectionDetails$connectionString(),
-        user = connectionDetails$user(),
-        password = connectionDetails$password(),
-        oracle.jdbc.mapDateToTimestamp = "false",
-        dbms = connectionDetails$dbms
+                                           connectionDetails$connectionString(),
+                                           user = connectionDetails$user(),
+                                           password = connectionDetails$password(),
+                                           oracle.jdbc.mapDateToTimestamp = "false",
+                                           dbms = connectionDetails$dbms
       )
     }
   }
@@ -488,10 +490,10 @@ connectPostgreSql <- function(connectionDetails) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {
     connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
+                                         connectionString,
+                                         user = connectionDetails$user(),
+                                         password = connectionDetails$password(),
+                                         dbms = connectionDetails$dbms
     )
   }
   # Used for bulk upload:
@@ -538,10 +540,10 @@ connectRedShift <- function(connectionDetails) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {
     connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
+                                         connectionString,
+                                         user = connectionDetails$user(),
+                                         password = connectionDetails$password(),
+                                         dbms = connectionDetails$dbms
     )
   }
   return(connection)
@@ -617,7 +619,7 @@ connectHive <- function(connectionDetails) {
   inform("Connecting using Hive driver")
   jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
-  
+
   if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
     connectionString <- paste0("jdbc:hive2://", connectionDetails$server(), ":", connectionDetails$port(), "/")
     if (!is.null(connectionDetails$extraSettings)) {
@@ -652,10 +654,10 @@ connectBigQuery <- function(connectionDetails) {
     connectionString <- connectionDetails$connectionString()
   }
   connection <- connectUsingJdbcDriver(driver,
-    connectionString,
-    user = connectionDetails$user(),
-    password = connectionDetails$password(),
-    dbms = connectionDetails$dbms
+                                       connectionString,
+                                       user = connectionDetails$user(),
+                                       password = connectionDetails$password(),
+                                       dbms = connectionDetails$dbms
   )
   return(connection)
 }
@@ -722,15 +724,15 @@ connectSnowflake <- function(connectionDetails) {
   }
   if (is.null(connectionDetails$user())) {
     connection <- connectUsingJdbcDriver(driver, connectionDetails$connectionString(), dbms = connectionDetails$dbms,
-                    "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ")
+                                         "CLIENT_TIMESTAMP_TYPE_MAPPING" = "TIMESTAMP_NTZ")
   } else {
     connection <- connectUsingJdbcDriver(driver,
-      connectionDetails$connectionString(),
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms,
-      "CLIENT_TIMESTAMP_TYPE_MAPPING"="TIMESTAMP_NTZ",
-      "QUOTED_IDENTIFIERS_IGNORE_CASE"="FALSE"
+                                         connectionDetails$connectionString(),
+                                         user = connectionDetails$user(),
+                                         password = connectionDetails$password(),
+                                         dbms = connectionDetails$dbms,
+                                         "CLIENT_TIMESTAMP_TYPE_MAPPING" = "TIMESTAMP_NTZ",
+                                         "QUOTED_IDENTIFIERS_IGNORE_CASE" = "FALSE"
     )
   }
   return(connection)
@@ -771,10 +773,10 @@ connectIris <- function(connectionDetails) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {
     connection <- connectUsingJdbcDriver(driver,
-      connectionString,
-      user = connectionDetails$user(),
-      password = connectionDetails$password(),
-      dbms = connectionDetails$dbms
+                                         connectionString,
+                                         user = connectionDetails$user(),
+                                         password = connectionDetails$password(),
+                                         dbms = connectionDetails$dbms
     )
   }
   return(connection)
@@ -812,11 +814,11 @@ connectUsingJdbcDriver <- function(jdbcDriver,
     }
   }
   connection <- new("DatabaseConnectorJdbcConnection",
-    jConnection = jConnection,
-    identifierQuote = "",
-    stringQuote = "'",
-    dbms = dbms,
-    uuid = generateRandomString()
+                    jConnection = jConnection,
+                    identifierQuote = "",
+                    stringQuote = "'",
+                    dbms = dbms,
+                    uuid = generateRandomString()
   )
   registerWithRStudio(connection)
   attr(connection, "dbms") <- dbms
@@ -828,14 +830,14 @@ connectUsingDbi <- function(dbiConnectionDetails) {
   dbms <- dbiConnectionDetails$dbms
   dbiConnectionDetails$dbms <- NULL
   dbiConnection <- do.call(DBI::dbConnect, dbiConnectionDetails)
-  
+
   connection <- new("DatabaseConnectorDbiConnection",
-    server = dbms,
-    dbiConnection = dbiConnection,
-    identifierQuote = "",
-    stringQuote = "'",
-    dbms = dbms,
-    uuid = generateRandomString()
+                    server = dbms,
+                    dbiConnection = dbiConnection,
+                    identifierQuote = "",
+                    stringQuote = "'",
+                    dbms = dbms,
+                    uuid = generateRandomString()
   )
   registerWithRStudio(connection)
   attr(connection, "dbms") <- dbms
@@ -845,6 +847,13 @@ connectUsingDbi <- function(dbiConnectionDetails) {
 connectDuckdb <- function(connectionDetails) {
   inform("Connecting using DuckDB driver")
   ensure_installed("duckdb")
+
+  if (connectionDetails$dbms == "muckdb") {
+    ensure_installed("reticulate")
+    if (!reticulate::py_module_available("sqlglot"))
+      stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
+  }
+
   connection <- connectUsingDbi(
     createDbiConnectionDetails(
       dbms = connectionDetails$dbms,
@@ -853,9 +862,10 @@ connectDuckdb <- function(connectionDetails) {
       bigint = "integer64"
     )
   )
+
   # Check if ICU extension if installed, and if not, try to install it:
   isInstalled <- querySql(
-    connection = connection, 
+    connection = connection,
     sql = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
   )[1, 1]
   if (!isInstalled) {
@@ -863,60 +873,20 @@ connectDuckdb <- function(connectionDetails) {
     tryCatch(
       executeSql(connection, "INSTALL icu"),
       error = function(e) {
-        warning("Attempting to install the ICU extension of DuckDB failed.\n", 
-                "You may need to check your internet connection.\n",
-                "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
-                "Be aware that some time and date functionality will not be available.")   
-        return(NULL)
-      }
-    )
-  }
-  return(connection)
-}
-
-
-#' Connect to a mock DBMS using DuckDB and sqlglot (muckdb)
-#'
-#' @param connectionDetails A DatabaseConnector connectionDetails object.
-#'        Should include dbms (mock platform name as the connection string) and server (DuckDB dbdir).
-#' @return A muckdb connection object.
-#' @keywords internal
-#' @noRd
-connectMuckdb <- function(connectionDetails) {
-  inform("Connecting using DuckDB driver with sqlglot platform emulation")
-  ensure_installed("duckdb")
-  ensure_installed("reticulate")
-
-  # Check for Python module sqlglot
-  if (!reticulate::py_module_available("sqlglot")) {
-    stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot")
-  }
-
-  # Create muckdb connection using the camelCase DBI constructor
-  connection <- muckdbConnect(
-    platform = connectionDetails$connectionString,
-    dbDir = connectionDetails$server()
-  )
-  # Use the underlying duckdb connection for extension checks
-  duckdbCon <- attr(connection, "duckdbConnection")
-
-  isInstalled <- DBI::dbGetQuery(
-    conn = duckdbCon,
-    statement = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
-  )[1, 1]
-  if (!isInstalled) {
-    warning("The ICU extension of DuckDB is not installed. Attempting to install it.")
-    tryCatch(
-      DBI::dbExecute(duckdbCon, "INSTALL icu"),
-      error = function(e) {
         warning("Attempting to install the ICU extension of DuckDB failed.\n",
                 "You may need to check your internet connection.\n",
-                "For more detail, try 'DBI::dbExecute(connection, \"INSTALL icu\")'.\n",
+                "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
                 "Be aware that some time and date functionality will not be available.")
         return(NULL)
       }
     )
   }
+
+  # when a dbms(connection) or dbms@connection is called the translation should be for the target test dialect, not duckdb
+  if (connectionDetails$dbms == "muckdb") {
+    attr(connection, "dbms") <- connectionDetails$connectionString()
+  }
+
   return(connection)
 }
 
@@ -1011,14 +981,14 @@ dbms <- function(connection) {
   }
 
   switch(class(connection),
-    "Microsoft SQL Server" = "sql server",
-    "PqConnection" = "postgresql",
-    "RedshiftConnection" = "redshift",
-    "BigQueryConnection" = "bigquery",
-    "SQLiteConnection" = "sqlite",
-    "duckdb_connection" = "duckdb",
-    "Snowflake" = "snowflake",
-    "Spark SQL" = "spark"
-    # add mappings from various DBI connection classes to SqlRender dbms here
+         "Microsoft SQL Server" = "sql server",
+         "PqConnection" = "postgresql",
+         "RedshiftConnection" = "redshift",
+         "BigQueryConnection" = "bigquery",
+         "SQLiteConnection" = "sqlite",
+         "duckdb_connection" = "duckdb",
+         "Snowflake" = "snowflake",
+         "Spark SQL" = "spark"
+         # add mappings from various DBI connection classes to SqlRender dbms here
   )
 }

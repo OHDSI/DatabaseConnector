@@ -14,6 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @importMethodsFrom DBI dbSendQuery dbGetQuery
+#' @export
+setClass(
+  "muckdb",
+  contains = "duckdb_connection",
+  slots = c(
+    muckdbPlatform = "character",
+    muckdbSqlglot = "ANY"
+  )
+)
+
 
 #' muckdb: Mock DBMS connection using DuckDB and sqlglot
 #'
@@ -35,34 +46,52 @@
 #' @param platform The DBMS dialect to emulate (e.g., "hive", "bigquery", "spark")
 #' @param dbDir Path to DuckDB database file (or ":memory:")
 #' @export
+
+#' @export
 muckdbConnect <- function(platform = "duckdb", ...) {
   if (!reticulate::py_module_available("sqlglot"))
     stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
   sqlglot <- reticulate::import("sqlglot")
+  # Create the underlying duckdb connection
   duckdbCon <- DBI::dbConnect(duckdb::duckdb(), ...)
-  con <- duckdbCon
-  attr(con, "muckdbPlatform") <- platform
-  attr(con, "muckdbSqlglot") <- sqlglot
-  attr(con, "duckdbConnection") <- duckdbCon
-  class(con) <- c("muckdb", class(con))
-  con
+  # Coerce to muckdb and set new slots
+  new(
+    "muckdb",
+    # fill parent slots
+    conn_ref = duckdbCon@conn_ref,
+    driver = duckdbCon@driver,
+    debug = duckdbCon@debug,
+    convert_opts = duckdbCon@convert_opts,
+    reserved_words = duckdbCon@reserved_words,
+    timezone_out = duckdbCon@timezone_out,
+    tz_out_convert = duckdbCon@tz_out_convert,
+    bigint = duckdbCon@bigint,
+    # fill new slots
+    muckdbPlatform = platform,
+    muckdbSqlglot = sqlglot
+  )
 }
 
 #' @export
-dbSendQuery.muckdb <- function(conn, statement, ...) {
-  platform <- attr(conn, "muckdbPlatform")
-  sqlglot <- attr(conn, "muckdbSqlglot")
-  translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
-  DBI::dbSendQuery(conn = unclass(conn), statement = translated, ...)
-}
+setMethod(
+  "dbSendQuery",
+  signature(conn = "muckdb", statement = "character"),
+  function(conn, statement, ...) {
+    platform <- conn@muckdbPlatform
+    sqlglot <- conn@muckdbSqlglot
+    translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
+    callNextMethod(conn, translated, ...)
+  }
+)
 
 #' @export
-dbGetQuery.muckdb <- function(conn, statement, ...) {
-  platform <- attr(conn, "muckdbPlatform")
-  sqlglot <- attr(conn, "muckdbSqlglot")
-  translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
-  # Remove "muckdb" class so DBI dispatches to duckdb methods
-  class(conn) <- setdiff(class(conn), "muckdb")
-  DBI::dbGetQuery(conn = conn, statement = translated, ...)
-}
-
+setMethod(
+  "dbGetQuery",
+  signature(conn = "muckdb", statement = "character"),
+  function(conn, statement, ...) {
+    platform <- conn@muckdbPlatform
+    sqlglot <- conn@muckdbSqlglot
+    translated <- sqlglot$transpile(statement, read = platform, write = "duckdb")[[1]]
+    callNextMethod(conn, translated, ...)
+  }
+)
