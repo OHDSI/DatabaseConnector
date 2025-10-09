@@ -851,7 +851,7 @@ connectDuckdb <- function(connectionDetails) {
       stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
 
     checkIfDbmsIsSupported(connectionDetails$connectionString())
-
+    inform(paste(connectionDetails$connectionString(), "mucks like \U1f986"))
   }
 
   connection <- connectUsingDbi(
