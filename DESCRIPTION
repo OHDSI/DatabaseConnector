@@ -52,7 +52,8 @@ Suggests:
     bigrquery,
     pool,
     ParallelLogger,
-    AzureStor
+    AzureStor,
+    reticulate
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector

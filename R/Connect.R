@@ -31,7 +31,8 @@ checkIfDbmsIsSupported <- function(dbms) {
     "snowflake",
     "synapse",
     "duckdb",
-    "iris"
+    "iris",
+    "muckdb"
   )
   deprecated <- c(
     "hive",
@@ -292,10 +293,10 @@ connect <- function(connectionDetails = NULL,
     # Using default connectionDetails
     assertDetailsCanBeValidated(connectionDetails)
     checkIfDbmsIsSupported(connectionDetails$dbms)
-    
+
     if (connectionDetails$dbms %in% c("sqlite", "sqlite extended")) {
       connectSqlite(connectionDetails)
-    } else if (connectionDetails$dbms == "duckdb") {
+    } else if (connectionDetails$dbms %in% c("duckdb", "muckdb")) {
       connectDuckdb(connectionDetails)
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
       connectSparkUsingOdbc(connectionDetails)
@@ -614,7 +615,7 @@ connectHive <- function(connectionDetails) {
   inform("Connecting using Hive driver")
   jarPath <- findPathToJar("^hive-jdbc-([.0-9]+-)*standalone\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("org.apache.hive.jdbc.HiveDriver", jarPath)
-  
+
   if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
     connectionString <- paste0("jdbc:hive2://", connectionDetails$server(), ":", connectionDetails$port(), "/")
     if (!is.null(connectionDetails$extraSettings)) {
@@ -825,7 +826,7 @@ connectUsingDbi <- function(dbiConnectionDetails) {
   dbms <- dbiConnectionDetails$dbms
   dbiConnectionDetails$dbms <- NULL
   dbiConnection <- do.call(DBI::dbConnect, dbiConnectionDetails)
-  
+
   connection <- new("DatabaseConnectorDbiConnection",
     server = dbms,
     dbiConnection = dbiConnection,
@@ -842,6 +843,17 @@ connectUsingDbi <- function(dbiConnectionDetails) {
 connectDuckdb <- function(connectionDetails) {
   inform("Connecting using DuckDB driver")
   ensure_installed("duckdb")
+
+  # Use muckdb if requested
+  if (connectionDetails$dbms == "muckdb") {
+    ensure_installed("reticulate")
+    if (!reticulate::py_module_available("sqlglot"))
+      stop("Python module 'sqlglot' is required. Install via pip: pip install sqlglot or reticulate::install_python('sqlglot')")
+
+    checkIfDbmsIsSupported(connectionDetails$connectionString())
+    inform(paste(connectionDetails$connectionString(), "mucks like \U1f986"))
+  }
+
   connection <- connectUsingDbi(
     createDbiConnectionDetails(
       dbms = connectionDetails$dbms,
@@ -850,9 +862,9 @@ connectDuckdb <- function(connectionDetails) {
       bigint = "integer64"
     )
   )
-  # Check if ICU extension if installed, and if not, try to install it:
+  # Check if ICU extension is installed, and if not, try to install it:
   isInstalled <- querySql(
-    connection = connection, 
+    connection = connection,
     sql = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
   )[1, 1]
   if (!isInstalled) {
@@ -860,14 +872,22 @@ connectDuckdb <- function(connectionDetails) {
     tryCatch(
       executeSql(connection, "INSTALL icu"),
       error = function(e) {
-        warning("Attempting to install the ICU extension of DuckDB failed.\n", 
+        warning("Attempting to install the ICU extension of DuckDB failed.\n",
                 "You may need to check your internet connection.\n",
                 "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
-                "Be aware that some time and date functionality will not be available.")   
+                "Be aware that some time and date functionality will not be available.")
         return(NULL)
       }
     )
   }
+
+  # For muckdb, set dbms attribute to the target dialect for translation and attaches transpiler
+  if (connectionDetails$dbms == "muckdb") {
+    attr(connection, "dbms") <- connectionDetails$connectionString()
+    attr(connection, "sqlglot") <- reticulate::import("sqlglot")
+    attr(connection, "isMuckDb") <- TRUE
+  }
+
   return(connection)
 }
 

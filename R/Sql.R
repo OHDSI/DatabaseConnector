@@ -151,7 +151,13 @@ executeSql <- function(connection,
   if (!DBI::dbIsValid(connection)) {
     abort("Connection is closed")
   }
-  
+
+  if (isTRUE(attr(connection, "isMuckDb"))) {
+    sqlglot <- attr(connection, "sqlglot")
+    sql <- sqlglot$transpile(sql, read = dbms(connection), write = "duckdb", unsupported_level = "IGNORE") |>
+      paste(collapse = ";\n")
+  }
+
   startTime <- Sys.time()
   dbms <- dbms(connection)
   
@@ -331,6 +337,12 @@ querySql <- function(connection,
   if (!DBI::dbIsValid(connection)) {
     abort("Connection is closed")
   }
+
+  if (isTRUE(attr(connection, "isMuckDb"))) {
+    sqlglot <- attr(connection, "sqlglot")
+    sql <- sqlglot$transpile(sql, read = dbms(connection), write = "duckdb", unsupported_level = "IGNORE")
+  }
+
   # Calling splitSql, because this will also strip trailing semicolons (which cause Oracle to crash).
   sqlStatements <- SqlRender::splitSql(sql)
   if (length(sqlStatements) > 1) {

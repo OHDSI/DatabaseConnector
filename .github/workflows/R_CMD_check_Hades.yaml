@@ -99,8 +99,30 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: any::rcmdcheck reticulate
           needs: check
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: setup r-reticulate venv
+        shell: Rscript {0}
+        run: |
+          
+          if (.Platform$OS.type == "unix" && Sys.info()["sysname"] == "Darwin") {
+            # macOS
+            python_path <- "/usr/bin/python3"
+          } else {
+            # Windows and Linux
+            python_path <- Sys.which("python")
+          }
+          
+          path_to_python <- reticulate::virtualenv_create(
+            envname = "r-reticulate",
+            python = python_path,
+            packages = c("sqlglot")
+          )
 
       - uses: r-lib/actions/check-r-package@v2
         with:
