@@ -79,6 +79,12 @@ checkBulkLoadCredentials <- function(connection) {
     }
     
     return(envSet & container)
+  } else if (dbms(connection) == "bigquery") {
+    if (!bigrquery::bq_has_token()) {
+      inform("Please authenticate with BigQuery using bigrquery::bq_auth()")
+      return(FALSE)
+    }
+    return(TRUE)
   } else {
     return(FALSE)
   }
@@ -431,4 +437,30 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   )
   delta <- Sys.time() - start
   inform(paste("Bulk load to DataBricks took", signif(delta, 3), attr(delta, "units")))
+}
+
+bulkLoadBigQuery <- function(connection, sqlTableName, data) {
+  ensure_installed("bigrquery")
+  logTrace(sprintf("Inserting %d rows into table '%s' using BigQuery bulk load", nrow(data), sqlTableName))
+  startTime <- Sys.time()
+
+  if (grepl("^#", sqlTableName)) {
+    sqlTableName <- SqlRender::translate(sql = sqlTableName, targetDialect = dbms(connection))
+  } 
+  
+  sqlTableNameParts <- strsplit(sqlTableName, "\\.")[[1]]
+  if (length(sqlTableNameParts) != 3) {
+    abort("databaseSchema (or tempEmulationSchema if using inserting a temp table) must be in the format <project>.<dataset> when using BigQuery bulk load")
+  }
+
+  bq_project <- sqlTableNameParts[1]
+  bq_dataset <- sqlTableNameParts[2]
+  bq_table_name <- sqlTableNameParts[3]
+  bq_table <- bigrquery::bq_table(bq_project, bq_dataset, bq_table_name)
+
+  fields <- bigrquery::bq_table_fields(bq_table)
+  bigrquery::bq_table_upload(bq_table, values = data, fields = fields)
+
+  delta <- Sys.time() - startTime
+  inform(paste("Bulk load to BigQuery took", signif(delta, 3), attr(delta, "units")))
 }

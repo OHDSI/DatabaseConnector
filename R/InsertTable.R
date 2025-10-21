@@ -144,6 +144,9 @@ validateInt64Insert <- function() {
 #' Uses the 'psql' executable to upload. Set the POSTGRES_PATH environment variable  to the Postgres
 #' binary path, e.g. 'C:/Program Files/PostgreSQL/11/bin' on Windows or '/Library/PostgreSQL/16/bin' 
 #' on MacOs.
+#' 
+#' bigquery: The bulk loading relies upon the `bigrquery` package to upload. 
+#' tempEmulationSchema must be in the format <project>.<dataset> and the user must be authenticated with BigQuery using bigrquery::bq_auth()
 #'
 #' @examples
 #' \dontrun{
@@ -269,7 +272,8 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
   useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift") && createTable) ||
-    (bulkLoad && dbms %in% c("pdw", "postgresql") && !tempTable)
+    (bulkLoad && dbms %in% c("pdw", "postgresql") && !tempTable) ||
+    (bulkLoad && dbms == "bigquery")
   useCtasHack <- dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
   if (dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
     abort("tempEmulationSchema is required to use insertTable with bigquery when inserting into a new table")
@@ -290,7 +294,7 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
       reportOverallTime = FALSE
     )
   }
-  
+
   if (createTable && !useCtasHack && !(bulkLoad && dbms == "hive")) {
     
     sql <- paste("CREATE TABLE ", sqlTableName, " (", sqlTableDefinition, ");", sep = "")
@@ -303,7 +307,7 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
       reportOverallTime = FALSE
     )
   }
-  
+
   if (useBulkLoad) {
     # Inserting using bulk upload for MPP ------------------------------------------------
     if (!checkBulkLoadCredentials(connection)) {
@@ -320,6 +324,8 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
       bulkLoadPostgres(connection, sqlTableName, sqlFieldNames, sqlDataTypes, data)
     } else if (dbms == "spark") {
       bulkLoadSpark(connection, sqlTableName, data)
+    } else if (dbms == "bigquery") {
+      bulkLoadBigQuery(connection, sqlTableName, data)
     }
   } else if (useCtasHack) {
     # Inserting using CTAS hack ----------------------------------------------------------------
