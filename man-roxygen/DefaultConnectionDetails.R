@@ -16,6 +16,9 @@
 #' @param pathToDriver       Path to a folder containing the JDBC driver JAR files. See
 #'                           [downloadJdbcDrivers()] for instructions on how to download the
 #'                           relevant drivers.
+#' @param duckdbMemoryLimit  (optional) Memory limit for DuckDB connections (e.g., "2GB", "500MB").
+#'                           Only applies to DuckDB connections. If not specified, DuckDB's default
+#'                           memory limit is used.
 #'
 #' @description 
 #' ## DBMS parameter details:

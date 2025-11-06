@@ -135,6 +135,15 @@ assertDetailsCanBeValidated <- function(connectionDetails) {
 #' conn <- connect(connectionDetails)
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
+#'
+#' # Create DuckDB connection with custom memory limit:
+#' connectionDetails <- createConnectionDetails(
+#'   dbms = "duckdb",
+#'   server = ":memory:",
+#'   duckdbMemoryLimit = "1GB"
+#' )
+#' conn <- connect(connectionDetails)
+#' disconnect(conn)
 #' }
 #' @export
 createConnectionDetails <- function(dbms,
@@ -145,7 +154,8 @@ createConnectionDetails <- function(dbms,
                                     extraSettings = NULL,
                                     oracleDriver = "thin",
                                     connectionString = NULL,
-                                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+                                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"),
+                                    duckdbMemoryLimit = NULL) {
   checkIfDbmsIsSupported(dbms)
   pathToDriver <- path.expand(pathToDriver)
   checkPathToDriver(pathToDriver, dbms)
@@ -154,7 +164,8 @@ createConnectionDetails <- function(dbms,
     dbms = dbms,
     extraSettings = extraSettings,
     oracleDriver = oracleDriver,
-    pathToDriver = pathToDriver
+    pathToDriver = pathToDriver,
+    duckdbMemoryLimit = duckdbMemoryLimit
   )
 
   userExpression <- rlang::enquo(user)
@@ -260,6 +271,14 @@ createDbiConnectionDetails <- function(dbms, drv, ...) {
 #' )
 #' dbGetQuery(conn, "SELECT COUNT(*) FROM person")
 #' disconnect(conn)
+#'
+#' # Connect to DuckDB with custom memory limit:
+#' conn <- connect(
+#'   dbms = "duckdb",
+#'   server = ":memory:",
+#'   duckdbMemoryLimit = "1GB"
+#' )
+#' disconnect(conn)
 #' }
 #' @export
 connect <- function(connectionDetails = NULL,
@@ -271,7 +290,8 @@ connect <- function(connectionDetails = NULL,
                     extraSettings = NULL,
                     oracleDriver = "thin",
                     connectionString = NULL,
-                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")) {
+                    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"),
+                    duckdbMemoryLimit = NULL) {
   if (missing(connectionDetails) || is.null(connectionDetails)) {
     # warn("Use of dbms, server, etc. when calling connect() is deprecated. Use connectionDetails instead.")
     connectionDetails <- createConnectionDetails(
@@ -283,7 +303,8 @@ connect <- function(connectionDetails = NULL,
       extraSettings = extraSettings,
       oracleDriver = oracleDriver,
       connectionString = connectionString,
-      pathToDriver = pathToDriver
+      pathToDriver = pathToDriver,
+      duckdbMemoryLimit = duckdbMemoryLimit
     )
     return(connect(connectionDetails))
   } else if (is(connectionDetails, "DbiConnectionDetails")) {
@@ -868,8 +889,10 @@ connectDuckdb <- function(connectionDetails) {
       }
     )
   }
-  # Set memory limit to 2GB:
-  executeSql(connection, "SET memory_limit = '2GB';")
+  # Set memory limit if specified:
+  if (!is.null(connectionDetails$duckdbMemoryLimit)) {
+    executeSql(connection, paste0("SET memory_limit = '", connectionDetails$duckdbMemoryLimit, "';"))
+  }
   return(connection)
 }
 
