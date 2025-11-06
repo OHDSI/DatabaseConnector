@@ -868,6 +868,8 @@ connectDuckdb <- function(connectionDetails) {
       }
     )
   }
+  # Set memory limit to 2GB:
+  executeSql(connection, "SET memory_limit = '2GB';")
   return(connection)
 }
 
