@@ -229,6 +229,7 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
     )
     data <- as.data.frame(data)
   }
+  data <- convertIdateToDate(data)
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -447,7 +448,7 @@ insertTable.default <- function(connection,
                                 useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                                 progressBar = FALSE,
                                 camelCaseToSnakeCase = FALSE) {
-  
+  data <- convertIdateToDate(data)
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -511,3 +512,13 @@ insertTable.default <- function(connection,
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
   invisible(NULL)
 }
+
+convertIdateToDate <- function(df) {
+  isIdate <- vapply(df, function(x) inherits(x, "IDate"), logical(1))
+  if (!any(isIdate)) {
+    return(df)
+  }
+  df[isIdate] <- lapply(df[isIdate], as.Date)
+  return(df)
+}
+

@@ -1,3 +1,11 @@
+DatabaseConnector 7.1.1
+=======================
+
+Bugfixes:
+
+1. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
+
+
 DatabaseConnector 7.1.0
 =======================
 
