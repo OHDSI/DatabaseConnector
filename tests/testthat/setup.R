@@ -172,7 +172,7 @@ if (.Platform$OS.type == "windows") {
 # BigQuery ------------------------------------------------------------------
 if (Sys.getenv("CDM_BIG_QUERY_PROJECT") != "" & Sys.getenv("CDM_BIG_QUERY_BILLING") != "") {
   # To avoid rate limit on BigQuery, only test on 1 OS:
-  #if (.Platform$OS.type == "windows") {
+  if (.Platform$OS.type == "windows") {
     bqKeyFile <- tempfile(fileext = ".json")
     writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
     if (testthat::is_testing()) {
@@ -193,7 +193,7 @@ if (Sys.getenv("CDM_BIG_QUERY_PROJECT") != "" & Sys.getenv("CDM_BIG_QUERY_BILLIN
       cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
       tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
     )
-  #}
+  }
 }
 
 # InterSystems IRIS -----------------------------------------------------------------
