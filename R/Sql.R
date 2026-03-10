@@ -36,7 +36,11 @@
   return(paste(lines, collapse = "\n"))
 }
 
-.createErrorReport <- function(dbms, message, sql, fileName) {
+.createErrorReport <- function(dbms, err, sql, fileName) {
+  message <- err$message
+  if (dbms == "bigquery" && !is.null(err$body)) {
+    message  <- paste0(message, "\n", err$body)
+  }
   report <- c("DBMS:\n", dbms, "\n\nError:\n", message, "\n\nSQL:\n", sql, "\n\n", .systemInfo())
   fileConn <- file(fileName)
   writeChar(report, fileConn, eos = NULL)
@@ -200,7 +204,7 @@ executeSql <- function(connection,
           logTrace(paste("Statements took", delta, attr(delta, "units")))
         },
         error = function(err) {
-          .createErrorReport(dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
+          .createErrorReport(dbms, err, paste(batchSql, collapse = "\n\n"), errorReportFile)
         },
         finally = {
           rJava::.jcall(statement, "V", "close")
@@ -230,7 +234,7 @@ executeSql <- function(connection,
         logTrace(paste("Executing SQL took", delta, attr(delta, "units")))
       },
       error = function(err) {
-        .createErrorReport(dbms, err$message, sqlStatement, errorReportFile)
+        .createErrorReport(dbms, err, sqlStatement, errorReportFile)
       })
       if (progressBar) {
         setTxtProgressBar(pb, i / length(sqlStatements))
@@ -354,7 +358,7 @@ querySql <- function(connection,
     return(result)
   },
   error = function(err) {
-    .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
+    .createErrorReport(dbms(connection), err, sql, errorReportFile)
   })
 }
 
@@ -618,7 +622,7 @@ renderTranslateQueryApplyBatched <- function(connection,
       queryResult <- DBI::dbSendQuery(connection, sql)
     },
     error = function(err) {
-      .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
+      .createErrorReport(dbms(connection), err, sql, errorReportFile)
     }
   )
   on.exit(DBI::dbClearResult(queryResult))
