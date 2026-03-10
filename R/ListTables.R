@@ -44,6 +44,17 @@ setMethod(
         }
         sql <- sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s';", databaseSchema)
         tables <- querySql(conn, sql)[[1]]
+      } else if (!is.null(databaseSchema) && dbms(conn) == "bigquery") {
+        if (!grepl("\\.", databaseSchema)) {
+          abort("databaseSchema must contain full path when using bigquery as <project>.<database>")
+        }
+        bq_list_tables <- bigrquery::bq_dataset_tables(databaseSchema)
+        tables <- c()
+        for (table in bq_list_tables) {
+          if (table$type == "TABLE") {
+            tables <- c(tables, table$table)
+          }
+        }
       } else {
         tables <- DBI::dbListTables(conn@dbiConnection, schema = databaseSchema)
       }
