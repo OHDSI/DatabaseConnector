@@ -1,5 +1,5 @@
 COPY INTO @sqlTableName
-FROM 'abfss://@azureStorageAccount.dfs.core.windows.net/@fileName'
+FROM 'abfss://@azureContainerName@@azureStorageAccount.dfs.core.windows.net/@fileName'
 WITH (
  CREDENTIAL (AZURE_SAS_TOKEN = '@azureAccountKey')
 )
