@@ -64,7 +64,7 @@ checkBulkLoadCredentials <- function(connection) {
     envSet <- FALSE
     container <- FALSE
     
-    if (Sys.getenv("AZR_STORAGE_ACCOUNT") != "" && Sys.getenv("AZR_ACCOUNT_KEY") != "" && Sys.setenv("AZR_CONTAINER_NAME") != "") {
+    if (Sys.getenv("AZR_STORAGE_ACCOUNT") != "" && Sys.getenv("AZR_ACCOUNT_KEY") != "" && Sys.getenv("AZR_CONTAINER_NAME") != "") {
       envSet <- TRUE
     }
     
