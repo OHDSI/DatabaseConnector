@@ -427,7 +427,7 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
       DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
     },
     error = function(e) {
-      abort("Error in DataBricks bulk upload. Please check DataBricks/Azure Storage access.")
+      abort(paste("Error in DataBricks bulk upload. Please check DataBricks/Azure Storage access.\n", e))
     }
   )
   delta <- Sys.time() - start
