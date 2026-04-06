@@ -269,7 +269,7 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
     }
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
-  useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift") && createTable) ||
+  useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift", "spark") && createTable) ||
     (bulkLoad && dbms %in% c("pdw", "postgresql") && !tempTable)
   useCtasHack <- dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
   if (dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
