@@ -170,7 +170,7 @@ if (.Platform$OS.type == "windows") {
 }
 
 # BigQuery ------------------------------------------------------------------
-if (Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING") != "") {
+if (Sys.getenv("CDM_BIG_QUERY_PROJECT") != "" & Sys.getenv("CDM_BIG_QUERY_BILLING") != "") {
   # To avoid rate limit on BigQuery, only test on 1 OS:
   if (.Platform$OS.type == "windows") {
     bqKeyFile <- tempfile(fileext = ".json")
@@ -178,15 +178,16 @@ if (Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING") != "") {
     if (testthat::is_testing()) {
       withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
     }
-    bqConnectionString <- gsub("<keyfile path>",
-                               normalizePath(bqKeyFile, winslash = "/"),
-                               Sys.getenv("CDM_BIG_QUERY_CONNECTION_STRING"))
+    
+    bigrquery::bq_auth(path = bqKeyFile)
+    
     testServers[[length(testServers) + 1]] <- list(
-      connectionDetails = details <- createConnectionDetails(
+      connectionDetails = details <- DatabaseConnector::createDbiConnectionDetails(
         dbms = "bigquery",
-        user = "",
-        password = "",
-        connectionString = !!bqConnectionString
+        drv = bigrquery::bigquery(),
+        project = Sys.getenv("CDM_BIG_QUERY_PROJECT"),
+        billing = Sys.getenv("CDM_BIG_QUERY_BILLING"),
+        bigint = "integer64"
       ),
       NULL,
       cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),

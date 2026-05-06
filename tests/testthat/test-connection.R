@@ -30,6 +30,7 @@ test_that("getAvailableJavaHeapSpace returns a positive number", {
 })
 
 test_that("Error is thrown when forgetting password", {
+  testthat::skip_if(Sys.getenv("CDM5_POSTGRESQL_USER") == "" || Sys.getenv("CDM5_POSTGRESQL_SERVER") == "", "PostgreSQL environment variables not set")
   details <- createConnectionDetails(
     dbms = "postgresql",
     user = Sys.getenv("CDM5_POSTGRESQL_USER"),

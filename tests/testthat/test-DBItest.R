@@ -1,4 +1,7 @@
 # Run only DBI tests with testthat::test_file("tests/testthat/test-DBItest.R")
+if(Sys.getenv("CDM5_POSTGRESQL_USER") == "" || Sys.getenv("CDM5_POSTGRESQL_SERVER") == "") {
+  testthat::skip("PostgreSQL environment variables not set")
+}
 
 port <- Sys.getenv("CDM5_POSTGRESQL_PORT")
 if (port == "") port <- "5432"

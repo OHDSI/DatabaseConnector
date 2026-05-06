@@ -71,7 +71,11 @@ unregisterWithRStudio <- function(connection) {
     displayName <- registeredDisplayNames$displayName[registeredDisplayNames$uuid == connection@uuid]
     registeredDisplayNames <- registeredDisplayNames[registeredDisplayNames$uuid != connection@uuid, ]
     options(registeredDisplayNames = registeredDisplayNames)
-    observer$connectionClosed(compileTypeLabel(connection), displayName)
+    # Only call connectionClosed if we have exactly one displayName
+    # (handles both RStudio and Positron gracefully)
+    if (length(displayName) == 1) {
+      observer$connectionClosed(compileTypeLabel(connection), displayName)
+    }
   }
 }
 

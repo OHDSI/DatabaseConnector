@@ -50,8 +50,8 @@ data$booleans[c(3,9)] <- NA
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Insert data", testServer), {
     # skip_if(testServer$connectionDetails$dbms == "oracle") # Booleans are passed to and from Oracle but NAs are not persevered. still need to fix that.
-    if (testServer$connectionDetails$dbms %in% c("redshift", "bigquery")) {
-      # Inserting on RedShift or BigQuery is slow (Without bulk upload), so 
+    if (testServer$connectionDetails$dbms %in% c("redshift")) {
+      # Inserting on RedShift is slow (Without bulk upload), so 
       # taking subset:
       dataCopy1 <- data[1:10, ]
     } else {
@@ -85,7 +85,9 @@ for (testServer in testServers) {
     )
     
     # Check data on server is same as local
-    dataCopy2 <- renderTranslateQuerySql(connection, "SELECT * FROM #temp;", integer64AsNumeric = FALSE) 
+    columnsOrder = paste(colnames(dataCopy1), collapse = ", ")
+    dataCopy2 <- renderTranslateQuerySql(connection, "SELECT @columnsOrder FROM #temp;", integer64AsNumeric = FALSE, columnsOrder = columnsOrder) 
+    
     names(dataCopy2) <- tolower(names(dataCopy2))
     dataCopy1 <- dataCopy1[order(dataCopy1$person_id), ]
     dataCopy2 <- dataCopy2[order(dataCopy2$person_id), ]
@@ -93,9 +95,15 @@ for (testServer in testServers) {
     row.names(dataCopy2) <- NULL
     attr(dataCopy1$some_datetime, "tzone") <- NULL
     attr(dataCopy2$some_datetime, "tzone") <- NULL
-    expect_equal(dataCopy1, dataCopy2, check.attributes = FALSE, tolerance = 1e-7)
     
-    sql <- SqlRender::translate("SELECT * FROM #temp;", targetDialect = dbms(connection))
+    tolerance <- 1e-7
+    if(testServer$connectionDetails$dbms == "bigquery") {
+     tolerance <- 5e-6 # BigQuery has lower precision for floats, so need to use higher tolerance
+    }
+    expect_equal(dataCopy1, dataCopy2, check.attributes = FALSE, tolerance = tolerance)
+    
+    sql <- SqlRender::render("SELECT @columnsOrder FROM #temp;", columnsOrder = columnsOrder)
+    sql <- SqlRender::translate(sql, targetDialect = dbms(connection))
     # Check data types
     res <- dbSendQuery(connection, sql, translate = FALSE)
     columnInfo <- dbColumnInfo(res)
@@ -118,7 +126,7 @@ for (testServer in testServers) {
     } else if (dbms == "spark") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "DOUBLE", "STRING", "BIGINT", "BOOLEAN"))
     } else if (dbms == "bigquery") {
-      expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64", "BOOLEAN"))
+      expect_equal(as.character(columnInfo$type), c("DATE", "TIMESTAMP", "INTEGER", "FLOAT", "STRING", "INTEGER", "BOOLEAN"))
     } else if (dbms == "iris") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INTEGER", "DOUBLE", "VARCHAR", "BIGINT"))
     } else {

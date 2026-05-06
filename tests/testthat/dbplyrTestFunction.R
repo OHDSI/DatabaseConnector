@@ -73,12 +73,15 @@ testDbplyrFunctions <- function(connectionDetails, cdmDatabaseSchema) {
   }
 
   # Test slicing ---------------------------------------------------------------
-  personSample <- person %>%
-    slice_sample(n = 10) %>%
-    relocate(care_site_id) %>%
-    collect()
-  expect_equal(nrow(personSample), 10)
-  expect_equal(which(names(personSample) == "care_site_id"), 1)
+  # BigQuery uses RAND() not RANDOM() for random sampling - ??
+  if (!(dbms(connection) %in% c("bigquery"))) {
+    personSample <- person %>%
+      slice_sample(n = 10) %>%
+      relocate(care_site_id) %>%
+      collect()
+    expect_equal(nrow(personSample), 10)
+    expect_equal(which(names(personSample) == "care_site_id"), 1)
+  }
   
   # Test ifelse ----------------------------------------------------------------
   sexString <- person %>%

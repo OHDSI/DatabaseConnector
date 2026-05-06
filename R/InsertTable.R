@@ -471,6 +471,7 @@ insertTable.default <- function(connection,
       }
     }
   }
+
   if (dbms(connection) == "spark") {
     # Spark automatically converts table names to lowercase, but will throw an error
     # that the table already exists when using dbWriteTable to append, and the table 
@@ -484,6 +485,37 @@ insertTable.default <- function(connection,
       tempTable <- FALSE
     }
     
+  }
+
+  if (dbms(connection) == "bigquery") {
+    if (tempTable) {
+      #BigQuery does not support temp tables, so emulate
+      databaseSchema = tempEmulationSchema
+      tableName <- SqlRender::translate(sprintf("#%s", tableName), targetDialect = "bigquery", tempEmulationSchema = NULL)
+      tempTable <- FALSE
+    }
+    if (dropTableIfExists) {
+      # bigrquery::bq_table_upload is not dropping tables, so we need to do it manually
+      sql <- "DROP TABLE IF EXISTS @databaseSchema.@tableName;"
+      renderTranslateExecuteSql(
+        connection = connection,
+        sql = sql,
+        databaseSchema = databaseSchema,
+        tableName = tableName,
+        tempEmulationSchema = tempEmulationSchema,
+        progressBar = FALSE,
+        reportOverallTime = FALSE
+      )
+      dropTableIfExists <- FALSE
+    }
+    # Convert datetime to UTC to avoid timezone issues
+    for (i in 1:ncol(data)) {
+      column <- data[[i]]
+      if (inherits(column, "POSIXct")) {
+        # Force timezone to UTC before insertion
+        attr(data[[i]], "tzone") <- "UTC"
+      }
+    }
   }
   
   logTrace(sprintf("Inserting %d rows into table '%s' ", nrow(data), tableName))
