@@ -418,7 +418,6 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
     dbms = "spark",
     sqlTableName = sqlTableName,
     fileName = destinationCsvFileName,
-    azureAccountKey = Sys.getenv("AZR_ACCOUNT_KEY"),
     azureContainerName = Sys.getenv("AZR_CONTAINER_NAME"),
     azureStorageAccount = Sys.getenv("AZR_STORAGE_ACCOUNT")
   )
