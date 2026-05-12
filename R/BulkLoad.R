@@ -391,6 +391,7 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   
   csvFileName <- tempfile("spark_insert_", fileext = ".csv")
   write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
+  destinationCsvFileName <- basename(csvFileName)
   on.exit(unlink(csvFileName))
 
   azureEndpoint <- getAzureEndpoint()
@@ -399,13 +400,13 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   AzureStor::storage_upload(
     targetContainer, 
     src=csvFileName, 
-    dest=csvFileName
+    dest=destinationCsvFileName
   )  
 
   on.exit(
     AzureStor::delete_storage_file(
       targetContainer, 
-      file = csvFileName,
+      file = destinationCsvFileName,
       confirm = FALSE
     ),
     add = TRUE
@@ -416,7 +417,7 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
     packageName = "DatabaseConnector",
     dbms = "spark",
     sqlTableName = sqlTableName,
-    fileName = basename(csvFileName),
+    fileName = destinationCsvFileName,
     azureAccountKey = Sys.getenv("AZR_ACCOUNT_KEY"),
     azureContainerName = Sys.getenv("AZR_CONTAINER_NAME"),
     azureStorageAccount = Sys.getenv("AZR_STORAGE_ACCOUNT")
