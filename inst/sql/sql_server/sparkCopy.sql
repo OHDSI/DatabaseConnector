@@ -4,4 +4,5 @@ FILEFORMAT = CSV
 FORMAT_OPTIONS (
    'header' = 'true',
    'inferSchema' = 'true'
-);
+)
+COPY_OPTIONS('mergeSchema' = 'true');
