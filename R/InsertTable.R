@@ -131,7 +131,11 @@ validateInt64Insert <- function() {
 #' Credentials are configured directly into the System Environment using the 
 #' following keys: Sys.setenv("AZR_STORAGE_ACCOUNT" =
 #' "some_azure_storage_account", "AZR_ACCOUNT_KEY" = "some_secret_account_key", "AZR_CONTAINER_NAME" =
-#' "some_container_name").
+#' "some_container_name"). Prerequisites for Azure Databricks instances: Create an Access Connector 
+#' for Azure Databricks to provide a secure bridge between Unity Catalog and Azure Data Lake 
+#' Storage (ADLS Gen2), create the required storage credentials using the access connector, 
+#' and configure the bulk-loading storage account as an external location using the access 
+#' connector and storage credentials.
 #'
 #' PDW: The MPP bulk loading relies upon the client
 #' having a Windows OS and the DWLoader exe installed, and the following permissions granted: --Grant
