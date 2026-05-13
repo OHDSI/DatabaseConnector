@@ -393,6 +393,9 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
   destinationCsvFileName <- basename(csvFileName)
   on.exit(unlink(csvFileName))
+  
+  sqlDataTypes <- sapply(data, getSqlDataTypes, dbms = connection@dbms)
+  selectFields <- paste0(.sql.qescape(names(data), TRUE), "::", sqlDataTypes, collapse = ", ")
 
   azureEndpoint <- getAzureEndpoint()
   containers <- AzureStor::list_storage_containers(azureEndpoint)
@@ -417,6 +420,7 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
     packageName = "DatabaseConnector",
     dbms = "spark",
     sqlTableName = sqlTableName,
+    selectFields = selectFields,
     fileName = destinationCsvFileName,
     azureContainerName = Sys.getenv("AZR_CONTAINER_NAME"),
     azureStorageAccount = Sys.getenv("AZR_STORAGE_ACCOUNT")
