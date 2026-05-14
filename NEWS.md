@@ -1,5 +1,11 @@
-DatabaseConnector 7.1.1
+DatabaseConnector 7.2.0.
 =======================
+
+Changes:
+
+1. Changing Spark (DataBricks) driver from Simba DataBricks to DataBricks.
+
+2. Adding bulk upload for Spark (DataBricks).
 
 Bugfixes:
 
