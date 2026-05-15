@@ -260,6 +260,9 @@ compileReconnectCode.default <- function(connection) {
   } else {
     url <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getURL")
     user <- rJava::.jcall(databaseMetaData, "Ljava/lang/String;", "getUserName")
+    if (length(user) == 0) {
+      user <- ""
+    }
   }
   code <- sprintf(
     "library(DatabaseConnector)\ncon <- connect(dbms = \"%s\", connectionString = \"%s\", user = \"%s\", password = password)",

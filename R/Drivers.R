@@ -95,8 +95,8 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     5,spark,databricks-jdbc-3.3.1.jar,https://github.com/databricks/databricks-jdbc/releases/download/v3.3.1/
-    6,snowflake,snowflake-jdbc-3.24.0.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.24.0/
-    7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.6.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/
+    6,snowflake,snowflake-jdbc-4.2.0.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/4.2.0/
+    7,bigquery,google-cloud-bigquery-jdbc-0.10.0-all.jar,https://repo1.maven.org/maven2/com/google/cloud/google-cloud-bigquery-jdbc/0.10.0/
     8,iris,intersystems-jdbc-3.10.2.jar,https://repo1.maven.org/maven2/com/intersystems/intersystems-jdbc/3.10.2/"
   )
 

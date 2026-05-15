@@ -638,8 +638,8 @@ connectBigQuery <- function(connectionDetails) {
   for (jar in files) {
     rJava::.jaddClassPath(jar)
   }
-  jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
+  jarPath <- findPathToJar("^google-cloud-bigquery-jdbc.*\\.jar$", connectionDetails$pathToDriver)
+  driver <- getJbcDriverSingleton("com.google.cloud.bigquery.jdbc.BigQueryDriver", jarPath)
   if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
     connectionString <- paste0("jdbc:BQDriver:", connectionDetails$server)
     if (!is.null(connectionDetails$extraSettings)) {
