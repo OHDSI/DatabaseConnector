@@ -23,6 +23,7 @@ public class BatchedQuery {
 	public static double            MAX_BATCH_SIZE  = 1000000;
 	public static long              CHECK_MEM_ROWS  = 10000;
 	private static String           SPARK           = "spark";
+	private static String           BIGQUERY        = "bigquery";
 	public static double 			NA_DOUBLE 		= Double.longBitsToDouble(0x7ff00000000007a2L);
 	public static int 				NA_INTEGER   	= Integer.MIN_VALUE;
 	public static long 				NA_LONG   		= Long.MIN_VALUE;
@@ -142,7 +143,8 @@ public class BatchedQuery {
 			statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			statement.setFetchSize(FETCH_SIZE);
 			resultSet = statement.executeQuery(query);
-			resultSet.setFetchSize(FETCH_SIZE);
+			if (!dbms.equals(BIGQUERY)) 
+				resultSet.setFetchSize(FETCH_SIZE);
 			ResultSetMetaData metaData = resultSet.getMetaData();
 			columnTypes = new int[metaData.getColumnCount()];
 			columnSqlTypes = new String[metaData.getColumnCount()];

@@ -648,6 +648,8 @@ connectBigQuery <- function(connectionDetails) {
   } else {
     connectionString <- connectionDetails$connectionString()
   }
+  connectionString <- paste(connectionString, "EnableSession=TRUE", sep = ";")
+  
   connection <- connectUsingJdbcDriver(driver,
     connectionString,
     user = connectionDetails$user(),
