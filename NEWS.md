@@ -5,7 +5,9 @@ Changes:
 
 1. Changing Spark (DataBricks) driver from Simba DataBricks to DataBricks.
 
-2. Adding bulk upload for Spark (DataBricks).
+2. Changing BigQuery driver from Simba BigQuery to BigQuery.
+
+3. Adding bulk upload for Spark (DataBricks).
 
 Bugfixes:
 
