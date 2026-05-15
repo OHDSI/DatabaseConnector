@@ -28,7 +28,7 @@ jdbcDrivers <- new.env()
 #' - "redshift" for Amazon Redshift
 #' - "sql server", "pdw" or "synapse" for Microsoft SQL Server
 #' - "oracle" for Oracle
-#' - "spark" for Spark
+#' - "spark" for Spark (Databricks)
 #' - "snowflake" for Snowflake
 #' - "bigquery" for Google BigQuery
 #' - "iris" for InterSystems IRIS
@@ -94,7 +94,7 @@ downloadJdbcDrivers <- function(dbms, pathToDriver = Sys.getenv("DATABASECONNECT
     2,redshift,redshift-jdbc42-2.1.0.20.zip,https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/
     3,sql server,sqlServerV9.2.0.zip,https://ohdsi.github.io/DatabaseConnectorJars/
     4,oracle,oracleV19.8.zip,https://ohdsi.github.io/DatabaseConnectorJars/
-    5,spark,DatabricksJDBC42-2.6.36.1062.zip,https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/2.6.36/
+    5,spark,databricks-jdbc-3.3.1.jar,https://github.com/databricks/databricks-jdbc/releases/download/v3.3.1/
     6,snowflake,snowflake-jdbc-3.24.0.jar,https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.24.0/
     7,bigquery,SimbaJDBCDriverforGoogleBigQuery42_1.6.2.1003.zip,https://storage.googleapis.com/simba-bq-release/jdbc/
     8,iris,intersystems-jdbc-3.10.2.jar,https://repo1.maven.org/maven2/com/intersystems/intersystems-jdbc/3.10.2/"
