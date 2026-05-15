@@ -7,6 +7,10 @@ Changes:
 
 2. Adding bulk upload for Spark (DataBricks).
 
+Bugfixes:
+
+1. Converting double quotes to spaces when upload to DataBricks to avoid errors.
+
 
 DatabaseConnector 7.1.1
 =======================
