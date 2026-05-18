@@ -65,6 +65,9 @@ setMethod(
         if (dbms(conn) %in% c("sql server", "pdw")) {
           database <- cleanDatabaseName(databaseSchema)
           schema <- "dbo"
+        } else if (dbms(conn) == "bigquery") {
+          database <- dbGetQuery(conn, "SELECT @@project_id;")[1, 1]
+          schema <- cleanSchemaName(databaseSchema)
         } else {
           database <- rJava::.jnull("java/lang/String")
           schema <- cleanSchemaName(databaseSchema)

@@ -114,7 +114,7 @@ for (testServer in testServers) {
     } else if (dbms == "duckdb") {
       expect_equal(as.character(columnInfo$type), c("Date", "POSIXct", "integer", "numeric", "character", "numeric", "logical"))
     } else if (dbms == "snowflake") {
-      expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMPNTZ", "NUMBER", "DOUBLE", "VARCHAR", "NUMBER", "BOOLEAN"))
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64", "BOOL"))
     } else if (dbms == "spark") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "DOUBLE", "STRING", "BIGINT", "BOOLEAN"))
     } else if (dbms == "bigquery") {
