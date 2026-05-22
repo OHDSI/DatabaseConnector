@@ -2,32 +2,31 @@ package org.ohdsi.databaseConnector;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 public class Authentication {
 
-	public static void addPathToJavaLibrary(String path) throws IOException {
-		try {
-			// This enables the java.library.path to be modified at runtime
-			// From a Sun engineer at http://forums.sun.com/thread.jspa?threadID=707176
-			//
-			Field field = ClassLoader.class.getDeclaredField("usr_paths");
-			field.setAccessible(true);
-			String[] paths = (String[]) field.get(null);
-			for (int i = 0; i < paths.length; i++) {
-				if (path.equals(paths[i])) {
-					return;
-				}
-			}
-			String[] tmp = new String[paths.length + 1];
-			System.arraycopy(paths, 0, tmp, 0, paths.length);
-			tmp[paths.length] = path;
-			field.set(null, tmp);
-			System.setProperty("java.library.path", System.getProperty("java.library.path") + File.pathSeparator + path);
-		} catch (IllegalAccessException e) {
-			throw new IOException("Failed to get permissions to set library path");
-		} catch (NoSuchFieldException e) {
-			throw new IOException("Failed to get field handle to set library path");
-		}
-	}
+    public static void addPathToJavaLibrary(String path) throws IOException {
+        File dir = new File(path);
+        
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new IOException("Provided path is not a valid directory: " + path);
+        }
+
+        // Search for the SQL Server auth DLL (matches sqljdbc_auth.dll or mssql-jdbc_auth-*.dll)
+        File[] dlls = dir.listFiles((d, name) -> {
+            String lowerName = name.toLowerCase();
+            return lowerName.contains("mssql") && lowerName.contains("auth") && lowerName.endsWith(".dll");
+        });
+
+        if (dlls == null || dlls.length == 0) {
+            throw new IOException("No authentication DLL found in directory: " + path);
+        }
+
+        // Assuming there is only one relevant DLL in the folder, or we try loading the first one we find
+        try {
+            System.load(dlls[0].getAbsolutePath());
+        } catch (UnsatisfiedLinkError e) {
+            throw new IOException("Failed to load native library from: " + dlls[0].getAbsolutePath(), e);
+        }
+    }
 }
