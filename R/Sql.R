@@ -106,7 +106,7 @@ supportsBatchUpdates <- function(connection) {
 #' This function executes SQL consisting of one or more statements.
 #'
 #' @template Connection
-#' @param sql                 The SQL statement to be executed.
+#' @param sql                 The SQL to be executed.
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
 #' @param progressBar         When true, a progress bar is shown based on the statements in the SQL
@@ -364,7 +364,7 @@ querySql <- function(connection,
 #' This function renders, translates, and executes SQL consisting of one or more statements.
 #'
 #' @template Connection
-#' @param sql                 The SQL statement to be executed.
+#' @param sql                 The SQL to be executed.
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
 #' @param progressBar         When true, a progress bar is shown based on the statements in the SQL
