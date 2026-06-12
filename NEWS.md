@@ -9,6 +9,8 @@ Changes:
 
 3. Adding bulk upload for Spark (DataBricks).
 
+4. Updating IRIS JDBC driver.
+
 Bugfixes:
 
 1. Converting double quotes to spaces when upload to DataBricks to avoid errors.

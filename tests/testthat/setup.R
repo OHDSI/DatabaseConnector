@@ -4,7 +4,7 @@ library(DatabaseConnector)
 rJava::.jinit(system.file("java", "DatabaseConnector.jar", package = "DatabaseConnector"))
 
 # Download the JDBC drivers used in the tests ----------------------------------
-if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE") {
+if (Sys.getenv("DONT_DOWNLOAD_JDBC_DRIVERS", "") != "TRUE" && Sys.getenv("CDM5_POSTGRESQL_SERVER") != "") {
   oldJarFolder <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
   Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = tempfile("jdbcDrivers"))
   dir.create(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))
