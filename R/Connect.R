@@ -634,10 +634,6 @@ connectHive <- function(connectionDetails) {
 
 connectBigQuery <- function(connectionDetails) {
   inform("Connecting using BigQuery driver")
-  files <- list.files(path = connectionDetails$pathToDriver, full.names = TRUE)
-  for (jar in files) {
-    rJava::.jaddClassPath(jar)
-  }
   jarPath <- findPathToJar("^google-cloud-bigquery-jdbc.*\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("com.google.cloud.bigquery.jdbc.BigQueryDriver", jarPath)
   if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
