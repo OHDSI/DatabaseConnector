@@ -172,28 +172,27 @@ if (.Platform$OS.type == "windows") {
 # BigQuery ------------------------------------------------------------------
 if (Sys.getenv("CDM_BIG_QUERY_PROJECT") != "" & Sys.getenv("CDM_BIG_QUERY_BILLING") != "") {
   # To avoid rate limit on BigQuery, only test on 1 OS:
-  if (.Platform$OS.type == "windows") {
+  #if (.Platform$OS.type == "windows") {
     bqKeyFile <- tempfile(fileext = ".json")
     writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), bqKeyFile)
     if (testthat::is_testing()) {
       withr::defer(unlink(bqKeyFile, force = TRUE), testthat::teardown_env())
     }
-    
-    bigrquery::bq_auth(path = bqKeyFile)
-    
+  
     testServers[[length(testServers) + 1]] <- list(
-      connectionDetails = details <- DatabaseConnector::createDbiConnectionDetails(
+      connectionDetails = details <- createConnectionDetails(
         dbms = "bigquery",
-        drv = bigrquery::bigquery(),
-        project = Sys.getenv("CDM_BIG_QUERY_PROJECT"),
-        billing = Sys.getenv("CDM_BIG_QUERY_BILLING"),
-        bigint = "integer64"
+        server = Sys.getenv("CDM_BIG_QUERY_PROJECT"), 
+        extraSettings = list(
+            billing = Sys.getenv("CDM_BIG_QUERY_BILLING"),
+            path = bqKeyFile
+        )
       ),
       NULL,
       cdmDatabaseSchema = Sys.getenv("CDM_BIG_QUERY_CDM_SCHEMA"),
       tempEmulationSchema = Sys.getenv("CDM_BIG_QUERY_OHDSI_SCHEMA")
     )
-  }
+  #}
 }
 
 # InterSystems IRIS -----------------------------------------------------------------
