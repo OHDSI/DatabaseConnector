@@ -299,6 +299,8 @@ connect <- function(connectionDetails = NULL,
       connectDuckdb(connectionDetails)
     } else if (connectionDetails$dbms == "spark" && is.null(connectionDetails$connectionString())) {
       connectSparkUsingOdbc(connectionDetails)
+    } else if (connectionDetails$dbms == "bigquery") {
+      connectBigQuery(connectionDetails)
     } else {
       return(connectUsingJdbc(connectionDetails))
     }
@@ -324,8 +326,6 @@ connectUsingJdbc <- function(connectionDetails) {
     return(connectImpala(connectionDetails))
   } else if (dbms == "hive") {
     return(connectHive(connectionDetails))
-  } else if (dbms == "bigquery") {
-    return(connectBigQuery(connectionDetails))
   } else if (dbms == "spark") {
     return(connectSpark(connectionDetails))
   } else if (dbms == "snowflake") {
@@ -634,26 +634,39 @@ connectHive <- function(connectionDetails) {
 
 connectBigQuery <- function(connectionDetails) {
   inform("Connecting using BigQuery driver")
-  files <- list.files(path = connectionDetails$pathToDriver, full.names = TRUE)
-  for (jar in files) {
-    rJava::.jaddClassPath(jar)
-  }
-  jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
-  if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
-    connectionString <- paste0("jdbc:BQDriver:", connectionDetails$server)
-    if (!is.null(connectionDetails$extraSettings)) {
-      connectionString <- paste(connectionString, connectionDetails$extraSettings, sep = "?")
+  ensure_installed("bigrquery")
+
+  # Authenticate using gargle. Take parameters from extraSettings if provided, otherwise rely on default authentication
+  bqAuthArgs <- list()
+  if (!is.null(connectionDetails$extraSettings)) {
+    bqAuthArgNames <- setdiff(
+      names(connectionDetails$extraSettings),
+      c("billing")
+    )
+    if (length(bqAuthArgNames) > 0) {
+      bqAuthArgs <- connectionDetails$extraSettings[bqAuthArgNames]
     }
-  } else {
-    connectionString <- connectionDetails$connectionString()
+    
   }
-  connection <- connectUsingJdbcDriver(driver,
-    connectionString,
-    user = connectionDetails$user(),
-    password = connectionDetails$password(),
-    dbms = connectionDetails$dbms
+
+  do.call(bigrquery::bq_auth, bqAuthArgs)
+
+  # Extract `billing` from extraSettings if provided, default to same as project (stored server)
+  billing <- connectionDetails$server()
+  if (!is.null(connectionDetails$extraSettings) && !is.null(connectionDetails$extraSettings$billing)) {
+    billing <- connectionDetails$extraSettings$billing
+  }
+
+  connection <- connectUsingDbi(
+    createDbiConnectionDetails(
+      dbms = "bigquery",
+      drv = bigrquery::bigquery(),
+      project = connectionDetails$server(),
+      billing = billing,
+      bigint = "integer64"
+    )
   )
+
   return(connection)
 }
 

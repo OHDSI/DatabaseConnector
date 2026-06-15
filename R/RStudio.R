@@ -71,7 +71,11 @@ unregisterWithRStudio <- function(connection) {
     displayName <- registeredDisplayNames$displayName[registeredDisplayNames$uuid == connection@uuid]
     registeredDisplayNames <- registeredDisplayNames[registeredDisplayNames$uuid != connection@uuid, ]
     options(registeredDisplayNames = registeredDisplayNames)
-    observer$connectionClosed(compileTypeLabel(connection), displayName)
+    # Only call connectionClosed if we have exactly one displayName
+    # (handles both RStudio and Positron gracefully)
+    if (length(displayName) == 1) {
+      observer$connectionClosed(compileTypeLabel(connection), displayName)
+    }
   }
 }
 
@@ -317,6 +321,10 @@ getSchemaNames.DatabaseConnectorDbiConnection <- function(conn, catalog = NULL) 
     return(schemas[, 1])
   } else if (conn@dbms == "duckdb") {
     return(dbGetQuery(conn, sprintf("SELECT schema_name FROM information_schema.schemata WHERE catalog_name = '%s'", catalog))$schema_name)
+  } else if (conn@dbms == "bigquery") {
+    schemas <- bigrquery::bq_project_datasets(catalog) |> 
+      purrr::map_chr(~.x$dataset)
+    return(schemas)
   } else {
     schemas <- DBI::dbGetQuery(conn@dbiConnection, "SELECT schema_name FROM information_schema.schemata;")
     return(schemas[, 1])

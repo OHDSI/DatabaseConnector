@@ -443,6 +443,10 @@ setMethod(
   signature("DatabaseConnectorDbiConnection", "character"),
   function(conn, statement, ...) {
     rowsAffected <- DBI::dbExecute(conn@dbiConnection, statement)
+    if (conn@dbms == "bigquery") {
+      delayIfNecessaryForDdl(statement)
+      delayIfNecessaryForInsert(statement)
+    }
     return(rowsAffected)
   }
 )

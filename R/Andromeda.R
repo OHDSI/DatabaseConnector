@@ -118,7 +118,7 @@ querySqlToAndromeda <- function(
     invisible(andromeda)
   },
   error = function(err) {
-    .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
+    .createErrorReport(dbms(connection), err, sql, errorReportFile)
   })
 }
 
