@@ -661,7 +661,7 @@ connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
   # jarPath <- findPathToJar("^SparkJDBC42\\.jar$", connectionDetails$pathToDriver)
   # jarPath <- findPathToJar("^DatabricksJDBC42\\.jar$", connectionDetails$pathToDriver)
-  jarPath <- findPathToJar("^databricks.*\\.jar$", connectionDetails$pathToDriver)
+  jarPath <- findPathToJar("^[Dd]atabricks.*\\.jar$", connectionDetails$pathToDriver)
   # driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
   driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
   connectionString <- connectionDetails$connectionString()
