@@ -55,7 +55,7 @@ toStrings <- function(data, sqlDataTypes) {
     if (any(intIdx)) {
       result[intIdx] <- sapply(data[, intIdx], format, scientific = FALSE)
     }
-    result <- paste("'", gsub("'", "''", result), "'", sep = "")
+    result <- paste("'", gsub("'", "''", gsub("\"", " ", result)), "'", sep = "")
     result[is.na(data)] <- "NULL"
     return(as.data.frame(t(result), stringsAsFactors = FALSE))
   } else {
@@ -63,7 +63,7 @@ toStrings <- function(data, sqlDataTypes) {
     if (any(intIdx)) {
       result[, intIdx] <- sapply(data[, intIdx], format, scientific = FALSE)
     }
-    result <- apply(result, FUN = function(x) paste("'", gsub("'", "''", x), "'", sep = ""), MARGIN = 2)
+    result <- apply(result, FUN = function(x) paste("'", gsub("'", "''", gsub("\"", " ", x)), "'", sep = ""), MARGIN = 2)
     result[is.na(data)] <- "NULL"
     return(result)
   }

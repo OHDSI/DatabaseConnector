@@ -118,7 +118,7 @@ for (testServer in testServers) {
     } else if (dbms == "spark") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INT", "DOUBLE", "STRING", "BIGINT", "BOOLEAN"))
     } else if (dbms == "bigquery") {
-      expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64", "BOOLEAN"))
+      expect_equal(as.character(columnInfo$field.type), c("DATE", "DATETIME", "INT64", "FLOAT64", "STRING", "INT64", "BOOL"))
     } else if (dbms == "iris") {
       expect_equal(as.character(columnInfo$field.type), c("DATE", "TIMESTAMP", "INTEGER", "DOUBLE", "VARCHAR", "BIGINT"))
     } else {

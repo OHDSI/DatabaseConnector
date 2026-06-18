@@ -64,7 +64,7 @@ checkBulkLoadCredentials <- function(connection) {
     envSet <- FALSE
     container <- FALSE
     
-    if (Sys.getenv("AZR_STORAGE_ACCOUNT") != "" && Sys.getenv("AZR_ACCOUNT_KEY") != "" && Sys.setenv("AZR_CONTAINER_NAME") != "") {
+    if (Sys.getenv("AZR_STORAGE_ACCOUNT") != "" && Sys.getenv("AZR_ACCOUNT_KEY") != "" && Sys.getenv("AZR_CONTAINER_NAME") != "") {
       envSet <- TRUE
     }
     
@@ -391,7 +391,11 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   
   csvFileName <- tempfile("spark_insert_", fileext = ".csv")
   write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
+  destinationCsvFileName <- basename(csvFileName)
   on.exit(unlink(csvFileName))
+  
+  sqlDataTypes <- sapply(data, getSqlDataTypes, dbms = connection@dbms)
+  selectFields <- paste0(.sql.qescape(names(data), TRUE), "::", sqlDataTypes, collapse = ", ")
 
   azureEndpoint <- getAzureEndpoint()
   containers <- AzureStor::list_storage_containers(azureEndpoint)
@@ -399,13 +403,13 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   AzureStor::storage_upload(
     targetContainer, 
     src=csvFileName, 
-    dest=csvFileName
+    dest=destinationCsvFileName
   )  
 
   on.exit(
     AzureStor::delete_storage_file(
       targetContainer, 
-      file = csvFileName,
+      file = destinationCsvFileName,
       confirm = FALSE
     ),
     add = TRUE
@@ -416,8 +420,9 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
     packageName = "DatabaseConnector",
     dbms = "spark",
     sqlTableName = sqlTableName,
-    fileName = basename(csvFileName),
-    azureAccountKey = Sys.getenv("AZR_ACCOUNT_KEY"),
+    selectFields = selectFields,
+    fileName = destinationCsvFileName,
+    azureContainerName = Sys.getenv("AZR_CONTAINER_NAME"),
     azureStorageAccount = Sys.getenv("AZR_STORAGE_ACCOUNT")
   )
   
@@ -426,7 +431,7 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
       DatabaseConnector::executeSql(connection = connection, sql = sql, reportOverallTime = FALSE)
     },
     error = function(e) {
-      abort("Error in DataBricks bulk upload. Please check DataBricks/Azure Storage access.")
+      abort(paste("Error in DataBricks bulk upload. Please check DataBricks/Azure Storage access.\n", e))
     }
   )
   delta <- Sys.time() - start

@@ -1,3 +1,29 @@
+DatabaseConnector 7.2.0.
+=======================
+
+Changes:
+
+1. Changing Spark (DataBricks) driver from Simba DataBricks to DataBricks.
+
+2. Changing BigQuery driver from Simba BigQuery to BigQuery.
+
+3. Adding bulk upload for Spark (DataBricks).
+
+4. Updating IRIS JDBC driver.
+
+Bugfixes:
+
+1. Converting double quotes to spaces when upload to DataBricks to avoid errors.
+
+
+DatabaseConnector 7.1.1
+=======================
+
+Bugfixes:
+
+1. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
+
+
 DatabaseConnector 7.1.0
 =======================
 

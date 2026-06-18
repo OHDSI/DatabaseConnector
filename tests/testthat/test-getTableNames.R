@@ -7,8 +7,8 @@ for (testServer in testServers) {
     tables <- getTableNames(connection, testServer$cdmDatabaseSchema)
     expect_true("person" %in% tables)
     expect_true(existsTable(connection, testServer$cdmDatabaseSchema, "person"))
-    # This does not work on SQL Server:
-    if (testServer$connectionDetails$dbms != "sql server") {
+    # This does not work on SQL Server or BigQuery:
+    if (!testServer$connectionDetails$dbms %in% c("sql server", "bigquery")) {
       expect_true(DBI::dbExistsTable(connection, "person"))
     }
     

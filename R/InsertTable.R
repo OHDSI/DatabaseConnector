@@ -131,7 +131,11 @@ validateInt64Insert <- function() {
 #' Credentials are configured directly into the System Environment using the 
 #' following keys: Sys.setenv("AZR_STORAGE_ACCOUNT" =
 #' "some_azure_storage_account", "AZR_ACCOUNT_KEY" = "some_secret_account_key", "AZR_CONTAINER_NAME" =
-#' "some_container_name").
+#' "some_container_name"). Prerequisites for Azure Databricks instances: Create an Access Connector 
+#' for Azure Databricks to provide a secure bridge between Unity Catalog and Azure Data Lake 
+#' Storage (ADLS Gen2), create the required storage credentials using the access connector, 
+#' and configure the bulk-loading storage account as an external location using the access 
+#' connector and storage credentials.
 #'
 #' PDW: The MPP bulk loading relies upon the client
 #' having a Windows OS and the DWLoader exe installed, and the following permissions granted: --Grant
@@ -229,6 +233,7 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
     )
     data <- as.data.frame(data)
   }
+  data <- convertIdateToDate(data)
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -268,7 +273,7 @@ insertTable.DatabaseConnectorJdbcConnection <- function(connection,
     }
   }
   isSqlReservedWord(c(tableName, colnames(data)), warn = TRUE)
-  useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift") && createTable) ||
+  useBulkLoad <- (bulkLoad && dbms %in% c("hive", "redshift", "spark") && createTable) ||
     (bulkLoad && dbms %in% c("pdw", "postgresql") && !tempTable)
   useCtasHack <- dbms %in% c("pdw", "redshift", "bigquery", "hive") && createTable && nrow(data) > 0 && !useBulkLoad
   if (dbms == "bigquery" && useCtasHack && is.null(tempEmulationSchema)) {
@@ -447,7 +452,7 @@ insertTable.default <- function(connection,
                                 useMppBulkLoad = Sys.getenv("USE_MPP_BULK_LOAD"),
                                 progressBar = FALSE,
                                 camelCaseToSnakeCase = FALSE) {
-  
+  data <- convertIdateToDate(data)
   if (camelCaseToSnakeCase) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
@@ -511,3 +516,13 @@ insertTable.default <- function(connection,
   inform(paste("Inserting data took", signif(delta, 3), attr(delta, "units")))
   invisible(NULL)
 }
+
+convertIdateToDate <- function(df) {
+  isIdate <- vapply(df, function(x) inherits(x, "IDate"), logical(1))
+  if (!any(isIdate)) {
+    return(df)
+  }
+  df[isIdate] <- lapply(df[isIdate], as.Date)
+  return(df)
+}
+

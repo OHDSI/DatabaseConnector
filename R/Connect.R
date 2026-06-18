@@ -634,12 +634,8 @@ connectHive <- function(connectionDetails) {
 
 connectBigQuery <- function(connectionDetails) {
   inform("Connecting using BigQuery driver")
-  files <- list.files(path = connectionDetails$pathToDriver, full.names = TRUE)
-  for (jar in files) {
-    rJava::.jaddClassPath(jar)
-  }
-  jarPath <- findPathToJar("^GoogleBigQueryJDBC42\\.jar$", connectionDetails$pathToDriver)
-  driver <- getJbcDriverSingleton("com.simba.googlebigquery.jdbc42.Driver", jarPath)
+  jarPath <- findPathToJar("^google-cloud-bigquery-jdbc.*\\.jar$", connectionDetails$pathToDriver)
+  driver <- getJbcDriverSingleton("com.google.cloud.bigquery.jdbc.BigQueryDriver", jarPath)
   if (is.null(connectionDetails$connectionString()) || connectionDetails$connectionString() == "") {
     connectionString <- paste0("jdbc:BQDriver:", connectionDetails$server)
     if (!is.null(connectionDetails$extraSettings)) {
@@ -648,6 +644,8 @@ connectBigQuery <- function(connectionDetails) {
   } else {
     connectionString <- connectionDetails$connectionString()
   }
+  connectionString <- paste(connectionString, "EnableSession=TRUE", sep = ";")
+  
   connection <- connectUsingJdbcDriver(driver,
     connectionString,
     user = connectionDetails$user(),
@@ -659,10 +657,7 @@ connectBigQuery <- function(connectionDetails) {
 
 connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
-  # jarPath <- findPathToJar("^SparkJDBC42\\.jar$", connectionDetails$pathToDriver)
-  # jarPath <- findPathToJar("^DatabricksJDBC42\\.jar$", connectionDetails$pathToDriver)
   jarPath <- findPathToJar("^[Dd]atabricks.*\\.jar$", connectionDetails$pathToDriver)
-  # driver <- getJbcDriverSingleton("com.simba.spark.jdbc.Driver", jarPath)
   driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
   connectionString <- connectionDetails$connectionString()
   if (is.null(connectionString) || connectionString == "") {
