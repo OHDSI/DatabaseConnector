@@ -657,7 +657,7 @@ connectBigQuery <- function(connectionDetails) {
 
 connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
-  jarPath <- findPathToJar("^DatabricksJDBC.jar$", connectionDetails$pathToDriver)
+  jarPath <- findPathToJar("^[Dd]atabricks.*\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
   connectionString <- connectionDetails$connectionString()
   if (is.null(connectionString) || connectionString == "") {
