@@ -1,3 +1,11 @@
+DatabaseConnector 7.1.1
+=======================
+
+Bugfixes:
+
+1. Fixed errors caused by `dbplyr 2.6.0` dropping v1 backends, which we apparently were still using.
+
+
 DatabaseConnector 7.1.0
 =======================
 

@@ -25,7 +25,7 @@ renderTranslateQuerySqlToAndromeda(
 \item{sql}{The SQL to be send.}
 
 \item{andromeda}{An open Andromeda object, for example as created
-using \code{\link[Andromeda:andromeda_constructor]{Andromeda::andromeda()}}.}
+using \code{\link[Andromeda:andromeda]{Andromeda::andromeda()}}.}
 
 \item{andromedaTableName}{The name of the table in the local Andromeda object where the
 results of the query will be stored.}
