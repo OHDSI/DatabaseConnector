@@ -46,10 +46,17 @@ sql_dialect.DatabaseConnectorJdbcConnection <- function(con) {
          "redshift"   = dbplyr::dialect_redshift(), 
          "sql server" = dbplyr::dialect_mssql(), 
          "bigquery"   = {
-           # Use a lightweight dummy S3 object to safely dispatch to bigrquery
-           dummy_con <- structure(list(), class = c("BigQueryConnection", "DBIConnection"))
+           requireNamespace("bigrquery", quietly = TRUE)
+           
+           # Explicitly fetch the S4 class definition from the bigrquery namespace.
+           # This prevents R CMD check from failing to find the class in the search path.
+           bq_class <- methods::getClass("BigQueryConnection", where = asNamespace("bigrquery"))
+           
+           # Instantiate the dummy object using the explicit class definition
+           dummy_con <- methods::new(bq_class, use_legacy_sql = FALSE)
+           
            dbplyr::sql_dialect(dummy_con)
-         }, 
+         },          
          "spark"      = dbplyr::dialect_spark_sql(), 
          "snowflake"  = dbplyr::dialect_snowflake(), 
          "synapse"    = dbplyr::dialect_mssql(), 
