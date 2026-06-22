@@ -33,7 +33,7 @@ Imports:
     bit64,
     checkmate,
     digest,
-    dbplyr (>= 2.2.0)
+    dbplyr (>= 2.6.0)
 Suggests:
     aws.s3,
     R.utils,
