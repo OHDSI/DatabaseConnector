@@ -7,8 +7,8 @@
 \S4method{dbSendQuery}{DatabaseConnectorDbiConnection,character}(conn, statement, ...)
 }
 \arguments{
-\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object,
+as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}
 
@@ -16,10 +16,10 @@
 }
 \value{
 \code{dbSendQuery()} returns
-an S4 object that inherits from \link[DBI:DBIResult-class]{DBIResult}.
-The result set can be used with \code{\link[DBI:dbFetch]{dbFetch()}} to extract records.
+an S4 object that inherits from \link[DBI:DBIResult-class]{DBI::DBIResult}.
+The result set can be used with \code{\link[DBI:dbFetch]{DBI::dbFetch()}} to extract records.
 Once you have finished using a result, make sure to clear it
-with \code{\link[DBI:dbClearResult]{dbClearResult()}}.
+with \code{\link[DBI:dbClearResult]{DBI::dbClearResult()}}.
 }
 \description{
 The \code{dbSendQuery()} method only submits and synchronously executes the
@@ -31,6 +31,7 @@ For interactive use, you should almost always prefer \code{\link[DBI:dbGetQuery]
 Use \code{\link[DBI:dbSendQueryArrow]{dbSendQueryArrow()}} or \code{\link[DBI:dbGetQueryArrow]{dbGetQueryArrow()}} instead to retrieve the results
 as an Arrow object.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbSendQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only.  Some backends may

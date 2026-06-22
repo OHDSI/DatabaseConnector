@@ -7,16 +7,16 @@
 \S4method{dbHasCompleted}{DatabaseConnectorJdbcResult}(res, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBI::DBIResult}.}
 
 \item{...}{Other arguments passed on to methods.}
 }
 \value{
 \code{dbHasCompleted()} returns a logical scalar.
-For a query initiated by \code{\link[DBI:dbSendQuery]{dbSendQuery()}} with non-empty result set,
+For a query initiated by \code{\link[DBI:dbSendQuery]{DBI::dbSendQuery()}} with non-empty result set,
 \code{dbHasCompleted()} returns \code{FALSE} initially
-and \code{TRUE} after calling \code{\link[DBI:dbFetch]{dbFetch()}} without limit.
-For a query initiated by \code{\link[DBI:dbSendStatement]{dbSendStatement()}},
+and \code{TRUE} after calling \code{\link[DBI:dbFetch]{DBI::dbFetch()}} without limit.
+For a query initiated by \code{\link[DBI:dbSendStatement]{DBI::dbSendStatement()}},
 \code{dbHasCompleted()} always returns \code{TRUE}.
 }
 \description{
@@ -24,6 +24,7 @@ This method returns if the operation has completed.
 A \code{SELECT} query is completed if all rows have been fetched.
 A data manipulation statement is always completed.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbHasCompleted")}
 }
 \seealso{
 Other DBIResult generics: 

@@ -7,19 +7,19 @@
 \S4method{dbGetRowsAffected}{DatabaseConnectorJdbcResult}(res, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBI::DBIResult}.}
 
 \item{...}{Other arguments passed on to methods.}
 }
 \value{
 \code{dbGetRowsAffected()} returns a scalar number (integer or numeric),
 the number of rows affected by a data manipulation statement
-issued with \code{\link[DBI:dbSendStatement]{dbSendStatement()}}.
+issued with \code{\link[DBI:dbSendStatement]{DBI::dbSendStatement()}}.
 The value is available directly after the call
-and does not change after calling \code{\link[DBI:dbFetch]{dbFetch()}}.
+and does not change after calling \code{\link[DBI:dbFetch]{DBI::dbFetch()}}.
 \code{NA_integer_} or \code{NA_numeric_} are allowed if the number of rows affected is not known.
 
-For queries issued with \code{\link[DBI:dbSendQuery]{dbSendQuery()}},
+For queries issued with \code{\link[DBI:dbSendQuery]{DBI::dbSendQuery()}},
 zero is returned before
 and after the call to \code{dbFetch()}.
 \code{NA} values are not allowed.
@@ -28,6 +28,7 @@ and after the call to \code{dbFetch()}.
 This method returns the number of rows that were added, deleted, or updated
 by a data manipulation statement.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetRowsAffected")}
 }
 \seealso{
 Other DBIResult generics: 

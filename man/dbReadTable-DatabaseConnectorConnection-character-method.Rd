@@ -7,8 +7,8 @@
 \S4method{dbReadTable}{DatabaseConnectorConnection,character}(conn, name, databaseSchema = NULL, ...)
 }
 \arguments{
-\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object,
+as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
 \itemize{
@@ -26,13 +26,13 @@ given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
 }
 \value{
 \code{dbReadTable()} returns a data frame that contains the complete data
-from the remote table, effectively the result of calling \code{\link[DBI:dbGetQuery]{dbGetQuery()}} with
+from the remote table, effectively the result of calling \code{\link[DBI:dbGetQuery]{DBI::dbGetQuery()}} with
 \verb{SELECT * FROM <name>}.
 
 An empty table is returned as a data frame with zero rows.
 
 The presence of \link[DBI]{rownames} depends on the \code{row.names} argument,
-see \code{\link[DBI:sqlColumnToRownames]{sqlColumnToRownames()}} for details:
+see \code{\link[DBI:rownames]{DBI::sqlColumnToRownames()}} for details:
 \itemize{
 \item If \code{FALSE} or \code{NULL}, the returned data frame doesn't have row names.
 \item If \code{TRUE}, a column named "row_names" is converted to row names.
@@ -59,6 +59,7 @@ a column to row names and converting the column names to valid
 R identifiers.
 Use \code{\link[DBI:dbReadTableArrow]{dbReadTableArrow()}} instead to obtain an Arrow object.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbReadTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:
