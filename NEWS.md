@@ -3,15 +3,13 @@ DatabaseConnector 7.2.0.
 
 Changes:
 
-1. Changing Spark (DataBricks) driver from Simba DataBricks to DataBricks.
+1. Changing BigQuery driver from Simba BigQuery to BigQuery.
 
-2. Changing BigQuery driver from Simba BigQuery to BigQuery.
+2. Adding bulk upload for Spark (DataBricks).
 
-3. Adding bulk upload for Spark (DataBricks).
+3. Updating IRIS JDBC driver.
 
-4. Updating IRIS JDBC driver.
-
-5. Making `querySql()` less inefficient for large queries.
+4. Making `querySql()` less inefficient for large queries.
 
 Bugfixes:
 
