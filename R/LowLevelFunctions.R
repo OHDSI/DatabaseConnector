@@ -188,6 +188,6 @@ getAllBatches <- function(batchedQuery) {
                                  columnTypes = columnTypes)
     data[[length(data) + 1]] <- batch
   }
-  data <- bind_rows(data)
+  data <- do.call(rbind, data)
   return(data)
 }
