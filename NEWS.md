@@ -11,6 +11,8 @@ Changes:
 
 4. Updating IRIS JDBC driver.
 
+5. Making `querySql()` less inefficient for large queries.
+
 Bugfixes:
 
 1. Converting double quotes to spaces when upload to DataBricks to avoid errors.

@@ -181,12 +181,13 @@ getAllBatches <- function(batchedQuery) {
   if (any(columnTypes == 5)) {
     validateInt64Query()
   }
-  columns <- data.frame()
+  data <- list()
   while (!rJava::.jcall(batchedQuery, "Z", "isDone")) {
     rJava::.jcall(batchedQuery, "V", "fetchBatch")
     batch <- parseJdbcColumnData(batchedQuery,
                                  columnTypes = columnTypes)
-    columns <- rbind(columns, batch)
+    data[[length(data) + 1]] <- batch
   }
-  return(columns)
+  data <- bind_rows(data)
+  return(data)
 }
