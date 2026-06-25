@@ -9,11 +9,15 @@ Changes:
 
 3. Updating IRIS JDBC driver.
 
+4. Updating Snowflake driver.
+
 4. Making `querySql()` less inefficient for large queries.
 
 Bugfixes:
 
 1. Converting double quotes to spaces when upload to DataBricks to avoid errors.
+
+Note: Not yet updating DataBricks driver because that would require Java >8. This is planned for later this year.
 
 
 DatabaseConnector 7.1.1
