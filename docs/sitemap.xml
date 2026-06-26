@@ -83,6 +83,7 @@
 <url><loc>/reference/dbWriteTable-DatabaseConnectorConnection-ANY-method.html</loc></url>
 <url><loc>/reference/dbWriteTable-DatabaseConnectorConnection-character-data.frame-method.html</loc></url>
 <url><loc>/reference/dbms.html</loc></url>
+<url><loc>/reference/dbplyr_edition.DatabaseConnectorConnection.html</loc></url>
 <url><loc>/reference/disconnect.html</loc></url>
 <url><loc>/reference/downloadJdbcDrivers.html</loc></url>
 <url><loc>/reference/dropEmulatedTempTables.html</loc></url>

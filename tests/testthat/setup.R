@@ -294,7 +294,7 @@ insertTable(
   tableName = "vocabulary",
   data = data.frame(vocabulary_id = c("a", "b"),
                     vocabulary_name = c("a", "b"),
-                    vocabulary_reference= c("a", "b"),
+                    vocabulary_reference = c("a", "b"),
                     vocabulary_version = c("a", "b"),
                     vocabulary_concpet_id = c(1, 2))
 )

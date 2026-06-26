@@ -3,29 +3,24 @@ DatabaseConnector 7.2.0.
 
 Changes:
 
-1. Changing BigQuery driver from Simba BigQuery to BigQuery.
+1. Changed BigQuery driver from Simba BigQuery to BigQuery.
 
-2. Adding bulk upload for Spark (DataBricks).
+2. Added bulk upload for Spark (DataBricks).
 
-3. Updating IRIS JDBC driver.
+3. Updated IRIS JDBC driver.
 
-4. Updating Snowflake driver.
+4. Updated Snowflake driver.
 
-4. Making `querySql()` less inefficient for large queries.
+5. Adapted code to support latest DataBricks driver, but not yet downloading in `downloadJdbcDrivers()` because that would require Java >8. This is planned for later this year. 
+    - You can download the latest DataBricks driver manually from https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/3.4.1/DatabricksJDBC-3.4.1.zip.
 
-Bugfixes:
-
-1. Converting double quotes to spaces when upload to DataBricks to avoid errors.
-
-Note: Not yet updating DataBricks driver because that would require Java >8. This is planned for later this year.
-
-
-DatabaseConnector 7.1.1
-=======================
+6. Made `querySql()` less inefficient for large queries.
 
 Bugfixes:
 
-1. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
+1. Converted double quotes to spaces when upload to DataBricks to avoid errors.
+
+2. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
 
 
 DatabaseConnector 7.1.0

@@ -20,7 +20,7 @@ This should include views and temporary objects, but not all database backends
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.2.0</span>
       </span>
     </div>
 
@@ -87,8 +87,8 @@ This should include views and temporary objects, but not all database backends
 
 
 <dl><dt id="arg-conn">conn<a class="anchor" aria-label="anchor" href="#arg-conn"></a></dt>
-<dd><p>A <a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBIConnection</a> object, as returned by
-<code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
+<dd><p>A <a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBI::DBIConnection</a> object,
+as returned by <code><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect()</a></code>.</p></dd>
 
 
 <dt id="arg-databaseschema">databaseSchema<a class="anchor" aria-label="anchor" href="#arg-databaseschema"></a></dt>
@@ -106,7 +106,7 @@ returns a character vector
 that enumerates all tables
 and views
 in the database.
-Tables added with <code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable()</a></code> are
+Tables added with <code><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">DBI::dbWriteTable()</a></code> are
 part of the list.
 As soon a table is removed from the database,
 it is also removed from the list of database tables.</p>

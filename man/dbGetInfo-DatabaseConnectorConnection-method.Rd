@@ -54,7 +54,6 @@ as returned by \code{\link[DBI:dbHasCompleted]{DBI::dbHasCompleted()}}.
 Retrieves information on objects of class \link[DBI:DBIDriver-class]{DBIDriver},
 \link[DBI:DBIConnection-class]{DBIConnection} or \link[DBI:DBIResult-class]{DBIResult}.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetInfo")}
 }
 \seealso{
 Other DBIDriver generics: 

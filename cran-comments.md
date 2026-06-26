@@ -1,12 +1,12 @@
-This is a minor release, with 1 change and 2 fixes (see NEWS.md).
+This release has 6 changes and 2 fixes (see NEWS.md).
 
 ---
 
 ## Test environments
-* Ubuntu 22.04, R 4.5.2
-* MacOS, R 4.5.2
-* MacOS, 4.4.1
-* Windows 10, R 4.5.2
+* Ubuntu 22.04, Latest R version
+* MacOS, Latest R version
+* MacOS M3, 4.4.1
+* Windows 10, Latest R version
 
 ## R CMD check results
 
