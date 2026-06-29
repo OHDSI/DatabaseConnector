@@ -22,6 +22,7 @@ Bugfixes:
 
 2. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
 
+3. Fixed errors caused by `dbplyr 2.6.0` dropping v1 backends, which we apparently were still using.
 
 DatabaseConnector 7.1.0
 =======================

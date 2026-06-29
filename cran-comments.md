@@ -1,4 +1,4 @@
-This release has 6 changes and 2 fixes (see NEWS.md).
+This release has 6 changes and 3 fixes (see NEWS.md).
 
 ---
 
