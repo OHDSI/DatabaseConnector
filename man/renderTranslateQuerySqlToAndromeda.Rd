@@ -9,7 +9,8 @@ renderTranslateQuerySqlToAndromeda(
   sql,
   andromeda,
   andromedaTableName,
-  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+  errorReportFile = file.path(getOption("errorReportFileLocation", getwd()),
+    "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
   appendToTable = FALSE,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
@@ -31,7 +32,9 @@ using \code{\link[Andromeda:andromeda]{Andromeda::andromeda()}}.}
 results of the query will be stored.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs.
-Defaults to 'errorReportSql.txt' in the current working directory.}
+Defaults to 'errorReportSql.txt' in the directory given by
+\code{getOption("errorReportFileLocation")}, or the current working
+directory if that option is unset.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 
