@@ -9,7 +9,8 @@ renderTranslateQueryApplyBatched(
   sql,
   fun,
   args = list(),
-  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+  errorReportFile = file.path(getOption("errorReportFileLocation", getwd()),
+    "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
@@ -28,7 +29,9 @@ renderTranslateQueryApplyBatched(
 \item{args}{List of arguments to be passed to function call.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs.
-Defaults to 'errorReportSql.txt' in the current working directory.}
+Defaults to 'errorReportSql.txt' in the directory given by
+\code{getOption("errorReportFileLocation")}, or the current working
+directory if that option is unset.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 
