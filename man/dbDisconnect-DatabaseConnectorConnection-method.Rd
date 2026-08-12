@@ -7,8 +7,8 @@
 \S4method{dbDisconnect}{DatabaseConnectorConnection}(conn)
 }
 \arguments{
-\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object,
+as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 }
 \value{
 \code{dbDisconnect()} returns \code{TRUE}, invisibly.

@@ -83,22 +83,28 @@ import(DBI)
 import(methods)
 import(rJava)
 importFrom(bit64,integer64)
-importFrom(dbplyr,dbplyr_edition)
-importFrom(dbplyr,sql_dialect)
-importFrom(dbplyr,sql_escape_logical)
-importFrom(dbplyr,sql_translation)
-importFrom(rlang,abort)
-importFrom(rlang,inform)
-importFrom(rlang,warn)
-importFrom(utils,download.file)
-importFrom(utils,install.packages)
-importFrom(utils,menu)
-importFrom(utils,object.size)
-importFrom(utils,packageVersion)
-importFrom(utils,read.csv)
-importFrom(utils,sessionInfo)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
-importFrom(utils,unzip)
-importFrom(utils,write.csv)
-importFrom(utils,write.table)
+importFrom(dbplyr,
+  dbplyr_edition,
+  sql_dialect,
+  sql_escape_logical,
+  sql_translation
+)
+importFrom(rlang,
+  abort,
+  inform,
+  warn
+)
+importFrom(utils,
+  download.file,
+  install.packages,
+  menu,
+  object.size,
+  packageVersion,
+  read.csv,
+  sessionInfo,
+  setTxtProgressBar,
+  txtProgressBar,
+  unzip,
+  write.csv,
+  write.table
+)
