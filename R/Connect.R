@@ -860,20 +860,35 @@ connectDuckdb <- function(connectionDetails) {
       bigint = "integer64"
     )
   )
-  # Check if ICU extension if installed, and if not, try to install it:
+  # Check if ICU extension is installed, and if not, try to install it.
   isInstalled <- querySql(
-    connection = connection, 
+    connection = connection,
     sql = "SELECT installed FROM duckdb_extensions() WHERE extension_name = 'icu';"
   )[1, 1]
+  canLoadIcu <- isInstalled
   if (!isInstalled) {
     warning("The ICU extension of DuckDB is not installed. Attempting to install it.")
-    tryCatch(
-      executeSql(connection, "INSTALL icu"),
+    canLoadIcu <- tryCatch(
+      {
+        executeSql(connection, "INSTALL icu")
+        TRUE
+      },
       error = function(e) {
-        warning("Attempting to install the ICU extension of DuckDB failed.\n", 
+        warning("Attempting to install the ICU extension of DuckDB failed.\n",
                 "You may need to check your internet connection.\n",
                 "For more detail, try 'executeSql(connection, \"INSTALL icu\")'.\n",
-                "Be aware that some time and date functionality will not be available.")   
+                "Be aware that some time and date functionality will not be available.")
+        return(FALSE)
+      }
+    )
+  }
+  if (canLoadIcu) {
+    tryCatch(
+      executeSql(connection, "LOAD icu"),
+      error = function(e) {
+        warning("Attempting to load the ICU extension of DuckDB failed.\n",
+                "For more detail, try 'executeSql(connection, \"LOAD icu\")'.\n",
+                "Be aware that some time and date functionality will not be available.")
         return(NULL)
       }
     )

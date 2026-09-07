@@ -54,3 +54,23 @@ test_that("dbms function maps DBI connections to correct SQL dialect", {
     expect_equal(dbms(mockConnection), dialect)
   }
 })
+
+test_that("DuckDB ICU extension is loaded on connect", {
+  skip_if_not_installed("duckdb")
+  duckdbFile <- tempfile(fileext = ".duckdb")
+  withr::defer(unlink(duckdbFile, force = TRUE))
+
+  connection <- connect(createConnectionDetails(
+    dbms = "duckdb",
+    server = duckdbFile
+  ))
+  withr::defer(disconnect(connection))
+
+  extension <- querySql(
+    connection,
+    "SELECT installed, loaded FROM duckdb_extensions() WHERE extension_name = 'icu';"
+  )
+
+  expect_true(extension[1, 1])
+  expect_true(extension[1, 2])
+})
