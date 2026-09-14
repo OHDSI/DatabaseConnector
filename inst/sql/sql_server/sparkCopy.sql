@@ -5,6 +5,9 @@ FROM (
 ) 
 FILEFORMAT = CSV
 FORMAT_OPTIONS (
-   'header' = 'true'
+  'header' = 'true',
+  'multiLine' = 'true',
+  'quote' = '"',
+  'escape' = '"'
 )
 COPY_OPTIONS('mergeSchema' = 'true');

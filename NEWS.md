@@ -1,4 +1,12 @@
-DatabaseConnector 7.2.0.
+DatabaseConnector 7.2.1
+=======================
+
+Bugfixes:
+
+1. Fixed Spark (DataBricks) bulk upload of complex (JSON) strings.
+
+
+DatabaseConnector 7.2.0
 =======================
 
 Changes:
