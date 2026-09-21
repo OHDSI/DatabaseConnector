@@ -14,98 +14,91 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Declare dbplyr backend edition
+#' 
+#' @param con Database connection
 #' @export
 #' @importFrom dbplyr dbplyr_edition
-#' 
-#' @param con Database connection 
 dbplyr_edition.DatabaseConnectorConnection <- function(con) {
   2L
 }
 
-#' @importFrom dbplyr sql_query_select
+#' @rdname dbplyr_edition.DatabaseConnectorConnection
 #' @export
-dbplyr::sql_query_select
-
-#' @export
-sql_query_select.DatabaseConnectorJdbcConnection <- function(con,
-                                                             select,
-                                                             from,
-                                                             where = NULL,
-                                                             group_by = NULL,
-                                                             having = NULL,
-                                                             window = NULL,
-                                                             order_by = NULL,
-                                                             limit = NULL,
-                                                             distinct = FALSE,
-                                                             ...,
-                                                             subquery = FALSE,
-                                                             lvl = 0) {
-  switch(dbms(con),
-    "sql server" = utils::getFromNamespace("sql_query_select.Microsoft SQL Server", "dbplyr")(con,
-      select,
-      from,
-      where,
-      group_by,
-      having,
-      window,
-      order_by,
-      limit,
-      distinct,
-      ...,
-      subquery,
-      lvl),
-    "oracle" = utils::getFromNamespace("sql_query_select.Oracle", "dbplyr")(con,
-      select,
-      from,
-      where,
-      group_by,
-      having,
-      window,
-      order_by,
-      limit,
-      distinct,
-      ...,
-      subquery,
-      lvl),
-    NextMethod()  
-  )
+dbplyr_edition.DatabaseConnectorJdbcConnection <- function(con) {
+  2L
 }
 
-# Export a sql_translation method for JDBC connections that allows dplyr code to 
-# be correctly translated to SQL code. These functions are 
-# imported from the dbplyr package.
-
+#' @rdname dbplyr_edition.DatabaseConnectorConnection
 #' @export
-#' @importFrom dbplyr sql_translation 
+dbplyr_edition.DatabaseConnectorDbiConnection <- function(con) {
+  2L
+}
+
+# Export a sql_dialect method for JDBC connections that allows dplyr code to 
+# be correctly translated to SQL code.
+#' @export
+#' @importFrom dbplyr sql_dialect 
+sql_dialect.DatabaseConnectorJdbcConnection <- function(con) { 
+  switch(dbms(con), 
+         "oracle"     = dbplyr::dialect_oracle(), 
+         "postgresql" = dbplyr::dialect_postgres(), 
+         "redshift"   = dbplyr::dialect_redshift(), 
+         "sql server" = dbplyr::dialect_mssql(), 
+         "bigquery"   = {
+           requireNamespace("bigrquery", quietly = TRUE)
+           
+           # Explicitly fetch the S4 class definition from the bigrquery namespace.
+           # This prevents R CMD check from failing to find the class in the search path.
+           bq_class <- methods::getClass("BigQueryConnection", where = asNamespace("bigrquery"))
+           
+           # Instantiate the dummy object using the explicit class definition
+           dummy_con <- methods::new(bq_class, use_legacy_sql = FALSE)
+           
+           dbplyr::sql_dialect(dummy_con)
+         },          
+         "spark"      = dbplyr::dialect_spark_sql(), 
+         "snowflake"  = dbplyr::dialect_snowflake(), 
+         "synapse"    = dbplyr::dialect_mssql(), 
+         "iris"       = dbplyr::dialect_postgres(), 
+         rlang::abort("Sql dialect is not supported!")) 
+}
+
+# Export a sql_translation method to explicitly preserve external package translations
+#' @export
+#' @importFrom dbplyr sql_translation
 sql_translation.DatabaseConnectorJdbcConnection <- function(con) {
-  
-  switch(dbms(con),
-     "oracle" = utils::getFromNamespace("sql_translation.Oracle", "dbplyr")(con),
-     "postgresql" = utils::getFromNamespace("sql_translation.PqConnection", "dbplyr")(con),
-     "redshift" = utils::getFromNamespace("sql_translation.RedshiftConnection", "dbplyr")(con),
-     "sql server" = utils::getFromNamespace("sql_translation.Microsoft SQL Server", "dbplyr")(con),
-     "bigquery" = utils::getFromNamespace("sql_translation.BigQueryConnection", "bigrquery")(con),
-     "spark" = utils::getFromNamespace("sql_translation.Spark SQL", "dbplyr")(con),
-     "snowflake" = utils::getFromNamespace("sql_translation.Snowflake", "dbplyr")(con),
-     "synapse" = utils::getFromNamespace("sql_translation.Microsoft SQL Server", "dbplyr")(con),
-     "iris" = utils::getFromNamespace("sql_translation.PqConnection", "dbplyr")(con),
-     rlang::abort("Sql dialect is not supported!")) 
+  if (dbms(con) == "bigquery") {
+    return(utils::getFromNamespace("sql_translation.BigQueryConnection", "bigrquery")(con))
+  }
+  # Fall back to new 2nd edition dbplyr behavior for built-in dialects
+  NextMethod()
 }
 
 # In addition to JDBC connections, DatabaseConnector also wraps duckdb and sqlite DBI connections
-# Export a method to get correct dplyr to SQL translation environments when using these wrapped DBI connections
-# See https://github.com/OHDSI/DatabaseConnector/issues/324
-
 #' @export
-#' @importFrom dbplyr sql_translation 
-sql_translation.DatabaseConnectorDbiConnection <- function(con) {
-  
-  switch(dbms(con),
-    "sqlite" = utils::getFromNamespace("sql_translation.SQLiteConnection", "dbplyr")(con),
-    "duckdb" = utils::getFromNamespace("sql_translation.duckdb_connection", "duckdb")(con),
-    NextMethod()) 
+#' @importFrom dbplyr sql_dialect 
+sql_dialect.DatabaseConnectorDbiConnection <- function(con) { 
+  switch(dbms(con), 
+         "sqlite" = dbplyr::dialect_sqlite(), 
+         "duckdb" = {
+           # DuckDB's dialect function requires the actual S4 duckdb_connection object, 
+           # which is wrapped inside the dbiConnection slot.
+           dbplyr::sql_dialect(con@dbiConnection)
+         }, 
+         NextMethod()) 
 }
 
+#' @export
+#' @importFrom dbplyr sql_translation
+sql_translation.DatabaseConnectorDbiConnection <- function(con) {
+  if (dbms(con) == "duckdb") {
+    # Pass the real S4 duckdb_connection object for translations
+    return(utils::getFromNamespace("sql_translation.duckdb_connection", "duckdb")(con@dbiConnection))
+  }
+  # Fall back to new 2nd edition dbplyr behavior for built-in dialects
+  NextMethod()
+}
 
 #' @importFrom dbplyr sql_escape_logical
 #' @export
@@ -119,4 +112,3 @@ sql_escape_logical.DatabaseConnectorJdbcConnection <- function(con, x) {
     NextMethod()
   }
 }
-

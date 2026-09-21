@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.2.0</span>
       </span>
     </div>
 
@@ -67,7 +67,23 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="7.1.0" id="databaseconnector-710">DatabaseConnector 7.1.0<a class="anchor" aria-label="anchor" href="#databaseconnector-710"></a></h2>
+<h2 class="page-header" data-toc-text="7.2.0" id="databaseconnector-720">DatabaseConnector 7.2.0.<a class="anchor" aria-label="anchor" href="#databaseconnector-720"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Changed BigQuery driver from Simba BigQuery to BigQuery.</p></li>
+<li><p>Added bulk upload for Spark (DataBricks).</p></li>
+<li><p>Updated IRIS JDBC driver.</p></li>
+<li><p>Updated Snowflake driver.</p></li>
+<li>
+<p>Adapted code to support latest DataBricks driver, but not yet downloading in <code><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> because that would require Java &gt;8. This is planned for later this year.</p>
+<ul><li>You can download the latest DataBricks driver manually from <a href="https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/3.4.1/DatabricksJDBC-3.4.1.zip" class="external-link uri">https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/3.4.1/DatabricksJDBC-3.4.1.zip</a>.</li>
+</ul></li>
+<li><p>Made <code><a href="../reference/querySql.html">querySql()</a></code> less inefficient for large queries.</p></li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li><p>Converted double quotes to spaces when upload to DataBricks to avoid errors.</p></li>
+<li><p>Fixed error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> with a data frame having a column of <code><a href="https://rdrr.io/pkg/data.table/man/IDateTime.html" class="external-link">data.table::IDate</a></code>.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="7.1.0" id="databaseconnector-710">DatabaseConnector 7.1.0<small>2026-01-09</small><a class="anchor" aria-label="anchor" href="#databaseconnector-710"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li>Added ability to pass configuration details (such as setting the maximum memory) when connecting to DuckDB. See <code><a href="../reference/createConnectionDetails.html">?createConnectionDetails</a></code>.</li>
 </ol><p>Bugfixes:</p>

@@ -164,7 +164,9 @@ unlink("reverseDependencies.rds")
 
 # Release package --------------------------------------------------------------
 # pak::pkg_install("r-lib/revdepcheck")
+revdepcheck::revdep_reset() 
 revdepcheck::revdep_check(num_workers = 4) # Checks packages in CRAN only
+
 
 devtools::check_win_devel()
 

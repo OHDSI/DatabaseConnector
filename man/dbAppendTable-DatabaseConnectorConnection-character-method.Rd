@@ -15,8 +15,8 @@
 )
 }
 \arguments{
-\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object,
+as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{name}{The table name, passed on to \code{\link[DBI:dbQuoteIdentifier]{dbQuoteIdentifier()}}. Options are:
 \itemize{
@@ -50,6 +50,7 @@ The default implementation calls \code{\link[DBI:sqlAppendTableTemplate]{sqlAppe
 \code{\link[DBI:dbExecute]{dbExecute()}} with the \code{param} argument.
 Use \code{\link[DBI:dbAppendTableArrow]{dbAppendTableArrow()}} to append data from an Arrow stream.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbAppendTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

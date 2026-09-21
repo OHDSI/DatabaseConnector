@@ -10,7 +10,8 @@ executeSql(
   profile = FALSE,
   progressBar = !as.logical(Sys.getenv("TESTTHAT", unset = FALSE)),
   reportOverallTime = TRUE,
-  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+  errorReportFile = file.path(getOption("errorReportFileLocation", getwd()),
+    "errorReportSql.txt"),
   runAsBatch = FALSE
 )
 }
@@ -30,7 +31,9 @@ code.}
 all statements.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs.
-Defaults to 'errorReportSql.txt' in the current working directory.}
+Defaults to 'errorReportSql.txt' in the directory given by
+\code{getOption("errorReportFileLocation")}, or the current working
+directory if that option is unset.}
 
 \item{runAsBatch}{When true the SQL statements are sent to the server as a single batch, and
 executed there. This will be faster if you have many small SQL statements, but

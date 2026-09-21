@@ -1,26 +1,48 @@
-DatabaseConnector 7.2.0.
+DatabaseConnector 8.0.0
 =======================
 
 Changes:
 
-1. Changing Spark (DataBricks) driver from Simba DataBricks to DataBricks.
+1. Changing required Java version to 21.
 
-2. Changing BigQuery driver from Simba BigQuery to BigQuery.
+2. Upating Snowflake driver.
 
-3. Adding bulk upload for Spark (DataBricks).
-
-Bugfixes:
-
-1. Converting double quotes to spaces when upload to DataBricks to avoid errors.
+3. Setting `JDBC_QUERY_RESULT_FORMAT=JSON` when connecting to Snowflake to avoid 'You must start Java with `--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED`' error.
 
 
-DatabaseConnector 7.1.1
+DatabaseConnector 7.2.1
 =======================
 
 Bugfixes:
 
-1. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
+1. Fixed Spark (DataBricks) bulk upload of complex (JSON) strings.
 
+
+DatabaseConnector 7.2.0
+=======================
+
+Changes:
+
+1. Changed BigQuery driver from Simba BigQuery to BigQuery.
+
+2. Added bulk upload for Spark (DataBricks).
+
+3. Updated IRIS JDBC driver.
+
+4. Updated Snowflake driver.
+
+5. Adapted code to support latest DataBricks driver, but not yet downloading in `downloadJdbcDrivers()` because that would require Java >8. This is planned for later this year. 
+    - You can download the latest DataBricks driver manually from https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/jdbc/3.4.1/DatabricksJDBC-3.4.1.zip.
+
+6. Made `querySql()` less inefficient for large queries.
+
+Bugfixes:
+
+1. Converted double quotes to spaces when upload to DataBricks to avoid errors.
+
+2. Fixed error when calling `insertTable()` with a data frame having a column of `data.table::IDate`.
+
+3. Fixed errors caused by `dbplyr 2.6.0` dropping v1 backends, which we apparently were still using.
 
 DatabaseConnector 7.1.0
 =======================

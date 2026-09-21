@@ -18,7 +18,7 @@ for this result set."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.2.0</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ for this result set.</p>
 
 
 <dl><dt id="arg-res">res<a class="anchor" aria-label="anchor" href="#arg-res"></a></dt>
-<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult</a>.</p></dd>
+<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBI::DBIResult</a>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -94,9 +94,9 @@ for this result set.</p>
     <h2>Value</h2>
     <p><code>dbGetRowCount()</code> returns a scalar number (integer or numeric),
 the number of rows fetched so far.
-After calling <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery()</a></code>,
+After calling <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">DBI::dbSendQuery()</a></code>,
 the row count is initially zero.
-After a call to <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">dbFetch()</a></code> without limit,
+After a call to <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">DBI::dbFetch()</a></code> without limit,
 the row count matches the total number of rows returned.
 Fetching a limited number of rows
 increases the number of rows by the number of rows returned,
@@ -105,7 +105,7 @@ For queries with an empty result set,
 zero is returned
 even after fetching.
 For data manipulation statements issued with
-<code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>,
+<code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">DBI::dbSendStatement()</a></code>,
 zero is returned before
 and after calling <code>dbFetch()</code>.</p>
     </div>

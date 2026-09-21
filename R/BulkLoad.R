@@ -389,8 +389,18 @@ bulkLoadSpark <- function(connection, sqlTableName, data) {
   logTrace(sprintf("Inserting %d rows into table '%s' using DataBricks bulk load", nrow(data), sqlTableName))
   start <- Sys.time()
   
-  csvFileName <- tempfile("spark_insert_", fileext = ".csv")
-  write.csv(x = data, na = "", file = csvFileName, row.names = FALSE, quote = TRUE)
+  csvFileName <- tempfile("spark_insert_", fileext = ".csv.gz")
+  
+  gzipFile <- gzfile(csvFileName, open = "w", encoding = "UTF-8")
+  write.csv(x = data,
+            na = "",
+            file = gzipFile,
+            row.names = FALSE,
+            quote = TRUE,
+            fileEncoding = "UTF-8"
+  )
+  close(gzipFile)
+  
   destinationCsvFileName <- basename(csvFileName)
   on.exit(unlink(csvFileName))
   

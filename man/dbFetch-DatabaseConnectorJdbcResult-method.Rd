@@ -7,8 +7,8 @@
 \S4method{dbFetch}{DatabaseConnectorJdbcResult}(res, n = -1, ...)
 }
 \arguments{
-\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBIResult}, created by
-\code{\link[DBI:dbSendQuery]{dbSendQuery()}}.}
+\item{res}{An object inheriting from \link[DBI:DBIResult-class]{DBI::DBIResult},
+created by \code{\link[DBI:dbSendQuery]{dbSendQuery()}}.}
 
 \item{n}{maximum number of records to retrieve per fetch. Use \code{n = -1}
 or \code{n = Inf}
@@ -31,6 +31,7 @@ as specified by the driver, but at most the remaining rows in the result set.
 Fetch the next \code{n} elements (rows) from the result set and return them
 as a data.frame.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbFetch")}
 }
 \details{
 \code{fetch()} is provided for compatibility with older DBI clients - for all

@@ -3,7 +3,6 @@
 \docType{import}
 \name{reexports}
 \alias{reexports}
-\alias{sql_query_select}
 \alias{sql_escape_logical}
 \title{Objects exported from other packages}
 \keyword{internal}
@@ -12,6 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{dbplyr}{\code{\link[dbplyr:db-quote]{sql_escape_logical}}, \code{\link[dbplyr:db-sql]{sql_query_select}}}
+  \item{dbplyr}{\code{\link[dbplyr:sql_escape_logical]{sql_escape_logical()}}}
 }}
 

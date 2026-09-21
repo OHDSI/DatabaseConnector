@@ -19,7 +19,7 @@ A data manipulation statement is always completed."><!-- mathjax --><script src=
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.2.0</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@ A data manipulation statement is always completed.</p>
 
 
 <dl><dt id="arg-res">res<a class="anchor" aria-label="anchor" href="#arg-res"></a></dt>
-<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult</a>.</p></dd>
+<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBI::DBIResult</a>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -95,10 +95,10 @@ A data manipulation statement is always completed.</p>
     <div id="value">
     <h2>Value</h2>
     <p><code>dbHasCompleted()</code> returns a logical scalar.
-For a query initiated by <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery()</a></code> with non-empty result set,
+For a query initiated by <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">DBI::dbSendQuery()</a></code> with non-empty result set,
 <code>dbHasCompleted()</code> returns <code>FALSE</code> initially
-and <code>TRUE</code> after calling <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">dbFetch()</a></code> without limit.
-For a query initiated by <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>,
+and <code>TRUE</code> after calling <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">DBI::dbFetch()</a></code> without limit.
+For a query initiated by <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">DBI::dbSendStatement()</a></code>,
 <code>dbHasCompleted()</code> always returns <code>TRUE</code>.</p>
     </div>
     <div id="see-also">

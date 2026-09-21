@@ -83,7 +83,6 @@ for (testServer in testServers) {
       createTable = TRUE,
       tempTable = TRUE
     )
-    
     # Check data on server is same as local
     dataCopy2 <- renderTranslateQuerySql(connection, "SELECT * FROM #temp;", integer64AsNumeric = FALSE) 
     names(dataCopy2) <- tolower(names(dataCopy2))
@@ -102,7 +101,7 @@ for (testServer in testServers) {
     dbClearResult(res)
     dbms <- testServer$connectionDetails$dbms
     if (dbms == "postgresql") {
-      expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "numeric", "varchar", "int8", "bool"))
+      expect_equal(as.character(columnInfo$field.type), c("date", "timestamp", "int4", "float8", "varchar", "int8", "bool"))
     } else if (dbms == "sql server") {
       expect_equal(as.character(columnInfo$field.type), c("date", "datetime2", "int", "float", "varchar", "bigint", "bit"))
     } else if (dbms == "oracle") {

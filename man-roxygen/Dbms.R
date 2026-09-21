@@ -9,6 +9,7 @@
 #' - "bigquery" for Google BigQuery
 #' - "sqlite" for SQLite
 #' - "sqlite extended" for SQLite with extended types (DATE and DATETIME)
+#' - "duckdb" for DuckDB
 #' - "spark" for Spark
 #' - "snowflake" for Snowflake
 #' - "iris" for InterSystems IRIS

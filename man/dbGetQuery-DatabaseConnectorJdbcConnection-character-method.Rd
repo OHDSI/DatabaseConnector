@@ -7,8 +7,8 @@
 \S4method{dbGetQuery}{DatabaseConnectorJdbcConnection,character}(conn, statement, ...)
 }
 \arguments{
-\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object,
+as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{statement}{a character string containing SQL.}
 
@@ -32,6 +32,7 @@ For retrieving chunked/paged results or for passing query parameters,
 see \code{\link[DBI:dbSendQuery]{dbSendQuery()}}, in particular the "The data retrieval flow" section.
 For retrieving results as an Arrow object, see \code{\link[DBI:dbGetQueryArrow]{dbGetQueryArrow()}}.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbGetQuery")}
 }
 \details{
 This method is for \code{SELECT} queries only

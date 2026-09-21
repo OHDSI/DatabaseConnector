@@ -36,6 +36,25 @@
   return(paste(lines, collapse = "\n"))
 }
 
+.resolveErrorReportFile <- function(errorReportFile) {
+  errorReportFileLocation <- dirname(errorReportFile)
+  if (length(errorReportFileLocation) != 1 || is.na(errorReportFileLocation) || !nzchar(errorReportFileLocation)) {
+    abort("The errorReportFileLocation option must be a single non-empty path.")
+  }
+
+  if (!dir.exists(errorReportFileLocation)) {
+    if (!dir.create(errorReportFileLocation, recursive = TRUE, showWarnings = FALSE)) {
+      abort(paste("Could not create error report directory:", errorReportFileLocation))
+    }
+  }
+
+  if (file.access(errorReportFileLocation, 2) != 0) {
+    abort(paste("Error report directory is not writable:", errorReportFileLocation))
+  }
+
+  errorReportFile
+}
+
 .createErrorReport <- function(dbms, message, sql, fileName) {
   report <- c("DBMS:\n", dbms, "\n\nError:\n", message, "\n\nSQL:\n", sql, "\n\n", .systemInfo())
   fileConn <- file(fileName)
@@ -106,7 +125,7 @@ supportsBatchUpdates <- function(connection) {
 #' This function executes SQL consisting of one or more statements.
 #'
 #' @template Connection
-#' @param sql                 The SQL to be executed
+#' @param sql                 The SQL to be executed.
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
 #' @param progressBar         When true, a progress bar is shown based on the statements in the SQL
@@ -146,8 +165,9 @@ executeSql <- function(connection,
                        profile = FALSE,
                        progressBar = !as.logical(Sys.getenv("TESTTHAT", unset = FALSE)),
                        reportOverallTime = TRUE,
-                       errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                       errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
                        runAsBatch = FALSE) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (!DBI::dbIsValid(connection)) {
     abort("Connection is closed")
   }
@@ -324,10 +344,11 @@ convertFields <- function(result, dbms) {
 #' @export
 querySql <- function(connection,
                      sql,
-                     errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                     errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
                      snakeCaseToCamelCase = FALSE,
                      integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                      integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (!DBI::dbIsValid(connection)) {
     abort("Connection is closed")
   }
@@ -364,7 +385,7 @@ querySql <- function(connection,
 #' This function renders, translates, and executes SQL consisting of one or more statements.
 #'
 #' @template Connection
-#' @param sql                 The SQL to be executed
+#' @param sql                 The SQL to be executed.
 #' @param profile             When true, each separate statement is written to file prior to sending to
 #'                            the server, and the time taken to execute a statement is displayed.
 #' @param progressBar         When true, a progress bar is shown based on the statements in the SQL
@@ -406,10 +427,11 @@ renderTranslateExecuteSql <- function(connection,
                                       profile = FALSE,
                                       progressBar = TRUE,
                                       reportOverallTime = TRUE,
-                                      errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                      errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
                                       runAsBatch = FALSE,
                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                       ...) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
@@ -467,12 +489,13 @@ renderTranslateExecuteSql <- function(connection,
 #' @export
 renderTranslateQuerySql <- function(connection,
                                     sql,
-                                    errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                    errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
                                     snakeCaseToCamelCase = FALSE,
                                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                     ...) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
@@ -594,12 +617,13 @@ renderTranslateQueryApplyBatched <- function(connection,
                                              sql,
                                              fun,
                                              args = list(),
-                                             errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+                                             errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
                                              snakeCaseToCamelCase = FALSE,
                                              tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                              integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
                                              integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
                                              ...) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (!is.function(fun)) {
     abort("fun argument must be a function")
   }

@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 7.2.0
-Date: 2026-05-14
+Version: 8.0.0
+Date: 2026-09-21
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -17,12 +17,12 @@ Description: An R 'DataBase Interface' ('DBI') compatible interface to various d
     'Amazon Redshift', 'Microsoft Parallel Database Warehouse', 'IBM Netezza', 'Apache Impala', 'Google BigQuery', 'Snowflake', 'Spark', 'SQLite', 
     and 'InterSystems IRIS'). Also includes support for fetching data as 'Andromeda' objects. Uses either 'Java Database Connectivity' ('JDBC') or 
     other 'DBI' drivers to connect to databases.
-SystemRequirements: Java (>= 8)
+SystemRequirements: Java (>= 21)
 Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.19.2),
+    SqlRender (>= 1.19.7),
     methods,
     stringr,
     readr,
@@ -33,7 +33,7 @@ Imports:
     bit64,
     checkmate,
     digest,
-    dbplyr (>= 2.2.0)
+    dbplyr (>= 2.6.0)
 Suggests:
     aws.s3,
     R.utils,
@@ -59,6 +59,6 @@ VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
 BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
-RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
+Config/roxygen2/version: 8.1.0

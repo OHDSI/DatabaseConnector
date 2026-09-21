@@ -18,7 +18,7 @@ by a data manipulation statement."><!-- mathjax --><script src="https://cdnjs.cl
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.2.0</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ by a data manipulation statement.</p>
 
 
 <dl><dt id="arg-res">res<a class="anchor" aria-label="anchor" href="#arg-res"></a></dt>
-<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBIResult</a>.</p></dd>
+<dd><p>An object inheriting from <a href="https://dbi.r-dbi.org/reference/DBIResult-class.html" class="external-link">DBI::DBIResult</a>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -94,11 +94,11 @@ by a data manipulation statement.</p>
     <h2>Value</h2>
     <p><code>dbGetRowsAffected()</code> returns a scalar number (integer or numeric),
 the number of rows affected by a data manipulation statement
-issued with <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">dbSendStatement()</a></code>.
+issued with <code><a href="https://dbi.r-dbi.org/reference/dbSendStatement.html" class="external-link">DBI::dbSendStatement()</a></code>.
 The value is available directly after the call
-and does not change after calling <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">dbFetch()</a></code>.
+and does not change after calling <code><a href="https://dbi.r-dbi.org/reference/dbFetch.html" class="external-link">DBI::dbFetch()</a></code>.
 <code>NA_integer_</code> or <code>NA_numeric_</code> are allowed if the number of rows affected is not known.</p>
-<p>For queries issued with <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">dbSendQuery()</a></code>,
+<p>For queries issued with <code><a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" class="external-link">DBI::dbSendQuery()</a></code>,
 zero is returned before
 and after the call to <code>dbFetch()</code>.
 <code>NA</code> values are not allowed.</p>

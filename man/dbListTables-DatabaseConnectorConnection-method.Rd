@@ -7,8 +7,8 @@
 \S4method{dbListTables}{DatabaseConnectorConnection}(conn, databaseSchema = NULL, ...)
 }
 \arguments{
-\item{conn}{A \link[DBI:DBIConnection-class]{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object,
+as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 
 \item{databaseSchema}{The name of the database schema. See details for platform-specific details.}
 
@@ -20,7 +20,7 @@ returns a character vector
 that enumerates all tables
 and views
 in the database.
-Tables added with \code{\link[DBI:dbWriteTable]{dbWriteTable()}} are
+Tables added with \code{\link[DBI:dbWriteTable]{DBI::dbWriteTable()}} are
 part of the list.
 As soon a table is removed from the database,
 it is also removed from the list of database tables.
@@ -35,6 +35,7 @@ connection.
 This should include views and temporary objects, but not all database backends
 (in particular \pkg{RMariaDB} and \pkg{RMySQL}) support this.
 
+\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbListTables")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

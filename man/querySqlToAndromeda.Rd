@@ -9,7 +9,8 @@ querySqlToAndromeda(
   sql,
   andromeda,
   andromedaTableName,
-  errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+  errorReportFile = file.path(getOption("errorReportFileLocation", getwd()),
+    "errorReportSql.txt"),
   snakeCaseToCamelCase = FALSE,
   appendToTable = FALSE,
   integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
@@ -23,13 +24,15 @@ querySqlToAndromeda(
 \item{sql}{The SQL to be sent.}
 
 \item{andromeda}{An open Andromeda object, for example as created
-using \code{\link[Andromeda:andromeda_constructor]{Andromeda::andromeda()}}.}
+using \code{\link[Andromeda:andromeda]{Andromeda::andromeda()}}.}
 
 \item{andromedaTableName}{The name of the table in the local Andromeda object where the
 results of the query will be stored.}
 
 \item{errorReportFile}{The file where an error report will be written if an error occurs.
-Defaults to 'errorReportSql.txt' in the current working directory.}
+Defaults to 'errorReportSql.txt' in the directory given by
+\code{getOption("errorReportFileLocation")}, or the current working
+directory if that option is unset.}
 
 \item{snakeCaseToCamelCase}{If true, field names are assumed to use snake_case, and are converted to camelCase.}
 

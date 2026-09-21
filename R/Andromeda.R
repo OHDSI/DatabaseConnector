@@ -64,12 +64,13 @@ querySqlToAndromeda <- function(
     sql,
     andromeda,
     andromedaTableName,
-    errorReportFile = file.path(getwd(), "errorReportSql.txt"),
+    errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
     snakeCaseToCamelCase = FALSE,
     appendToTable = FALSE,
     integerAsNumeric = getOption("databaseConnectorIntegerAsNumeric", default = TRUE),
     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE)
 ) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (!DBI::dbIsValid(connection)) {
     stop("Connection is closed")
   }
@@ -171,10 +172,7 @@ renderTranslateQuerySqlToAndromeda <- function(
     sql,
     andromeda,
     andromedaTableName,
-    errorReportFile = file.path(
-      getwd(),
-      "errorReportSql.txt"
-    ),
+    errorReportFile = file.path(getOption("errorReportFileLocation", getwd()), "errorReportSql.txt"),
     snakeCaseToCamelCase = FALSE,
     appendToTable = FALSE,
     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
@@ -182,6 +180,7 @@ renderTranslateQuerySqlToAndromeda <- function(
     integer64AsNumeric = getOption("databaseConnectorInteger64AsNumeric", default = TRUE),
     ...
 ) {
+  errorReportFile <- .resolveErrorReportFile(errorReportFile)
   if (is(connection, "Pool")) {
     connection <- pool::poolCheckout(connection)
     on.exit(pool::poolReturn(connection))
