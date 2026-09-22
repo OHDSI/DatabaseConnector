@@ -71,7 +71,6 @@ jobs:
       - uses: actions/checkout@v6
       
       - name: Setup Java
-        if: runner.os != 'Linux'
         uses: actions/setup-java@v5
         with:
           distribution: 'corretto'
