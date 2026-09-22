@@ -5,7 +5,7 @@ if (DatabaseConnector:::is_installed("ParallelLogger")) {
   logFileName <- tempfile(fileext = ".txt")
   ParallelLogger::addDefaultFileLogger(logFileName, name = "TEST_LOGGER")
 }
-
+# testServer = testServers[[1]]
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Fetch results", testServer), {
    

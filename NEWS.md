@@ -5,7 +5,7 @@ Changes:
 
 1. Changing required Java version to 21.
 
-2. Upating Snowflake driver.
+2. Updating Snowflake and DataBricks driver.
 
 3. Setting `JDBC_QUERY_RESULT_FORMAT=JSON` when connecting to Snowflake to avoid 'You must start Java with `--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED`' error.
 
