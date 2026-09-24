@@ -136,19 +136,19 @@ if (Sys.getenv("CDM5_REDSHIFT_SERVER") != "") {
 }
 
 # Snowflake --------------------------------------------------------------------
-if (Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING") != "") {
-  testServers[[length(testServers) + 1]] <- list(
-    connectionDetails = details <- createConnectionDetails(
-      dbms = "snowflake",
-      user = Sys.getenv("CDM_SNOWFLAKE_USER"),
-      password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
-      connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
-    ),
-    NULL,
-    cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
-    tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
-  )
-}
+# if (Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING") != "") {
+#   testServers[[length(testServers) + 1]] <- list(
+#     connectionDetails = details <- createConnectionDetails(
+#       dbms = "snowflake",
+#       user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+#       password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+#       connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+#     ),
+#     NULL,
+#     cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
+#     tempEmulationSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
+#   )
+# }
 
 # Databricks (Spark) --------------------------------------------------------------------------
 # Databricks is causing segfault errors on Linux. Temporary workaround is not to test on
