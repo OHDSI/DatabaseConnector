@@ -147,7 +147,7 @@ connection <- connect(
 )
 databaseSchema <- Sys.getenv("CDM_IRIS_OHDSI_SCHEMA")
 tables <- getTableNames(connection, databaseSchema)
-sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse= "\n")
+sql <- paste(sprintf("DROP TABLE %s.\"%s\" CASCADE;", databaseSchema, tables), collapse = "\n")
 executeSql(connection, sql)
 disconnect(connection)
 

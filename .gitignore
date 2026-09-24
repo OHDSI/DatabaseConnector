@@ -9,3 +9,4 @@ errorReportSql.txt
 /work/
 .settings/org.eclipse.core.resources.prefs
 revdep/
+.posit/assistant

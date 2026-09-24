@@ -17,3 +17,4 @@ docs
 errorReportSql.txt
 ^CRAN-SUBMISSION$
 revdep/
+^\.posit/assistant$
