@@ -33,7 +33,6 @@ This includes temporary tables if supported by the database.
 \description{
 Returns if a table given by name exists in the database.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbExistsTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

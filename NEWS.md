@@ -3,9 +3,9 @@ DatabaseConnector 8.0.0
 
 Changes:
 
-1. Changing required Java version to 21.
+1. Changing required Java version to 21. Most database platforms will still run using Java 8, but more and more JDBC drivers will need higher Java versions.
 
-2. Updating Snowflake and DataBricks driver.
+2. Updating Snowflake and DataBricks driver. DataBricks driver now requires Java >= 11.
 
 3. Setting `JDBC_QUERY_RESULT_FORMAT=JSON` when connecting to Snowflake to avoid 'You must start Java with `--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED`' error.
 

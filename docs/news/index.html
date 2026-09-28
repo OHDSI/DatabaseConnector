@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">7.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">8.0.0</span>
       </span>
     </div>
 
@@ -67,7 +67,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="7.2.0" id="databaseconnector-720">DatabaseConnector 7.2.0.<a class="anchor" aria-label="anchor" href="#databaseconnector-720"></a></h2>
+<h2 class="page-header" data-toc-text="8.0.0" id="databaseconnector-800">DatabaseConnector 8.0.0<a class="anchor" aria-label="anchor" href="#databaseconnector-800"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Changing required Java version to 21. Most database platforms will still run using Java 8, but more and more JDBC drivers will need higher Java versions.</p></li>
+<li><p>Updating Snowflake and DataBricks driver. DataBricks driver now requires Java &gt;= 11.</p></li>
+<li><p>Setting <code>JDBC_QUERY_RESULT_FORMAT=JSON</code> when connecting to Snowflake to avoid ‘You must start Java with <code>--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED</code>’ error.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="7.2.1" id="databaseconnector-721">DatabaseConnector 7.2.1<a class="anchor" aria-label="anchor" href="#databaseconnector-721"></a></h2>
+<p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Fixed Spark (DataBricks) bulk upload of complex (JSON) strings.</li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="7.2.0" id="databaseconnector-720">DatabaseConnector 7.2.0<small>2026-06-26</small><a class="anchor" aria-label="anchor" href="#databaseconnector-720"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li><p>Changed BigQuery driver from Simba BigQuery to BigQuery.</p></li>
 <li><p>Added bulk upload for Spark (DataBricks).</p></li>
@@ -81,6 +93,7 @@
 </ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Converted double quotes to spaces when upload to DataBricks to avoid errors.</p></li>
 <li><p>Fixed error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> with a data frame having a column of <code><a href="https://rdrr.io/pkg/data.table/man/IDateTime.html" class="external-link">data.table::IDate</a></code>.</p></li>
+<li><p>Fixed errors caused by <code>dbplyr 2.6.0</code> dropping v1 backends, which we apparently were still using.</p></li>
 </ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="7.1.0" id="databaseconnector-710">DatabaseConnector 7.1.0<small>2026-01-09</small><a class="anchor" aria-label="anchor" href="#databaseconnector-710"></a></h2>
@@ -411,7 +424,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>

@@ -60,7 +60,10 @@ DatabaseConnector is an R package using Java's JDBC drivers and other DBI driver
 System Requirements
 ===================
 
-Running the package requires R with the package rJava installed. Also requires Java 1.8 or higher.
+Running the package requires R with the package rJava installed. 
+Most of the JDBC drivers will run on Java >= 8. 
+However, some drivers (e.g. Spark / DataBricks) will require a higher Java version.
+We recommend running Java 21, which is the version used in our continuous integration.
 
 
 Installation

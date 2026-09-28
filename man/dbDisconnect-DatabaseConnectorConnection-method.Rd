@@ -17,7 +17,6 @@ as returned by \code{\link[DBI:dbConnect]{dbConnect()}}.}
 This closes the connection, discards all pending work, and frees
 resources (e.g., memory, sockets).
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbDisconnect")}
 }
 \seealso{
 Other DBIConnection generics: 

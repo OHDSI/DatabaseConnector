@@ -31,7 +31,6 @@ given verbatim, e.g. \code{SQL('"my_schema"."table_name"')}
 Remove a remote table (e.g., created by \code{\link[DBI:dbWriteTable]{dbWriteTable()}})
 from the database.
 
-\Sexpr[results=rd,stage=render]{DBI:::methods_as_rd("dbRemoveTable")}
 }
 \details{
 The \code{databaseSchema} argument is interpreted differently according to the different platforms:

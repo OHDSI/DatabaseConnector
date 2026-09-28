@@ -19,7 +19,7 @@ executeSql(
 \item{connection}{The connection to the database server created using either
 \code{\link[=connect]{connect()}} or \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
-\item{sql}{The SQL to be executed}
+\item{sql}{The SQL to be executed.}
 
 \item{profile}{When true, each separate statement is written to file prior to sending to
 the server, and the time taken to execute a statement is displayed.}
