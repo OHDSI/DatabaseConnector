@@ -1,11 +1,11 @@
-This release has 6 changes and 3 fixes (see NEWS.md).
+This release has 3 changes (see NEWS.md).
 
 ---
 
 ## Test environments
 * Ubuntu 22.04, Latest R version
 * MacOS, Latest R version
-* MacOS M3, 4.4.1
+* MacOS M3, 4.6.1
 * Windows 10, Latest R version
 
 ## R CMD check results
