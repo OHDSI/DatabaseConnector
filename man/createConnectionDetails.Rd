@@ -3,6 +3,19 @@
 \name{createConnectionDetails}
 \alias{createConnectionDetails}
 \title{createConnectionDetails}
+\usage{
+createConnectionDetails(
+  dbms,
+  user = NULL,
+  password = NULL,
+  server = NULL,
+  port = NULL,
+  extraSettings = NULL,
+  oracleDriver = "thin",
+  connectionString = NULL,
+  pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
+)
+}
 \arguments{
 \item{dbms}{The type of DBMS running on the server. Valid values are
 \itemize{

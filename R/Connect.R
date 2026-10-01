@@ -99,9 +99,6 @@ assertDetailsCanBeValidated <- function(connectionDetails) {
 #' - `createConnectionDetails(dbms, connectionString, pathToDriver)`
 #' - `createConnectionDetails(dbms, connectionString, user, password, pathToDriver)`
 #'
-#' @usage
-#' NULL
-#'
 #' @template Dbms
 #' @template DefaultConnectionDetails
 #'
@@ -212,9 +209,6 @@ createDbiConnectionDetails <- function(dbms, drv, ...) {
 #' - `connect(connectionDetails)`
 #' - `connect(dbms, connectionString, pathToDriver))`
 #' - `connect(dbms, connectionString, user, password, pathToDriver)`
-#'
-#' @usage
-#' NULL
 #'
 #' @template Dbms
 #' @template DefaultConnectionDetails

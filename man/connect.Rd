@@ -3,6 +3,20 @@
 \name{connect}
 \alias{connect}
 \title{connect}
+\usage{
+connect(
+  connectionDetails = NULL,
+  dbms = NULL,
+  user = NULL,
+  password = NULL,
+  server = NULL,
+  port = NULL,
+  extraSettings = NULL,
+  oracleDriver = "thin",
+  connectionString = NULL,
+  pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
+)
+}
 \arguments{
 \item{connectionDetails}{An object of class \code{connectionDetails} as created by the
 \code{\link[=createConnectionDetails]{createConnectionDetails()}} function.}
