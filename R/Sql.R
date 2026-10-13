@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.systemInfo <- function() {
+.systemInfo <- function(connection = NULL) {
   si <- sessionInfo()
   lines <- c()
   lines <- c(lines, "R version:")
@@ -22,6 +22,8 @@
   lines <- c(lines, "")
   lines <- c(lines, "Platform:")
   lines <- c(lines, si$R.version$platform)
+  lines <- c(lines, "")
+  lines <- c(lines, .driverInfo(connection))
   lines <- c(lines, "")
   lines <- c(lines, "Attached base packages:")
   lines <- c(lines, paste("-", si$basePkgs))
@@ -34,6 +36,42 @@
     )
   }
   return(paste(lines, collapse = "\n"))
+}
+
+.driverInfo <- function(connection) {
+  javaVersion <- tryCatch(
+    rJava::.jcall("java/lang/System", "S", "getProperty", "java.version"),
+    error = function(e) "Unknown"
+  )
+  lines <- c("Java version:", javaVersion)
+  if (inherits(connection, "DatabaseConnectorJdbcConnection")) {
+    driver <- tryCatch(
+      {
+        metaData <- rJava::.jcall(connection@jConnection, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+        paste0(
+          rJava::.jcall(metaData, "S", "getDriverName"),
+          " (",
+          rJava::.jcall(metaData, "S", "getDriverVersion"),
+          ")"
+        )
+      },
+      error = function(e) "Unknown"
+    )
+    lines <- c(lines, "", "JDBC driver:", driver)
+  } else if (!is.null(connection)) {
+    if (inherits(connection, "DatabaseConnectorDbiConnection")) {
+      connection <- connection@dbiConnection
+    }
+    driver <- tryCatch(
+      {
+        pkg <- attr(class(connection), "package")
+        paste0(pkg, " (", utils::packageVersion(pkg), ")")
+      },
+      error = function(e) "Unknown"
+    )
+    lines <- c(lines, "", "DBI driver:", driver)
+  }
+  return(lines)
 }
 
 .resolveErrorReportFile <- function(errorReportFile) {
@@ -55,8 +93,8 @@
   errorReportFile
 }
 
-.createErrorReport <- function(dbms, message, sql, fileName) {
-  report <- c("DBMS:\n", dbms, "\n\nError:\n", message, "\n\nSQL:\n", sql, "\n\n", .systemInfo())
+.createErrorReport <- function(dbms, message, sql, fileName, connection = NULL) {
+  report <- c("DBMS:\n", dbms, "\n\nError:\n", message, "\n\nSQL:\n", sql, "\n\n", .systemInfo(connection))
   fileConn <- file(fileName)
   writeChar(report, fileConn, eos = NULL)
   close(fileConn)
@@ -220,7 +258,7 @@ executeSql <- function(connection,
           logTrace(paste("Statements took", delta, attr(delta, "units")))
         },
         error = function(err) {
-          .createErrorReport(dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile)
+          .createErrorReport(dbms, err$message, paste(batchSql, collapse = "\n\n"), errorReportFile, connection)
         },
         finally = {
           rJava::.jcall(statement, "V", "close")
@@ -250,7 +288,7 @@ executeSql <- function(connection,
         logTrace(paste("Executing SQL took", delta, attr(delta, "units")))
       },
       error = function(err) {
-        .createErrorReport(dbms, err$message, sqlStatement, errorReportFile)
+        .createErrorReport(dbms, err$message, sqlStatement, errorReportFile, connection)
       })
       if (progressBar) {
         setTxtProgressBar(pb, i / length(sqlStatements))
@@ -375,7 +413,7 @@ querySql <- function(connection,
     return(result)
   },
   error = function(err) {
-    .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
+    .createErrorReport(dbms(connection), err$message, sql, errorReportFile, connection)
   })
 }
 
@@ -642,7 +680,7 @@ renderTranslateQueryApplyBatched <- function(connection,
       queryResult <- DBI::dbSendQuery(connection, sql)
     },
     error = function(err) {
-      .createErrorReport(dbms(connection), err$message, sql, errorReportFile)
+      .createErrorReport(dbms(connection), err$message, sql, errorReportFile, connection)
     }
   )
   on.exit(DBI::dbClearResult(queryResult))
