@@ -692,7 +692,7 @@ getTableNames(connection, "eunomia")
 
 # Use pure ODBC:
 db <- DBI::dbConnect(odbc::odbc(),
-                     Driver = "Simba Spark ODBC Driver",
+                     Driver = "Databricks ODBC Driver",
                      Host = keyring::key_get("dataBricksServer"),
                      uid = keyring::key_get("dataBricksUser"),
                      pwd = keyring::key_get("dataBricksPassword"),
@@ -704,7 +704,7 @@ db <- DBI::dbConnect(odbc::odbc(),
                      Port = keyring::key_get("dataBricksPort"))
 
 db <- DBI::dbConnect(odbc::odbc(),
-                     Driver = "Simba Spark ODBC Driver",
+                     Driver = "Databricks ODBC Driver",
                      Host = keyring::key_get("sparkServer"),
                      uid = keyring::key_get("sparkUser"),
                      pwd = keyring::key_get("sparkPassword"),

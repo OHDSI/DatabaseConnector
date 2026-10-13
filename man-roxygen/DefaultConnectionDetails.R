@@ -120,8 +120,12 @@
 #' Currently both JDBC and ODBC connections are supported for Spark. Set the 
 #' `connectionString` argument to use JDBC, otherwise ODBC is used:
 #' 
-#'  - `connectionString`. The JDBC connection string (e.g. something like
-#'         'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+#'  - `connectionString`. The JDBC connection string for the Databricks JDBC driver
+#'         (e.g. something like
+#'         'jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+#'         `AuthMech`, `ssl`, and `httpPath` are supported. `UseNativeQuery` is not
+#'         added, because driver 3.x already sends native Databricks SQL. A URL copied
+#'         from Databricks may still include `transportMode=http`; that property is ignored.
 #'  - `user`. The user name used to access the server. This can be set to 'token' when using a personal token (recommended).
 #'  - `password`. The password for that user. This should be your personal token  when using a personal token (recommended).
 #'  - `server`. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
@@ -131,6 +135,9 @@
 #'                               SSL = 1,
 #'                               ThriftTransport = 2,
 #'                               AuthMech = 3)`
+#'         The ODBC driver name defaults to "Databricks ODBC Driver". To use another
+#'         installed driver, set `Driver` in this list, for example
+#'         `Driver = "Simba Spark ODBC Driver"`.
 #' 
 #' Snowflake:
 #' 

@@ -189,14 +189,21 @@ Spark / Databricks:
 Currently both JDBC and ODBC connections are supported for Spark. Set the
 \code{connectionString} argument to use JDBC, otherwise ODBC is used:
 \itemize{
-\item \code{connectionString}. The JDBC connection string (e.g. something like
-'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+\item \code{connectionString}. The JDBC connection string for the Databricks JDBC driver
+(e.g. something like
+'jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+\code{AuthMech}, \code{ssl}, and \code{httpPath} are supported. \code{UseNativeQuery} is not
+added, because driver 3.x already sends native Databricks SQL. A URL copied
+from Databricks may still include \code{transportMode=http}; that property is ignored.
 \item \code{user}. The user name used to access the server. This can be set to 'token' when using a personal token (recommended).
 \item \code{password}. The password for that user. This should be your personal token  when using a personal token (recommended).
 \item \code{server}. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
 \item \code{port}. Specifies the port on the server (when using ODBC)
 \item \code{extraSettings}. Additional settings for the ODBC connection, for example
 \code{extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345", SSL = 1, ThriftTransport = 2, AuthMech = 3)}
+The ODBC driver name defaults to "Databricks ODBC Driver". To use another
+installed driver, set \code{Driver} in this list, for example
+\code{Driver = "Simba Spark ODBC Driver"}.
 }
 
 Snowflake:

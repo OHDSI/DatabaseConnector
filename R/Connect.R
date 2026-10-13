@@ -649,20 +649,44 @@ connectBigQuery <- function(connectionDetails) {
   return(connection)
 }
 
+# Databricks JDBC driver 3.x (com.databricks.client.jdbc.Driver) sends SQL as native
+# Databricks SQL. UseNativeQuery is a legacy Simba property and is not part of this
+# driver, so it is not added. AuthMech, ssl, httpPath, user, and password are valid.
+# transportMode from older Simba URLs is ignored.
+prepareSparkJdbcConnectionString <- function(connectionString) {
+  if (is.null(connectionString) || connectionString == "") {
+    abort("Error: Connection string required for connecting to Spark.")
+  }
+  connectionString
+}
+
+resolveSparkOdbcDriver <- function(extraSettings) {
+  driver <- NULL
+  if (is.list(extraSettings)) {
+    driver <- extraSettings$Driver
+  }
+  if (is.null(driver) || !is.character(driver) || length(driver) != 1 || !nzchar(driver)) {
+    "Databricks ODBC Driver"
+  } else {
+    driver
+  }
+}
+
+dropSparkOdbcDriverSetting <- function(extraSettings) {
+  if (is.list(extraSettings)) {
+    extraSettings$Driver <- NULL
+    if (length(extraSettings) == 0) {
+      extraSettings <- NULL
+    }
+  }
+  extraSettings
+}
+
 connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
   jarPath <- findPathToJar("^[Dd]atabricks.*\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
-  connectionString <- connectionDetails$connectionString()
-  if (is.null(connectionString) || connectionString == "") {
-    abort("Error: Connection string required for connecting to Spark.")
-  }
-  if (!grepl("UseNativeQuery", connectionString)) {
-    if (!endsWith(connectionString, ";")) {
-      connectionString <- paste0(connectionString, ";")
-    }
-    connectionString <- paste0(connectionString, "UseNativeQuery=1")
-  }
+  connectionString <- prepareSparkJdbcConnectionString(connectionDetails$connectionString())
   if (is.null(connectionDetails$user())) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {
@@ -680,20 +704,22 @@ connectSpark <- function(connectionDetails) {
 connectSparkUsingOdbc <- function(connectionDetails) {
   inform("Connecting using Spark ODBC driver")
   ensure_installed("odbc")
+  # Default is the renamed Databricks ODBC driver. Callers that still have the
+  # legacy driver installed can pass Driver in extraSettings.
+  extraSettings <- dropSparkOdbcDriverSetting(connectionDetails$extraSettings)
   dbiConnectionDetails <- createDbiConnectionDetails(
     dbms = connectionDetails$dbms,
     drv = odbc::odbc(),
-    Driver = "Simba Spark ODBC Driver",
+    Driver = resolveSparkOdbcDriver(connectionDetails$extraSettings),
     Host = connectionDetails$server(),
     uid = connectionDetails$user(),
     pwd = connectionDetails$password(),
     Port = connectionDetails$port()
-    # UseNativeQuery=1
   )
-  if (!is.null(connectionDetails$extraSettings)) {
+  if (!is.null(extraSettings)) {
     dbiConnectionDetails <- append(
       dbiConnectionDetails,
-      connectionDetails$extraSettings
+      extraSettings
     )
   }
   connection <- connectUsingDbi(dbiConnectionDetails)

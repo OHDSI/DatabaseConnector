@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">8.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">8.1.0</span>
       </span>
     </div>
 
@@ -67,7 +67,14 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="8.0.0" id="databaseconnector-800">DatabaseConnector 8.0.0<a class="anchor" aria-label="anchor" href="#databaseconnector-800"></a></h2>
+<h2 class="page-header" data-toc-text="8.1.0" id="databaseconnector-810">DatabaseConnector 8.1.0<a class="anchor" aria-label="anchor" href="#databaseconnector-810"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Documented the Spark (Databricks) JDBC driver downloaded by <code><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> as V3.4.2.</p></li>
+<li><p><code>connectSpark()</code> no longer appends <code>UseNativeQuery</code>. That property belongs to the legacy Simba driver and is not supported by Databricks JDBC driver 3.x, which already sends native Databricks SQL. <code>AuthMech</code>, <code>ssl</code>, <code>httpPath</code>, and the user and password are unchanged. <code>transportMode</code> from older connection strings is ignored.</p></li>
+<li><p>Spark ODBC connections default to the <code>Databricks ODBC Driver</code> instead of hardcoding <code>Simba Spark ODBC Driver</code>. Pass <code>extraSettings = list(Driver = "Simba Spark ODBC Driver", ...)</code> to keep using the legacy driver.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="8.0.0" id="databaseconnector-800">DatabaseConnector 8.0.0<small>2026-10-01</small><a class="anchor" aria-label="anchor" href="#databaseconnector-800"></a></h2>
 <p>Changes:</p>
 <ol style="list-style-type: decimal"><li><p>Changing required Java version to 21. Most database platforms will still run using Java 8, but more and more JDBC drivers will need higher Java versions.</p></li>
 <li><p>Updating Snowflake and DataBricks driver. DataBricks driver now requires Java &gt;= 11.</p></li>
@@ -92,7 +99,7 @@
 <li><p>Made <code><a href="../reference/querySql.html">querySql()</a></code> less inefficient for large queries.</p></li>
 </ol><p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li><p>Converted double quotes to spaces when upload to DataBricks to avoid errors.</p></li>
-<li><p>Fixed error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> with a data frame having a column of <code><a href="https://rdrr.io/pkg/data.table/man/IDateTime.html" class="external-link">data.table::IDate</a></code>.</p></li>
+<li><p>Fixed error when calling <code><a href="../reference/insertTable.html">insertTable()</a></code> with a data frame having a column of <code>data.table::IDate</code>.</p></li>
 <li><p>Fixed errors caused by <code>dbplyr 2.6.0</code> dropping v1 backends, which we apparently were still using.</p></li>
 </ol></div>
     <div class="section level2">
