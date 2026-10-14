@@ -69,7 +69,7 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="8.1.0" id="databaseconnector-810">DatabaseConnector 8.1.0<a class="anchor" aria-label="anchor" href="#databaseconnector-810"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li><p>Documented the Spark (Databricks) JDBC driver downloaded by <code><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> as V3.4.2.</p></li>
+<ol style="list-style-type: decimal"><li><p>Documented the Spark (Databricks) JDBC driver downloaded by <code><a href="../reference/downloadJdbcDrivers.html">downloadJdbcDrivers()</a></code> as V2.6.40.</p></li>
 <li><p><code>connectSpark()</code> no longer appends <code>UseNativeQuery</code>. That property belongs to the legacy Simba driver and is not supported by Databricks JDBC driver 3.x, which already sends native Databricks SQL. <code>AuthMech</code>, <code>ssl</code>, <code>httpPath</code>, and the user and password are unchanged. <code>transportMode</code> from older connection strings is ignored.</p></li>
 <li><p>Spark ODBC connections default to the <code>Databricks ODBC Driver</code> instead of hardcoding <code>Simba Spark ODBC Driver</code>. Pass <code>extraSettings = list(Driver = "Simba Spark ODBC Driver", ...)</code> to keep using the legacy driver.</p></li>
 </ol></div>

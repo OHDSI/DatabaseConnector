@@ -3,7 +3,7 @@ DatabaseConnector 8.1.0
 
 Changes:
 
-1. Documented the Spark (Databricks) JDBC driver downloaded by `downloadJdbcDrivers()` as V3.4.2.
+1. Documented the Spark (Databricks) JDBC driver downloaded by `downloadJdbcDrivers()` as V2.6.40.
 
 2. `connectSpark()` no longer appends `UseNativeQuery`. That property belongs to the legacy Simba driver and is not supported by Databricks JDBC driver 3.x, which already sends native Databricks SQL. `AuthMech`, `ssl`, `httpPath`, and the user and password are unchanged. `transportMode` from older connection strings is ignored.
 
