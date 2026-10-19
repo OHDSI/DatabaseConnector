@@ -180,15 +180,27 @@ public class BatchedQuery {
 			done = false;
 			totalRowCount = 0;
 		} catch (SQLException e) {
-			if (connection != null) {
-				try {
-					connection.rollback();
-				} catch (SQLException rollbackEx) {
-					System.err.println("Error rolling back transaction: " + rollbackEx.getMessage());
-				}
-			}
+			rollbackAndRestoreAutoCommit();
 			throw e;
 		} 
+	}
+
+	private void rollbackAndRestoreAutoCommit() {
+		if (connection == null)
+			return;
+		// Leaving auto-commit off after an error would keep the failed transaction open, causing
+		// 'current transaction is aborted' errors on subsequent statements:
+		try {
+			if (!connection.getAutoCommit())
+				connection.rollback();
+		} catch (SQLException rollbackEx) {
+			System.err.println("Error rolling back transaction: " + rollbackEx.getMessage());
+		}
+		try {
+			trySettingAutoCommit(true);
+		} catch (SQLException autoCommitEx) {
+			System.err.println("Error restoring auto-commit: " + autoCommitEx.getMessage());
+		}
 	}
 	
 	protected void finalize() {
@@ -200,6 +212,15 @@ public class BatchedQuery {
 	}
 
 	public void fetchBatch() throws SQLException {
+		try {
+			fetchRows();
+		} catch (SQLException e) {
+			rollbackAndRestoreAutoCommit();
+			throw e;
+		}
+	}
+
+	private void fetchRows() throws SQLException {
 		cleanUpStrings();
 		rowCount = 0;
 		while (rowCount < batchSize) {

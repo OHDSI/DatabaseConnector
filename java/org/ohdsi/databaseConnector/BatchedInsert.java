@@ -159,6 +159,7 @@ public class BatchedInsert {
 			if (!dbms.equals(SPARK)) {
 				connection.rollback();
 			}
+			trySettingAutoCommit(true);
 			throw e;
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
@@ -203,6 +204,7 @@ public class BatchedInsert {
 			return true;
 		} catch (SQLException e) {
 			connection.rollback();
+			trySettingAutoCommit(true);
 			throw e;
 		} finally {
 			for (int i = 0; i < columnCount; i++) {
