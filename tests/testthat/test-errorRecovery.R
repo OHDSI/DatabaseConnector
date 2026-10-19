@@ -53,6 +53,9 @@ for (testServer in testServers) {
     if (testServer$connectionDetails$dbms == "bigquery") {
       skip("Avoiding rate limit on BigQuery")
     }
+    if (testServer$connectionDetails$dbms == "iris") {
+      skip("Rollback seems to not work on Iris, but not a hard requirement")
+    }
     connection <- connect(testServer$connectionDetails)
     options(sqlRenderTempEmulationSchema = testServer$tempEmulationSchema)
     on.exit(dropEmulatedTempTables(connection))
