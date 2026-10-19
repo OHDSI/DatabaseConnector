@@ -649,20 +649,22 @@ connectBigQuery <- function(connectionDetails) {
   return(connection)
 }
 
+# Databricks JDBC driver 3.x (com.databricks.client.jdbc.Driver) sends SQL as native
+# Databricks SQL. UseNativeQuery is a legacy Simba property and is not part of this
+# driver, so it is not added. AuthMech, ssl, httpPath, user, and password are valid.
+# transportMode from older Simba URLs is ignored.
+prepareSparkJdbcConnectionString <- function(connectionString) {
+  if (is.null(connectionString) || connectionString == "") {
+    abort("Error: Connection string required for connecting to Spark.")
+  }
+  connectionString
+}
+
 connectSpark <- function(connectionDetails) {
   inform("Connecting using Spark JDBC driver")
   jarPath <- findPathToJar("^[Dd]atabricks.*\\.jar$", connectionDetails$pathToDriver)
   driver <- getJbcDriverSingleton("com.databricks.client.jdbc.Driver", jarPath)
-  connectionString <- connectionDetails$connectionString()
-  if (is.null(connectionString) || connectionString == "") {
-    abort("Error: Connection string required for connecting to Spark.")
-  }
-  if (!grepl("UseNativeQuery", connectionString)) {
-    if (!endsWith(connectionString, ";")) {
-      connectionString <- paste0(connectionString, ";")
-    }
-    connectionString <- paste0(connectionString, "UseNativeQuery=1")
-  }
+  connectionString <- prepareSparkJdbcConnectionString(connectionDetails$connectionString())
   if (is.null(connectionDetails$user())) {
     connection <- connectUsingJdbcDriver(driver, connectionString, dbms = connectionDetails$dbms)
   } else {

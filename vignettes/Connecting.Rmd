@@ -151,6 +151,21 @@ writeLines("Connecting using PostgreSQL driver")
 ```
 
 
+# Connecting to Spark / Databricks
+
+`downloadJdbcDrivers("spark")` downloads the Databricks JDBC driver, version 3.4.2 (`com.databricks.client.jdbc.Driver`). This is the open source Databricks driver, not the legacy Simba Spark JDBC driver.
+
+Pass a JDBC connection string to `connect()`. The driver accepts `AuthMech`, `ssl`, and `httpPath`. `DatabaseConnector` does not add `UseNativeQuery`, because driver 3.x already sends native Databricks SQL. If you copy a URL from the Databricks connection dialog it may still contain `transportMode=http`. That property is ignored.
+
+```{r eval=FALSE}
+conn <- connect(
+  dbms = "spark",
+  connectionString = "jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;",
+  user = "token",
+  password = "dapi..."
+)
+```
+
 # Using Windows Authentication for SQL Server
 
 In some organizations using Microsoft SQL Server and Windows, it is possible to use Windows Authentication to connect to the server, meaning you won't have to provide a user name and password, since your Windows credentials will be used. This will require downloading the SQL Server authentication DLL file, and placing it somewhere on your system path. If you don't have rights to add files to a place on your system path, you can place it anywhere, and set the `PATH_TO_AUTH_DLL` environmental variable, either using the `Sys.setenv()`, or by adding it to your `.Renviron` file. See [this webpage](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1) or type `?connect` for details on where to get the DLL (and what specific version).

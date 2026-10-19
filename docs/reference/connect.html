@@ -108,8 +108,12 @@ extraSettings = list(config = list(memory_limit = &quot;8GB&quot;, preserve_inse
 Spark / Databricks:
 Currently both JDBC and ODBC connections are supported for Spark. Set the
 connectionString argument to use JDBC, otherwise ODBC is used:
-connectionString. The JDBC connection string (e.g. something like
-'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+connectionString. The JDBC connection string for the Databricks JDBC driver
+(e.g. something like
+'jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+AuthMech, ssl, and httpPath are supported. UseNativeQuery is not
+added, because driver 3.x already sends native Databricks SQL. A URL copied
+from Databricks may still include transportMode=http; that property is ignored.
 user. The user name used to access the server. This can be set to 'token' when using a personal token (recommended).
 password. The password for that user. This should be your personal token  when using a personal token (recommended).
 server. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')
@@ -170,7 +174,7 @@ set before calling connect() for the first time.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DatabaseConnector</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">8.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">8.1.0</span>
       </span>
     </div>
 
@@ -295,12 +299,16 @@ as "SSLKeyStorePwd=*****")</p></li>
 </ul><p>DuckDB:</p><ul><li><p><code>server</code>. The path to the DuckDB file.</p></li>
 <li><p><code>extraSettings</code>. Additional settings for DuckDB. For DuckDB specifically, if
 <code>extraSettings$config</code> is provided, it will be passed to the
-<code><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb::duckdb()</a></code> constructor. For example:
+<code>duckdb::duckdb()</code> constructor. For example:
 <code>extraSettings = list(config = list(memory_limit = "8GB", preserve_insertion_order = "false"))</code></p></li>
 </ul><p>Spark / Databricks:</p>
 <p>Currently both JDBC and ODBC connections are supported for Spark. Set the
-<code>connectionString</code> argument to use JDBC, otherwise ODBC is used:</p><ul><li><p><code>connectionString</code>. The JDBC connection string (e.g. something like
-'jdbc:databricks://my-org.cloud.databricks.com:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').</p></li>
+<code>connectionString</code> argument to use JDBC, otherwise ODBC is used:</p><ul><li><p><code>connectionString</code>. The JDBC connection string for the Databricks JDBC driver
+(e.g. something like
+'jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;').
+<code>AuthMech</code>, <code>ssl</code>, and <code>httpPath</code> are supported. <code>UseNativeQuery</code> is not
+added, because driver 3.x already sends native Databricks SQL. A URL copied
+from Databricks may still include <code>transportMode=http</code>; that property is ignored.</p></li>
 <li><p><code>user</code>. The user name used to access the server. This can be set to 'token' when using a personal token (recommended).</p></li>
 <li><p><code>password</code>. The password for that user. This should be your personal token  when using a personal token (recommended).</p></li>
 <li><p><code>server</code>. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')</p></li>
@@ -338,6 +346,20 @@ set before calling <code>connect()</code> for the first time.</p>
 
     </div>
 
+    <div id="ref-usage">
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">connect</span><span class="op">(</span></span>
+<span>  connectionDetails <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dbms <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  user <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  password <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  server <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  port <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  extraSettings <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  oracleDriver <span class="op">=</span> <span class="st">"thin"</span>,</span>
+<span>  connectionString <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pathToDriver <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATABASECONNECTOR_JAR_FOLDER"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+    </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
