@@ -153,7 +153,7 @@ writeLines("Connecting using PostgreSQL driver")
 
 # Connecting to Spark / Databricks
 
-`downloadJdbcDrivers("spark")` downloads the Databricks JDBC driver, version 2.6.40 (`com.databricks.client.jdbc.Driver`). This replaces the Simba Spark JDBC driver, which Databricks is phasing out.
+`downloadJdbcDrivers("spark")` downloads the Databricks JDBC driver, version 3.4.2 (`com.databricks.client.jdbc.Driver`). This is the open source Databricks driver, not the legacy Simba Spark JDBC driver.
 
 Pass a JDBC connection string to `connect()`. The driver accepts `AuthMech`, `ssl`, and `httpPath`. `DatabaseConnector` does not add `UseNativeQuery`, because driver 3.x already sends native Databricks SQL. If you copy a URL from the Databricks connection dialog it may still contain `transportMode=http`. That property is ignored.
 
@@ -163,25 +163,6 @@ conn <- connect(
   connectionString = "jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;",
   user = "token",
   password = "dapi..."
-)
-```
-
-If `connectionString` is omitted, the connection uses ODBC. The driver name defaults to `Databricks ODBC Driver`. To keep using an older installation, set `Driver` in `extraSettings`:
-
-```{r eval=FALSE}
-conn <- connect(
-  dbms = "spark",
-  server = "my-org.cloud.databricks.com",
-  port = 443,
-  user = "token",
-  password = "dapi...",
-  extraSettings = list(
-    HTTPPath = "/sql/1.0/warehouses/abcde12345",
-    SSL = 1,
-    ThriftTransport = 2,
-    AuthMech = 3,
-    Driver = "Simba Spark ODBC Driver"
-  )
 )
 ```
 

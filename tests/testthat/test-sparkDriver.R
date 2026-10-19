@@ -37,36 +37,3 @@ test_that("Spark JDBC connection requires a connection string", {
     "Connection string required"
   )
 })
-
-test_that("Spark ODBC driver defaults to Databricks and can be overridden", {
-  expect_identical(
-    DatabaseConnector:::resolveSparkOdbcDriver(NULL),
-    "Databricks ODBC Driver"
-  )
-  expect_identical(
-    DatabaseConnector:::resolveSparkOdbcDriver(list(SSL = 1, AuthMech = 3)),
-    "Databricks ODBC Driver"
-  )
-  expect_identical(
-    DatabaseConnector:::resolveSparkOdbcDriver(list(Driver = "")),
-    "Databricks ODBC Driver"
-  )
-  expect_identical(
-    DatabaseConnector:::resolveSparkOdbcDriver(list(
-      Driver = "Simba Spark ODBC Driver",
-      SSL = 1
-    )),
-    "Simba Spark ODBC Driver"
-  )
-  expect_null(DatabaseConnector:::dropSparkOdbcDriverSetting(list(
-    Driver = "Simba Spark ODBC Driver"
-  )))
-  expect_identical(
-    DatabaseConnector:::dropSparkOdbcDriverSetting(list(
-      Driver = "Simba Spark ODBC Driver",
-      SSL = 1,
-      AuthMech = 3
-    )),
-    list(SSL = 1, AuthMech = 3)
-  )
-})

@@ -135,9 +135,6 @@
 #'                               SSL = 1,
 #'                               ThriftTransport = 2,
 #'                               AuthMech = 3)`
-#'         The ODBC driver name defaults to "Databricks ODBC Driver". To use another
-#'         installed driver, set `Driver` in this list, for example
-#'         `Driver = "Simba Spark ODBC Driver"`.
 #' 
 #' Snowflake:
 #' 

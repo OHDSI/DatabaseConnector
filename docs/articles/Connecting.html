@@ -242,9 +242,8 @@ be passed as an argument. We can use the
 <h2 id="connecting-to-spark-databricks">Connecting to Spark / Databricks<a class="anchor" aria-label="anchor" href="#connecting-to-spark-databricks"></a>
 </h2>
 <p><code>downloadJdbcDrivers("spark")</code> downloads the Databricks
-JDBC driver, version 2.6.40
-(<code>com.databricks.client.jdbc.Driver</code>). This replaces the
-Simba Spark JDBC driver, which Databricks is phasing out.</p>
+JDBC driver, version 3.4.2
+(<code>com.databricks.client.jdbc.Driver</code>). This is the open source Databricks driver, not the legacy Simba Spark JDBC driver.</p>
 <p>Pass a JDBC connection string to <code><a href="../reference/connect.html">connect()</a></code>. The driver
 accepts <code>AuthMech</code>, <code>ssl</code>, and
 <code>httpPath</code>. <code>DatabaseConnector</code> does not add
@@ -258,25 +257,6 @@ ignored.</p>
 <span>  connectionString <span class="op">=</span> <span class="st">"jdbc:databricks://my-org.cloud.databricks.com:443/default;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/abcde12345;"</span>,</span>
 <span>  user <span class="op">=</span> <span class="st">"token"</span>,</span>
 <span>  password <span class="op">=</span> <span class="st">"dapi..."</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>If <code>connectionString</code> is omitted, the connection uses
-ODBC. The driver name defaults to <code>Databricks ODBC Driver</code>.
-To keep using an older installation, set <code>Driver</code> in
-<code>extraSettings</code>:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/connect.html">connect</a></span><span class="op">(</span></span>
-<span>  dbms <span class="op">=</span> <span class="st">"spark"</span>,</span>
-<span>  server <span class="op">=</span> <span class="st">"my-org.cloud.databricks.com"</span>,</span>
-<span>  port <span class="op">=</span> <span class="fl">443</span>,</span>
-<span>  user <span class="op">=</span> <span class="st">"token"</span>,</span>
-<span>  password <span class="op">=</span> <span class="st">"dapi..."</span>,</span>
-<span>  extraSettings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    HTTPPath <span class="op">=</span> <span class="st">"/sql/1.0/warehouses/abcde12345"</span>,</span>
-<span>    SSL <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>    ThriftTransport <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    AuthMech <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>    Driver <span class="op">=</span> <span class="st">"Simba Spark ODBC Driver"</span></span>
-<span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

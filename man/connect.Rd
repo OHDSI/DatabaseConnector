@@ -201,9 +201,6 @@ from Databricks may still include \code{transportMode=http}; that property is ig
 \item \code{port}. Specifies the port on the server (when using ODBC)
 \item \code{extraSettings}. Additional settings for the ODBC connection, for example
 \code{extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345", SSL = 1, ThriftTransport = 2, AuthMech = 3)}
-The ODBC driver name defaults to "Databricks ODBC Driver". To use another
-installed driver, set \code{Driver} in this list, for example
-\code{Driver = "Simba Spark ODBC Driver"}.
 }
 
 Snowflake:

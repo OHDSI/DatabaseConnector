@@ -120,9 +120,6 @@ server. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databr
 port. Specifies the port on the server (when using ODBC)
 extraSettings. Additional settings for the ODBC connection, for example
 extraSettings = list(HTTPPath = &quot;/sql/1.0/warehouses/abcde12345&quot;, SSL = 1, ThriftTransport = 2, AuthMech = 3)
-The ODBC driver name defaults to &quot;Databricks ODBC Driver&quot;. To use another
-installed driver, set Driver in this list, for example
-Driver = &quot;Simba Spark ODBC Driver&quot;.
 
 
 Snowflake:
@@ -317,10 +314,7 @@ from Databricks may still include <code>transportMode=http</code>; that property
 <li><p><code>server</code>. The host name of the server (when using ODBC), e.g. 'my-org.cloud.databricks.com')</p></li>
 <li><p><code>port</code>. Specifies the port on the server (when using ODBC)</p></li>
 <li><p><code>extraSettings</code>. Additional settings for the ODBC connection, for example
-<code>extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345", SSL = 1, ThriftTransport = 2, AuthMech = 3)</code>
-The ODBC driver name defaults to "Databricks ODBC Driver". To use another
-installed driver, set <code>Driver</code> in this list, for example
-<code>Driver = "Simba Spark ODBC Driver"</code>.</p></li>
+<code>extraSettings = list(HTTPPath = "/sql/1.0/warehouses/abcde12345", SSL = 1, ThriftTransport = 2, AuthMech = 3)</code></p></li>
 </ul><p>Snowflake:</p><ul><li><p><code>connectionString</code>. The connection string (e.g. starting with
 'jdbc:snowflake://host:port/?db=database').</p></li>
 <li><p><code>user</code>. The user name used to access the server.</p></li>
