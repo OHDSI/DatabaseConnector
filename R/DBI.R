@@ -127,7 +127,10 @@ setMethod("show", "DatabaseConnectorConnection", function(object) {
 #' 
 #' @export
 setMethod("dbIsValid", "DatabaseConnectorJdbcConnection", function(dbObj, ...) {
-  return(!rJava::is.jnull(dbObj@jConnection))
+  if (rJava::is.jnull(dbObj@jConnection)) {
+    return(FALSE)
+  }
+  return(!rJava::.jcall(dbObj@jConnection, "Z", "isClosed"))
 })
 
 #' @inherit DBI::dbIsValid title description params details references return seealso
