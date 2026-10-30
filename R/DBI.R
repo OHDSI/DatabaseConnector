@@ -603,12 +603,13 @@ setMethod(
     if (!is.null(databaseSchema)) {
       name <- paste(databaseSchema, name, sep = ".")
     }
-    sql <- "TRUNCATE TABLE @table;"
+    # Not all platforms support TRUNCATE TABLE (e.g. SQLite), so translate the statements:
+    sql <- "TRUNCATE TABLE @table; DROP TABLE @table;"
     sql <- SqlRender::render(sql = sql, table = name)
-    DBI::dbExecute(conn, sql)
-    sql <- "DROP TABLE @table;"
-    sql <- SqlRender::render(sql = sql, table = name)
-    DBI::dbExecute(conn, sql)
+    sql <- SqlRender::translate(sql = sql, targetDialect = dbms(conn))
+    for (statement in SqlRender::splitSql(sql)) {
+      DBI::dbExecute(conn, statement)
+    }
     return(TRUE)
   }
 )
