@@ -1,3 +1,17 @@
+DatabaseConnector 8.0.1
+=======================
+
+Bugfixes:
+
+1. Fixed `dbRemoveTable()` for SQLite.
+
+2. `dbIsValid()` now correctly returns FALSE when JDBC is closed.
+
+3. Restore auto-commit after failed queires and inserts on JDBC connections.
+
+4. Adding Java and driver versions to SQL error report.
+
+
 DatabaseConnector 8.0.0
 =======================
 

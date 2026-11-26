@@ -44,7 +44,7 @@ jdbcDrivers <- new.env()
 #' - RedShift: V2.1.0.20
 #' - SQL Server: V9.2.0
 #' - Oracle: V19.8
-#' - Spark (Databricks): V2.6.36
+#' - Spark (Databricks): V3.4.2
 #' - Snowflake: V4.3.4
 #' - BigQuery: v0.10.0
 #' - InterSystems IRIS: v3.11.0

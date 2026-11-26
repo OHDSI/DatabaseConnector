@@ -1,8 +1,8 @@
 Package: DatabaseConnector
 Type: Package
 Title: Connecting to Various Database Platforms
-Version: 8.0.0
-Date: 2026-10-01
+Version: 8.0.1
+Date: 2026-11-26
 Authors@R: c(
     person("Martijn", "Schuemie", email = "schuemie@ohdsi.org", role = c("aut", "cre")),
     person("Marc", "Suchard", role = c("aut")),
@@ -22,7 +22,7 @@ Depends:
     R (>= 4.0.0)
 Imports:
     rJava,
-    SqlRender (>= 1.19.7),
+    SqlRender (>= 1.20.0),
     methods,
     stringr,
     readr,
@@ -54,6 +54,8 @@ Suggests:
     ParallelLogger,
     AzureStor,
     data.table
+Remotes:
+  ohdsi/SqlRender@develop
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/DatabaseConnector/, https://github.com/OHDSI/DatabaseConnector
@@ -61,4 +63,4 @@ BugReports: https://github.com/OHDSI/DatabaseConnector/issues
 Copyright: See file COPYRIGHTS
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
