@@ -11,6 +11,8 @@ Bugfixes:
 
 4. Adding Java and driver versions to SQL error report.
 
+5. Fixed `slice_sample()` on duckdb connections ("PARTITION BY window expressions cannot be volatile") with most recent version of duckdb.
+
 
 DatabaseConnector 8.0.0
 =======================

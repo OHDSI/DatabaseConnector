@@ -28,6 +28,7 @@ NULL
   } else {
     params <- getOption("java.parameters")
   }
+  registerDuckdbBackend()
   rJava::.jpackage(pkgname, jars = "DatabaseConnector.jar", lib.loc = libname, parameters = params)
   
   # Verify checksum of JAR:

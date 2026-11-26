@@ -89,15 +89,56 @@ sql_dialect.DatabaseConnectorDbiConnection <- function(con) {
          NextMethod()) 
 }
 
-#' @export
-#' @importFrom dbplyr sql_translation
-sql_translation.DatabaseConnectorDbiConnection <- function(con) {
-  if (dbms(con) == "duckdb") {
-    # Pass the real S4 duckdb_connection object for translations
-    return(utils::getFromNamespace("sql_translation.duckdb_connection", "duckdb")(con@dbiConnection))
+# For wrapped duckdb connections, borrow the duckdb package's dbplyr backend as a whole by
+# delegating these methods to their duckdb_connection implementations (called with the real
+# duckdb connection). Other wrapped DBI connections (e.g. SQLite) use the default behavior.
+# `tbl` is deliberately not delegated, because its duckdb method relies on NextMethod().
+duckdbConnectionMethods <- list(
+  list(generic = "sql_translation", package = "dbplyr"),
+  list(generic = "sql_escape_date", package = "dbplyr"),
+  list(generic = "sql_escape_datetime", package = "dbplyr"),
+  list(generic = "sql_expr_matches", package = "dbplyr"),
+  list(generic = "db_connection_describe", package = "dbplyr")
+)
+
+registerDuckdbBackend <- function() {
+  delegate <- function(generic, getCon, class = "duckdb_connection") {
+    force(generic)
+    force(class)
+    function(x, ...) {
+      con <- getCon(x)
+      if (dbms(con) == "duckdb") {
+        # Older duckdb versions may not define every method; then use the default
+        method <- tryCatch(utils::getFromNamespace(paste0(generic, ".", class), "duckdb"),
+                           error = function(e) NULL)
+        if (!is.null(method)) {
+          if (inherits(x, "DatabaseConnectorConnection")) {
+            return(method(x@dbiConnection, ...))
+          }
+          return(method(x, ...))
+        }
+      }
+      NextMethod()
+    }
   }
-  # Fall back to new 2nd edition dbplyr behavior for built-in dialects
-  NextMethod()
+  for (spec in duckdbConnectionMethods) {
+    registerS3method(spec$generic,
+                     "DatabaseConnectorDbiConnection",
+                     delegate(spec$generic, identity),
+                     envir = asNamespace(spec$package))
+  }
+  # dplyr is only suggested, so register its method when (if) it is loaded
+  registerSliceSample <- function(...) {
+    registerS3method("slice_sample",
+                     "tbl_DatabaseConnectorDbiConnection",
+                     delegate("slice_sample", dbplyr::remote_con, "tbl_duckdb_connection"),
+                     envir = asNamespace("dplyr"))
+  }
+  if ("dplyr" %in% loadedNamespaces()) {
+    registerSliceSample()
+  } else {
+    setHook(packageEvent("dplyr", "onLoad"), registerSliceSample)
+  }
 }
 
 #' @importFrom dbplyr sql_escape_logical
