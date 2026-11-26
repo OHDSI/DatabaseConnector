@@ -38,7 +38,8 @@ setMethod(
           catalog = cleanSchemaName(databaseSchema[1]),
           schema = cleanSchemaName(databaseSchema[2])
         )
-      } else if (!is.null(databaseSchema) && dbms(conn) == "duckdb") {
+      } else if (!is.null(databaseSchema) && dbms(conn) %in% c("duckdb", "postgresql", "redshift")) {
+        # Some DBI drivers (e.g. RPostgres) ignore the schema argument of dbListTables():
         if (grepl("\\.", databaseSchema)) {
           databaseSchema <- strsplit(databaseSchema, "\\.")[[1]][2]
         }
