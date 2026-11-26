@@ -20,6 +20,23 @@ for (testServer in testServers) {
   }
 }
 
+for (testServer in testServers) {
+  test_that(addDbmsToLabel("Connection is not valid after disconnect", testServer), {
+    connection <- connect(testServer$connectionDetails)
+    expect_true(DBI::dbIsValid(connection))
+    disconnect(connection)
+    expect_false(DBI::dbIsValid(connection))
+    expect_error(querySql(connection, "SELECT 1 AS x;"), "Connection is closed")
+    expect_warning(disconnect(connection))
+  })
+}
+
+test_that("JDBC connection with a null reference is not valid", {
+  connection <- new("DatabaseConnectorJdbcConnection", jConnection = rJava::.jnull(), dbms = "postgresql")
+  expect_false(DBI::dbIsValid(connection))
+  expect_warning(disconnect(connection), "Connection is already closed")
+})
+
 test_that("Error is thrown when using incorrect dbms argument", {
   expect_error(createConnectionDetails(dbms = "foobar"), "DBMS 'foobar' not supported")
   expect_error(connect(dbms = "foobar"), "DBMS 'foobar' not supported")

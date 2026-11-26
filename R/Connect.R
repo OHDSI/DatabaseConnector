@@ -927,12 +927,12 @@ disconnect <- function(connection) {
 
 #' @export
 disconnect.default <- function(connection) {
-  if (rJava::is.jnull(connection@jConnection)) {
+  if (!DBI::dbIsValid(connection)) {
     warn("Connection is already closed")
   } else {
     unregisterWithRStudio(connection)
+    rJava::.jcall(connection@jConnection, "V", "close")
   }
-  rJava::.jcall(connection@jConnection, "V", "close")
   invisible(TRUE)
 }
 
